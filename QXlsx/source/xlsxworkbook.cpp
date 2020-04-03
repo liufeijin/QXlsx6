@@ -483,8 +483,8 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     if (d->firstsheet > 0)
         writer.writeAttribute(QStringLiteral("firstSheet"), QString::number(d->firstsheet + 1));
     //Store the activeTab when it isn't the first sheet
-    if (d->activesheetIndex > 0)
-        writer.writeAttribute(QStringLiteral("activeTab"), QString::number(d->activesheetIndex));
+   // if (d->activesheetIndex > 0) 
+   //     writer.writeAttribute(QStringLiteral("activeTab"), QString::number(d->activesheetIndex));
     writer.writeEndElement();//bookViews
 
     writer.writeStartElement(QStringLiteral("sheets"));
