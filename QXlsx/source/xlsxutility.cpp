@@ -1,27 +1,5 @@
-/****************************************************************************
-** Copyright (c) 2013-2014 Debao Zhang <hello@debao.me>
-** All right reserved.
-**
-** Permission is hereby granted, free of charge, to any person obtaining
-** a copy of this software and associated documentation files (the
-** "Software"), to deal in the Software without restriction, including
-** without limitation the rights to use, copy, modify, merge, publish,
-** distribute, sublicense, and/or sell copies of the Software, and to
-** permit persons to whom the Software is furnished to do so, subject to
-** the following conditions:
-**
-** The above copyright notice and this permission notice shall be
-** included in all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-**
-****************************************************************************/
+// xlsxutility.cpp
+
 #include "xlsxutility_p.h"
 #include "xlsxcellreference.h"
 
@@ -56,9 +34,9 @@ QStringList splitPath(const QString &path)
 {
     int idx = path.lastIndexOf(QLatin1Char('/'));
     if (idx == -1)
-        return QStringList()<<QStringLiteral(".")<<path;
+        return { QStringLiteral("."), path };
 
-    return QStringList()<<path.left(idx)<<path.mid(idx+1);
+    return { path.left(idx), path.mid(idx+1) };
 }
 
 /*
@@ -74,7 +52,7 @@ QString getRelFilePath(const QString &filePath)
         // return QString();
 
         // dev34
-        ret = QString("_rels/") + QString("%0.rels").arg(filePath);
+        ret = QLatin1String("_rels/") + QStringLiteral("%0.rels").arg(filePath);
         return ret;
     }
 
@@ -109,6 +87,8 @@ double timeToNumber(const QTime &time)
 
 QVariant datetimeFromNumber(double num, bool is1904)
 {
+    QDateTime dtRet; // return value
+
     if (!is1904 && num > 60) // for mac os excel
     {
         num = num - 1;
@@ -116,23 +96,20 @@ QVariant datetimeFromNumber(double num, bool is1904)
 
     qint64 msecs = static_cast<qint64>(num * 1000*60*60*24.0 + 0.5);
     QDateTime epoch(is1904 ? QDate(1904, 1, 1): QDate(1899, 12, 31), QTime(0,0));
-
-    QDateTime dtRet; // return value
-
     QDateTime dtOld = epoch.addMSecs(msecs);
     dtRet = dtOld;
 
 #if QT_VERSION >= 0x050200
     // Remove one hour to see whether the date is Daylight
-    QDateTime dtNew = dtRet.addMSecs(-3600);
+    QDateTime dtNew = dtRet.addMSecs( -3600000 ); // issue102
     if ( dtNew.isDaylightTime() )
     {
         dtRet = dtNew;
     }
 #endif
 
-    float whole = 0;
-    float fractional = std::modf(num, &whole);
+    double whole = 0;
+    double fractional = std::modf(num, &whole);
 
     if ( num < double(1) )
     {
@@ -243,15 +220,17 @@ bool isSpaceReserveNeeded(const QString &s)
  */
 QString convertSharedFormula(const QString &rootFormula, const CellReference &rootCell, const CellReference &cell)
 {
+    Q_UNUSED(rootCell)
+    Q_UNUSED(cell)
     //Find all the "$?[A-Z]+$?[0-9]+" patterns in the rootFormula.
-    QList<QPair<QString, int> > segments;
+    QVector<std::pair<QString, int> > segments;
 
     QString segment;
     bool inQuote = false;
     enum RefState{INVALID, PRE_AZ, AZ, PRE_09, _09};
     RefState refState = INVALID;
     int refFlag = 0; // 0x00, 0x01, 0x02, 0x03 ==> A1, $A1, A$1, $A$1
-    foreach (QChar ch, rootFormula) {
+    for (QChar ch : rootFormula) {
         if (inQuote) {
             segment.append(ch);
             if (ch == QLatin1Char('"'))
@@ -267,7 +246,7 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
                     refState = PRE_09;
                     refFlag |= 0x02;
                 } else {
-                    segments.append(qMakePair(segment, refState==_09 ? refFlag : -1));
+                    segments.append(std::make_pair(segment, refState==_09 ? refFlag : -1 ));
                     segment = QString(ch); //Start new segment.
                     refState = PRE_AZ;
                     refFlag = 0x01;
@@ -276,7 +255,7 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
                 if (refState == PRE_AZ || refState == AZ) {
                     segment.append(ch);
                 } else {
-                    segments.append(qMakePair(segment, refState==_09 ? refFlag : -1));
+                    segments.append(std::make_pair(segment, refState==_09 ? refFlag : -1 ));
                     segment = QString(ch); //Start new segment.
                     refFlag = 0x00;
                 }
@@ -290,7 +269,7 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
                     refState = INVALID;
             } else {
                 if (refState == _09) {
-                    segments.append(qMakePair(segment, refFlag));
+                    segments.append(std::make_pair(segment, refFlag ));
                     segment = QString(ch); //Start new segment.
                 } else {
                     segment.append(ch);
@@ -301,12 +280,11 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
     }
 
     if (!segment.isEmpty())
-        segments.append(qMakePair(segment, refState==_09 ? refFlag : -1));
+        segments.append(std::make_pair(segment, refState==_09 ? refFlag : -1 ));
 
     //Replace "A1", "$A1", "A$1" segment with proper one.
     QStringList result;
-    typedef QPair<QString, int> PairType;
-    foreach (PairType p, segments) {
+    for (const auto &p : segments) {
         //qDebug()<<p.first<<p.second;
         if (p.second != -1 && p.second != 3) {
             CellReference oldRef(p.first);

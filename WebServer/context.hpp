@@ -1,6 +1,7 @@
 #ifndef RECURSE_CONTEXT_HPP
 #define RECURSE_CONTEXT_HPP
 
+#include <QtGlobal>
 #include <QVariant>
 #include <QHash>
 

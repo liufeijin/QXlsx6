@@ -10,7 +10,7 @@
 #include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 
-using namespace QXlsx; 
+QXLSX_USE_NAMESPACE
 
 int readGoogleSpreadsheet();
 int readMSExcel201x();
@@ -23,9 +23,9 @@ int readStyle()
 {
 	int ret;
 	
-	ret = readGoogleSpreadsheet();
+    // ret = readGoogleSpreadsheet();
 	
-	ret = readMSExcel201x(); 
+    // ret = readMSExcel201x();
 
 	return 0; 
 }

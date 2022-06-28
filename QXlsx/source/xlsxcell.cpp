@@ -25,9 +25,13 @@ CellPrivate::CellPrivate(Cell *p) :
 }
 
 CellPrivate::CellPrivate(const CellPrivate * const cp)
-	: value(cp->value), formula(cp->formula), cellType(cp->cellType)
-	, format(cp->format), richString(cp->richString), parent(cp->parent),
-	styleNumber(cp->styleNumber)
+    : parent(cp->parent)
+    , cellType(cp->cellType)
+    , value(cp->value)
+    , formula(cp->formula)
+    , format(cp->format)
+    , richString(cp->richString)
+    , styleNumber(cp->styleNumber)
 {
 
 }
@@ -126,22 +130,43 @@ QVariant Cell::readValue() const
             return QVariant();
         }
 
-        if ( vDT.type() == QVariant::DateTime )
-        {
-            ret = vDT;
-        }
-        else if ( vDT.type() == QVariant::Date )
-        {
-            ret = vDT;
-        }
-        else if ( vDT.type() == QVariant::Time )
-        {
-            ret = vDT;
-        }
-        else
-        {
-            return QVariant();
-        }
+        // https://github.com/QtExcel/QXlsx/issues/171
+        // https://www.qt.io/blog/whats-new-in-qmetatype-qvariant
+        #if QT_VERSION >= 0x060000 // Qt 6.0 or over
+                if ( vDT.metaType().id() == QMetaType::QDateTime )
+                {
+                    ret = vDT;
+                }
+                else if ( vDT.metaType().id() == QMetaType::QDate )
+                {
+                    ret = vDT;
+                }
+                else if ( vDT.metaType().id() == QMetaType::QTime )
+                {
+                    ret = vDT;
+                }
+                else
+                {
+                    return QVariant();
+                }
+        #else
+                if ( vDT.type() == QVariant::DateTime )
+                {
+                    ret = vDT;
+                }
+                else if ( vDT.type() == QVariant::Date )
+                {
+                    ret = vDT;
+                }
+                else if ( vDT.type() == QVariant::Time )
+                {
+                    ret = vDT;
+                }
+                else
+                {
+                    return QVariant();
+                }
+        #endif
 
         // QDateTime dt = dateTime();
         // ret = dt;
@@ -248,7 +273,7 @@ bool Cell::isDateTime() const
 
 	Cell::CellType cellType = d->cellType;
     double dValue = d->value.toDouble(); // number
-	QString strValue = d->value.toString().toUtf8(); 
+//	QString strValue = d->value.toString().toUtf8();
 	bool isValidFormat = d->format.isValid();
     bool isDateTimeFormat = d->format.isDateTimeFormat(); // datetime format
 
@@ -323,6 +348,17 @@ qint32 Cell::styleNumber() const
 
 	qint32 ret = d->styleNumber;
 	return ret; 
+}
+
+bool Cell::isDateType(CellType cellType, const Format &format)
+{
+    if ( cellType == NumberType ||
+         cellType == DateType ||
+         cellType == CustomType )
+    {
+        return format.isValid() && format.isDateTimeFormat();
+    }
+	return false;
 }
 
 QT_END_NAMESPACE_XLSX

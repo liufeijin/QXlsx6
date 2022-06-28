@@ -1,4 +1,4 @@
-//
+// xlsxcelllocation.h
 
 #ifndef CELL_LOCATION_H
 #define CELL_LOCATION_H
@@ -17,7 +17,7 @@ QT_BEGIN_NAMESPACE_XLSX
 
 class Cell;
 
-class CellLocation
+class QXLSX_EXPORT CellLocation
 {
 public:
     CellLocation();

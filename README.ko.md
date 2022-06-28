@@ -11,16 +11,14 @@
   - 물론 정적 라이브러리(static library)로 사용할 수도 있습니다.
 
 ## 사용하는 방법
-- [예제](Example.md) 또는 [위키](https://github.com/QtExcel/QXlsx/wiki) 를 참조하세요.
-	- HelloWorld : 헬로우 월드 예제 (가장 기본적인 구조)
-	- TestExcel : QtXlsx 예제에 기반한 기본 예제
-	- HelloAndroid : 안드로이드에서 xlsx 파일 열기
-	- WebServer : xlsx 파일을 읽어 웹으로 표시	
-	- ShowConsole : xlsx 파일을 읽어 콘솔에 표시
+- [예제](Example.md) 를 참조하세요. 
+- [위키](https://github.com/QtExcel/QXlsx/wiki) 를 참조하세요.
+- [FAQ](https://github.com/QtExcel/QXlsx/wiki/FAQ) 를 참조하세요.
 
 ## 설정하는 방법 (설치)
 
-- [QXlsx 프로젝트 설정하는 방법](HowToSetProject.ko.md) 참조
+- :권장: [QXlsx 프로젝트 설정하는 방법 (qmake)](HowToSetProject.ko.md) 참조
+- [QXlsx 프로젝트 설정하는 방법 (cmake)](HowToSetProject-cmake.ko.md) 참조
 
 ## 테스트 환경
 
@@ -43,7 +41,7 @@
 - QXlsx 는 MIT 라이센스 입니다. [https://github.com/QtExcel/QXlsx](https://github.com/QtExcel/QXlsx)
 - 다음과 같은 놀라운 프로젝트들을 만들어 주신 분들에게 감사의 말씀을 올립니다. :+1:
   - Qt 는 LGPL v3 라이센스 또는 상업용 라이센스 입니다. [https://www.qt.io/](https://www.qt.io/)
-  - QtXlsx 는 MIT 라이센스 입니다. [https://github.com/dbzhang800/QtXlsxWriter](https://github.com/dbzhang800/QtXlsxWriter)
+  - QtXlsx 는 MIT 라이센스 입니다. :+1: [https://github.com/dbzhang800/QtXlsxWriter](https://github.com/dbzhang800/QtXlsxWriter)
   - Qt-Table-Printer 는 BSD 3-Clause 라이센스 입니다. [https://github.com/T0ny0/Qt-Table-Printer](https://github.com/T0ny0/Qt-Table-Printer) 
   - recurse 는 MIT 라이센스 입니다. [https://github.com/pkoretic/recurse](https://github.com/pkoretic/recurse)
   - libfort 는 MIT 라이센스 입니다. [https://github.com/seleznevae/libfort](https://github.com/seleznevae/libfort)

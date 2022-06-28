@@ -4,12 +4,16 @@
 #include <QtCore>
 #include <QDebug>
 
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+#include <QRandomGenerator>
+#endif
+
 #include "xlsxdocument.h"
 #include "xlsxformat.h"
 #include "xlsxcellrange.h"
 #include "xlsxworksheet.h"
 
-using namespace QXlsx;
+QXLSX_USE_NAMESPACE
 
 void writeHorizontalAlignCell(Document &xlsx, const QString &cell, const QString &text, Format::HorizontalAlignment align)
 {
@@ -278,11 +282,23 @@ int demo()
     //---------------------------------------------------------------
     //Create the fifth sheet.
     xlsx.addSheet("Grouping");
+
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+#else
     qsrand(QDateTime::currentMSecsSinceEpoch());
+#endif
+
     for (int row=2; row<31; ++row)
     {
         for (int col=1; col<=10; ++col)
+        {
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+            QRandomGenerator rgen;
+            xlsx.write(row, col, rgen.generate() % 100);
+#else
             xlsx.write(row, col, qrand() % 100);
+#endif
+        }
     }
     xlsx.groupRows(4, 7);
     xlsx.groupRows(11, 26, false);

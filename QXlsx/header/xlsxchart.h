@@ -3,6 +3,7 @@
 #ifndef QXLSX_CHART_H
 #define QXLSX_CHART_H
 
+#include <QtGlobal>
 #include <QSharedPointer>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -17,7 +18,7 @@ class ChartPrivate;
 class CellRange;
 class DrawingAnchor;
 
-class Chart : public AbstractOOXmlFile
+class QXLSX_EXPORT Chart : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(Chart)
 public:

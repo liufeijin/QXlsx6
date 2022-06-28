@@ -12,7 +12,7 @@
 QT_BEGIN_NAMESPACE_XLSX
 
 // dev57
-class CellRange
+class QXLSX_EXPORT CellRange
 {
 public:
     CellRange();
@@ -40,6 +40,13 @@ public:
     inline CellReference bottomLeft() const { return CellReference(bottom, left); }
     inline CellReference bottomRight() const { return CellReference(bottom, right); }
 
+    inline void operator =(const CellRange &other)
+    {
+        top = other.top;
+        bottom = other.bottom;
+        left = other.left;
+        right = other.right;
+    }
     inline bool operator ==(const CellRange &other) const
     {
         return top==other.top && bottom==other.bottom

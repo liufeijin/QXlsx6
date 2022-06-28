@@ -391,3 +391,17 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# cmake
+/CMakeCache.txt
+/cmake_install.cmake
+/CMakeFiles/
+/Makefile
+
+/QXlsx/CMakeCache.txt
+/QXlsx/cmake_install.cmake
+/QXlsx/CMakeFiles/
+/QXlsx/Makefile
+
+# clangd cache
+.cache/

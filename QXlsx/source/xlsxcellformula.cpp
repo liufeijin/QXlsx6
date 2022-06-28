@@ -1,16 +1,15 @@
 // xlsxcellformula.cpp
 
-#include "xlsxcellformula.h"
-#include "xlsxcellformula_p.h"
-#include "xlsxutility_p.h"
-
 #include <QtGlobal>
 #include <QObject>
 #include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-
 #include <QDebug>
+
+#include "xlsxcellformula.h"
+#include "xlsxcellformula_p.h"
+#include "xlsxutility_p.h"
 
 QT_BEGIN_NAMESPACE_XLSX
 
@@ -424,7 +423,7 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
 
         if (attributes.hasAttribute(QLatin1String("si")))
         {
-            d->si = attributes.value(QLatin1String("si")).toString().toInt();
+            d->si = attributes.value(QLatin1String("si")).toInt();
         }
     }
 

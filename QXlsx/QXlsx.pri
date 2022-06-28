@@ -1,13 +1,21 @@
-# QXlsx.pri 
+########################################
+# QXlsx.pri
+########################################
 
 QT += core
 QT += gui-private
+
+# TODO: Define your C++ version. c++14, c++17, etc.
+CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+
+# For DLL visibility
+#DEFINES += QXlsx_SHAREDLIB QXlsx_EXPORTS
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -16,7 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 isEmpty(QXLSX_PARENTPATH) {
     message( 'QXLSX_PARENTPATH is empty. use default value.' )
-    QXLSX_PARENTPATH = ../
+    QXLSX_PARENTPATH = $$PWD/../
 } else {
     message( 'QXLSX_PARENTPATH is not empty.' )
     message( $${QXLSX_PARENTPATH} )
@@ -24,7 +32,7 @@ isEmpty(QXLSX_PARENTPATH) {
 
 isEmpty(QXLSX_HEADERPATH) {
     message( 'QXLSX_HEADERPATH is empty. use default value.' )
-    QXLSX_HEADERPATH = ../QXlsx/header/
+    QXLSX_HEADERPATH = $$PWD/../QXlsx/header/
 } else {
     message( 'QXLSX_HEADERPATH is not empty.' )
     message( $${QXLSX_HEADERPATH} )
@@ -32,17 +40,17 @@ isEmpty(QXLSX_HEADERPATH) {
 
 isEmpty(QXLSX_SOURCEPATH) {
     message( 'QXLSX_SOURCEPATH is empty. use default value.' )
-    QXLSX_SOURCEPATH = ../QXlsx/source/
+    QXLSX_SOURCEPATH = $$PWD/../QXlsx/source/
 } else {
     message( 'QXLSX_SOURCEPATH is not empty.' )
     message( $${QXLSX_SOURCEPATH} )
 }
 
-INCLUDEPATH += .
+INCLUDEPATH += $$PWD
 INCLUDEPATH += $${QXLSX_PARENTPATH}
 INCLUDEPATH += $${QXLSX_HEADERPATH}
 
-######################################################################
+########################################
 # source code 
 
 HEADERS += \
@@ -53,6 +61,7 @@ $${QXLSX_HEADERPATH}xlsxabstractsheet_p.h \
 $${QXLSX_HEADERPATH}xlsxcell.h \
 $${QXLSX_HEADERPATH}xlsxcellformula.h \
 $${QXLSX_HEADERPATH}xlsxcellformula_p.h \
+$${QXLSX_HEADERPATH}xlsxcelllocation.h \
 $${QXLSX_HEADERPATH}xlsxcellrange.h \
 $${QXLSX_HEADERPATH}xlsxcellreference.h \
 $${QXLSX_HEADERPATH}xlsxcell_p.h \
@@ -66,6 +75,7 @@ $${QXLSX_HEADERPATH}xlsxconditionalformatting_p.h \
 $${QXLSX_HEADERPATH}xlsxcontenttypes_p.h \
 $${QXLSX_HEADERPATH}xlsxdatavalidation.h \
 $${QXLSX_HEADERPATH}xlsxdatavalidation_p.h \
+$${QXLSX_HEADERPATH}xlsxdatetype.h \
 $${QXLSX_HEADERPATH}xlsxdocpropsapp_p.h \
 $${QXLSX_HEADERPATH}xlsxdocpropscore_p.h \
 $${QXLSX_HEADERPATH}xlsxdocument.h \
@@ -90,15 +100,14 @@ $${QXLSX_HEADERPATH}xlsxworkbook_p.h \
 $${QXLSX_HEADERPATH}xlsxworksheet.h \
 $${QXLSX_HEADERPATH}xlsxworksheet_p.h \
 $${QXLSX_HEADERPATH}xlsxzipreader_p.h \
-$${QXLSX_HEADERPATH}xlsxzipwriter_p.h \
-$${QXLSX_HEADERPATH}xlsxcelllocation.h \
-$${QXLSX_HEADERPATH}xlsxdatetype.h
+$${QXLSX_HEADERPATH}xlsxzipwriter_p.h
 
 SOURCES += \
 $${QXLSX_SOURCEPATH}xlsxabstractooxmlfile.cpp \
 $${QXLSX_SOURCEPATH}xlsxabstractsheet.cpp \
 $${QXLSX_SOURCEPATH}xlsxcell.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellformula.cpp \
+$${QXLSX_SOURCEPATH}xlsxcelllocation.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellrange.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellreference.cpp \
 $${QXLSX_SOURCEPATH}xlsxchart.cpp \
@@ -107,6 +116,7 @@ $${QXLSX_SOURCEPATH}xlsxcolor.cpp \
 $${QXLSX_SOURCEPATH}xlsxconditionalformatting.cpp \
 $${QXLSX_SOURCEPATH}xlsxcontenttypes.cpp \
 $${QXLSX_SOURCEPATH}xlsxdatavalidation.cpp \
+$${QXLSX_SOURCEPATH}xlsxdatetype.cpp \
 $${QXLSX_SOURCEPATH}xlsxdocpropsapp.cpp \
 $${QXLSX_SOURCEPATH}xlsxdocpropscore.cpp \
 $${QXLSX_SOURCEPATH}xlsxdocument.cpp \
@@ -125,12 +135,10 @@ $${QXLSX_SOURCEPATH}xlsxutility.cpp \
 $${QXLSX_SOURCEPATH}xlsxworkbook.cpp \
 $${QXLSX_SOURCEPATH}xlsxworksheet.cpp \
 $${QXLSX_SOURCEPATH}xlsxzipreader.cpp \
-$${QXLSX_SOURCEPATH}xlsxzipwriter.cpp \
-$${QXLSX_SOURCEPATH}xlsxcelllocation.cpp \
-$${QXLSX_SOURCEPATH}xlsxdatetype.cpp
+$${QXLSX_SOURCEPATH}xlsxzipwriter.cpp
 
 
-######################################################################
+########################################
 # custom setting for compiler & system
 
 win32-g++ {
@@ -141,25 +149,32 @@ win32-g++ {
 	}	
 }
 win32-msvc2013 {
-    message("compiling for visual studio 2013")
+    message("Compiling for Visual Studio 2013")
     INCLUDEPATH += $${QXLSX_HEADERPATH}msvc2013 
 	CONFIG(debug, debug|release) {
 	} else {
 	}		
 }
 win32-msvc2015 {
-    message("compiling for visual studio 2015")
+    message("Compiling for Visual Studio 2015")
     INCLUDEPATH += $${QXLSX_HEADERPATH}msvc2015 
 	CONFIG(debug, debug|release) {
 	} else {
 	}		
 }
 win32-msvc2017 {
-    message("compiling for visual studio 2017")
+    message("Compiling for Visual Studio 2017")
     INCLUDEPATH += $${QXLSX_HEADERPATH}msvc2017 
 	CONFIG(debug, debug|release) {
 	} else {
 	}		
+}
+win32-msvc2019 {
+    message("Compiling for Visual Studio 2019")
+    INCLUDEPATH += $${QXLSX_HEADERPATH}msvc2019
+        CONFIG(debug, debug|release) {
+        } else {
+        }
 }
 unix {
    !contains(QT_ARCH, x86_64){

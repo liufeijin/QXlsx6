@@ -24,15 +24,15 @@ class Chart;
 class CellReference;
 class DocumentPrivate;
 
-class Document : public QObject
+class QXLSX_EXPORT Document : public QObject
 {
 	Q_OBJECT
     Q_DECLARE_PRIVATE(Document) // D-Pointer. Qt classes have a Q_DECLARE_PRIVATE
                                 // macro in the public class. The macro reads: qglobal.h
 public:
-	explicit Document(QObject *parent = NULL);
-	Document(const QString& xlsxName, QObject* parent = NULL);
-	Document(QIODevice* device, QObject* parent = NULL);
+	explicit Document(QObject *parent = nullptr);
+	Document(const QString& xlsxName, QObject* parent = nullptr);
+	Document(QIODevice* device, QObject* parent = nullptr);
 	~Document();
 
 	bool write(const CellReference &cell, const QVariant &value, const Format &format=Format());
@@ -41,7 +41,10 @@ public:
 	QVariant read(const CellReference &cell) const;
 	QVariant read(int row, int col) const;
 	
-	bool insertImage(int row, int col, const QImage &image);
+    int insertImage(int row, int col, const QImage &image);
+    bool getImage(int imageIndex, QImage& img);
+    bool getImage(int row, int col, QImage& img);
+    uint getImageCount();
 	
 	Chart *insertChart(int row, int col, const QSize &size);
 	
@@ -97,6 +100,7 @@ public:
     bool insertSheet(int index, const QString &name = QString(),
                      AbstractSheet::SheetType type = AbstractSheet::ST_WorkSheet);
 	bool selectSheet(const QString &name);
+	bool selectSheet(int index);
 	bool renameSheet(const QString &oldName, const QString &newName);
 	bool copySheet(const QString &srcName, const QString &distName = QString());
 	bool moveSheet(const QString &srcName, int distIndex);
@@ -110,6 +114,9 @@ public:
 	bool save() const;
 	bool saveAs(const QString &xlsXname) const;
 	bool saveAs(QIODevice *device) const;
+
+	// copy style from one xlsx file to other
+	static bool copyStyle(const QString &from, const QString &to);
 
 	bool isLoadPackage() const; 
 	bool load() const; // equals to isLoadPackage()

@@ -11,16 +11,14 @@
   - You can also use it as a static library.
 
 ## How to use
-- See [examples](Example.md) or [wiki](https://github.com/QtExcel/QXlsx/wiki)
-	- HelloWorld : Hello world example (the most basic structure)
-	- TestExcel : basic samples based on QtXlsx samples
-	- HelloAndroid : read xlsx on Android
-	- WebServer : load xlsx and display to web
-	- ShowConsole : load xlsx and display to console
+- See [examples](Example.md)
+- See [wiki](https://github.com/QtExcel/QXlsx/wiki)
+- See [FAQ](https://github.com/QtExcel/QXlsx/wiki/FAQ)
 
 ## How to set up (Installation)
 
-- See [how to setup QXlsx project](HowToSetProject.md)	
+- :Recommended: See [how to setup QXlsx project (qmake)](HowToSetProject.md)	
+- See [how to setup QXlsx project (cmake)](HowToSetProject-cmake.md)	
 
 ## Tested environment
 
@@ -43,7 +41,7 @@
 - QXlsx is under MIT license. [https://github.com/QtExcel/QXlsx](https://github.com/QtExcel/QXlsx)
 - Thank you for creating the following amazing projects. :+1:
   - Qt is under LGPL v3 license or Commercial license. [https://www.qt.io/](https://www.qt.io/) 
-  - QtXlsxWriter is under MIT license. [https://github.com/dbzhang800/QtXlsxWriter](https://github.com/dbzhang800/QtXlsxWriter)
+  - QtXlsxWriter is under MIT license. :+1: [https://github.com/dbzhang800/QtXlsxWriter](https://github.com/dbzhang800/QtXlsxWriter)
   - Qt-Table-Printer is under BSD 3-Clause license. [https://github.com/T0ny0/Qt-Table-Printer](https://github.com/T0ny0/Qt-Table-Printer) 
   - recurse is under MIT license. [https://github.com/pkoretic/recurse](https://github.com/pkoretic/recurse)
   - libfort is under MIT license. [https://github.com/seleznevae/libfort](https://github.com/seleznevae/libfort)

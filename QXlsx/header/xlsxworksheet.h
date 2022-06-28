@@ -1,14 +1,4 @@
-//--------------------------------------------------------------------
-//
-// QXlsx
-// MIT License
-// https://github.com/j2doll/QXlsx
-//
-// QtXlsx
-// https://github.com/dbzhang800/QtXlsxWriter
-// http://qtxlsx.debao.me/
-// MIT License
-//
+// xlsxworksheet.h
 
 #ifndef XLSXWORKSHEET_H
 #define XLSXWORKSHEET_H
@@ -47,7 +37,7 @@ class Relationships;
 class Chart;
 
 class WorksheetPrivate;
-class Worksheet : public AbstractSheet
+class QXLSX_EXPORT Worksheet : public AbstractSheet
 {
     Q_DECLARE_PRIVATE(Worksheet)
 
@@ -56,7 +46,7 @@ private:
     friend class Workbook;
     friend class ::WorksheetTest;
     Worksheet(const QString &sheetName, int sheetId, Workbook *book, CreateFlag flag);
-    Worksheet *copy(const QString &distName, int distId) const;
+    Worksheet *copy(const QString &distName, int distId) const override;
 
 public:
     ~Worksheet();
@@ -107,7 +97,11 @@ public:
     Cell *cellAt(const CellReference &row_column) const;
     Cell *cellAt(int row, int column) const;
 
-    bool insertImage(int row, int column, const QImage &image);
+    int insertImage(int row, int column, const QImage &image);
+    bool getImage(int imageIndex, QImage& img);
+    bool getImage(int row, int column, QImage& img);
+    uint getImageCount();
+
     Chart *insertChart(int row, int column, const QSize &size);
 
     bool mergeCells(const CellRange &range, const Format &format=Format());
@@ -163,8 +157,8 @@ public:
     QVector<CellLocation> getFullCells(int* maxRow, int* maxCol);
 
 private:
-    void saveToXmlFile(QIODevice *device) const;
-    bool loadFromXmlFile(QIODevice *device);
+    void saveToXmlFile(QIODevice *device) const override;
+    bool loadFromXmlFile(QIODevice *device) override;
 };
 
 QT_END_NAMESPACE_XLSX

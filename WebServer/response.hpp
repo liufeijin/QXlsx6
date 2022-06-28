@@ -1,8 +1,10 @@
 #ifndef RECURSE_RESPONSE_HPP
 #define RECURSE_RESPONSE_HPP
 
+#include <QtGlobal>
 #include <QHash>
 #include <QJsonDocument>
+
 #include <functional>
 
 class Response

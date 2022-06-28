@@ -3,6 +3,7 @@
 #ifndef QXLSX_XLSXCONDITIONALFORMATTING_H
 #define QXLSX_XLSXCONDITIONALFORMATTING_H
 
+#include <QtGlobal>
 #include <QString>
 #include <QList>
 #include <QColor>
@@ -23,7 +24,7 @@ class Worksheet;
 class Styles;
 class ConditionalFormattingPrivate;
 
-class ConditionalFormatting
+class QXLSX_EXPORT ConditionalFormatting
 {
 public:
     enum HighlightRuleType {
