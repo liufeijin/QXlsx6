@@ -624,7 +624,8 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
              else if (reader.name() == QLatin1String("workbookPr"))
              {
                 QXmlStreamAttributes attrs = reader.attributes();
-                if (attrs.hasAttribute(QLatin1String("date1904")))
+                 if ( attrs.hasAttribute(QLatin1String("date1904")) &&
+                     (attrs.value(QLatin1String("date1904")).toString()=="true") )
                     d->date1904 = true;
              }
              else if (reader.name() == QLatin1String("bookviews"))
