@@ -2338,20 +2338,25 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 	Q_Q(Worksheet);
 
 	Q_ASSERT(reader.name() == QLatin1String("sheetData"));
+// issue #164 manually count rows and columns
+    	int rowSum=0,columnSum=0;
 
-	while (!reader.atEnd() && !(reader.name() == QLatin1String("sheetData") && reader.tokenType() == QXmlStreamReader::EndElement)) 
+	while (!reader.atEnd() && !(reader.name() == QLatin1String("sheetData") && reader.tokenType() == QXmlStreamReader::EndElement))
 	{
 		if (reader.readNextStartElement()) 
 		{
 			if (reader.name() == QLatin1String("row")) 
 			{
+			  //issue #164
+				rowSum++;
+                                columnSum=0;
 				QXmlStreamAttributes attributes = reader.attributes();
 
 				if (attributes.hasAttribute(QLatin1String("customFormat"))
 						|| attributes.hasAttribute(QLatin1String("customHeight"))
 						|| attributes.hasAttribute(QLatin1String("hidden"))
 						|| attributes.hasAttribute(QLatin1String("outlineLevel"))
-						|| attributes.hasAttribute(QLatin1String("collapsed"))) 
+						|| attributes.hasAttribute(QLatin1String("collapsed")))
 				{
 
 					QSharedPointer<XlsxRowInfo> info(new XlsxRowInfo);
@@ -2390,7 +2395,8 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 			} 
 			else if (reader.name() == QLatin1String("c")) // Cell
 			{ 
-				
+				// issue #164
+                                columnSum++;
 				//Cell
 				QXmlStreamAttributes attributes = reader.attributes();
 				QString r = attributes.value(QLatin1String("r")).toString();
@@ -2542,7 +2548,13 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 					}
 				}
 
-                cellTable[ pos.row() ][ pos.column() ] = cell;
+                // issue #164 some xlsx files don't have r attr in c tag
+                if(r.isEmpty())
+                {
+                    cellTable[ rowSum ][ columnSum ] = cell;
+                } else {
+                    cellTable[ pos.row() ][ pos.column() ] = cell;
+                }
 
 			}
 		}
