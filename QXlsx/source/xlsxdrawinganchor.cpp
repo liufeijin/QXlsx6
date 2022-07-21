@@ -1,4 +1,4 @@
-// xlsxdrawinganchor.cpp
+﻿// xlsxdrawinganchor.cpp
 
 #include <QtGlobal>
 #include <QDebug>
@@ -122,8 +122,8 @@ QPoint DrawingAnchor::loadXmlPos(QXmlStreamReader &reader)
 
     QPoint pos;
     QXmlStreamAttributes attrs = reader.attributes();
-    pos.setX(attrs.value(QLatin1String("x")).toInt());
-    pos.setY(attrs.value(QLatin1String("y")).toInt());
+    pos.setX(attrs.value(QLatin1String("x")).toString().toInt());
+    pos.setY(attrs.value(QLatin1String("y")).toString().toInt());
     return pos;
 }
 
@@ -133,8 +133,8 @@ QSize DrawingAnchor::loadXmlExt(QXmlStreamReader &reader)
 
     QSize size;
     QXmlStreamAttributes attrs = reader.attributes();
-    size.setWidth(attrs.value(QLatin1String("cx")).toInt());
-    size.setHeight(attrs.value(QLatin1String("cy")).toInt());
+    size.setWidth(attrs.value(QLatin1String("cx")).toString().toInt());
+    size.setHeight(attrs.value(QLatin1String("cy")).toString().toInt());
     return size;
 }
 
@@ -194,57 +194,68 @@ void DrawingAnchor::loadXmlObject(QXmlStreamReader &reader)
         </xsd:sequence>
     </xsd:group>
     */
+     while (!reader.atEnd()) {
+         qDebug()<<"read twocell anchor  in load xmlobject";
 
-    if (reader.name() == QLatin1String("sp")) // <xsd:element name="sp" type="CT_Shape"/>
-    {
-        // Shape
-        m_objectType = Shape;
+        qDebug()<<reader.tokenType()<<reader.name();
+        if (reader.tokenType() == QXmlStreamReader::StartElement)
+        {
+           if (reader.name() == QLatin1String("sp")) // <xsd:element name="sp" type="CT_Shape"/>
+           {
+               qDebug()<<"read twocell anchor  in load sp xlm";
+               // Shape
+               m_objectType =Shape;
 
-		//{{ liufeijin
-        sp_textlink = reader.attributes().value(QLatin1String("textlink")).toString();
-        sp_macro = reader.attributes().value(QLatin1String("macro")).toString();
-		//}} 
+            //{{ liufeijin
+               nsp_textlink = reader.attributes().value(QLatin1String("textlink")).toString();
+               nsp_macro = reader.attributes().value(QLatin1String("macro")).toString();
+               qDebug()<< nsp_textlink<<nsp_macro;
+            //}}
 
-        // <xsd:attribute name="macro" type="xsd:string" use="optional"/>
-        // <xsd:attribute name="textlink" type="xsd:string" use="optional"/>
-        // <xsd:attribute name="fLocksText" type="xsd:boolean" use="optional" default="true"/>
-        // <xsd:attribute name="fPublished" type="xsd:boolean" use="optional" default="false"/>
+               // <xsd:attribute name="macro" type="xsd:string" use="optional"/>
+               // <xsd:attribute name="textlink" type="xsd:string" use="optional"/>
+               // <xsd:attribute name="fLocksText" type="xsd:boolean" use="optional" default="true"/>
+               // <xsd:attribute name="fPublished" type="xsd:boolean" use="optional" default="false"/>
 
-        loadXmlObjectShape(reader); // CT_Shape
-    }
-    else if (reader.name() == QLatin1String("grpSp")) // <xsd:element name="grpSp" type="CT_GroupShape"/>
-    {
-        //Group Shape
-        m_objectType = GroupShape;
-        loadXmlObjectGroupShape(reader);
-    }
-    else if (reader.name() == QLatin1String("graphicFrame")) // <xsd:element name="graphicFrame" type="CT_GraphicalObjectFrame"/>
-    {
-        //Graphic Frame
-        m_objectType = GraphicFrame;
-        loadXmlObjectGraphicFrame(reader);
-    }
-    else if (reader.name() == QLatin1String("cxnSp")) // <xsd:element name="cxnSp" type="CT_Connector"/>
-    {
-        //Connection Shape
-        m_objectType = ConnectionShape;
+               loadXmlObjectShape(reader); // Shape
+           }
+           else if (reader.name() == QLatin1String("grpSp")) // <xsd:element name="grpSp" type="CT_GroupShape"/>
+           {
+               //Group Shape
+               m_objectType = GroupShape;
+                loadXmlObjectGroupShape(reader);
+           }
+           else if (reader.name() == QLatin1String("graphicFrame")) // <xsd:element name="graphicFrame" type="CT_GraphicalObjectFrame"/>
+           {
+               //Graphic Frame
+               m_objectType = GraphicFrame;
+               loadXmlObjectGraphicFrame(reader);
+           }
+           else if (reader.name() == QLatin1String("cxnSp")) // <xsd:element name="cxnSp" type="CT_Connector"/>
+           {
+               //Connection Shape
+               m_objectType = ConnectionShape;
 
-		// {{ liufeijin
-        cxnSp_macro = reader.attributes().value(QLatin1String("macro")).toString();
-		// }}
+            // {{ liufeijin
+               cxnSp_macro = reader.attributes().value(QLatin1String("macro")).toString();
+            // }}
 
-        loadXmlObjectConnectionShape(reader);
-    }
-    else if (reader.name() == QLatin1String("pic")) // <xsd:element name="pic" type="CT_Picture"/>
-    {
-        // Picture
-        m_objectType = Picture;
-        loadXmlObjectPicture(reader);
-    }
-    else if (reader.name() == QLatin1String("contentPart")) // <xsd:element name="contentPart" type="CT_Rel"/>
-    {
-        // contentPart
-        /// TODO:
+               loadXmlObjectConnectionShape(reader);
+           }
+           else if (reader.name() == QLatin1String("pic")) // <xsd:element name="pic" type="CT_Picture"/>
+           {
+               // Picture
+               m_objectType = Picture;
+               loadXmlObjectPicture(reader);
+           }
+           else if (reader.name() == QLatin1String("contentPart")) // <xsd:element name="contentPart" type="CT_Rel"/>
+           {
+               // contentPart
+               /// TODO:
+           }
+           qDebug()<<"out sp det";
+       }
+         reader.readNextStartElement();
     }
 }
 
@@ -413,42 +424,29 @@ void DrawingAnchor::loadXmlObjectPicture(QXmlStreamReader &reader)
 
 void DrawingAnchor::loadXmlObjectShape(QXmlStreamReader &reader)
 {
-    /*
-    <xsd:complexType name="CT_Shape">
-        <xsd:sequence>
-            <xsd:element name="nvSpPr" type="CT_ShapeNonVisual" minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="spPr" type="a:CT_ShapeProperties" minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="style" type="a:CT_ShapeStyle" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="txBody" type="a:CT_TextBody" minOccurs="0" maxOccurs="1"/>
-        </xsd:sequence>
-        <xsd:attribute name="macro" type="xsd:string" use="optional"/>
-        <xsd:attribute name="textlink" type="xsd:string" use="optional"/>
-        <xsd:attribute name="fLocksText" type="xsd:boolean" use="optional" default="true"/>
-        <xsd:attribute name="fPublished" type="xsd:boolean" use="optional" default="false"/>
-    </xsd:complexType>
-    */
-    /*
-    <xsd:complexType name="CT_ShapeNonVisual">
-        <xsd:sequence>
-        <xsd:element name="cNvPr" type="a:CT_NonVisualDrawingProps" minOccurs="1" maxOccurs="1"/>
-        <xsd:element name="cNvSpPr" type="a:CT_NonVisualDrawingShapeProps" minOccurs="1" maxOccurs="1"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    */
-
     Q_ASSERT(reader.name() == QLatin1String("sp"));
-
+    bool hasoffext = false;
+    qDebug()<<"read twocell anchor  in load xml object shape";
     while (!reader.atEnd())
     {
         reader.readNextStartElement();
-
-        // qDebug() << __FUNCTION__ << reader.name().toString();
-
         if (reader.tokenType() == QXmlStreamReader::StartElement)
         {
-            if (reader.name() == QLatin1String("nvSpPr"))
+            if (reader.name() == QLatin1String("cNvPr"))
             {
-
+                nsp_cNvPr_name= reader.attributes().value(QLatin1String("name")).toString();
+                nsp_cNvPr_id= reader.attributes().value(QLatin1String("id")).toString();
+                 qDebug()<<"cNvPr"<<nsp_cNvPr_name<<nsp_cNvPr_id;
+            }
+            else if (reader.name() == QLatin1String("ext"))
+            {
+                nsp_ext_uri= reader.attributes().value(QLatin1String("uri")).toString();
+                qDebug()<<"ext_uri"<<nsp_ext_uri;
+            }
+            else if (reader.name() == QLatin1String("creationId"))
+            {
+               nsp_ext_id=reader.attributes().value(QLatin1String("id")).toString();
+               qDebug()<<"nsp_ext_id"<<nsp_ext_id;
             }
             else if (reader.name() == QLatin1String("spPr"))
             {
@@ -469,6 +467,9 @@ void DrawingAnchor::loadXmlObjectShape(QXmlStreamReader &reader)
             break;
         }
     }
+
+
+
 
     /*
 
@@ -847,27 +848,35 @@ int DrawingAnchor::getm_id()
 void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
 {
 //{{ liufeijin
-    writer.writeStartElement(QStringLiteral("xdr:sp"));  //xdr:sp
-        writer.writeAttribute(QStringLiteral("macro"), sp_macro);
-        writer.writeAttribute(QStringLiteral("textlink"),sp_textlink);
-
-    writer.writeStartElement(QStringLiteral("xdr:nvSpPr"));//xdr:nvSpPr
-
-           writer.writeStartElement(QStringLiteral("xdr:cNvPr"));
-              writer.writeAttribute(QStringLiteral("id"), xsp_cNvPR_id);
-              writer.writeAttribute(QStringLiteral("name"), xsp_cNvPR_name);
-              writer.writeStartElement(QStringLiteral("a:extLst"));
-              writer.writeEndElement();
-           writer.writeEndElement();//xdr:cNvPr
-
+    writer.writeStartElement(QStringLiteral("xdr:sp"));  //xdr:sp   sp_textlink<<sp_macro;
+        writer.writeAttribute(QStringLiteral("macro"), nsp_macro);
+        qDebug()<<nsp_macro;
+        writer.writeAttribute(QStringLiteral("textlink"),nsp_textlink);
+      writer.writeStartElement(QStringLiteral("xdr:nvSpPr"));//xdr:nvSpPr
+            writer.writeStartElement(QStringLiteral("xdr:cNvPr"));
+            writer.writeAttribute(QStringLiteral("id"), nsp_cNvPr_id);
+            writer.writeAttribute(QStringLiteral("name"), nsp_cNvPr_name);
+                writer.writeStartElement(QStringLiteral("a:extLst"));
+                      writer.writeStartElement(QStringLiteral("a:ext"));
+                        writer.writeAttribute(QStringLiteral("uri"), nsp_ext_uri);//QStringLiteral("{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}"))
+                         writer.writeEmptyElement(QStringLiteral("a16:creationId"));
+                             writer.writeAttribute(QStringLiteral("xmlns:a16"), QStringLiteral("http://schemas.microsoft.com/office/drawing/2014/main"));
+                             writer.writeAttribute(QStringLiteral("id"), nsp_ext_id);
+                     writer.writeEndElement();//ext
+                writer.writeEndElement();// extlst
+            writer.writeEndElement();//xdr:cNvPr
           writer.writeEmptyElement(QStringLiteral("xdr:cNvSpPr"));
+      writer.writeEndElement();//xdr:nvSpPr
+      writer.writeEmptyElement(QStringLiteral("xdr:spPr"));  //如果没有 上面这里应该就是空元素
+ writer.writeEndElement(); //xdr:sp
 
-    writer.writeEndElement(); //xdr:nvSpPr
+/*
 
-    writer.writeStartElement(QStringLiteral("xdr:spPr"));
     if(!xbwMode.isNull()){
+         writer.writeStartElement(QStringLiteral("xdr:spPr"));//xdr:spPr
          writer.writeAttribute(QStringLiteral("bwMode"), xbwMode);
     }
+
         writer.writeStartElement(QStringLiteral("a:xfrm"));
         writer.writeEmptyElement(QStringLiteral("a:off"));
         writer.writeAttribute(QStringLiteral("x"), QString::number(posTA.x()));
@@ -939,11 +948,14 @@ void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
          }
 
     writer.writeEndElement();//a:ln
+    writer.writeEndElement();//xdr:spPr
+
+ */
 
 
- writer.writeEndElement(); //xdr:spPr
+
  // writer style
-
+/*
  writer.writeStartElement(QStringLiteral("xdr:style"));// style
         writer.writeStartElement(QStringLiteral("a:lnRef"));//lnRef
         writer.writeAttribute(QStringLiteral("idx"),Style_inref_idx);
@@ -970,8 +982,8 @@ void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
            writer.writeEndElement(); // val
         writer.writeEndElement(); // fontRef
  writer.writeEndElement(); // style
+*/
 
-     writer.writeEndElement(); //xdr:sp
 
 	//}} liufeijin
 }
@@ -1116,19 +1128,7 @@ int DrawingTwoCellAnchor::col()
 bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("twoCellAnchor"));
-
-    /*
-    <xsd:complexType name="CT_TwoCellAnchor">
-        <xsd:sequence>
-            <xsd:element name="from" type="CT_Marker"/>
-            <xsd:element name="to" type="CT_Marker"/>
-            <xsd:group ref="EG_ObjectChoices"/>
-            <xsd:element name="clientData" type="CT_AnchorClientData" minOccurs="1" maxOccurs="1"/>
-        </xsd:sequence>
-        <xsd:attribute name="editAs" type="ST_EditAs" use="optional" default="twoCell"/>
-    </xsd:complexType>
-    */
-
+  qDebug()<<"read twocell anchor";
 	//{{ liufeijin
 	QXmlStreamAttributes attrs = reader.attributes();  // for absolute twocell aadd by liufeijin 20181024
     editASName = attrs.value(QLatin1String("editAs")).toString();
@@ -1137,7 +1137,6 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
     while (!reader.atEnd())
     {
         reader.readNextStartElement();
-
         if (reader.tokenType() == QXmlStreamReader::StartElement)
         {
             if (reader.name() == QLatin1String("from"))
@@ -1150,26 +1149,61 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
             }
             else if (reader.name() == QLatin1String("clientData"))
             {
-                // clientData
-            }
-            else
-            {
-                /*
-                <xsd:group name="EG_ObjectChoices">
-                    <xsd:sequence>
-                        <xsd:choice minOccurs="1" maxOccurs="1">
-                            <xsd:element name="sp" type="CT_Shape"/>
-                            <xsd:element name="grpSp" type="CT_GroupShape"/>
-                            <xsd:element name="graphicFrame" type="CT_GraphicalObjectFrame"/>
-                            <xsd:element name="cxnSp" type="CT_Connector"/>
-                            <xsd:element name="pic" type="CT_Picture"/>
-                            <xsd:element name="contentPart" type="CT_Rel"/>
-                        </xsd:choice>
-                    </xsd:sequence>
-                </xsd:group>
-                */
+               //clientData
 
-                loadXmlObject(reader);
+              // loadXmlObject(reader);
+            }else  if (reader.name() == QLatin1String("sp")) // <xsd:element name="sp" type="CT_Shape"/>
+            {
+                qDebug()<<"read twocell anchor  in load sp xlm";
+                // Shape
+                m_objectType =Shape;
+
+             //{{ liufeijin
+                nsp_macro = reader.attributes().value(QLatin1String("macro")).toString();
+                nsp_textlink = reader.attributes().value(QLatin1String("textlink")).toString();
+                qDebug()<< nsp_textlink<<nsp_macro;
+             //}}
+
+                // <xsd:attribute name="macro" type="xsd:string" use="optional"/>
+                // <xsd:attribute name="textlink" type="xsd:string" use="optional"/>
+                // <xsd:attribute name="fLocksText" type="xsd:boolean" use="optional" default="true"/>
+                // <xsd:attribute name="fPublished" type="xsd:boolean" use="optional" default="false"/>
+
+                loadXmlObjectShape(reader); // Shape
+            }
+            else if (reader.name() == QLatin1String("grpSp")) // <xsd:element name="grpSp" type="CT_GroupShape"/>
+            {
+                //Group Shape
+                m_objectType = GroupShape;
+                 loadXmlObjectGroupShape(reader);
+            }
+            else if (reader.name() == QLatin1String("graphicFrame")) // <xsd:element name="graphicFrame" type="CT_GraphicalObjectFrame"/>
+            {
+                //Graphic Frame
+                m_objectType = GraphicFrame;
+                loadXmlObjectGraphicFrame(reader);
+            }
+            else if (reader.name() == QLatin1String("cxnSp")) // <xsd:element name="cxnSp" type="CT_Connector"/>
+            {
+                //Connection Shape
+                m_objectType = ConnectionShape;
+
+             // {{ liufeijin
+                cxnSp_macro = reader.attributes().value(QLatin1String("macro")).toString();
+             // }}
+
+                loadXmlObjectConnectionShape(reader);
+            }
+            else if (reader.name() == QLatin1String("pic")) // <xsd:element name="pic" type="CT_Picture"/>
+            {
+                // Picture
+                m_objectType = Picture;
+                loadXmlObjectPicture(reader);
+            }
+            else if (reader.name() == QLatin1String("contentPart")) // <xsd:element name="contentPart" type="CT_Rel"/>
+            {
+                // contentPart
+                /// TODO:
             }
         }
         else if (reader.tokenType() == QXmlStreamReader::EndElement
@@ -1182,19 +1216,20 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
 }
 
 
-   void DrawingTwoCellAnchor::saveToXml(QXmlStreamWriter &writer) const
+void DrawingTwoCellAnchor::saveToXml(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("xdr:twoCellAnchor"));
 
 	//{{ liufeijin
     // writer.writeAttribute(QStringLiteral("editAs"), QStringLiteral("oneCell"));
-   if(!editASName.isNull()){
-       writer.writeAttribute(QStringLiteral("editAs"), editASName ); //QStringLiteral("oneCell")
-   }
+  // if(!editASName.isNull()){
+  //     writer.writeAttribute(QStringLiteral("editAs"), editASName ); //QStringLiteral("oneCell")
+  // }
 	// }}
 
     saveXmlMarker(writer, from, QStringLiteral("xdr:from"));
     saveXmlMarker(writer, to, QStringLiteral("xdr:to"));
+
 
     saveXmlObject(writer);
 
