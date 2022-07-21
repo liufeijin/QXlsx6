@@ -1,4 +1,4 @@
-// xlsxdrawinganchor_p.h
+﻿// xlsxdrawinganchor_p.h
 
 #ifndef QXLSX_XLSXDRAWINGANCHOR_P_H
 #define QXLSX_XLSXDRAWINGANCHOR_P_H
@@ -118,6 +118,18 @@ protected:
 	QString Style_inref_idx,style_fillref_idx,style_effectref_idx,style_forntref_idx;
 	QString Style_inref_val,style_fillref_val,style_effectref_val,style_forntref_val;
 	// liufeij }}
+
+    //BELOW ONYL for shape
+    QString nsp_textlink,nsp_macro,nsp_cNvPr_id,nsp_cNvPr_name;
+    QString nsp_ext_uri,nsp_ext_id;
+    QString nsp_xbwMode;         // same as above
+    //QString xIn_algn,xIn_cmpd,xIn_cap,xIn_w; //cxnSp only need xIn_w
+    QString nsp_xprstGeom_prst;
+    QString nsp_x_headEnd_w,nsp_x_headEnd_len,nsp_x_headEnd_tyep;
+    QString nsp_x_tailEnd_w,nsp_x_tailEnd_len,nsp_x_tailEnd_tyep;
+    QString nsp_off_x,nsp_off_cx,nsp_ext_y,nsp_ext_cy;
+
+
 };
 
 class DrawingAbsoluteAnchor : public DrawingAnchor
@@ -154,6 +166,7 @@ public:
 
     XlsxMarker from;
     XlsxMarker to;
+    XlsxMarker sp;
 
     virtual int row();
     virtual int col();
