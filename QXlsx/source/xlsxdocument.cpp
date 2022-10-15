@@ -1201,6 +1201,17 @@ Worksheet *Document::currentWorksheet() const
 bool Document::selectSheet(const QString &name)
 {
 	Q_D(Document);
+	// after selected   sheet for writing or reading, many sheets of the excel are be set to selected
+	// i can't find  where is the bug, so make circle loop to set only one worksheet is selected other sheets are unselected.
+	for(int i=0;i<d->workbook->sheetCount();i++){  // liu feij 2022-10-15  to avoid many sheet are selected , only the activesheet is selected
+           if(d->workbook->sheet(i)->sheetType()==AbstractSheet::ST_WorkSheet){
+               if(d->workbook->sheet(i)->sheetName()==name){
+                  static_cast<Worksheet *>(d->workbook->sheet(i))->setSelected(true);
+               }else{
+                   static_cast<Worksheet *>(d->workbook->sheet(i))->setSelected(false);
+               }
+           }
+        }
 	return d->workbook->setActiveSheet(sheetNames().indexOf(name));
 }
 
