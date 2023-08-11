@@ -12,7 +12,16 @@
 - You don't need to use static library or dynamic shared object using QXlsx.
   - You can also use it as a static library.
 
+## About this fork
+
+This fork was intended to add some features not yet implemented in the original QXlsx.
+
+Right now there is an ongoing work to fully implement charts, including full documentation.
+
+See [what is done up to this moment](WhatIsDone.md)
+
 ## How to use
+
 - See [examples](Example.md)
 - See [wiki](https://github.com/QtExcel/QXlsx/wiki)
 - See [FAQ](https://github.com/QtExcel/QXlsx/wiki/FAQ)
