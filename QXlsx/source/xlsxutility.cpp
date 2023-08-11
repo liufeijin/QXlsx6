@@ -17,6 +17,42 @@
 
 QT_BEGIN_NAMESPACE_XLSX
 
+double fromST_Percent(QStringView val)
+{
+    if (val.endsWith('%')) {
+        val.chop(1);
+        return val.toString().toDouble();
+    }
+    return val.toString().toDouble()/1000;
+}
+
+double fromST_Angle(QStringView val)
+{
+    // [-5400000..5400000] -> [-90..90°]
+    // [0..2160000] -> [0..360°]
+    return val.toString().toDouble() / 60000.0;
+}
+
+bool fromST_Boolean(QStringView val)
+{
+    return (val == QLatin1String("true") || val == QLatin1String("1"));
+}
+
+QString toST_Angle(double angle)
+{
+    return QString::number(qRound(angle * 60000));
+}
+
+QString toST_Percent(double val)
+{
+    return QString::number(val, 'f')+'%';
+}
+
+QString toST_Boolean(bool val)
+{
+    return val ? "1" : "0";
+}
+
 bool parseXsdBoolean(const QString &value, bool defaultValue)
 {
     if (value == QLatin1String("1") || value == QLatin1String("true"))
@@ -286,6 +322,136 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
 
     //OK
     return result.join(QString());
+}
+
+//void parseAttributeBool(const QXmlStreamAttributes &a, const QLatin1String &name, bool &target)
+//{
+//    if (a.hasAttribute(name)) target = fromST_Boolean(a.value(name));
+//}
+
+void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<double> &target)
+{
+    if (a.hasAttribute(name)) target = fromST_Percent(a.value(name));
+}
+
+void parseAttributeInt(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<int> &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toInt();
+}
+
+void parseAttributeBool(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<bool> &target)
+{
+    if (a.hasAttribute(name)) target = fromST_Boolean(a.value(name));
+}
+
+void parseAttributeInt(const QXmlStreamAttributes &a, const QLatin1String &name, int &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toInt();
+}
+
+void parseAttributeUInt(const QXmlStreamAttributes &a, const QLatin1String &name, uint &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toUInt();
+}
+
+void parseAttributeString(const QXmlStreamAttributes &a, const QLatin1String &name, QString &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toString();
+}
+
+void parseAttributeDouble(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<double> &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toDouble();
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val)
+{
+    if (val.has_value()) {
+        writer.writeEmptyElement(name);
+        writer.writeAttribute(QLatin1String("val"), toST_Boolean(val.value()));
+    }
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, bool val)
+{
+    writer.writeEmptyElement(name);
+    writer.writeAttribute(QLatin1String("val"), toST_Boolean(val));
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val)
+{
+    if (val.has_value()) {
+        writer.writeAttribute(name, toST_Boolean(val.value()));
+    }
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, bool val)
+{
+    writer.writeAttribute(name, toST_Boolean(val));
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val)
+{
+    if (val.has_value()) {
+        writer.writeEmptyElement(name);
+        writer.writeAttribute(QLatin1String("val"), QString::number(val.value()));
+    }
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, int val)
+{
+    writer.writeEmptyElement(name);
+    writer.writeAttribute(QLatin1String("val"), QString::number(val));
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val)
+{
+    if (val.has_value()) {
+        writer.writeEmptyElement(name);
+        writer.writeAttribute(QLatin1String("val"), QString::number(val.value()));
+    }
+}
+
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, QString val)
+{
+    if (!val.isEmpty()) {
+        writer.writeEmptyElement(name);
+        writer.writeAttribute(QLatin1String("val"), val);
+    }
+}
+
+void parseAttributeBool(const QXmlStreamAttributes &a, const QLatin1String &name, bool &target)
+{
+    if (a.hasAttribute(name)) target = fromST_Boolean(a.value(name));
+}
+
+int fromST_PercentInt(QStringView val)
+{
+    if (val.endsWith('%')) {
+        val.chop(1);
+
+    }
+    return val.toString().toInt();
+}
+
+QString toST_PercentInt(int val)
+{
+    return QString::number(val);
+}
+
+void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<int> &target)
+{
+    if (a.hasAttribute(name)) target = fromST_PercentInt(a.value(name));
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, const QString &val)
+{
+    if (!val.isEmpty()) writer.writeAttribute(name, val);
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val)
+{
+    if (val.has_value()) writer.writeAttribute(name, QString::number(val.value()));
 }
 
 QT_END_NAMESPACE_XLSX

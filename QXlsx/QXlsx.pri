@@ -6,7 +6,7 @@ QT += core
 QT += gui-private
 
 # TODO: Define your C++ version. c++14, c++17, etc.
-CONFIG += c++11
+CONFIG += c++17
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -54,6 +54,23 @@ INCLUDEPATH += $${QXLSX_HEADERPATH}
 # source code 
 
 HEADERS += \
+$${QXLSX_HEADERPATH}xlsxlegend.h \
+$${QXLSX_HEADERPATH}xlsxlayout.h \
+$${QXLSX_HEADERPATH}xlsxseries.h \
+$${QXLSX_HEADERPATH}xlsxeffect.h \
+$${QXLSX_HEADERPATH}xlsxlabel.h \
+$${QXLSX_HEADERPATH}xlsxfont.h \
+$${QXLSX_HEADERPATH}xlsxtext.h \
+$${QXLSX_HEADERPATH}xlsxtext_p.h \
+$${QXLSX_HEADERPATH}xlsxtitle.h \
+$${QXLSX_HEADERPATH}xlsxfillformat.h \
+$${QXLSX_HEADERPATH}xlsxmain.h \
+$${QXLSX_HEADERPATH}xlsxshapeformat.h \
+$${QXLSX_HEADERPATH}xlsxaxis.h \
+$${QXLSX_HEADERPATH}xlsxmarkerformat.h \
+$${QXLSX_HEADERPATH}xlsxmarkerformat_p.h \
+$${QXLSX_HEADERPATH}xlsxlineformat.h \
+$${QXLSX_HEADERPATH}xlsxlineformat_p.h \
 $${QXLSX_HEADERPATH}xlsxabstractooxmlfile.h \
 $${QXLSX_HEADERPATH}xlsxabstractooxmlfile_p.h \
 $${QXLSX_HEADERPATH}xlsxabstractsheet.h \
@@ -69,7 +86,7 @@ $${QXLSX_HEADERPATH}xlsxchart.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet_p.h \
 $${QXLSX_HEADERPATH}xlsxchart_p.h \
-$${QXLSX_HEADERPATH}xlsxcolor_p.h \
+$${QXLSX_HEADERPATH}xlsxcolor.h \
 $${QXLSX_HEADERPATH}xlsxconditionalformatting.h \
 $${QXLSX_HEADERPATH}xlsxconditionalformatting_p.h \
 $${QXLSX_HEADERPATH}xlsxcontenttypes_p.h \
@@ -103,6 +120,20 @@ $${QXLSX_HEADERPATH}xlsxzipreader_p.h \
 $${QXLSX_HEADERPATH}xlsxzipwriter_p.h
 
 SOURCES += \
+$${QXLSX_SOURCEPATH}xlsxlegend.cpp \
+$${QXLSX_SOURCEPATH}xlsxlayout.cpp \
+$${QXLSX_SOURCEPATH}xlsxseries.cpp \
+$${QXLSX_SOURCEPATH}xlsxeffect.cpp \
+$${QXLSX_SOURCEPATH}xlsxlabel.cpp \
+$${QXLSX_SOURCEPATH}xlsxfont.cpp \
+$${QXLSX_SOURCEPATH}xlsxtext.cpp \
+$${QXLSX_SOURCEPATH}xlsxtitle.cpp \
+$${QXLSX_SOURCEPATH}xlsxfillformat.cpp \
+$${QXLSX_SOURCEPATH}xlsxmain.cpp \
+$${QXLSX_SOURCEPATH}xlsxshapeformat.cpp \
+$${QXLSX_SOURCEPATH}xlsxaxis.cpp \
+$${QXLSX_SOURCEPATH}xlsxmarkerformat.cpp \
+$${QXLSX_SOURCEPATH}xlsxlineformat.cpp \
 $${QXLSX_SOURCEPATH}xlsxabstractooxmlfile.cpp \
 $${QXLSX_SOURCEPATH}xlsxabstractsheet.cpp \
 $${QXLSX_SOURCEPATH}xlsxcell.cpp \

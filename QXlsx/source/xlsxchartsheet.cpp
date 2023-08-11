@@ -49,7 +49,7 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
         anchor->ext = QSize(9293679, 6068786);
 
         QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, flag));
-        chart->setChartType(Chart::CT_BarChart);
+        chart->setType(Chart::Type::Bar);
         anchor->setObjectGraphicFrame(chart);
 
         d_func()->chart = chart.data();
