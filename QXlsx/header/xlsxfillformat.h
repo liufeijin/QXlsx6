@@ -113,13 +113,33 @@ public:
     void setType(FillType type);
 
     /* Solid fill properties */
+    /**
+     * @brief returns the solid fill color
+     * @return
+     */
     Color color() const;
+    /**
+     * @brief sets the color for solid fill
+     * @param color
+     */
     void setColor(const Color &color);
+    /**
+     * @brief sets an rgb color for solid fill
+     * @param color
+     */
     void setColor(const QColor &color);
 
     /* Gradient fill properties */
 
+    /**
+     * @brief returns the gradients list for the gradient fill
+     * @return
+     */
     QMap<double, Color> gradientList() const;
+    /**
+     * @brief setGradientList sets the gradients list for the gradient fill
+     * @param list a map with keys being the color stops ([0..1]), values being the colors.
+     */
     void setGradientList(const QMap<double, Color> &list);
 
     std::optional<Angle> linearShadeAngle() const;

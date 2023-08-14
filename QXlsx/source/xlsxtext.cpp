@@ -175,14 +175,13 @@ void Text::setHtml(const QString &text, bool detectHtml)
 QString Text::toHtml() const
 {
     //TODO: write
+    return {};
 }
 
 void Text::setStringReference(const QString &ref)
 {
     if (!d) d = new TextPrivate;
     d->type = Type::StringRef;
-//    d->paragraphs.clear();
-//    d->plainText.clear();
     d->reference = ref;
 }
 
@@ -198,7 +197,7 @@ QString Text::stringReference() const
     if (d && d->type == Type::StringRef)
         return d->reference;
 
-    return QString();
+    return {};
 }
 
 QStringList Text::stringCashe() const
@@ -2122,6 +2121,13 @@ QDebug operator<<(QDebug dbg, const TextRun &t)
     dbg << "guid: " << t.guid << ", "; //required
     dbg << "fieldType: " << t.fieldType << ", "; //optional
     dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const ParagraphProperties::TabAlign &t)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace() << static_cast<int>(t);
     return dbg;
 }
 

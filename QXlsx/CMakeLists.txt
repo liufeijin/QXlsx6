@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(QXlsx
-    VERSION 1.4.4
+    VERSION 1.4.5
     LANGUAGES CXX
 )
 
@@ -19,11 +19,9 @@ endif()
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 set(EXPORT_NAME QXlsxQt${QT_VERSION_MAJOR})
 
-if (QT_VERSION_MAJOR EQUAL 6)
-    set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
-else()
-    set(CMAKE_CXX_STANDARD 11 CACHE STRING "")
-endif()
+# the standard required to build the lib
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
@@ -49,6 +47,37 @@ message(${QXLSX_SOURCEPATH})
 option(BUILD_SHARED_LIBS "Build in shared lib mode" OFF)
 
 set(SRC_FILES
+    source/xlsxlegend.cpp
+    source/xlsxlayout.cpp
+    source/xlsxseries.cpp
+    source/xlsxeffect.cpp
+    source/xlsxlabel.cpp
+    source/xlsxfont.cpp
+    source/xlsxtext.cpp
+    source/xlsxtitle.cpp
+    source/xlsxfillformat.cpp
+    source/xlsxmain.cpp
+    source/xlsxshapeformat.cpp
+    source/xlsxaxis.cpp
+    source/xlsxmarkerformat.cpp
+    source/xlsxlineformat.cpp
+    header/xlsxlegend.h
+    header/xlsxlayout.h
+    header/xlsxseries.h
+    header/xlsxeffect.h
+    header/xlsxlabel.h
+    header/xlsxfont.h
+    header/xlsxtext.h
+    header/xlsxtext_p.h
+    header/xlsxtitle.h
+    header/xlsxfillformat.h
+    header/xlsxmain.h
+    header/xlsxshapeformat.h
+    header/xlsxaxis.h
+    header/xlsxmarkerformat.h
+    header/xlsxmarkerformat_p.h
+    header/xlsxlineformat.h
+    header/xlsxlineformat_p.h
     source/xlsxcellrange.cpp
     source/xlsxcellrange.cpp
     source/xlsxcontenttypes.cpp
@@ -115,6 +144,20 @@ set(SRC_FILES
 )
 
 set(QXLSX_PUBLIC_HEADERS
+    header/xlsxlegend.h
+    header/xlsxlayout.h
+    header/xlsxseries.h
+    header/xlsxeffect.h
+    header/xlsxlabel.h
+    header/xlsxfont.h
+    header/xlsxtext.h
+    header/xlsxtitle.h
+    header/xlsxfillformat.h
+    header/xlsxmain.h
+    header/xlsxshapeformat.h
+    header/xlsxaxis.h
+    header/xlsxmarkerformat.h
+    header/xlsxlineformat.h
     header/xlsxabstractooxmlfile.h
     header/xlsxabstractsheet.h
     header/xlsxabstractsheet_p.h

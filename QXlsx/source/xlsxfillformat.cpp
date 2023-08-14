@@ -545,22 +545,26 @@ void FillFormat::writeGradientList(QXmlStreamWriter &writer) const
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const FillFormat &f)
 {
-    //TODO: all fill types
     QDebugStateSaver saver(dbg);
-
-    dbg.nospace() << "QXlsx::FillProperties(" ;
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::FillFormat(" ;
+    dbg << "type: "<< static_cast<int>(f.d->type) << ", ";
+    if (f.d->color.isValid()) dbg << "color: " << f.d->color << ", ";
+    dbg << "gradientList: "<< f.d->gradientList << ", ";
+    if (f.d->linearShadeAngle.has_value()) dbg << "linearShadeAngle: " << f.d->linearShadeAngle.value().toString() << ", ";
+    if (f.d->linearShadeScaled.has_value()) dbg << "linearShadeScaled: " << f.d->linearShadeScaled.value() << ", ";
+    if (f.d->pathShadeType.has_value()) dbg << "pathShadeType: " << static_cast<int>(f.d->pathShadeType.value()) << ", ";
+    if (f.d->pathShadeRect.has_value()) dbg << "pathShadeRect: " << f.d->pathShadeRect.value() << ", ";
+    if (f.d->tileRect.has_value()) dbg << "tileRect: " << f.d->tileRect.value() << ", ";
+    if (f.d->tileFlipMode.has_value())
+        dbg << "tileFlipMode: " << static_cast<int>(f.d->tileFlipMode.value()) << ", ";
+    if (f.d->rotWithShape.has_value()) dbg << "rotWithShape: " << f.d->rotWithShape.value() << ", ";
+    if (f.d->foregroundColor.isValid()) dbg << "foregroundColor: " << f.d->foregroundColor << ", ";
+    if (f.d->backgroundColor.isValid()) dbg << "backgroundColor: " << f.d->backgroundColor << ", ";
+    if (f.d->patternType.has_value())
+        dbg << "patternType: " << static_cast<int>(f.d->patternType.value());
 
     return dbg;
-
-    //Gradient fill properties
-//    QMap<double, XlsxColor> gradientList;
-//    std::optional<double> linearShadeAngle; //0..360
-//    std::optional<bool> linearShadeScaled;
-//    std::optional<FillProperties::PathShadeType> pathShadeType;
-//    std::optional<QRectF> pathShadeRect;
-//    std::optional<QRectF> tileRect;
-//    std::optional<FillProperties::TileFlipMode> tileFlipMode;
-//    std::optional<bool> rotWithShape;
 }
 #endif
 

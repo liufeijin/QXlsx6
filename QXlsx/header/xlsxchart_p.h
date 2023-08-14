@@ -22,7 +22,7 @@ QT_BEGIN_NAMESPACE_XLSX
 class CT_XXXChart
 {
 public:
-    CT_XXXChart(Chart::Type type) : type{type} {}
+    CT_XXXChart(Chart::Type type);
 
     Chart::Type type = Chart::Type::None;
 
@@ -148,6 +148,7 @@ public:
     bool loadXmlChart(QXmlStreamReader &reader);
     bool loadXmlPlotArea(QXmlStreamReader &reader);
     void addAxis(Axis::Type type, Axis::Position pos, QString title);
+    void addAxis(const Axis &axis);
 public:
     void saveXmlChart(QXmlStreamWriter &writer) const;
 

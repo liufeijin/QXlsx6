@@ -384,7 +384,7 @@ public:
     void read(QXmlStreamReader &reader);
     bool isValid() const;
 private:
-    QList<Extension> vals;
+    QByteArray vals;
 };
 
 /**
@@ -849,6 +849,7 @@ QDebug operator<<(QDebug dbg, const PresetGeometry2D &f);
 QDebug operator<<(QDebug dbg, const PresetTextShape &f);
 QDebug operator<<(QDebug dbg, const Scene3D &f);
 QDebug operator<<(QDebug dbg, const Shape3D &f);
+QDebug operator<<(QDebug dbg, const Coordinate &f);
 
 }
 

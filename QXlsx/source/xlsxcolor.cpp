@@ -6,9 +6,7 @@
 #include <QDebug>
 
 #include "xlsxcolor.h"
-#include "xlsxstyles_p.h"
 #include "xlsxutility_p.h"
-#include "xlsxmain.h"
 
 QT_BEGIN_NAMESPACE_XLSX
 
@@ -49,21 +47,25 @@ void Color::setRgb(const QColor &color)
     if (type_ == ColorType::RGBColor || type_ == ColorType::CRGBColor || type_ == ColorType::SimpleColor) {
         val = color;
     }
+    isDirty = true;
 }
 
 void Color::setHsl(const QColor &color)
 {
     if (type_ == ColorType::HSLColor) val = color;
+    isDirty = true;
 }
 
 void Color::setIndexedColor(int index)
 {
     if (type_ == ColorType::SimpleColor) val = index;
+    isDirty = true;
 }
 
 void Color::setAutoColor(bool autoColor)
 {
     if (type_ == ColorType::SimpleColor) val = autoColor;
+    isDirty = true;
 }
 
 void Color::setThemeColor(uint theme, double tint)
@@ -74,29 +76,34 @@ void Color::setThemeColor(uint theme, double tint)
         map.insert("tint", tint);
         val = map;
     }
+    isDirty = true;
 }
 
 void Color::setPresetColor(const QString &colorName)
 {
     if (type_ == ColorType::PresetColor && !colorName.isEmpty())
         val = colorName;
+    isDirty = true;
 }
 
 void Color::setSchemeColor(Color::SchemeColor color)
 {
     if (type_ == ColorType::SchemeColor)
         val = static_cast<int>(color);
+    isDirty = true;
 }
 
 void Color::setSystemColor(Color::SystemColor color)
 {
     if (type_ == ColorType::SystemColor)
         val = static_cast<int>(color);
+    isDirty = true;
 }
 
 void Color::addTransform(ColorTransform::Type transform, QVariant val)
 {
     tr.vals.insert(transform, val);
+    isDirty = true;
 }
 
 Color::ColorType Color::type() const
@@ -332,6 +339,7 @@ bool Color::read(QXmlStreamReader &reader)
         }
         default: break;
     }
+    isDirty = true;
     return true;
 }
 
@@ -361,7 +369,8 @@ Color::operator QVariant() const
 #else
         = qMetaTypeId<Color>() ;
 #endif
-    return QVariant(cref, this);
+    QVariant v(cref, this);
+    return v;
 }
 
 
@@ -615,4 +624,89 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
     }
 }
 
+ColorTransform::operator QVariant() const
+{
+    const auto& cref
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+        = QMetaType::fromType<ColorTransform>();
+#else
+        = qMetaTypeId<ColorTransform>() ;
+#endif
+    QVariant v(cref, this);
+    return v;
+}
+
+QByteArray Color::idKey() const
+{
+    if (isDirty) {
+        QByteArray bytes;
+        QXmlStreamWriter w(&bytes);
+        write(w);
+
+        m_key = bytes;
+        isDirty = false;
+    }
+
+    return m_key;
+}
+
+uint qHash(const Color &c, uint seed) noexcept
+{
+    return qHash(c.idKey(), seed);
+}
+
+#if !defined(QT_NO_DATASTREAM)
+QDataStream &operator<<(QDataStream &s, const Color &color)
+{
+    s << static_cast<int>(color.type_);
+    s << color.val;
+    s << color.lastColor;
+    s << color.tr;
+    return s;
+}
+
+QDataStream &operator>>(QDataStream &s, Color &color)
+{
+    int t;
+    s >> t;
+    color.type_ = static_cast<Color::ColorType>(t);
+    s >> color.val;
+    s >> color.lastColor;
+    s >> color.tr;
+
+    return s;
+}
+
+QDataStream &operator<<(QDataStream &s, const ColorTransform &tr)
+{
+    const auto &keys = tr.vals.keys();
+    using st = decltype(tr.vals)::size_type;
+    st t = keys.size();
+    s << t;
+    for (auto key: keys) s << static_cast<int>(key) << tr.vals.value(key);
+    return s;
+}
+
+QDataStream &operator>>(QDataStream &s, ColorTransform &tr)
+{
+    using st = decltype(tr.vals)::size_type;
+    st t;
+    s >> t;
+    for (st i = 0; i < t; ++i) {
+        int key;
+        s >> key;
+        QVariant val;
+        s >> val;
+        tr.vals.insert(static_cast<ColorTransform::Type>(key), val);
+    }
+
+    return s;
+}
+
+#endif
+
 QT_END_NAMESPACE_XLSX
+
+
+
+

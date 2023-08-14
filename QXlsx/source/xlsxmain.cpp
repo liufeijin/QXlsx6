@@ -850,7 +850,13 @@ void ExtensionList::write(QXmlStreamWriter &writer, const QString &name) const
 
 void ExtensionList::read(QXmlStreamReader &reader)
 {
-    //TODO:
+    auto start = reader.characterOffset();
+    reader.skipCurrentElement();
+    auto end = reader.characterOffset();
+    reader.device()->seek(end-start);
+
+    vals = reader.device()->read(end-start);
+    qDebug()<<vals;
 }
 
 bool ExtensionList::isValid() const
@@ -896,6 +902,12 @@ QDebug operator<<(QDebug dbg, const Transform2D &f)
     if (f.flipHorizontal.has_value()) dbg << "flipHorizontal="<<f.flipHorizontal.value()<<", ";
     if (f.flipVertical.has_value()) dbg << "offset="<<f.flipVertical.value();
     dbg << ")";
+    return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const Coordinate &f)
+{
+    dbg.nospace() << "QXlsx::Coordinate(" << f.toString() << ")";
     return dbg.space();
 }
 

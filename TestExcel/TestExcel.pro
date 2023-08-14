@@ -42,6 +42,7 @@ datavalidation.cpp \
 definename.cpp \
 demo.cpp \
 documentproperty.cpp \
+    extlist.cpp \
 extractdata.cpp \
 formulas.cpp \
 hello.cpp \

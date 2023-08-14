@@ -162,6 +162,7 @@ DocumentPrivate::DocumentPrivate(Document *p) :
 
 void DocumentPrivate::init()
 {
+    qRegisterMetaTypeStreamOperators<QXlsx::Color>("XlsxColor");
     if (!contentTypes)
         contentTypes = std::make_shared<ContentTypes>(ContentTypes::F_NewFromScratch);
 

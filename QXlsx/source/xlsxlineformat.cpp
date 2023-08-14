@@ -418,6 +418,7 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
 
 void LineFormat::read(QXmlStreamReader &reader)
 {
+    if (!d) d = new LineFormatPrivate;
     const auto &name = reader.name();
     const auto &a = reader.attributes();
     if (a.hasAttribute("w")) d->width = Coordinate::create(a.value("w").toString());

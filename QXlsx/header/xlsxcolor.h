@@ -96,9 +96,17 @@ public:
 
     QMap<Type, QVariant> vals;
 
+    operator QVariant() const;
+
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
 };
+
+#if !defined(QT_NO_DATASTREAM)
+    QDataStream &operator<<(QDataStream &s, const ColorTransform &color);
+    QDataStream &operator>>(QDataStream &s, ColorTransform &color);
+#endif
+
 
 class Color
 {
@@ -187,6 +195,7 @@ public:
     void setSchemeColor(SchemeColor color);
     void setSystemColor(SystemColor color);
 
+    //TODO: add all methods of color transform
     void addTransform(ColorTransform::Type transform, QVariant val);
 
     ColorType type() const;
@@ -272,6 +281,7 @@ private:
         {ColorType::SimpleColor, "simple"},
         {ColorType::PresetColor, "preset"},
     });
+    QByteArray idKey() const;
 
     QVariant val;
     ColorType type_ = ColorType::Invalid;
@@ -280,13 +290,29 @@ private:
     // Only used if type == ColorType::SystemColor
     QColor lastColor;
 
+    mutable bool isDirty = true;
+    mutable QByteArray m_key;
+#if !defined(QT_NO_DATASTREAM)
+    friend QDataStream &operator<<(QDataStream &s, const Color &color);
+    friend QDataStream &operator>>(QDataStream &s, Color &color);
+#endif
     friend QDebug operator<<(QDebug dbg, const Color &c);
+    friend uint qHash(const Color &c, uint seed) Q_DECL_NOTHROW;
 };
+
+uint qHash(const Color &c, uint seed = 0) Q_DECL_NOTHROW;
+
+#if !defined(QT_NO_DATASTREAM)
+QDataStream &operator<<(QDataStream &s, const Color &color);
+QDataStream &operator>>(QDataStream &s, Color &color);
+#endif
 
 QDebug operator<<(QDebug dbg, const Color &c);
 
 QT_END_NAMESPACE_XLSX
 
+Q_DECLARE_METATYPE(QXlsx::ColorTransform)
 Q_DECLARE_METATYPE(QXlsx::Color)
+
 
 #endif // QXLSX_XLSXCOLOR_P_H

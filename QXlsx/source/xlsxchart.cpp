@@ -181,15 +181,17 @@ Series *Chart::addSeries()
     Q_D(Chart);
 
     //create default axes
-    QList<int> ids;
+//    QList<int> ids;
     if (d->axisList.isEmpty())
-        ids = addDefaultAxes();
+        addDefaultAxes();
 
-    if (d->subcharts.isEmpty() || d->subcharts.last().type != d->chartType)
-        d->subcharts << CT_XXXChart(d->chartType);
+//    if (d->subcharts.isEmpty() || d->subcharts.last().type != d->chartType) {
+//        CT_XXXChart sub(d->chartType);
+//        d->subcharts << sub;
+//    }
 
-    if (d->subcharts.last().axesIds.isEmpty())
-        d->subcharts.last().axesIds = ids;
+//    if (d->subcharts.last().axesIds.isEmpty())
+//        d->subcharts.last().axesIds = ids;
 
     return d->subcharts.last().addSeries(seriesCount());
 }
@@ -275,13 +277,21 @@ void Chart::setPlotAreaShape(const ShapeFormat &shape)
     d->plotAreaShape = shape;
 }
 
-Axis* Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
+Axis& Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
 {
     Q_D(Chart);
 
     d->addAxis(type, pos, title);
-    return &d->axisList.last();
+    return d->axisList.last();
 }
+
+void Chart::addAxis(const Axis &axis)
+{
+    Q_D(Chart);
+
+    d->addAxis(axis);
+}
+
 
 Axis *Chart::axis(int idx)
 {
@@ -290,6 +300,47 @@ Axis *Chart::axis(int idx)
     if (idx < 0 || idx >= d->axisList.size()) return nullptr;
 
     return &d->axisList[idx];
+}
+
+bool Chart::removeAxis(int axisID)
+{
+    Q_D(Chart);
+
+    //search for the axis
+    auto ax = std::find_if(d->axisList.begin(), d->axisList.end(), [axisID](const Axis &axis){
+        return axis.id() == axisID;
+    });
+    if (ax == d->axisList.end()) return false;
+
+    //search for the axis in series
+
+    auto ser = std::find_if(d->subcharts.begin(), d->subcharts.end(), [axisID](const CT_XXXChart &c){
+        return c.axesIds.contains(axisID);
+    });
+    if (ser != d->subcharts.end()) return false;
+    d->axisList.removeOne(*ax);
+    return true;
+}
+
+bool Chart::removeAxis(Axis *axis)
+{
+    Q_D(Chart);
+    if (!axis) return false;
+
+    //search for the axis
+    auto ax = std::find_if(d->axisList.begin(), d->axisList.end(), [axis](const Axis &ax){
+        return ax == *axis;
+    });
+    if (ax == d->axisList.end()) return false;
+
+    //search for the axis in series
+
+    auto ser = std::find_if(d->subcharts.begin(), d->subcharts.end(), [axis](const CT_XXXChart &c){
+        return c.axesIds.contains(axis->id());
+    });
+    if (ser != d->subcharts.end()) return false;
+    d->axisList.removeOne(*ax);
+    return true;
 }
 
 int Chart::axesCount() const
@@ -309,6 +360,18 @@ void Chart::setTitle(const Title &title)
 {
     Q_D(Chart);
     d->title = title;
+}
+
+Title &Chart::title()
+{
+    Q_D(Chart);
+    return d->title;
+}
+
+Title Chart::title() const
+{
+    Q_D(const Chart);
+    return d->title;
 }
 
 void Chart::setLegend(Legend::Position position, bool overlay)
@@ -365,9 +428,10 @@ void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
 
     //create new subchart if necessary
     if (!subchart) {
-        d->subcharts << CT_XXXChart(d->chartType);
-        subchart = &d->subcharts.last();
-        subchart->axesIds = axesIds;
+        CT_XXXChart sub(d->chartType);
+        d->subcharts << sub;
+        sub.axesIds = axesIds;
+        subchart = &sub;
     }
 
     //move the series from the old subchart to the new one
@@ -411,19 +475,21 @@ QList<int> Chart::addDefaultAxes()
         case Type::Bar:
         case Type::Radar:
         case Type::Stock: {
-            auto ax = axesCount() == 0 ? addAxis(Axis::Type::Cat, Axis::Position::Bottom) : axis(0);
-            ids << ax->id();
-            ax = axesCount() == 1 ? addAxis(Axis::Type::Val, Axis::Position::Left) : axis(1);
-            ids << ax->id();
-            axis(0)->setCrossAxis(axis(1));
+            auto &ax1 = axesCount() == 0 ? addAxis(Axis::Type::Category, Axis::Position::Bottom) : d->axisList[0];
+            ids << ax1.id();
+            auto &ax2 = axesCount() == 1 ? addAxis(Axis::Type::Value, Axis::Position::Left) : d->axisList[1];
+            ids << ax2.id();
+            ax1.setCrossAxis(ids[1]);
+            ax2.setCrossAxis(ids[0]);
             break;
         }
         case Type::Scatter: {
-            auto ax = axesCount() == 0 ? addAxis(Axis::Type::Val, Axis::Position::Bottom) : axis(0);
-            ids << ax->id();
-            ax = axesCount() == 1 ? addAxis(Axis::Type::Val, Axis::Position::Left) : axis(1);
-            ids << ax->id();
-            axis(0)->setCrossAxis(axis(1));
+            auto &ax1 = axesCount() == 0 ? addAxis(Axis::Type::Value, Axis::Position::Bottom) : d->axisList[0];
+            ids << ax1.id();
+            auto &ax2 = axesCount() == 1 ? addAxis(Axis::Type::Value, Axis::Position::Left) : d->axisList[1];
+            ids << ax2.id();
+            ax1.setCrossAxis(ids[1]);
+            ax2.setCrossAxis(ids[0]);
             break;
         }
         case Type::Area3D:
@@ -431,17 +497,27 @@ QList<int> Chart::addDefaultAxes()
         case Type::Bar3D:
         case Type::Surface:
         case Type::Surface3D: {
-            auto ax = axesCount() == 0 ? addAxis(Axis::Type::Cat, Axis::Position::Bottom) : axis(0);
-            ids << ax->id();
-            ax = axesCount() <= 1 ? addAxis(Axis::Type::Val, Axis::Position::Left) : axis(1);
-            ids << ax->id();
-            ax = axesCount() <= 2 ? addAxis(Axis::Type::Ser, Axis::Position::Bottom) : axis(2);
-            ids << ax->id();
-            axis(0)->setCrossAxis(axis(1));
-            axis(2)->setCrossAxis(axis(1));
+            auto &ax1 = axesCount() == 0 ? addAxis(Axis::Type::Category, Axis::Position::Bottom) : d->axisList[0];
+            ids << ax1.id();
+            auto &ax2 = axesCount() <= 1 ? addAxis(Axis::Type::Value, Axis::Position::Left) : d->axisList[1];
+            ids << ax2.id();
+            auto &ax3 = axesCount() <= 2 ? addAxis(Axis::Type::Series, Axis::Position::Bottom) : d->axisList[2];
+            ids << ax3.id();
+            ax1.setCrossAxis(ids[1]);
+            ax2.setCrossAxis(ids[0]);
+            ax3.setCrossAxis(ids[1]);
             break;
         }
     }
+
+    if (d->subcharts.isEmpty() || d->subcharts.last().type != d->chartType) {
+        CT_XXXChart sub(d->chartType);
+        d->subcharts << sub;
+    }
+
+    if (d->subcharts.last().axesIds.size() < ids.size())
+        d->subcharts.last().axesIds = ids;
+
     return ids;
 }
 
@@ -488,7 +564,7 @@ void Chart::saveToXmlFile(QIODevice *device) const
     writeEmptyElement(writer, QLatin1String("c:style"), d->styleID);
 
     d->saveXmlChart(writer);
-    if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "c:spPr");
+    if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "a:spPr");
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
 
@@ -627,8 +703,8 @@ bool ChartPrivate::loadXmlPlotArea(QXmlStreamReader &reader)
                 }
             }
             else if (reader.name().endsWith(QLatin1String("Ax"))) {
-                addAxis(Axis::Type::None, Axis::Position::None, "");
-                axisList.last().read(reader);
+                Axis ax; ax.read(reader);
+                axisList << ax;
             }
             else if (reader.name() == QLatin1String("dTable")) {
                 DataTable t; t.read(reader);
@@ -666,6 +742,20 @@ void ChartPrivate::addAxis(Axis::Type type, Axis::Position pos, QString title)
     axisList.append(axis);
 }
 
+void ChartPrivate::addAxis(const Axis &axis)
+{
+    int axisId = 1;
+
+    auto hasAxis = [this](int id) -> bool {
+        for (auto &ax: axisList) if (ax.id() == id) return true;
+        return false;
+    };
+
+    while (hasAxis(axisId)) axisId++;
+    axisList.append(axis);
+    axisList.last().setId(axisId);
+}
+
 void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
@@ -676,7 +766,7 @@ void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Area); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -697,7 +787,7 @@ void CT_XXXChart::loadSurfaceChart(QXmlStreamReader &reader)
     if (reader.name() == QLatin1String("wireframe"))
         parseAttributeBool(a, QLatin1String("val"), wireframe);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Surface); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("bandFmts"))
@@ -712,7 +802,7 @@ void CT_XXXChart::loadBubbleChart(QXmlStreamReader &reader)
     if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Bubble); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -738,7 +828,7 @@ void CT_XXXChart::loadPieChart(QXmlStreamReader &reader)
     if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Pie); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -777,6 +867,7 @@ void CT_XXXChart::loadPieChart(QXmlStreamReader &reader)
         if (s == QLatin1String("pie")) ofPieType = Chart::OfPieType::Pie;
         if (s == QLatin1String("bar")) ofPieType = Chart::OfPieType::Bar;
     }
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
@@ -789,7 +880,7 @@ void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Line); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -824,7 +915,7 @@ void CT_XXXChart::loadBarChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Bar); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -866,7 +957,7 @@ void CT_XXXChart::loadScatterChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Scatter); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -879,7 +970,7 @@ void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Line); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dropLines")) {
@@ -906,7 +997,7 @@ void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("varyColors"))
         parseAttributeBool(a, QLatin1String("val"), varyColors);
     else if (reader.name() == QLatin1String("ser")) {
-        Series ser; ser.read(reader);
+        Series ser(Series::Type::Radar); ser.read(reader);
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dLbls"))
@@ -936,7 +1027,7 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     if (dTable.has_value()) dTable->write(writer, QLatin1String("c:dTable"));
     if (plotAreaExtList.isValid()) plotAreaExtList.write(writer, QLatin1String("c:extLst"));
 
-    if (plotAreaShape.isValid()) plotAreaShape.write(writer, "c:spPr");
+    if (plotAreaShape.isValid()) plotAreaShape.write(writer, "a:spPr");
     writer.writeEndElement(); // c:plotArea
 
     // c:legend
@@ -1227,7 +1318,7 @@ void CT_XXXChart::saveBandFormats(QXmlStreamWriter &writer) const
     for (int key: bandFormats.keys()) {
         writer.writeStartElement(QLatin1String("c:bandFmt"));
         writeEmptyElement(writer, QLatin1String("c:idx"), key);
-        if (auto &val = bandFormats.value(key); val.isValid())
+        if (const auto &val = bandFormats.value(key); val.isValid())
             val.write(writer, QLatin1String("a:spPr"));
         writer.writeEndElement();
     }
@@ -1280,6 +1371,14 @@ void UpDownBar::write(QXmlStreamWriter &writer, const QString &name) const
 bool UpDownBar::isValid() const
 {
     return gapWidth.has_value() || upBar.isValid() || downBar.isValid();
+}
+
+CT_XXXChart::CT_XXXChart(Chart::Type type) : type{type}
+{
+    if (type == Chart::Type::Pie || type == Chart::Type::Pie3D ||
+        type == Chart::Type::Doughnut || type == Chart::Type::OfPie ||
+        type == Chart::Type::Bubble)
+    varyColors = true;
 }
 
 Series *CT_XXXChart::addSeries(int index)
@@ -1420,7 +1519,9 @@ void Chart::setGrouping(Chart::Grouping grouping)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    if (d->subcharts.isEmpty()) {
+        d->subcharts << CT_XXXChart(d->chartType);
+    }
     d->subcharts.last().grouping = grouping;
 }
 
@@ -1817,7 +1918,7 @@ void DataTable::write(QXmlStreamWriter &writer, const QString &name) const
     writeEmptyElement(writer, QLatin1String("c:showVertBorder"), showVerticalBorder);
     writeEmptyElement(writer, QLatin1String("c:showOutline"), showOutline);
     writeEmptyElement(writer, QLatin1String("c:showKeys"), showKeys);
-    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
+    if (shape.isValid()) shape.write(writer, QLatin1String("a:spPr"));
     if (textProperties.isValid()) textProperties.write(writer, QLatin1String("c:txPr"), false);
     if (extension.isValid()) extension.write(writer, QLatin1String("c:extLst"));
     writer.writeEndElement();
@@ -1837,10 +1938,6 @@ bool DataTable::isValid() const
 
 
 }
-
-
-
-
 
 
 

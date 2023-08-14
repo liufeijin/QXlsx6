@@ -570,7 +570,7 @@ public:
     ~SeriesPrivate();
 
     //Properties common to all series types
-    Series::Type type;
+    Series::Type type = Series::Type::None;
     int index;
     int order;
     Text name; // either ref or string

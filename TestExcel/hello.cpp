@@ -31,13 +31,14 @@ int hello()
 {
     WriteExcel(true);
 
-	ReadExcel(true);
+    ReadExcel(true);
 
-	UseSheet(true);
+    UseSheet(true);
 
-	RichText(true);
+    RichText(true);
 
-	DoChart(true);
+    DoChart(true);
+
     Align(true);
 
    return 0;
@@ -272,7 +273,7 @@ void DoChart(bool isTest)
 	xlsx.addSheet("Chart1", AbstractSheet::ST_ChartSheet);
 	Chartsheet *sheet = static_cast<Chartsheet*>(xlsx.currentSheet());
 	Chart *barChart = sheet->chart();
-    barChart->setChartType(Chart::CT_BarChart);
+    barChart->setType(Chart::Type::Bar);
 	barChart->addSeries(CellRange("A1:A9"), xlsx.sheet("Sheet1"));
 	//![1]
 

@@ -87,7 +87,7 @@ void MarkerFormat::write(QXmlStreamWriter &writer) const
         writer.writeAttribute("val", s);
     }
     writeEmptyElement(writer, QLatin1String("c:size"), d->size);
-    if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
+    if (d->shape.isValid()) d->shape.write(writer, "a:spPr");
     writer.writeEndElement();
 }
 

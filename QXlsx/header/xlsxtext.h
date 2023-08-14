@@ -670,6 +670,7 @@ QDebug operator<<(QDebug dbg, const Paragraph &t);
 QDebug operator<<(QDebug dbg, const ParagraphProperties &t);
 QDebug operator<<(QDebug dbg, const CharacterProperties &t);
 QDebug operator<<(QDebug dbg, const TextRun &t);
+QDebug operator<<(QDebug dbg, const ParagraphProperties::TabAlign &t);
 
 QT_END_NAMESPACE_XLSX
 

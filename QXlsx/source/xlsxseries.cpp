@@ -437,15 +437,19 @@ void Series::read(QXmlStreamReader &reader)
                 d->labels.read(reader);
             }
             else if (reader.name() == QLatin1String("cat")) {
+                reader.readNextStartElement();
                 d->xVal.read(reader);
             }
             else if (reader.name() == QLatin1String("xVal")) {
+                reader.readNextStartElement();
                 d->xVal.read(reader);
             }
             else if (reader.name() == QLatin1String("val")) {
+                reader.readNextStartElement();
                 d->yVal.read(reader);
             }
             else if (reader.name() == QLatin1String("yVal")) {
+                reader.readNextStartElement();
                 d->yVal.read(reader);
             }
             else if (reader.name() == QLatin1String("invertIfNegative")) {
@@ -466,11 +470,11 @@ void Series::read(QXmlStreamReader &reader)
                 PictureOptions p; p.read(reader);
                 d->pictureOptions = p;
             }
-            else if (reader.name() == QLatin1String("")) {}
-            else if (reader.name() == QLatin1String("")) {}
-            else if (reader.name() == QLatin1String("")) {}
-            else if (reader.name() == QLatin1String("")) {}
-            else if (reader.name() == QLatin1String("")) {}
+//            else if (reader.name() == QLatin1String("")) {}
+//            else if (reader.name() == QLatin1String("")) {}
+//            else if (reader.name() == QLatin1String("")) {}
+//            else if (reader.name() == QLatin1String("")) {}
+//            else if (reader.name() == QLatin1String("")) {}
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -479,18 +483,20 @@ void Series::read(QXmlStreamReader &reader)
 
 void Series::write(QXmlStreamWriter &writer) const
 {
+    Q_ASSERT(d->type != Type::None);
+
     writer.writeStartElement(QLatin1String("c:ser"));
     writeEmptyElement(writer, QLatin1String("c:idx"), d->index);
     writeEmptyElement(writer, QLatin1String("c:order"), d->order);
     if (d->name.isValid()) d->name.write(writer, QLatin1String("c:tx"));
-    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("c:spPr"));
+    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("a:spPr"));
     if (!d->dataPoints.isEmpty() && d->type != Type::Surface) {
         for (auto &dPt: d->dataPoints) dPt.write(writer);
     }
     if (d->labels.isValid() && d->type != Type::Surface) d->labels.write(writer);
-    QString xVal = d->type == Type::Scatter || d->type == Type::Bubble ? QLatin1String("c:xVal") : QLatin1String("c:cat");
+    QString xVal = (d->type == Type::Scatter || d->type == Type::Bubble) ? QLatin1String("c:xVal") : QLatin1String("c:cat");
     d->xVal.write(writer, xVal);
-    QString yVal = d->type == Type::Scatter || d->type == Type::Bubble ? QLatin1String("c:yVal") : QLatin1String("c:val");
+    QString yVal = (d->type == Type::Scatter || d->type == Type::Bubble) ? QLatin1String("c:yVal") : QLatin1String("c:val");
     d->yVal.write(writer, yVal);
     if (d->type == Type::Bubble) d->bubbleVal.write(writer, QLatin1String("c:bubbleSize"));
 
@@ -753,7 +759,6 @@ void DataSource::read(QXmlStreamReader &reader)
 void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (type == Type::None) {
-        writer.writeEmptyElement(name);
         return;
     }
 
@@ -877,7 +882,7 @@ void ErrorBars::write(QXmlStreamWriter &writer, const QString &name) const
     if (plus.isValid()) plus.write(writer, QLatin1String("c:plus"));
     if (minus.isValid()) minus.write(writer, QLatin1String("c:minus"));
     if (value.has_value()) writeEmptyElement(writer, QLatin1String("c:value"), value);
-    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
+    if (shape.isValid()) shape.write(writer, QLatin1String("a:spPr"));
     writer.writeEndElement();
 }
 

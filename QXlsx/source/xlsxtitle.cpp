@@ -277,7 +277,7 @@ void Title::write(QXmlStreamWriter &writer) const
     if (d->text.isValid()) d->text.write(writer, "c:tx");
     if (d->layout.isValid()) d->layout.write(writer, "c:layout");
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
-    if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
+    if (d->shape.isValid()) d->shape.write(writer, "a:spPr");
 
     if (d->textProperties.isValid())
         d->textProperties.write(writer, QLatin1String("c:txPr"), false);
@@ -287,6 +287,7 @@ void Title::write(QXmlStreamWriter &writer) const
 
 void Title::read(QXmlStreamReader &reader)
 {
+    if (!d) d = new TitlePrivate;
     const auto &name = reader.name();
     while (!reader.atEnd()) {
         auto token = reader.readNext();

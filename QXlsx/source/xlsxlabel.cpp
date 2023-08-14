@@ -528,7 +528,7 @@ void SharedLabelProperties::write(QXmlStreamWriter &writer) const
         writer.writeAttribute(QLatin1String("formatCode"), numberFormat);
         writer.writeAttribute(QLatin1String("sourceLinked"), toST_Boolean(formatSourceLinked));
     }
-    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
+    if (shape.isValid()) shape.write(writer, QLatin1String("a:spPr"));
     if (text.isValid()) text.write(writer, QLatin1String("c:txPr"), false);
     writer.writeEmptyElement(QLatin1String("c:showVal"));
     writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowValue)));

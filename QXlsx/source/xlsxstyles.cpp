@@ -47,7 +47,7 @@ Styles::Styles(CreateFlag flag)
 #else
         // Qt 5
 
-//        qRegisterMetaTypeStreamOperators<XlsxColor>("XlsxColor");
+        qRegisterMetaTypeStreamOperators<Color>("XlsxColor");
 
         QMetaType::registerDebugStreamOperator<Color>();
 

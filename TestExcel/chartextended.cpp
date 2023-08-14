@@ -34,38 +34,42 @@ int chartExtended()
 
 
     Chart *barChart1 = xlsx.insertChart(4, 3, QSize(300, 300));
-    barChart1->setChartType(Chart::CT_BarChart);
-    barChart1->setChartLegend(Chart::Right);
-    barChart1->setChartTitle("Test1");
+    barChart1->setType(Chart::Type::Bar);
+    barChart1->setLegend(Legend::Position::Right);
+    barChart1->setTitle("Test1");
     // Messreihen
-    barChart1->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
+    barChart1->addSeries(CellRange(1,1,3,10), NULL, true, true);
 
     Chart *barChart2 = xlsx.insertChart(4, 9, QSize(300, 300));
-    barChart2->setChartType(Chart::CT_BarChart);
-    barChart2->setChartLegend(Chart::Right);
-    barChart2->setChartTitle("Test2");
-    barChart2->setGridlinesEnable(true);
+    barChart2->setType(Chart::Type::Bar);
+    barChart2->setLegend(Legend::Position::Right);
+    barChart2->setTitle("Test2");
+    barChart2->addDefaultAxes();
     // Messreihen
-    barChart2->addSeries(CellRange(1,1,3,10), NULL, true, true, true);
+    barChart2->addSeries(CellRange(1,1,3,10), NULL, true, true);
+    barChart2->axis(0)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
+    barChart2->axis(1)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
+
+
 
     Chart *barChart3 = xlsx.insertChart(24, 3, QSize(300, 300));
-    barChart3->setChartType(Chart::CT_BarChart);
-    barChart3->setChartLegend(Chart::Left);
-    barChart3->setChartTitle("Test3");
+    barChart3->setType(Chart::Type::Bar);
+    barChart3->setLegend(Legend::Position::Left);
+    barChart3->setTitle("Test3");
     // Messreihen
     barChart3->addSeries(CellRange(1,1,3,10));
 
     Chart *barChart4 = xlsx.insertChart(24, 9, QSize(300, 300));
-    barChart4->setChartType(Chart::CT_BarChart);
-    barChart4->setChartLegend(Chart::Top);
-    barChart4->setChartTitle("Test4");
+    barChart4->setType(Chart::Type::Bar);
+    barChart4->setLegend(Legend::Position::Top);
+    barChart4->setTitle("Test4");
     // Messreihen
     barChart4->addSeries(CellRange(1,1,3,10));
 
     Chart *barChart5 = xlsx.insertChart(44, 9, QSize(300, 300));
-    barChart5->setChartType(Chart::CT_BarChart);
-    barChart5->setChartLegend(Chart::Bottom);
-    barChart5->setChartTitle("Test5");
+    barChart5->setType(Chart::Type::Bar);
+    barChart5->setLegend(Legend::Position::Bottom);
+    barChart5->setTitle("Test5");
     // Messreihen
     barChart5->addSeries(CellRange(1,1,3,10));
 

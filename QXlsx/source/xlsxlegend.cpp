@@ -166,14 +166,15 @@ void Legend::addEntry(int index, const Text &text, bool visible)
     else d->entries << LegendEntry(index, visible, text);
 }
 
-LegendEntry &Legend::entry(int index)
+LegendEntry *Legend::entry(int index)
 {
     if (!d) d = new LegendPrivate;
 
-    auto e = std::find_if(d->entries.begin(), d->entries.end(), [index](LegendEntry &e){
-             return e.idx == index;
+    auto e = std::find_if(d->entries.begin(), d->entries.end(), [index](const LegendEntry &e) {
+        return e.idx == index;
     });
-    if (e != d->entries.end()) return *e;
+    if (e != d->entries.end()) return &*e;
+    return nullptr;
 }
 
 void Legend::read(QXmlStreamReader &reader)
@@ -222,7 +223,7 @@ void Legend::write(QXmlStreamWriter &writer) const
     for (const auto &e: d->entries) e.write(writer, QLatin1String("c:legendEntry"));
     if (d->layout.isValid()) d->layout.write(writer, QLatin1String("c:layout"));
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
-    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("c:spPr"));
+    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("a:spPr"));
     if (d->text.isValid()) d->text.write(writer, QLatin1String("c:txPr"), false);
     writer.writeEndElement();
 }

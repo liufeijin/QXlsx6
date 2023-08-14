@@ -17,6 +17,10 @@ QT_BEGIN_NAMESPACE_XLSX
 
 class LegendPrivate;
 
+/**
+ * @brief The LegendEntry class is used to specify properties for a single legend entry: series,
+ * trend lines etc.
+ */
 class QXLSX_EXPORT LegendEntry
 {
 public:
@@ -89,14 +93,14 @@ public:
      */
     void addEntry(int index, const Text &text, bool visible);
     /**
-     * @brief entry returns legend entry for the series with index index. Such an entry
+     * @brief returns legend entry for the series with index index. Such an entry
      * must be added to the legend manually, as by default the chart legend does not
      * have any entries (this means all the series are visible in the chart legend, and
      * they have the default text).
      * @param index m
-     * @return
+     * @return pointer to the legend entry with index if such an entry exists, nullptr otherwise
      */
-    LegendEntry &entry(int index);
+    LegendEntry *entry(int index);
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
@@ -110,6 +114,8 @@ private:
         {Position::TopRight, "tr"},
         {Position::Right, "r"},
     });
+    // there can only be one legend per chart, so there's actually no need to do it shallow-copyable,
+    //note: replace with smart pointer
     QSharedDataPointer<LegendPrivate> d;
 };
 

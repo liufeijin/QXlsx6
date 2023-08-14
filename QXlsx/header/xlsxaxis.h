@@ -112,60 +112,104 @@ class AxisPrivate;
 class QXLSX_EXPORT Axis
 {
 public:
+    /**
+     * @brief The Scaling class is used to set the axis range and scaling parameters
+     */
     struct Scaling {
         std::optional<double> logBase;
         std::optional<bool> reversed;
         std::optional<double> min;
         std::optional<double> max;
+        /**
+         * @brief isValid returns true if some properties of axis scaling were set, false otherwise.
+         * @return
+         */
+        bool isValid() const;
         void write(QXmlStreamWriter &writer) const;
         void read(QXmlStreamReader &reader);
         bool operator ==(const Scaling &other) const;
         bool operator !=(const Scaling &other) const;
     };
-    enum class Type { None = (-1), Cat, Val, Date, Ser };
+    /**
+     * @brief The Type enum specifies the axis type
+     */
+    enum class Type { None = (-1), Category, Value, Date, Series };
+    /**
+     * @brief The Position enum specifies the axis position
+     */
     enum class Position { None = (-1), Left, Right, Top, Bottom };
+    /**
+     * @brief The CrossesType enum specifies the possible crossing points for an axis.
+     */
     enum class CrossesType {
-        Minimum,
-        Maximum,
-        Position,
-        AutoZero
+        Minimum, /**< Axis crosses at the minimum value of the chart. */
+        Maximum, /**< Axis crosses at the maximum value of the chart. */
+        Position, /**< Axis crosses at the value specified with setCrossesAt() */
+        AutoZero /**< The category axis crosses at the zero point of the value axis (if possible),
+                      or the minimum value (if the minimum is greater than zero) or the maximum
+                      (if the maximum is less than zero) */
     };
+    /**
+     * @brief The CrossesBetweenType enum  specifies the possible crossing states of an axis.
+     */
     enum class CrossesBetweenType
     {
-        Between,
-        MidCat
+        Between, /**< the value axis shall cross the category axis between data markers. */
+        MidCat /**< the value axis shall cross the category axis at the midpoint of a category. */
     };
-
+    /**
+     * @brief The TickMark enum specifies the possible positions for tick marks.
+     */
     enum class TickMark
     {
-        None,
-        In,
-        Out,
-        Cross
+        None, /**< there shall be no tick marks.*/
+        In, /**< the tick marks shall be inside the plot area. */
+        Out, /**<  the tick marks shall be outside the plot area. */
+        Cross /**< the tick marks shall cross the axis. */
     };
+    /**
+     * @brief The LabelAlignment enum specifies the possible ways to align the tick labels
+     */
     enum class LabelAlignment
     {
-        Center,
-        Left,
-        Right
+        Center, /**< the text shall be centered */
+        Left, /**< the text shall be left justified */
+        Right /**< the text shall be right justified */
     };
+    /**
+     * @brief The TimeUnit enum  specifies a unit of time to use on a date axis.
+     */
     enum class TimeUnit
     {
-        Days,
-        Months,
-        Years
+        Days, /**< the chart data shall be shown in days. */
+        Months, /**< the chart data shall be shown in months. */
+        Years /**<  the chart data shall be shown in years. */
     };
 
-
+    /**
+     * @brief creates an invalid axis. To make it valid set type and position and add this axis on the chart
+     * using Chart::addAxis(const Axis &axis) method.
+     */
     Axis();
+    /**
+     * @brief creates an axis with specified type and position. To add this axis on the chart
+     * use Chart::addAxis(const Axis &axis) method.
+     * @param type
+     * @param position
+     */
     Axis(Type type, Position position);
-    Axis(Type type);
+    /**
+     * @brief creates a copy of the other axis. The copy will have the same id as the other axis, so use
+     * Chart::addAxis(const Axis &axis) method to add the copy on the chart and to set a new unique id.
+     * @param other
+     */
     Axis(const Axis &other);
     ~Axis();
 
     bool isValid() const;
 
     Type type() const;
+    void setType(Type type);
     Position position() const;
     void setPosition(Position position);
 
@@ -185,7 +229,13 @@ public:
     void setCrossesType(CrossesType val);
 
     void setMajorGridLines(const ShapeFormat &val);
+    ShapeFormat &majorGridLines();
+    ShapeFormat majorGridLines() const;
+
     void setMinorGridLines(const ShapeFormat &val);
+    ShapeFormat &minorGridLines();
+    ShapeFormat minorGridLines() const;
+
     void setMajorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
     void setMinorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
 
@@ -201,11 +251,14 @@ public:
     void setTitle(const Title &title);
 
     Text &textProperties();
+    Text textProperties() const;
+    void setTextProperties(const Text &textProperties);
 
     QString numberFormat() const;
     void setNumberFormat(const QString &formatCode);
 
-    Scaling *scaling();
+    Scaling &scaling();
+    Scaling scaling() const;
     void setScaling(Scaling scaling);
 
     QPair<double, double> range() const;
@@ -378,10 +431,10 @@ public:
 private:
     SERIALIZE_ENUM(Type, {
         {Type::None, "none"},
-        {Type::Cat, "cat"},
-        {Type::Val, "val"},
+        {Type::Category, "cat"},
+        {Type::Value, "val"},
         {Type::Date, "date"},
-        {Type::Ser, "ser"},
+        {Type::Series, "ser"},
     });
 
     SERIALIZE_ENUM(Position, {
@@ -424,11 +477,11 @@ QDebug operator<<(QDebug dbg, const Axis &axis);
 class AxisPrivate : public QSharedData
 {
 public:
-    int id;
+    int id = -1;
     Axis::Scaling scaling;
     std::optional<bool> visible;
-    Axis::Position position;
-    Axis::Type type;
+    Axis::Position position = Axis::Position::None;
+    Axis::Type type = Axis::Type::None;
 
     int crossAxis = -1;
     std::optional<Axis::CrossesType> crossesType;
@@ -477,5 +530,7 @@ public:
 };
 
 QT_END_NAMESPACE_XLSX
+
+
 
 #endif // XLSXAXIS_H

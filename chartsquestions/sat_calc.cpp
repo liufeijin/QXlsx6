@@ -146,11 +146,11 @@ void sat_calc::generate_report()
     chrom_data_array += ":B" + QString::number(output_line_count - 1);
 
     Chart * Crom = output.insertChart( 3, 5, QSize(600, 500) );
-    Crom->setChartType( Chart::CT_ScatterChart );
+    Crom->setType( Chart::Type::Scatter );
     Crom->addSeries( CellRange(chrom_data_array) );
-    Crom->setAxisTitle( Chart::Left, QString("left title") );
-    Crom->setAxisTitle( Chart::Bottom, QString("bottom title") );
-    Crom->setChartTitle( QString("hello chart") );
+    Crom->axis(1)->setTitle( QString("left title") );
+    Crom->axis(0)->setTitle( QString("bottom title") );
+    Crom->setTitle( QString("hello chart") );
 
     qDebug() << "[debug] chrom_data_array : " << chrom_data_array;
 

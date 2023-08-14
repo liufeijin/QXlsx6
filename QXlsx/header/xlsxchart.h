@@ -10,7 +10,6 @@
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxshapeformat.h"
 #include "xlsxlineformat.h"
-#include "xlsxmarkerformat.h"
 #include "xlsxaxis.h"
 #include "xlsxlabel.h"
 #include "xlsxseries.h"
@@ -223,7 +222,7 @@ public:
     /**
      * @brief setType sets type to the chart.
      *
-     * @warning OOXML schema allows having as many subcharts of different types
+     * @note OOXML schema allows having as many subcharts of different types
      * as you need.
      *
      * @warning This method does not change the previous subcharts type nor the
@@ -306,7 +305,7 @@ public:
      *
      * The method doesn't check for the axes availability and sets axesIds for all series
      * added to the chart. To set specific axes for some series (f.e. to move the series to the
-     * right axis) use Series::setAxesIDs() method.
+     * right axis) use Series::setAxesIDs(Series *series, const QList<int> &axesIds) method.
      *
      * @param axesIds a list of 0, 2 or 3 items.
      * @note axesIds are ids, not indexes. \see Axis::id()
@@ -335,7 +334,7 @@ public:
      * //then add series and specify its axes
      * auto series = chart.addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("B1:B10"),
      * xlsx.sheet("Sheet1"), true);
-     * setSeriesAxesIDs(series, axesIds);
+     * chart.setSeriesAxesIDs(series, axesIds);
      *
      * @endcode
      */
@@ -388,15 +387,35 @@ public:
      * @param type axis type: Cat, Val, Date or Ser.
      * @param pos Axis position: Bottom, Left, Top or Right.
      * @param title optional axis title.
-     * @return pointer to the newly added axis.
+     * @return reference to the newly added axis.
      */
-    Axis *addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
+    Axis &addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
+    void addAxis(const Axis &axis);
     /**
      * @brief axis returns axis that has index idx
      * @param idx valid index (0 <= idx < axesCount())
      * @return pointer to the axis if such axis exists, nullptr otherwise
      */
     Axis *axis(int idx);
+
+    /**
+     * @brief tries to remove axis and returns true if axis has been removed.
+     * @param axisID the id of the axis to be removed.
+     * @return true if axis has been removed, false otherwise (no axis with this id or axis is used
+     * in some series).
+     */
+    bool removeAxis(int axisID);
+    /**
+     * @brief tries to remove axis and returns true if axis has been removed.
+     * @param axis the pointer to the axis to be removed.
+     * @return true if axis has been removed, false otherwise (no such axis or axis is used
+     * in some series).
+     */
+    bool removeAxis(Axis *axis);
+    /**
+     * @brief axesCount returns the axes count
+     * @return
+     */
     int axesCount() const;
 
     /**
@@ -409,6 +428,16 @@ public:
      * @param title
      */
     void setTitle(const QString &title);
+    /**
+     * @brief title returns reference to the chart title
+     * @return
+     */
+    Title &title();
+    /**
+     * @brief title returns a copy of the chart's title
+     * @return
+     */
+    Title title() const;
 
     /**
      * @brief setLegend moves the chart legend to position pos with chart overlay
@@ -463,6 +492,10 @@ public:
      * Pie, Pie3D, Doughnut, OfPie, Bubble.
      *
      * @return valid bool value if property is set, nullopt otherwise.
+     *
+     * @note by default varyColors is not set. But in order to get sensible charts
+     * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to true.
+     *
      */
     std::optional<bool> varyColors() const;
     /**

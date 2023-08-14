@@ -8,15 +8,6 @@
 #include <iostream>
 using namespace std;
 
-#include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
-
-QXLSX_USE_NAMESPACE
-
 extern int hello();
 extern int calendar();
 extern int chart();
@@ -36,8 +27,9 @@ extern int richtext();
 extern int rowcolumn();
 extern int style();
 extern int worksheetoperations();
-extern int readStyle(); 
+extern int readStyle();
 extern int pages();
+extern int readextlist();
 
 int main(int argc, char *argv[])
 {
@@ -53,27 +45,28 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	hello();
-	readStyle();
-	calendar();
+    hello();
+    readStyle();
+    calendar();
     chart();
     chartExtended();
     chartsheet();
-	datavalidation();
-	definename();
-	demo();
-	documentproperty();
-	extractdata();
-	formula();
-	hyperlink();
-	image();
-	mergecells();
-	numberformat();
-	richtext();
-	rowcolumn();
-	style();
-	worksheetoperations();
+    datavalidation();
+    definename();
+    demo();
+    documentproperty();
+    extractdata();
+    formula();
+    hyperlink();
+    image();
+    mergecells();
+    numberformat();
+    richtext();
+    rowcolumn();
+    style();
+    worksheetoperations();
     pages();
+    readextlist();
 	
     qDebug() << "**** end of main() ****";
 

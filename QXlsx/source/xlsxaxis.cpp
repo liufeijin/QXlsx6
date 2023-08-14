@@ -9,6 +9,11 @@ QT_BEGIN_NAMESPACE_XLSX
 
 void Axis::Scaling::write(QXmlStreamWriter &writer) const
 {
+    if (!isValid()) {
+        writer.writeEmptyElement(QStringLiteral("c:scaling"));
+        return;
+    }
+
     writer.writeStartElement(QStringLiteral("c:scaling")); // CT_Scaling (mandatory value)
     if (reversed.has_value()) {
         writer.writeEmptyElement(QStringLiteral("c:orientation"));
@@ -57,6 +62,11 @@ void Axis::Scaling::read(QXmlStreamReader &reader)
     }
 }
 
+bool Axis::Scaling::isValid() const
+{
+    return (logBase.has_value() || reversed.has_value() || min.has_value() || max.has_value());
+}
+
 bool Axis::Scaling::operator ==(const Axis::Scaling &other) const
 {
     return (logBase == other.logBase &&
@@ -82,12 +92,6 @@ Axis::Axis(Axis::Type type, Axis::Position position)
     d->position = position;
 }
 
-Axis::Axis(Axis::Type type)
-{
-    d = new AxisPrivate;
-    d->type = type;
-}
-
 Axis::Axis(const Axis &other) : d(other.d)
 {
 
@@ -100,7 +104,9 @@ Axis::~Axis()
 
 bool Axis::isValid() const
 {
-    if (d) return true;
+    if (d) {
+        if (d->type != Type::None && d->id > 0) return true;
+    }
     return false;
 }
 
@@ -108,6 +114,12 @@ Axis::Type Axis::type() const
 {
     if (d) return d->type;
     return Axis::Type::None;
+}
+
+void Axis::setType(Type type)
+{
+    if (!d) d = new AxisPrivate;
+    d->type = type;
 }
 
 Axis::Position Axis::position() const
@@ -155,15 +167,20 @@ int Axis::crossAxis() const
 void Axis::setCrossAxis(Axis *axis)
 {
     if (!d) d = new AxisPrivate;
-    if (d->crossAxis != axis->id()) {
-        d->crossAxis = axis->id();
+    int id = axis->id();
+
+    if (d->crossAxis != id) {
+        d->crossAxis = id;
         if (axis) axis->setCrossAxis(this);
     }
 }
 
 void Axis::setCrossAxis(int axisId)
 {
-    if (!d) d = new AxisPrivate;
+    if (!d) {
+        qDebug()<<"not valid d";
+        d = new AxisPrivate;
+    }
     d->crossAxis = axisId;
 }
 
@@ -192,10 +209,34 @@ void Axis::setCrossesType(Axis::CrossesType val)
     d->crossesType = val;
 }
 
+ShapeFormat &Axis::majorGridLines()
+{
+    if (!d) d = new AxisPrivate;
+    return d->majorGridlines;
+}
+
+ShapeFormat Axis::majorGridLines() const
+{
+    if (d) return d->majorGridlines;
+    return {};
+}
+
 void Axis::setMajorGridLines(const ShapeFormat &val)
 {
     if (!d) d = new AxisPrivate;
     d->majorGridlines = val;
+}
+
+ShapeFormat &Axis::minorGridLines()
+{
+    if (!d) d = new AxisPrivate;
+    return d->minorGridlines;
+}
+
+ShapeFormat Axis::minorGridLines() const
+{
+    if (d) return d->minorGridlines;
+    return {};
 }
 
 void Axis::setMinorGridLines(const ShapeFormat &val)
@@ -288,10 +329,16 @@ void Axis::setNumberFormat(const QString &formatCode)
     d->numberFormat.format = formatCode;
 }
 
-Axis::Scaling *Axis::scaling()
+Axis::Scaling &Axis::scaling()
 {
-    if (d) return &d->scaling;
-    return nullptr;
+    if (!d) d = new AxisPrivate;
+    return d->scaling;
+}
+
+Axis::Scaling Axis::scaling() const
+{
+    if (d) return d->scaling;
+    return {};
 }
 
 void Axis::setScaling(Axis::Scaling scaling)
@@ -461,33 +508,33 @@ void Axis::write(QXmlStreamWriter &writer) const
 {
     QString name;
     switch (d->type) {
-        case Type::Cat: name = "c:catAx"; break;
-        case Type::Ser: name = "c:serAx"; break;
-        case Type::Val: name = "c:valAx"; break;
+        case Type::Category: name = "c:catAx"; break;
+        case Type::Series: name = "c:serAx"; break;
+        case Type::Value: name = "c:valAx"; break;
         case Type::Date: name = "c:dateAx"; break;
         default: break;
     }
     if (name.isEmpty()) return;
 
     writer.writeStartElement(name);
-    writer.writeEmptyElement("c:axId");
-    writer.writeAttribute("val", QString::number(d->id));
+    writeEmptyElement(writer, QLatin1String("c:axId"), d->id);
     d->scaling.write(writer);
 
-    writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value_or(true));
+    if (d->visible.has_value())
+        writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
 
     writer.writeEmptyElement("c:axPos");
     QString s; toString(d->position, s); writer.writeAttribute(QLatin1String("val"), s);
 
     if (d->majorGridlines.isValid()) {
         writer.writeStartElement("c:majorGridlines");
-        d->majorGridlines.write(writer, "c:spPr");
+        d->majorGridlines.write(writer, "a:spPr");
         writer.writeEndElement();
     }
 
     if (d->minorGridlines.isValid()) {
         writer.writeStartElement("c:minorGridlines");
-        d->minorGridlines.write(writer, "c:spPr");
+        d->minorGridlines.write(writer, "a:spPr");
         writer.writeEndElement();
     }
 
@@ -531,20 +578,20 @@ void Axis::write(QXmlStreamWriter &writer) const
 
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
 
-    if (d->type == Type::Cat || d->type == Type::Date) {
+    if (d->type == Type::Category || d->type == Type::Date) {
         writeEmptyElement(writer, QLatin1String("c:auto"), d->axAuto);
     }
-    if (d->type == Type::Cat && d->labelAlignment.has_value()) {
+    if (d->type == Type::Category && d->labelAlignment.has_value()) {
         QString s; toString(d->labelAlignment.value(), s);
         writeEmptyElement(writer, QLatin1String("c:lblAlgn"), s);
     }
 
-    if (d->type == Type::Cat || d->type == Type::Date) {
+    if (d->type == Type::Category || d->type == Type::Date) {
         if (d->labelOffset.has_value())
             writeEmptyElement(writer, QLatin1String("c:lblOffset"), toST_PercentInt(d->labelOffset.value()));
     }
 
-    if (d->type == Type::Val || d->type == Type::Date) {
+    if (d->type == Type::Value || d->type == Type::Date) {
         writeEmptyElement(writer, QLatin1String("c:majorUnit"), d->majorUnit);
         writeEmptyElement(writer, QLatin1String("c:minorUnit"), d->minorUnit);
     }
@@ -563,13 +610,13 @@ void Axis::write(QXmlStreamWriter &writer) const
             writeEmptyElement(writer, QLatin1String("c:minorTimeUnit"), s);
         }
     }
-    if (d->type == Type::Val || d->type == Type::Ser) {
+    if (d->type == Type::Value || d->type == Type::Series) {
         writeEmptyElement(writer, QLatin1String("c:tickLblSkip"), d->tickLabelSkip);
         writeEmptyElement(writer, QLatin1String("c:tickMarkSkip"), d->tickMarkSkip);
     }
-    if (d->type == Type::Cat)
+    if (d->type == Type::Category)
         writeEmptyElement(writer, QLatin1String("c:noMultiLvlLbl"), d->noMultiLevelLabels);
-    if (d->type == Type::Val) {
+    if (d->type == Type::Value) {
         if (d->crossesBetween.has_value()) {
             QString s; toString(d->crossesBetween.value(), s);
             writeEmptyElement(writer, QLatin1String("c:crossBetween"), s);
@@ -582,11 +629,13 @@ void Axis::write(QXmlStreamWriter &writer) const
 
 void Axis::read(QXmlStreamReader &reader)
 {
+    if (!d) d = new AxisPrivate;
+
     const auto &name = reader.name();
     d->type = Type::None;
-    if (name == QLatin1String("catAx")) d->type = Type::Cat;
-    if (name == QLatin1String("valAx")) d->type = Type::Val;
-    if (name == QLatin1String("serAx")) d->type = Type::Ser;
+    if (name == QLatin1String("catAx")) d->type = Type::Category;
+    if (name == QLatin1String("valAx")) d->type = Type::Value;
+    if (name == QLatin1String("serAx")) d->type = Type::Series;
     if (name == QLatin1String("dateAx")) d->type = Type::Date;
 
     while (!reader.atEnd()) {
@@ -600,7 +649,9 @@ void Axis::read(QXmlStreamReader &reader)
                 d->scaling.read(reader);
             }
             else if (reader.name() == QLatin1String("delete")) {
-                parseAttributeBool(a, QLatin1String("val"), d->visible);
+                bool vis;
+                parseAttributeBool(a, QLatin1String("val"), vis);
+                d->visible = !vis;
             }
             else if (reader.name() == QLatin1String("axPos")) {
                 const auto &pos = a.value("val").toString();
@@ -712,8 +763,18 @@ AxisPrivate::AxisPrivate() : position(Axis::Position::None), type(Axis::Type::No
 
 }
 
-AxisPrivate::AxisPrivate(const AxisPrivate &other) : QSharedData(other)
-  //TODO: add all members
+AxisPrivate::AxisPrivate(const AxisPrivate &other) : QSharedData(other),
+    scaling{other.scaling}, visible{other.visible}, position{other.position},
+    type{other.type}, crossAxis{other.crossAxis}, crossesType{other.crossesType},
+    crossesPosition{other.crossesPosition}, majorGridlines{other.majorGridlines},
+    minorGridlines{other.minorGridlines}, title{other.title}, textProperties{other.textProperties},
+    numberFormat{other.numberFormat}, majorTickMark{other.majorTickMark},
+    minorTickMark{other.minorTickMark}, axAuto{other.axAuto}, labelOffset{other.labelOffset},
+    labelAlignment{other.labelAlignment}, noMultiLevelLabels{other.noMultiLevelLabels},
+    majorUnit{other.majorUnit}, minorUnit{other.minorUnit}, baseTimeUnit{other.baseTimeUnit},
+    majorTimeUnit{other.majorTimeUnit}, minorTimeUnit{other.minorTimeUnit},
+    tickLabelSkip{other.tickLabelSkip}, tickMarkSkip{other.tickMarkSkip},
+    crossesBetween{other.crossesBetween}, displayUnits{other.displayUnits}
 {
 
 }
@@ -973,11 +1034,18 @@ Text &Axis::textProperties()
     return d->textProperties;
 }
 
+Text Axis::textProperties() const
+{
+    if (d) return d->textProperties;
+    return {};
+}
+
+void Axis::setTextProperties(const Text &textProperties)
+{
+    if (!d) d = new AxisPrivate;
+    d->textProperties = textProperties;
+}
+
 QT_END_NAMESPACE_XLSX
-
-
-
-
-
 
 
