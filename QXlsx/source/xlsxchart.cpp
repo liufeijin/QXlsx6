@@ -1255,8 +1255,8 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:barDir"), QLatin1String("bar"));
     if (barDirection == Chart::BarDirection::Column)
         writeEmptyElement(writer, QLatin1String("c:barDir"), QLatin1String("col"));
-    if (grouping.has_value()) {
-        QString s; Chart::toString(grouping.value(), s);
+    if (barGrouping.has_value()) {
+        QString s; Chart::toString(barGrouping.value(), s);
         writeEmptyElement(writer, QLatin1String("c:grouping"), s);
     }
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
@@ -1550,6 +1550,24 @@ void Chart::setGrouping(Chart::Grouping grouping)
         d->subcharts << CT_XXXChart(d->chartType);
     }
     d->subcharts.last().grouping = grouping;
+}
+
+std::optional<Chart::BarGrouping> Chart::barGrouping() const
+{
+    Q_D(const Chart);
+
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().barGrouping;
+}
+
+void Chart::setBarGrouping(Chart::BarGrouping grouping)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) {
+        d->subcharts << CT_XXXChart(d->chartType);
+    }
+    d->subcharts.last().barGrouping = grouping;
 }
 
 std::optional<bool> Chart::varyColors() const

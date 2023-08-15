@@ -778,7 +778,7 @@ public:
      *
      * Applicable to chart types: Bar, Bar3D, OfPie.
      *
-     * @return valid int ([0..500]) value if property is set, nullopt otherwise.
+     * @return valid % ([0..500]) value if property is set, nullopt otherwise.
      */
     std::optional<int> gapWidth() const;
     /**
