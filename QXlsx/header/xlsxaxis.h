@@ -228,6 +228,10 @@ public:
     std::optional<CrossesType> crossesType() const;
     void setCrossesType(CrossesType val);
 
+    /**
+     * @brief setMajorGridLines sets the axis major grid lines as a ShapeFormat
+     * @param val
+     */
     void setMajorGridLines(const ShapeFormat &val);
     ShapeFormat &majorGridLines();
     ShapeFormat majorGridLines() const;
@@ -236,8 +240,20 @@ public:
     ShapeFormat &minorGridLines();
     ShapeFormat minorGridLines() const;
 
+    /**
+     * @brief setMajorGridLines sets the axis major grid lines properties
+     * @param color
+     * @param width
+     * @param strokeType
+     */
     void setMajorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
+    /**
+     * @brief setMajorGridLines turns on/off the default major grid lines
+     * @param on
+     */
+    void setMajorGridLines(bool on);
     void setMinorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
+    void setMinorGridLines(bool on);
 
     void setMajorTickMark(TickMark tickMark);
     void setMinorTickMark(TickMark tickMark);
@@ -487,6 +503,8 @@ public:
     std::optional<Axis::CrossesType> crossesType;
     std::optional<double> crossesPosition;
 
+    bool majorGridlinesOn = false;
+    bool minorGridlinesOn = false;
     ShapeFormat majorGridlines;
     ShapeFormat minorGridlines;
 

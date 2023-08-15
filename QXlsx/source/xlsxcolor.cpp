@@ -25,6 +25,21 @@ Color::Color(Color::ColorType type, QColor color) : type_(type)
     setRgb(color);
 }
 
+Color::Color(Color::SchemeColor color) : type_{ColorType::SchemeColor}
+{
+    val = static_cast<int>(color);
+}
+
+Color::Color(Color::SystemColor color) : type_{ColorType::SystemColor}
+{
+    val = static_cast<int>(color);
+}
+
+Color::Color(const QString &colorName) : type_{ColorType::PresetColor}
+{
+    val = colorName;
+}
+
 Color::Color(const Color &other) : val{other.val}, type_{other.type_}, tr{other.tr},
     lastColor{other.lastColor}
 {
@@ -81,22 +96,24 @@ void Color::setThemeColor(uint theme, double tint)
 
 void Color::setPresetColor(const QString &colorName)
 {
-    if (type_ == ColorType::PresetColor && !colorName.isEmpty())
-        val = colorName;
+    if (colorName.isEmpty()) return;
+
+    type_ = ColorType::PresetColor;
+    val = colorName;
     isDirty = true;
 }
 
 void Color::setSchemeColor(Color::SchemeColor color)
 {
-    if (type_ == ColorType::SchemeColor)
-        val = static_cast<int>(color);
+    type_ = ColorType::SchemeColor;
+    val = static_cast<int>(color);
     isDirty = true;
 }
 
 void Color::setSystemColor(Color::SystemColor color)
 {
-    if (type_ == ColorType::SystemColor)
-        val = static_cast<int>(color);
+    type_ = ColorType::SystemColor;
+    val = static_cast<int>(color);
     isDirty = true;
 }
 
@@ -296,7 +313,7 @@ bool Color::read(QXmlStreamReader &reader)
             break;
         }
         case ColorType::RGBColor: {
-            const auto& colorString = attributes.value(QLatin1String("rgb")).toString();
+            const auto& colorString = attributes.value(QLatin1String("val")).toString();
             val.setValue(fromARGBString(colorString));
             tr.read(reader);
             break;
@@ -706,7 +723,4 @@ QDataStream &operator>>(QDataStream &s, ColorTransform &tr)
 #endif
 
 QT_END_NAMESPACE_XLSX
-
-
-
 

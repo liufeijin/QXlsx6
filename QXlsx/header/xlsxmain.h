@@ -666,11 +666,14 @@ struct GeometryGuide
     }
 };
 
+//TODO: add normal constructors
 class QXLSX_EXPORT PresetGeometry2D
 {
 public:
+    PresetGeometry2D();
+    PresetGeometry2D(ShapeType presetShape);
     QList<GeometryGuide> avLst; //element, optional
-    ShapeType prst; // attribute, required
+    ShapeType presetShape; // attribute, required
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);

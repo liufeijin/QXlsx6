@@ -11,6 +11,7 @@ using namespace std;
 extern int hello();
 extern int calendar();
 extern int chart();
+extern int chartExtended();
 extern int barChart();
 extern int chartsheet();
 extern int datavalidation();
@@ -49,7 +50,8 @@ int main(int argc, char *argv[])
 //    readStyle();
 //    calendar();
 //    chart();
-    barChart();
+    chartExtended();
+//    barChart();
 //    chartsheet();
 //    datavalidation();
 //    definename();

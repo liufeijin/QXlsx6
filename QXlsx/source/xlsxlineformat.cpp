@@ -336,6 +336,7 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
             case PenAlignment::Inset: writer.writeAttribute("algn", "in"); break;
         }
     }
+    if (d->fill.isValid()) d->fill.write(writer);
     if (d->strokeType.has_value()) {
         writer.writeEmptyElement("a:prstDash");
         switch (d->strokeType.value()) {
@@ -410,8 +411,6 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
             }
         }
     }
-
-    if (d->fill.isValid()) d->fill.write(writer);
 
     writer.writeEndElement(); //a:ln
 }

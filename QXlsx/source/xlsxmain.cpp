@@ -86,11 +86,21 @@ bool Transform2D::operator !=(const Transform2D &other) const
     return false;
 }
 
+PresetGeometry2D::PresetGeometry2D()
+{
+
+}
+
+PresetGeometry2D::PresetGeometry2D(ShapeType presetShape) : presetShape{presetShape}
+{
+
+}
+
 void PresetGeometry2D::write(QXmlStreamWriter &writer, const QString &name) const
 {
     writer.writeStartElement(name);
     auto meta = QMetaEnum::fromType<ShapeType>();
-    writer.writeAttribute(QLatin1String("prst"), meta.valueToKey(static_cast<int>(prst)));
+    writer.writeAttribute(QLatin1String("prst"), meta.valueToKey(static_cast<int>(presetShape)));
     if (avLst.isEmpty()) writer.writeEmptyElement(QLatin1String("avLst"));
     else {
         writer.writeStartElement(QLatin1String("a:avLst"));
@@ -110,7 +120,7 @@ void PresetGeometry2D::read(QXmlStreamReader &reader)
 
     if (reader.attributes().hasAttribute(QLatin1String("prst"))) {
         auto meta = QMetaEnum::fromType<ShapeType>();
-        prst = static_cast<ShapeType>(meta.keyToValue(reader.attributes().value(QLatin1String("prst")).toLatin1().data()));
+        presetShape = static_cast<ShapeType>(meta.keyToValue(reader.attributes().value(QLatin1String("prst")).toLatin1().data()));
     }
     while (!reader.atEnd()) {
         auto token = reader.readNext();
@@ -131,14 +141,14 @@ void PresetGeometry2D::read(QXmlStreamReader &reader)
 bool PresetGeometry2D::operator ==(const PresetGeometry2D &other) const
 {
     if (avLst != other.avLst) return false;
-    if (prst != other.prst) return false;
+    if (presetShape != other.presetShape) return false;
     return true;
 }
 
 bool PresetGeometry2D::operator !=(const PresetGeometry2D &other) const
 {
     if (avLst != other.avLst) return true;
-    if (prst != other.prst) return true;
+    if (presetShape != other.presetShape) return true;
     return false;
 }
 

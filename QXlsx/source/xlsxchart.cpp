@@ -186,17 +186,7 @@ Series *Chart::addSeries()
     Q_D(Chart);
 
     //create default axes
-//    QList<int> ids;
-    if (d->axisList.isEmpty())
-        addDefaultAxes();
-
-//    if (d->subcharts.isEmpty() || d->subcharts.last().type != d->chartType) {
-//        CT_XXXChart sub(d->chartType);
-//        d->subcharts << sub;
-//    }
-
-//    if (d->subcharts.last().axesIds.isEmpty())
-//        d->subcharts.last().axesIds = ids;
+    addDefaultAxes();
 
     return d->subcharts.last().addSeries(seriesCount());
 }
@@ -417,10 +407,8 @@ void Chart::setSeriesAxesIDs(const QList<int> &axesIds)
 
     if (d->subcharts.size() > 1)
         qDebug() << "[warning] The chart has more than one subchart. The axesIDs "
-                    "will be set to all subcharts.";
-    for (auto &sub: d->subcharts) {
-        sub.axesIds = axesIds;
-    }
+                    "will be set to the last subchart.";
+    d->subcharts.last().axesIds = axesIds;
 }
 
 void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)

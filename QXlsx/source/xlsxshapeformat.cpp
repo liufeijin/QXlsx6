@@ -168,7 +168,7 @@ void ShapeFormat::write(QXmlStreamWriter &writer, const QString &name) const
     if (d->scene3D.has_value()) d->scene3D->write(writer, QLatin1String("a:scene3d"));
     if (d->shape3D.has_value()) d->shape3D->write(writer, QLatin1String("a:sp3d"));
 
-    writer.writeEndElement(); //"a:spPr"
+    writer.writeEndElement(); //"c:spPr"
 }
 
 void ShapeFormat::read(QXmlStreamReader &reader)

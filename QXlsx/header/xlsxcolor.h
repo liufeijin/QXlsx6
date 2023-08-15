@@ -181,6 +181,9 @@ public:
     Color();
     explicit Color(ColorType type);
     explicit Color(ColorType type, QColor color);
+    Color(SchemeColor color);
+    Color(SystemColor color);
+    Color(const QString &colorName);
     Color(const Color &other);
     ~Color();
 

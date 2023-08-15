@@ -261,6 +261,18 @@ void Axis::setMinorGridLines(const QColor &color, double width, LineFormat::Stro
     d->minorGridlines.setLine(lf);
 }
 
+void Axis::setMajorGridLines(bool on)
+{
+    if (!d) d = new AxisPrivate;
+    d->majorGridlinesOn = on;
+}
+
+void Axis::setMinorGridLines(bool on)
+{
+    if (!d) d = new AxisPrivate;
+    d->minorGridlinesOn = on;
+}
+
 void Axis::setMajorTickMark(Axis::TickMark tickMark)
 {
     if (!d) d = new AxisPrivate;
@@ -526,16 +538,26 @@ void Axis::write(QXmlStreamWriter &writer) const
     writer.writeEmptyElement("c:axPos");
     QString s; toString(d->position, s); writer.writeAttribute(QLatin1String("val"), s);
 
-    if (d->majorGridlines.isValid()) {
-        writer.writeStartElement("c:majorGridlines");
-        d->majorGridlines.write(writer, "a:spPr");
-        writer.writeEndElement();
+    if (d->majorGridlines.isValid() || d->majorGridlinesOn) {
+        if (!d->majorGridlines.isValid()) {
+            writer.writeEmptyElement("c:majorGridlines");
+        }
+        else {
+            writer.writeStartElement("c:majorGridlines");
+            d->majorGridlines.write(writer, "c:spPr");
+            writer.writeEndElement();
+        }
     }
 
-    if (d->minorGridlines.isValid()) {
-        writer.writeStartElement("c:minorGridlines");
-        d->minorGridlines.write(writer, "a:spPr");
-        writer.writeEndElement();
+    if (d->minorGridlines.isValid() || d->minorGridlinesOn) {
+        if (!d->minorGridlines.isValid()) {
+            writer.writeEmptyElement("c:minorGridlines");
+        }
+        else {
+            writer.writeStartElement("c:minorGridlines");
+            d->minorGridlines.write(writer, "c:spPr");
+            writer.writeEndElement();
+        }
     }
 
     if (d->title.isValid()) d->title.write(writer);
@@ -658,12 +680,14 @@ void Axis::read(QXmlStreamReader &reader)
                 fromString(pos, d->position);
             }
             else if (reader.name() == QLatin1String("majorGridlines")) {
-                reader.readNextStartElement();
-                d->majorGridlines.read(reader);
+                d->majorGridlinesOn = true;
+                if (reader.readNextStartElement())
+                    d->majorGridlines.read(reader);
             }
             else if (reader.name() == QLatin1String("minorGridlines")) {
-                reader.readNextStartElement();
-                d->minorGridlines.read(reader);
+                d->minorGridlinesOn = true;
+                if (reader.readNextStartElement())
+                    d->minorGridlines.read(reader);
             }
             else if (reader.name() == QLatin1String("title")) {
                 d->title.read(reader);
@@ -1047,5 +1071,3 @@ void Axis::setTextProperties(const Text &textProperties)
 }
 
 QT_END_NAMESPACE_XLSX
-
-

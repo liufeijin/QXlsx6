@@ -18,7 +18,30 @@ This fork was intended to add some features not yet implemented in the original 
 
 Right now there is an ongoing work to fully implement charts, including full documentation.
 
-See [what is done up to this moment](WhatIsDone.md)
+This fork requires C++17 as it uses std::optional.
+
+### The fork concept
+
+THe ECMA-376 specifies that many parts of xlsx charts can be optional, i.e. if not set, they shouldn't appear in the xlsx file.
+The original QXlsx uses enums and maps to implement it: the feature is not set, if the map  has no corresponding key.
+
+This fork utilised another approach. 
+
+For simple properties (bool, int, enums) it uses std::optional: methods that return a chart feature return std::optional. You can test the feature with std::optional::has_value().
+
+For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have isValid() method.
+If the feature is set, isValid() will return true.
+
+I try to get rid of the raw pointers. Some parts of the library still need serious overhaul.
+
+See [what is done up to this moment](WhatIsDone.md).
+
+You can find examples of charts here:
+
+- [Simple charts](TestExcel/chart.cpp)
+- [Bar charts](TestExcel/barchart.cpp)
+- [Chart gridlines, titles and legends](TestExcel/chartextended.cpp)
+- [Combined charts, multiple axes](TestExcel/combinedchart.cpp)
 
 ## How to use
 

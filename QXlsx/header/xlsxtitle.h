@@ -15,10 +15,12 @@
 #include "xlsxlayout.h"
 #include "xlsxshapeformat.h"
 #include "xlsxtext.h"
+#include "xlsxcellrange.h"
 
 QT_BEGIN_NAMESPACE_XLSX
 
 class TitlePrivate;
+class AbstractSheet;
 
 /**
  * @brief The Title class is used to specify the chart title or the axis title properties.
@@ -53,7 +55,7 @@ class TitlePrivate;
  *
  * @code
  * Title title;
- * title.setStringReference("$C$2");
+ * title.setStringReference("Sheet1!$C$2");
  * title.defaultParagraphProperties().leftMargin = Coordinate(6.0); // 6 pt
  * title.defaultCharacterProperties().fontSize = 20.0; // 20 pt
  * title.defaultCharacterProperties().bold = true; // 20 pt
@@ -80,7 +82,20 @@ public:
     void setHtml(const QString &formattedText);
 
     QString stringReference() const;
+    /**
+     * @brief setStringReference sets title as string reference.
+     * @note the method does not check reference for validity.
+     * @param reference a string like "Sheet1!A1".
+     */
     void setStringReference(const QString &reference);
+    /**
+     * @brief setStringReference sets title as string reference.
+     * @param range reference range
+     * @param sheet pointer to a sheet that contains the range.
+     */
+    void setStringReference(const CellRange &range, AbstractSheet *sheet);
+
+
 
     bool isRichString() const; //only checks type, ignores actual formatting
     bool isPlainString() const;

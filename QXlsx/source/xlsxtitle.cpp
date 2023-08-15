@@ -5,6 +5,7 @@
 #include "xlsxtitle.h"
 #include "xlsxtext.h"
 #include "xlsxshapeformat.h"
+#include "xlsxabstractsheet.h"
 
 QT_BEGIN_NAMESPACE_XLSX
 
@@ -93,6 +94,18 @@ void Title::setStringReference(const QString &reference)
 {
     if (!d) d = new TitlePrivate;
     d->text.setStringReference(reference);
+}
+
+void Title::setStringReference(const CellRange &range, AbstractSheet *sheet)
+{
+    if (!d) d = new TitlePrivate;
+    if (!range.isValid())
+        return;
+    if (sheet && sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+        return;
+    QString sheetName = escapeSheetName(sheet->sheetName());
+    QString reference = sheetName + QLatin1String("!") + range.toString(true, true);
+    setStringReference(reference);
 }
 
 bool Title::isRichString() const
