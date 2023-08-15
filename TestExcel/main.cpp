@@ -45,28 +45,28 @@ int main(int argc, char *argv[])
 		}
 	}
 
-    hello();
-    readStyle();
-    calendar();
+//    hello();
+//    readStyle();
+//    calendar();
     chart();
-    chartExtended();
-    chartsheet();
-    datavalidation();
-    definename();
-    demo();
-    documentproperty();
-    extractdata();
-    formula();
-    hyperlink();
-    image();
-    mergecells();
-    numberformat();
-    richtext();
-    rowcolumn();
-    style();
-    worksheetoperations();
-    pages();
-    readextlist();
+//    chartExtended();
+//    chartsheet();
+//    datavalidation();
+//    definename();
+//    demo();
+//    documentproperty();
+//    extractdata();
+//    formula();
+//    hyperlink();
+//    image();
+//    mergecells();
+//    numberformat();
+//    richtext();
+//    rowcolumn();
+//    style();
+//    worksheetoperations();
+//    pages();
+//    readextlist();
 	
     qDebug() << "**** end of main() ****";
 

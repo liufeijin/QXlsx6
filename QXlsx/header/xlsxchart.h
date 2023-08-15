@@ -264,14 +264,22 @@ public:
      * @brief addSeries adds one or more series defined by range.
      * @param range valid CellRange
      * @param sheet data source for range
-     * @param firstRowContainsHeaders
+     * @param firstRowContainsHeaders specifies that the 1st row (the 1st column
+     * if columnBased is false) contains the series titles and should be
+     * excluded from the series data.
+     * @param firstColumnContainsCategoryData specifies that the 1st column
+     * (the 1st row if columnBased is false) contains data for the category (x)
+     * axis.
      * @param columnBased specifies that range should be treated as column-based
-     * or row-based: if columnBased is true, the first column is category data,
+     * or row-based: if columnBased is true, the first column is category data
+     * (if firstColumnContainsCategoryData is set to true),
      * other columns are value data for new series. If columnBased is false, the
-     * first row is category data, other rows are value data for new series
+     * first row is category data, other rows are value data for new series.
      */
     void addSeries(const CellRange &range, AbstractSheet *sheet = NULL,
-                   bool firstRowContainsHeaders = false, bool columnBased = true);
+                   bool firstRowContainsHeaders = false,
+                   bool firstColumnContainsCategoryData = false,
+                   bool columnBased = true);
     /**
      * @brief addSeries adds series
      * @param keyRange category range or x axis range
@@ -397,6 +405,27 @@ public:
      * @return pointer to the axis if such axis exists, nullptr otherwise
      */
     Axis *axis(int idx);
+    /**
+     * @brief axis returns axis that has position pos.
+     * @param pos Axis::Position.
+     *
+     * @note A chart can have several axes positioned at pos. This method returns
+     * _the first added_ axis that has position pos.
+     *
+     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     */
+    Axis *axis(Axis::Position pos);
+    /**
+     * @brief axis returns an axis that has type type.
+     * @param type Axis::Type.
+     *
+     * @note A chart can have several axes of the same type (f.e. scatter chart
+     * usually has 2 value axes). This method returns _the first added_ axis of the
+     * type.
+     *
+     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     */
+    Axis *axis(Axis::Type type);
 
     /**
      * @brief tries to remove axis and returns true if axis has been removed.

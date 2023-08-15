@@ -47,6 +47,7 @@ int chartExtended()
     barChart2->addDefaultAxes();
     // Messreihen
     barChart2->addSeries(CellRange(1,1,3,10), NULL, true, true);
+    //axes by index
     barChart2->axis(0)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
     barChart2->axis(1)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
 
@@ -58,6 +59,9 @@ int chartExtended()
     barChart3->setTitle("Test3");
     // Messreihen
     barChart3->addSeries(CellRange(1,1,3,10));
+    //axes by position
+    barChart3->axis(Axis::Position::Bottom)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::red)));
+    barChart3->axis(Axis::Position::Left)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
 
     Chart *barChart4 = xlsx.insertChart(24, 9, QSize(300, 300));
     barChart4->setType(Chart::Type::Bar);
@@ -65,6 +69,12 @@ int chartExtended()
     barChart4->setTitle("Test4");
     // Messreihen
     barChart4->addSeries(CellRange(1,1,3,10));
+    //axes by type
+    barChart4->axis(Axis::Type::Category)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::red)));
+    barChart4->axis(Axis::Type::Value)->majorGridLines().setLine(LineFormat(FillFormat::FillType::SolidFill, 0.15, QColor(Qt::black)));
+    if (auto ax = barChart4->axis(Axis::Type::Series)) {
+        qDebug() << "Found a series axis, none should be found";
+    }
 
     Chart *barChart5 = xlsx.insertChart(44, 9, QSize(300, 300));
     barChart5->setType(Chart::Type::Bar);

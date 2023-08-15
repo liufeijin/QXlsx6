@@ -53,7 +53,9 @@ Chart::Type Chart::type() const
  * Add the data series which is in the range \a range of the \a sheet.
  */
 void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
-                      bool firstRowContainsHeaders, bool columnBased)
+                      bool firstRowContainsHeaders,
+                      bool firstColumnContainsCategoryData,
+                      bool columnBased)
 {
     Q_D(Chart);
 
@@ -80,17 +82,19 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
         if (firstRowContainsHeaders)
             firstDataRow += 1;
 
-        CellRange subRange(firstDataRow,
+
+        CellRange categorySubRange(firstDataRow,
                            range.firstColumn(),
                            range.lastRow(),
                            range.firstColumn());
-        QString categoryReference = sheetName + QLatin1String("!") + subRange.toString(true, true);
-
-        firstDataColumn += 1;
-        for (int col=firstDataColumn; col<=range.lastColumn(); ++col) {
+        QString categoryReference = sheetName + QLatin1String("!") + categorySubRange.toString(true, true);
+        if (firstColumnContainsCategoryData)
+            firstDataColumn += 1;
+        for (int col = firstDataColumn; col <= range.lastColumn(); ++col) {
             CellRange subRange(firstDataRow, col, range.lastRow(), col);
             auto series = addSeries();
-            series->setCategorySource(categoryReference);
+            if (firstColumnContainsCategoryData)
+                series->setCategorySource(categoryReference);
             series->setValueSource(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
             if (firstRowContainsHeaders) {
@@ -107,14 +111,15 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
         if (firstRowContainsHeaders)
             firstDataColumn += 1;
 
-        CellRange subRange(range.firstRow(), firstDataColumn, range.firstRow(), range.lastColumn());
-        QString categoryReference = sheetName + QLatin1String("!") + subRange.toString(true, true);
-
-        firstDataRow += 1;
+        CellRange categorySubRange(range.firstRow(), firstDataColumn, range.firstRow(), range.lastColumn());
+        QString categoryReference = sheetName + QLatin1String("!") + categorySubRange.toString(true, true);
+        if (firstColumnContainsCategoryData)
+            firstDataRow += 1;
         for (int row = firstDataRow; row <= range.lastRow(); ++row) {
             CellRange subRange(row, firstDataColumn, row, range.lastColumn());
             auto series = addSeries();
-            series->setCategorySource(categoryReference);
+            if (firstColumnContainsCategoryData)
+                series->setCategorySource(categoryReference);
             series->setValueSource(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
             if (firstRowContainsHeaders) {
@@ -300,6 +305,28 @@ Axis *Chart::axis(int idx)
     if (idx < 0 || idx >= d->axisList.size()) return nullptr;
 
     return &d->axisList[idx];
+}
+
+Axis *Chart::axis(Axis::Position pos)
+{
+    Q_D(Chart);
+
+    for (auto &ax: d->axisList) {
+        if (ax.position() == pos) return &ax;
+    }
+
+    return nullptr;
+}
+
+Axis *Chart::axis(Axis::Type type)
+{
+    Q_D(Chart);
+
+    for (auto &ax: d->axisList) {
+        if (ax.type() == type) return &ax;
+    }
+
+    return nullptr;
 }
 
 bool Chart::removeAxis(int axisID)
@@ -1938,6 +1965,3 @@ bool DataTable::isValid() const
 
 
 }
-
-
-

@@ -23,11 +23,11 @@ int chart()
     //![0]
 
     //![1]
-    Chart *pieChart = xlsx.insertChart(3, 3, QSize(300, 300));
-    pieChart->setType(Chart::Type::Pie);
-    pieChart->addSeries(CellRange("A1:A9"));
-    pieChart->addSeries(CellRange("B1:B9"));
-    pieChart->addSeries(CellRange("C1:C9"));
+//    Chart *pieChart = xlsx.insertChart(3, 3, QSize(300, 300));
+//    pieChart->setType(Chart::Type::Pie);
+//    pieChart->addSeries(CellRange("A1:A9"));
+//    pieChart->addSeries(CellRange("B1:B9"));
+//    pieChart->addSeries(CellRange("C1:C9"));
 
     Chart *pie3DChart = xlsx.insertChart(3, 9, QSize(300, 300));
     pie3DChart->setType(Chart::Type::Pie3D);
