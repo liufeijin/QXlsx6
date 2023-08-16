@@ -16,6 +16,7 @@ public:
     SharedLabelProperties properties;
     Layout layout;
     Text text;
+    ExtensionList extList;
 };
 
 LabelPrivate::LabelPrivate()
@@ -171,6 +172,9 @@ void Label::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("tx")) {
                 d->text.read(reader);
             }
+            else if (reader.name() == QLatin1String("extLst")) {
+                d->extList.read(reader);
+            }
             else d->properties.read(reader);
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
@@ -193,6 +197,7 @@ void Label::write(QXmlStreamWriter &writer) const
         if (d->text.isValid()) d->text.write(writer, QLatin1String("c:tx"));
         d->properties.write(writer);
     }
+    d->extList.write(writer, QLatin1String("c:extLst"));
 
     writer.writeEndElement();
 }
@@ -561,7 +566,7 @@ bool LabelsPrivate::operator ==(const LabelsPrivate &other) const
     if (labels != other.labels) return false;
     if (visible != other.visible) return false;
     if (showLeaderLines != other.showLeaderLines) return false;
-    // TODO: <xsd:element name="leaderLines" type="CT_ChartLines" minOccurs="0" maxOccurs="1"/>
+    if (leaderLines != other.leaderLines) return false;
     if (defaultProperties != other.defaultProperties) return false;
     return true;
 }

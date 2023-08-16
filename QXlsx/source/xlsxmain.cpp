@@ -127,7 +127,7 @@ void PresetGeometry2D::read(QXmlStreamReader &reader)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("avLst")) {
-                //TODO:
+                //NO-OP:
             }
             else if (reader.name() == QLatin1String("gd")) {
                 avLst.append(GeometryGuide(reader.attributes().value(QLatin1String("name")).toString(),
@@ -194,7 +194,7 @@ void PresetTextShape::read(QXmlStreamReader &reader)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("avLst")) {
-                //TODO:
+                //NO-OP
             }
             else if (reader.name() == QLatin1String("gd")) {
                 avLst.append(GeometryGuide(reader.attributes().value(QLatin1String("name")).toString(),
@@ -445,7 +445,7 @@ qint64 Coordinate::toEMU() const
     if (val.userType() == QMetaType::LongLong)
         return val.value<qint64>();
     if (val.userType() == QMetaType::Double)
-        return qint64(val.value<double>() * 12700); //TODO: Check other methods of rounding
+        return qint64(val.value<double>() * 12700);
 
     return {};
 }
@@ -863,18 +863,31 @@ Percentage Percentage::create(QStringView s)
 
 void ExtensionList::write(QXmlStreamWriter &writer, const QString &name) const
 {
-    //TODO:
+    if (vals.isEmpty()) return;
+//
+    writer.writeStartElement(name);
+    writer.writeComment("");
+    writer.device()->write(vals);
+    writer.writeEndElement();
 }
 
 void ExtensionList::read(QXmlStreamReader &reader)
 {
-    auto start = reader.characterOffset();
-    reader.skipCurrentElement();
-    auto end = reader.characterOffset();
-    reader.device()->seek(end-start);
+    vals.clear();
+    QXmlStreamWriter w(&vals);
+    const auto &name = reader.name();
 
-    vals = reader.device()->read(end-start);
-    qDebug()<<vals;
+    if (reader.readNextStartElement()) {
+        while (!reader.isEndElement() || reader.name() != name) {
+//            qDebug()<<reader.tokenString()<<reader.qualifiedName() << reader.namespaceUri() << reader.prefix();
+            w.writeCurrentToken(reader);
+            reader.readNext();
+        }
+    }
+    vals.replace("<n1:", "<c:");
+    vals.replace("</n1:", "</c:");
+
+//    qDebug()<<vals;
 }
 
 bool ExtensionList::isValid() const
