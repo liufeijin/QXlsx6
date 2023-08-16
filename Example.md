@@ -77,6 +77,12 @@ int main(int argc, char *argv[])
 
 ![](markdown.data/testexcel.png)
 
+## [ExcelReading](https://github.com/QtExcel/QXlsx/tree/master/ExcelReading)
+
+Loads xlsx file that was created in Excel and writes it back.
+
+The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table etc.
+
 ## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/HelloAndroid)
 
 - See 'HelloAndroid' example using QML and native C++.

@@ -87,7 +87,7 @@ void MarkerFormat::write(QXmlStreamWriter &writer) const
         writer.writeAttribute("val", s);
     }
     writeEmptyElement(writer, QLatin1String("c:size"), d->size);
-    if (d->shape.isValid()) d->shape.write(writer, "a:spPr");
+    if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
     writer.writeEndElement();
 }
 
@@ -107,6 +107,7 @@ void MarkerFormat::read(QXmlStreamReader &reader)
                 d->size = reader.attributes().value(QLatin1String("val")).toInt();
             else if (reader.name() == QLatin1String("spPr"))
                 d->shape.read(reader);
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;

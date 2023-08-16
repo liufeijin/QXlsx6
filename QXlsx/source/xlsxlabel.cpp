@@ -189,7 +189,7 @@ void Label::write(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
     }
     else {
-        if (d->layout.isValid()) d->layout.write(writer, QLatin1String("c:layout"));
+        d->layout.write(writer, QLatin1String("c:layout"));
         if (d->text.isValid()) d->text.write(writer, QLatin1String("c:tx"));
         d->properties.write(writer);
     }
@@ -292,9 +292,10 @@ void Labels::addLabel(int index, Label::ShowParameters showFlags, Label::Positio
     d->labels << Label(index, showFlags, position);
 }
 
-Label &Labels::label(int index)
+std::optional<std::reference_wrapper<Label> > Labels::label(int index)
 {
     if (!d) d = new LabelsPrivate;
+    if (index < 0 || index >= d->labels.size()) return std::nullopt;
     return d->labels[index];
 }
 
@@ -304,13 +305,18 @@ Label Labels::label(int index) const
     return {};
 }
 
-Label &Labels::labelForPoint(int index)
+std::optional<std::reference_wrapper<Label> > Labels::labelForPoint(int index)
 {
     if (!d) d = new LabelsPrivate;
-    for (auto &l: d->labels) {
-        if (l.index() == index) return l;
+    int idx=-1;
+    for (int i=0; i<d->labels.size(); ++i) {
+        if (d->labels.at(i).index() == index) {
+            idx = i;
+            break;
+        }
     }
-    //TODO: replace with iterator
+    if (idx >= 0) return d->labels[idx];
+    return std::nullopt;
 }
 
 Label Labels::labelForPoint(int index) const
@@ -405,15 +411,15 @@ void Labels::write(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("c:dLbls"));
     for (const auto &l: d->labels) l.write(writer);
 
-    if (!d->visible) {
-        writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible);
+    if (d->visible.has_value()) {
+        writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
     }
     else {
         d->defaultProperties.write(writer);
         writeEmptyElement(writer, QLatin1String("c:showLeaderLines"), d->showLeaderLines);
         if (d->leaderLines.isValid()) {
             writer.writeEmptyElement(QLatin1String("c:leaderLines"));
-            d->leaderLines.write(writer, QLatin1String("a:spPr"));
+            d->leaderLines.write(writer, QLatin1String("c:spPr"));
             writer.writeEndElement();
         }
     }
@@ -488,9 +494,10 @@ QDebug operator<<(QDebug dbg, const Labels &f)
 void SharedLabelProperties::read(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
+    const auto &a = reader.attributes();
     if (name == QLatin1String("numFmt")) {
-        numberFormat = reader.attributes().value(QLatin1String("formatCode")).toString();
-        formatSourceLinked = fromST_Boolean(reader.attributes().value(QLatin1String("sourceLinked")));
+        numberFormat = a.value(QLatin1String("formatCode")).toString();
+        formatSourceLinked = fromST_Boolean(a.value(QLatin1String("sourceLinked")));
     }
     else if (name == QLatin1String("spPr")) {
         shape.read(reader);
@@ -499,26 +506,31 @@ void SharedLabelProperties::read(QXmlStreamReader &reader)
         text.read(reader, false);
     }
     else if (name == QLatin1String("showLegendKey")) {
-        showFlags.setFlag(Label::ShowLegendKey, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowLegendKey, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("showVal")) {
-        showFlags.setFlag(Label::ShowValue, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowValue, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("showCatName")) {
-        showFlags.setFlag(Label::ShowCategory, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowCategory, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("showSerName")) {
-        showFlags.setFlag(Label::ShowSeries, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowSeries, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("showPercent")) {
-        showFlags.setFlag(Label::ShowPercent, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowPercent, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("showBubbleSize")) {
-        showFlags.setFlag(Label::ShowBubbleSize, fromST_Boolean(reader.attributes().value(QLatin1String("val"))));
+        showFlags.setFlag(Label::ShowBubbleSize, fromST_Boolean(a.value(QLatin1String("val"))));
     }
     else if (name == QLatin1String("separator")) {
         separator = reader.readElementText();
     }
+    else if (name == QLatin1String("dLblPos")) {
+        Label::Position p; Label::fromString(a.value(QLatin1String("val")).toString(), p);
+        pos = p;
+    }
+    else reader.skipCurrentElement();
 }
 
 void SharedLabelProperties::write(QXmlStreamWriter &writer) const
@@ -528,20 +540,18 @@ void SharedLabelProperties::write(QXmlStreamWriter &writer) const
         writer.writeAttribute(QLatin1String("formatCode"), numberFormat);
         writer.writeAttribute(QLatin1String("sourceLinked"), toST_Boolean(formatSourceLinked));
     }
-    if (shape.isValid()) shape.write(writer, QLatin1String("a:spPr"));
+    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
     if (text.isValid()) text.write(writer, QLatin1String("c:txPr"), false);
-    writer.writeEmptyElement(QLatin1String("c:showVal"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowValue)));
-    writer.writeEmptyElement(QLatin1String("c:showCatName"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowCategory)));
-    writer.writeEmptyElement(QLatin1String("c:showSerName"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowSeries)));
-    writer.writeEmptyElement(QLatin1String("c:showPercent"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowPercent)));
-    writer.writeEmptyElement(QLatin1String("c:showBubbleSize"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowBubbleSize)));
-    writer.writeEmptyElement(QLatin1String("c:showLegendKey"));
-    writer.writeAttribute(QLatin1String("val"), toST_Boolean(showFlags.testFlag(Label::ShowLegendKey)));
+    if (pos.has_value()) {
+        QString s; Label::toString(pos.value(), s);
+        writeEmptyElement(writer, QLatin1String("c:dLblPos"), s);
+    }
+    writeEmptyElement(writer, QLatin1String("c:showVal"), showFlags.testFlag(Label::ShowValue));
+    writeEmptyElement(writer, QLatin1String("c:showCatName"), showFlags.testFlag(Label::ShowCategory));
+    writeEmptyElement(writer, QLatin1String("c:showSerName"), showFlags.testFlag(Label::ShowSeries));
+    writeEmptyElement(writer, QLatin1String("c:showPercent"), showFlags.testFlag(Label::ShowPercent));
+    writeEmptyElement(writer, QLatin1String("c:showBubbleSize"), showFlags.testFlag(Label::ShowBubbleSize));
+    writeEmptyElement(writer, QLatin1String("c:showLegendKey"), showFlags.testFlag(Label::ShowLegendKey));
 
     if (!separator.isEmpty()) writer.writeTextElement(QLatin1String("c:separator"), separator);
 }

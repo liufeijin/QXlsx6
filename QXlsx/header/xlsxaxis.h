@@ -168,6 +168,17 @@ public:
         Cross /**< the tick marks shall cross the axis. */
     };
     /**
+     * @brief The TickLabelPosition enum specifies the possible positions for tick labels
+     */
+    enum class TickLabelPosition
+    {
+        High, /**<  the axis labels shall be at the high end of the perpendicular axis */
+        Low, /**< the axis labels shall be at the low end of the perpendicular axis */
+        NextTo, /**< the axis labels shall be next to the axis */
+        None /**< the axis labels are not drawn */
+    };
+
+    /**
      * @brief The LabelAlignment enum specifies the possible ways to align the tick labels
      */
     enum class LabelAlignment
@@ -480,6 +491,12 @@ private:
         {CrossesBetweenType::MidCat, "midCat"},
         {CrossesBetweenType::Between, "between"},
     });
+    SERIALIZE_ENUM(TickLabelPosition, {
+        {TickLabelPosition::High, "high"},
+        {TickLabelPosition::Low, "low"},
+        {TickLabelPosition::NextTo, "nextTo"},
+        {TickLabelPosition::None, "none"},
+    });
 
     friend QDebug operator<<(QDebug, const Axis &axis);
 
@@ -514,6 +531,9 @@ public:
 
     std::optional<Axis::TickMark> majorTickMark;
     std::optional<Axis::TickMark> minorTickMark;
+
+    std::optional<Axis::TickLabelPosition> tickLabelPosition;
+    ShapeFormat shape;
 
     //Cat, Date
     std::optional<bool> axAuto;

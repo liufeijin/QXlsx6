@@ -438,7 +438,7 @@ public:
      * @param index index of a label (not the index of a series dataPoint!)
      * @return reference to a label, fails if series is not valid
      */
-    Label &label(int index);
+    std::optional<std::reference_wrapper<Label> > label(int index);
     /**
      * @brief label returns label with index \index
      * @param index index of a label (not the index of a series dataPoint!)
@@ -448,10 +448,10 @@ public:
 
     /**
      * @brief label returns reference to a label for a specified data point
-     * @param index index of a series dataPoint
+     * @param index index of a series data point
      * @return reference to a label, fails if series is not valid
      */
-    Label &labelForPoint(int index);
+    std::optional<std::reference_wrapper<Label> > labelForPoint(int index);
     /**
      * @brief label returns label for a specified data point
      * @param index index of a series dataPoint
@@ -475,6 +475,9 @@ public:
     /**
      * @brief invertColorsIfNegative specifies the parent element shall invert
      * its colors if the value is negative.
+     *
+     * Applicable to: bar series, bubble series
+     *
      * @return valid optional value if invertIfNegative property is set, invalid otherwise
      */
     std::optional<bool> invertColorsIfNegative() const;

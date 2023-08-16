@@ -288,9 +288,9 @@ void Title::write(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:title"));
     if (d->text.isValid()) d->text.write(writer, "c:tx");
-    if (d->layout.isValid()) d->layout.write(writer, "c:layout");
+    d->layout.write(writer, "c:layout");
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
-    if (d->shape.isValid()) d->shape.write(writer, "a:spPr");
+    if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
 
     if (d->textProperties.isValid())
         d->textProperties.write(writer, QLatin1String("c:txPr"), false);
@@ -307,13 +307,14 @@ void Title::read(QXmlStreamReader &reader)
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("tx")) d->text.read(reader);
-            if (reader.name() == QLatin1String("layout")) d->layout.read(reader);
-            if (reader.name() == QLatin1String("overlay"))
+            else if (reader.name() == QLatin1String("layout")) d->layout.read(reader);
+            else if (reader.name() == QLatin1String("overlay"))
                 parseAttributeBool(a, QLatin1String("val"), d->overlay);
-            if (reader.name() == QLatin1String("spPr")) d->shape.read(reader);
-            if (reader.name() == QLatin1String("txPr")) {
+            else if (reader.name() == QLatin1String("spPr")) d->shape.read(reader);
+            else if (reader.name() == QLatin1String("txPr")) {
                 d->textProperties.read(reader, false);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name) {
             break;

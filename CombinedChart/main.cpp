@@ -64,12 +64,12 @@ int main(int argc, char *argv[])
 
     //The first series - bar series
     chart2->setType(Chart::Type::Bar);
-    chart2->addSeries(CellRange(1,1,2,10), NULL, true, true, false);
+    chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false);
     chart2->setSeriesAxesIDs({bottomAxis.id(), leftAxis.id()});
 
     //The second series - line chart
     chart2->setType(Chart::Type::Line);
-    chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true);
+    chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true);
     chart2->setSeriesAxesIDs({bottom2Axis.id(), rightAxis.id()});
 
     //right now both left and right axes are plotted on the left. We need to properly

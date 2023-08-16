@@ -32,7 +32,7 @@ For simple properties (bool, int, enums) it uses std::optional: methods that ret
 For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have isValid() method.
 If the feature is set, isValid() will return true.
 
-I try to get rid of the raw pointers. Some parts of the library still need serious overhaul.
+I try to get rid of the raw pointers. And definitely non-scoped enums shall be replaced with scoped ones. Some parts of the library still need serious overhaul. 
 
 See [what is done up to this moment](WhatIsDone.md).
 

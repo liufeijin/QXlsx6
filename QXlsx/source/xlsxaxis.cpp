@@ -54,6 +54,9 @@ void Axis::Scaling::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("max")) {
                 max = val.toDouble();
             }
+            else if (reader.name() == QLatin1String("extLst")) {
+                reader.skipCurrentElement();
+            }
         }
         else if (reader.tokenType() == QXmlStreamReader::EndElement &&
                  reader.name() == QLatin1String("scaling")) {
@@ -597,6 +600,11 @@ void Axis::write(QXmlStreamWriter &writer) const
         writer.writeEmptyElement("c:minorTickMark");
         writer.writeAttribute("val", s);
     }
+    if (d->tickLabelPosition.has_value()) {
+        QString s; toString(d->tickLabelPosition.value(), s);
+        writeEmptyElement(writer, QLatin1String("c:tickLblPos"), s);
+    }
+    d->shape.write(writer, QLatin1String("c:spPr"));
 
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
 
@@ -689,6 +697,9 @@ void Axis::read(QXmlStreamReader &reader)
                 if (reader.readNextStartElement())
                     d->minorGridlines.read(reader);
             }
+            else if (reader.name() == QLatin1String("spPr")) {
+                d->shape.read(reader);
+            }
             else if (reader.name() == QLatin1String("title")) {
                 d->title.read(reader);
             }
@@ -736,6 +747,10 @@ void Axis::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("minorUnit")) {
                 parseAttributeDouble(a, QLatin1String("val"), d->minorUnit);
             }
+            else if (reader.name() == QLatin1String("tickLblPos")) {
+                TickLabelPosition t; fromString(a.value(QLatin1String("val")).toString(), t);
+                d->tickLabelPosition = t;
+            }
             else if (reader.name() == QLatin1String("baseTimeUnit")) {
                 TimeUnit t; fromString(a.value(QLatin1String("val")).toString(), t);
                 d->baseTimeUnit = t;
@@ -763,6 +778,9 @@ void Axis::read(QXmlStreamReader &reader)
             }
             else if (reader.name() == QLatin1String("dispUnits")) {
                 d->displayUnits.read(reader);
+            }
+            else if (reader.name() == QLatin1String("extLst")) {
+                reader.skipCurrentElement();
             }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
@@ -793,7 +811,8 @@ AxisPrivate::AxisPrivate(const AxisPrivate &other) : QSharedData(other),
     crossesPosition{other.crossesPosition}, majorGridlines{other.majorGridlines},
     minorGridlines{other.minorGridlines}, title{other.title}, textProperties{other.textProperties},
     numberFormat{other.numberFormat}, majorTickMark{other.majorTickMark},
-    minorTickMark{other.minorTickMark}, axAuto{other.axAuto}, labelOffset{other.labelOffset},
+    minorTickMark{other.minorTickMark}, tickLabelPosition{other.tickLabelPosition},
+    shape{other.shape}, axAuto{other.axAuto}, labelOffset{other.labelOffset},
     labelAlignment{other.labelAlignment}, noMultiLevelLabels{other.noMultiLevelLabels},
     majorUnit{other.majorUnit}, minorUnit{other.minorUnit}, baseTimeUnit{other.baseTimeUnit},
     majorTimeUnit{other.majorTimeUnit}, minorTimeUnit{other.minorTimeUnit},
@@ -991,6 +1010,9 @@ void DisplayUnits::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("tx")) mText.read(reader);
             else if (reader.name() == QLatin1String("spPr")) mShape.read(reader);
             else if (reader.name() == QLatin1String("txPr")) mTextProperties.read(reader, false);
+            else if (reader.name() == QLatin1String("extLst")) {
+                reader.skipCurrentElement();
+            }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1008,10 +1030,10 @@ void DisplayUnits::write(QXmlStreamWriter &writer, const QString &name) const
     }
     if (mLabelVisible) {
         writer.writeStartElement(QLatin1String("c:dispUnitsLbl"));
-        if (mLayout.isValid()) mLayout.write(writer, QLatin1String("c:layout"));
+        mLayout.write(writer, QLatin1String("c:layout"));
         if (mText.isValid()) mText.write(writer, QLatin1String("c:tx"));
         if (mTextProperties.isValid()) mText.write(writer, QLatin1String("c:txPr"), false);
-        if (mShape.isValid()) mShape.write(writer, QLatin1String("a:spPr"));
+        if (mShape.isValid()) mShape.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     writer.writeEndElement();

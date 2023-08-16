@@ -82,8 +82,6 @@ public:
     bool operator !=(const Label &other) const;
     operator QVariant() const;
 
-private:
-    friend QDebug operator<<(QDebug dbg, const Label &f);
     SERIALIZE_ENUM(Position, {
         {Position::BestFit, "bestFit"},
         {Position::Left, "l"},
@@ -95,6 +93,8 @@ private:
         {Position::InEnd, "inEnd"},
         {Position::OutEnd, "outEnd"},
     });
+private:
+    friend QDebug operator<<(QDebug dbg, const Label &f);
 
     QSharedDataPointer<LabelPrivate> d;
 };
@@ -169,8 +169,13 @@ public:
      * @return
      */
     Label label(int index) const;
-    Label &label(int index);
-    Label &labelForPoint(int index);
+    std::optional<std::reference_wrapper<Label> > label(int index);
+    /**
+     * @brief labelForPoint
+     * @param index index of a data point
+     * @return
+     */
+    std::optional<std::reference_wrapper<Label>> labelForPoint(int index);
     Label labelForPoint(int index) const;
 
     void read(QXmlStreamReader &reader);
@@ -190,7 +195,7 @@ public:
     bool operator ==(const LabelsPrivate &other) const;
 
     QList<Label> labels;
-    bool visible = false;
+    std::optional<bool> visible;
     std::optional<bool> showLeaderLines;
     ShapeFormat leaderLines;
     SharedLabelProperties defaultProperties;

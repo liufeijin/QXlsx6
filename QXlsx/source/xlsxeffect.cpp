@@ -145,26 +145,26 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                 parseAttribute(a, QLatin1String("rad"), d->blurRadius);
                 parseAttributeBool(a, QLatin1String("grow"), d->blurGrow);
             }
-            if (reader.name() == QLatin1String("fillOverlay")) {
+            else if (reader.name() == QLatin1String("fillOverlay")) {
                 FillBlendMode t;
                 fromString(a.value(QLatin1String("blend")).toString(), t);
                 d->fillBlendMode = t;
                 reader.readNextStartElement();
                 d->fillOverlay.read(reader);
             }
-            if (reader.name() == QLatin1String("glow")) {
+            else if (reader.name() == QLatin1String("glow")) {
                 parseAttribute(a, QLatin1String("rad"), d->glowRadius);
                 reader.readNextStartElement();
                 d->glowColor.read(reader);
             }
-            if (reader.name() == QLatin1String("innerShdw")) {
+            else if (reader.name() == QLatin1String("innerShdw")) {
                 parseAttribute(a, QLatin1String("dir"), d->innerShadowDirection);
                 parseAttribute(a, QLatin1String("dist"), d->innerShadowOffset);
                 parseAttribute(a, QLatin1String("blurRad"), d->innerShadowBlurRadius);
                 reader.readNextStartElement();
                 d->innerShadowColor.read(reader);
             }
-            if (reader.name() == QLatin1String("outerShdw")) {
+            else if (reader.name() == QLatin1String("outerShdw")) {
                 parseAttribute(a, QLatin1String("dir"), d->outerShadowDirection);
                 parseAttribute(a, QLatin1String("dist"), d->outerShadowOffset);
                 parseAttribute(a, QLatin1String("blurRad"), d->outerShadowBlurRadius);
@@ -178,17 +178,17 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                     fromString(a.value(QLatin1String("algn")).toString(), t);
                     d->outerShadowAlignment = t;
                 }
-                reader.readNextStartElement();
-                d->innerShadowColor.read(reader);
+                if (reader.readNextStartElement())
+                    d->outerShadowColor.read(reader);
             }
-            if (reader.name() == QLatin1String("prstShdw")) {
+            else if (reader.name() == QLatin1String("prstShdw")) {
                 parseAttribute(a, QLatin1String("dir"), d->presetShadowDirection);
                 parseAttribute(a, QLatin1String("dist"), d->presetShadowOffset);
                 parseAttributeInt(a, QLatin1String("prst"), d->presetShadow);
                 reader.readNextStartElement();
                 d->presetShadowColor.read(reader);
             }
-            if (reader.name() == QLatin1String("reflection")) {
+            else if (reader.name() == QLatin1String("reflection")) {
                 parseAttribute(a, QLatin1String("blurRad"), d->reflectionBlurRadius);
                 parseAttributePercent(a, QLatin1String("stA"), d->reflectionStartOpacity);
                 parseAttributePercent(a, QLatin1String("stPos"), d->reflectionStartPosition);
@@ -208,9 +208,10 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                 }
                 parseAttributeBool(a, QLatin1String("rotWithShape"), d->reflectionRotateWithShape);
             }
-            if (reader.name() == QLatin1String("softEdge")) {
+            else if (reader.name() == QLatin1String("softEdge")) {
                 parseAttribute(a, QLatin1String("rad"), d->softEdgesBlurRadius);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -340,6 +341,10 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         if (d->reflectionVerticalSkewFactor.has_value())
             writer.writeAttribute(QLatin1String("ky"), d->reflectionVerticalSkewFactor->toString());
 
+    }
+    if (d->softEdgesBlurRadius.isValid()) {
+        writer.writeEmptyElement(QLatin1String("a:softEdge"));
+        writer.writeAttribute(QLatin1String("rad"), d->softEdgesBlurRadius.toString());
     }
 
     writer.writeEndElement();
@@ -960,7 +965,6 @@ QDebug operator<<(QDebug dbg, const Effect &e)
 
     dbg << "QXlsx::Effect(";
     if (e.isValid()) {
-        //TODO:
         dbg << "type: " << static_cast<int>(e.d->type) << ", ";
         if (e.d->blurRadius.isValid()) dbg << "blurRadius: " << e.d->blurRadius.toString() << ", ";
         if (e.d->blurGrow.has_value()) dbg << "blurGrow: " << e.d->blurGrow.value() << ", ";

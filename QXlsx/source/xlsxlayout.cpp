@@ -221,8 +221,10 @@ bool Layout::isValid() const
 
 void Layout::read(QXmlStreamReader &reader)
 {
-    if (!d) d = new LayoutPrivate;
     const auto &name = reader.name();
+    if (!reader.readNextStartElement()) return;
+
+    if (!d) d = new LayoutPrivate;
 
     while (!reader.atEnd()) {
         auto token = reader.readNext();
@@ -232,26 +234,27 @@ void Layout::read(QXmlStreamReader &reader)
                 if (val == QLatin1String("inner")) d->layoutTarget = LayoutTarget::Inner;
                 if (val == QLatin1String("outer")) d->layoutTarget = LayoutTarget::Outer;
             }
-            if (reader.name() == QLatin1String("xMode")) {
+            else if (reader.name() == QLatin1String("xMode")) {
                 if (val == QLatin1String("edge")) d->xMode = LayoutMode::Edge;
                 if (val == QLatin1String("factor")) d->xMode = LayoutMode::Factor;
             }
-            if (reader.name() == QLatin1String("yMode")) {
+            else if (reader.name() == QLatin1String("yMode")) {
                 if (val == QLatin1String("edge")) d->yMode = LayoutMode::Edge;
                 if (val == QLatin1String("factor")) d->yMode = LayoutMode::Factor;
             }
-            if (reader.name() == QLatin1String("wMode")) {
+            else if (reader.name() == QLatin1String("wMode")) {
                 if (val == QLatin1String("edge")) d->wMode = LayoutMode::Edge;
                 if (val == QLatin1String("factor")) d->wMode = LayoutMode::Factor;
             }
-            if (reader.name() == QLatin1String("hMode")) {
+            else if (reader.name() == QLatin1String("hMode")) {
                 if (val == QLatin1String("edge")) d->hMode = LayoutMode::Edge;
                 if (val == QLatin1String("factor")) d->hMode = LayoutMode::Factor;
             }
-            if (reader.name() == QLatin1String("x")) d->x = val.toDouble();
-            if (reader.name() == QLatin1String("y")) d->y = val.toDouble();
-            if (reader.name() == QLatin1String("w")) d->w = val.toDouble();
-            if (reader.name() == QLatin1String("h")) d->h = val.toDouble();
+            else if (reader.name() == QLatin1String("x")) d->x = val.toDouble();
+            else if (reader.name() == QLatin1String("y")) d->y = val.toDouble();
+            else if (reader.name() == QLatin1String("w")) d->w = val.toDouble();
+            else if (reader.name() == QLatin1String("h")) d->h = val.toDouble();
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;

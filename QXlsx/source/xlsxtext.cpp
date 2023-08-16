@@ -301,7 +301,9 @@ void Text::read(QXmlStreamReader &reader, bool diveInto)
                 } else if (reader.name() == QLatin1String("v")) {
                     readPlainString(reader);
                 }
-            } else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+                else reader.skipCurrentElement();
+            }
+            else if (token == QXmlStreamReader::EndElement && reader.name() == name)
                 break;
         }
     } else {
@@ -382,6 +384,7 @@ void Text::readStringReference(QXmlStreamReader &reader)
                 if (idx >=0 && idx < list.size()) list[idx] = s;
                 idx = -1;
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -415,6 +418,7 @@ void Text::readRichString(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("p")) {
                 readParagraph(reader);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -608,6 +612,7 @@ void TextProperties::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("flatTx")) {
                 z = Coordinate::create(reader.attributes().value(QLatin1String("z")).toString());
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -981,6 +986,7 @@ void ParagraphProperties::read(QXmlStreamReader &reader)
                 p.read(reader);
                 defaultTextCharacterProperties = p;
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1160,6 +1166,7 @@ void ListStyleProperties::read(QXmlStreamReader &reader)
                 p.read(reader);
                 vals[9] = p;
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1201,16 +1208,19 @@ void ParagraphProperties::readTabStops(QXmlStreamReader &reader)
     const auto &name = reader.name();
     while (!reader.atEnd()) {
         auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement && reader.name() == QLatin1String("tab")) {
-            const auto &a = reader.attributes();
-            QPair<Coordinate, TabAlign> p;
-            if (a.hasAttribute(QLatin1String("pos"))) p.first = Coordinate::create(a.value(QLatin1String("pos")));
-            if (a.hasAttribute(QLatin1String("algn"))) {
-                TabAlign t;
-                fromString(a.value(QLatin1String("algn")).toString(), t);
-                p.second = t;
-                tabStops << p;
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("tab")) {
+                const auto &a = reader.attributes();
+                QPair<Coordinate, TabAlign> p;
+                if (a.hasAttribute(QLatin1String("pos"))) p.first = Coordinate::create(a.value(QLatin1String("pos")));
+                if (a.hasAttribute(QLatin1String("algn"))) {
+                    TabAlign t;
+                    fromString(a.value(QLatin1String("algn")).toString(), t);
+                    p.second = t;
+                    tabStops << p;
+                }
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1399,6 +1409,7 @@ void Paragraph::read(QXmlStreamReader &reader)
                 t.read(reader);
                 textRuns.append(t);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1415,6 +1426,8 @@ void Paragraph::write(QXmlStreamWriter &writer, const QString &name) const
     writer.writeStartElement(name);
     if (paragraphProperties.has_value()) paragraphProperties->write(writer, QLatin1String("a:pPr"));
     for (const auto &p: textRuns) p.write(writer);
+    if (endParagraphDefaultCharacterProperties.has_value())
+        endParagraphDefaultCharacterProperties->write(writer, QLatin1String("a:endParaRPr"));
     writer.writeEndElement(); //name
 }
 
@@ -1469,6 +1482,7 @@ void TextRun::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("t")) {
                 text = reader.readElementText();
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1698,6 +1712,7 @@ void CharacterProperties::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("rtl")) {
                 rightToLeft = fromST_Boolean(reader.attributes().value(QLatin1String("val")));
             }
+            else reader.skipCurrentElement();
             //TODO: hyperlinks
         //          <xsd:element name="hlinkClick" type="CT_Hyperlink" minOccurs="0" maxOccurs="1"/>
         //          <xsd:element name="hlinkMouseOver" type="CT_Hyperlink" minOccurs="0" maxOccurs="1"/>

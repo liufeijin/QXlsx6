@@ -269,13 +269,13 @@ void FillFormat::read(QXmlStreamReader &reader)
     FillType t;
     fromString(name, t);
 
-    if (t == FillType::NoFill) return;
     if (!d) {
         d = new FillFormatPrivate;
         d->type = t;
     }
 
     switch (d->type) {
+        case FillType::NoFill: break; //NO-OP
         case FillType::SolidFill : readSolidFill(reader); break;
 
         case FillType::GradientFill : readGradientFill(reader); break;
@@ -388,12 +388,15 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("tileRect")) {
                 const auto &attr = reader.attributes();
                 QRectF r;
-                r.setTop(fromST_Percent(attr.value("t")));
-                r.setLeft(fromST_Percent(attr.value("l")));
-                r.setRight(fromST_Percent(attr.value("r")));
-                r.setBottom(fromST_Percent(attr.value("b")));
+                if (!attr.isEmpty()) {
+                    r.setTop(fromST_Percent(attr.value("t")));
+                    r.setLeft(fromST_Percent(attr.value("l")));
+                    r.setRight(fromST_Percent(attr.value("r")));
+                    r.setBottom(fromST_Percent(attr.value("b")));
+                }
                 d->tileRect = r;
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == QLatin1String("gradFill"))
             break;
@@ -448,7 +451,7 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
 
         writer.writeEndElement();
     }
-    if (d->tileRect.has_value()) {
+    if (d->tileRect.has_value() && d->tileRect->isValid()) {
         writer.writeEmptyElement("a:tileRect");
         writer.writeAttribute("t", toST_Percent(d->tileRect->top()));
         writer.writeAttribute("b", toST_Percent(d->tileRect->bottom()));
@@ -476,6 +479,7 @@ void FillFormat::readPatternFill(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("bgClr")) {
                 d->backgroundColor.read(reader);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -523,6 +527,7 @@ void FillFormat::readGradientList(QXmlStreamReader &reader)
                 col.read(reader);
                 d->gradientList.insert(pos, col);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == QLatin1String("gsLst"))
             break;
@@ -535,7 +540,7 @@ void FillFormat::writeGradientList(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("a:gsLst"));
     for (auto i = d->gradientList.constBegin(); i!= d->gradientList.constEnd(); ++i) {
         writer.writeStartElement(QLatin1String("a:gs"));
-        writer.writeAttribute("pos", QString::number(i.key()*100)+'%');
+        writer.writeAttribute("pos", QString::number(i.key())+'%');
         i.value().write(writer);
         writer.writeEndElement();
     }

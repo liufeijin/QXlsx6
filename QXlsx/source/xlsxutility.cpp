@@ -23,7 +23,7 @@ double fromST_Percent(QStringView val)
         val.chop(1);
         return val.toString().toDouble();
     }
-    return val.toString().toDouble()/1000;
+    return val.toString().toDouble()/1000.0;
 }
 
 double fromST_Angle(QStringView val)

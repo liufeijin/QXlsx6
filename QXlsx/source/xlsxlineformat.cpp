@@ -453,10 +453,10 @@ void LineFormat::read(QXmlStreamReader &reader)
                 fromString(reader.attributes().value("val").toString(), t);
                 d->strokeType = t;
             }
-            if (reader.name() == QLatin1String("round")) d->lineJoin = LineFormat::LineJoin::Round;
-            if (reader.name() == QLatin1String("bevel")) d->lineJoin = LineFormat::LineJoin::Bevel;
-            if (reader.name() == QLatin1String("miter")) d->lineJoin = LineFormat::LineJoin::Miter;
-            if (reader.name() == QLatin1String("headEnd")) {
+            else if (reader.name() == QLatin1String("round")) d->lineJoin = LineFormat::LineJoin::Round;
+            else if (reader.name() == QLatin1String("bevel")) d->lineJoin = LineFormat::LineJoin::Bevel;
+            else if (reader.name() == QLatin1String("miter")) d->lineJoin = LineFormat::LineJoin::Miter;
+            else if (reader.name() == QLatin1String("headEnd")) {
                 const auto &a = reader.attributes();
                 if (a.hasAttribute("type")) {
                     const auto &s = a.value("type");
@@ -479,7 +479,8 @@ void LineFormat::read(QXmlStreamReader &reader)
                     else if (s == QLatin1String("sm")) d->headWidth = LineEndSize::Small;
                     else if (s == QLatin1String("med")) d->headWidth = LineEndSize::Medium;
                 }
-            }if (reader.name() == QLatin1String("tailEnd")) {
+            }
+            else if (reader.name() == QLatin1String("tailEnd")) {
                 const auto &a = reader.attributes();
                 if (a.hasAttribute("type")) {
                     const auto &s = a.value("type");
@@ -503,6 +504,7 @@ void LineFormat::read(QXmlStreamReader &reader)
                     else if (s == QLatin1String("med")) d->tailWidth = LineEndSize::Medium;
                 }
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;

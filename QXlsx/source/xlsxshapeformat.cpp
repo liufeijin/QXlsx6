@@ -233,6 +233,7 @@ void ShapeFormat::read(QXmlStreamReader &reader)
                 s.read(reader);
                 d->shape3D = s;
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;

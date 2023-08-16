@@ -60,6 +60,7 @@ void Transform2D::read(QXmlStreamReader &reader)
                 offset.emplace(QPoint(reader.attributes().value(QLatin1String("x")).toLong(),
                                         reader.attributes().value(QLatin1String("y")).toLong()));
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -126,12 +127,13 @@ void PresetGeometry2D::read(QXmlStreamReader &reader)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("avLst")) {
-                //
+                //TODO:
             }
             else if (reader.name() == QLatin1String("gd")) {
                 avLst.append(GeometryGuide(reader.attributes().value(QLatin1String("name")).toString(),
                              reader.attributes().value(QLatin1String("fmla")).toString()));
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -192,12 +194,13 @@ void PresetTextShape::read(QXmlStreamReader &reader)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("avLst")) {
-                //
+                //TODO:
             }
             else if (reader.name() == QLatin1String("gd")) {
                 avLst.append(GeometryGuide(reader.attributes().value(QLatin1String("name")).toString(),
                              reader.attributes().value(QLatin1String("fmla")).toString()));
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -246,6 +249,7 @@ void Scene3D::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("backdrop")) {
                 readBackdrop(reader);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -274,6 +278,7 @@ void Scene3D::readCamera(QXmlStreamReader &reader)
                 camera.rotation[1] = Angle::create(reader.attributes().value(QLatin1String("lon")).toString());
                 camera.rotation[2] = Angle::create(reader.attributes().value(QLatin1String("rev")).toString());
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -329,6 +334,7 @@ void Scene3D::readLightRig(QXmlStreamReader &reader)
                 lightRig.rotation[1] = Angle::create(reader.attributes().value(QLatin1String("lon")).toString());
                 lightRig.rotation[2] = Angle::create(reader.attributes().value(QLatin1String("rev")).toString());
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -374,20 +380,21 @@ void Scene3D::readBackdrop(QXmlStreamReader &reader)
                 backdropPlane->anchor[1] = Coordinate::create(a.value(QLatin1String("y")).toString());
                 backdropPlane->anchor[2] = Coordinate::create(a.value(QLatin1String("z")).toString());
             }
-            if (reader.name() == QLatin1String("norm")) {
+            else if (reader.name() == QLatin1String("norm")) {
                 const auto &a = reader.attributes();
                 backdropPlane->norm.resize(3);
                 backdropPlane->norm[0] = Coordinate::create(a.value(QLatin1String("dx")).toString());
                 backdropPlane->norm[1] = Coordinate::create(a.value(QLatin1String("dy")).toString());
                 backdropPlane->norm[2] = Coordinate::create(a.value(QLatin1String("dz")).toString());
             }
-            if (reader.name() == QLatin1String("up")) {
+            else if (reader.name() == QLatin1String("up")) {
                 const auto &a = reader.attributes();
                 backdropPlane->up.resize(3);
                 backdropPlane->up[0] = Coordinate::create(a.value(QLatin1String("dx")).toString());
                 backdropPlane->up[1] = Coordinate::create(a.value(QLatin1String("dy")).toString());
                 backdropPlane->up[2] = Coordinate::create(a.value(QLatin1String("dz")).toString());
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -512,7 +519,7 @@ TextPoint::TextPoint(double points)
 
 QString TextPoint::toString() const
 {
-    if (val.userType() == QMetaType::Int) {
+    if (val.userType() == QMetaType::Double) {
         int pt = qRound(val.toDouble() * 100);
         return QString::number(pt);
     }
@@ -569,7 +576,7 @@ void Bevel::read(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (a.hasAttribute(QLatin1String("w"))) width = Coordinate::create(a.value(QLatin1String("w")).toString());
-    if (a.hasAttribute(QLatin1String("h"))) height = Coordinate::create(a.value(QLatin1String("w")).toString());
+    if (a.hasAttribute(QLatin1String("h"))) height = Coordinate::create(a.value(QLatin1String("h")).toString());
     if (a.hasAttribute(QLatin1String("prst"))) {
         auto meta = QMetaEnum::fromType<BevelType>();
         type = static_cast<BevelType>(meta.keyToValue(a.value(QLatin1String("prst")).toLatin1().data()));
@@ -648,18 +655,19 @@ void Shape3D::read(QXmlStreamReader &reader)
                 Bevel b; b.read(reader);
                 bevelTop = b;
             }
-            if (reader.name() == QLatin1String("bevelB")) {
+            else if (reader.name() == QLatin1String("bevelB")) {
                 Bevel b; b.read(reader);
                 bevelBottom = b;
             }
-            if (reader.name() == QLatin1String("extrusionClr")) {
+            else if (reader.name() == QLatin1String("extrusionClr")) {
                 reader.readNextStartElement();
                 extrusionColor.read(reader);
             }
-            if (reader.name() == QLatin1String("contourClr")) {
+            else if (reader.name() == QLatin1String("contourClr")) {
                 reader.readNextStartElement();
                 contourColor.read(reader);
             }
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -876,19 +884,100 @@ bool ExtensionList::isValid() const
 
 QDebug operator<<(QDebug dbg, const PresetTextShape &f)
 {
-    //TODO: operator<<
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::PresetTextShape(";
+    dbg << "type: " << static_cast<int>(f.prst);
+    if (!f.avLst.isEmpty()) dbg << ", avLst: "<<f.avLst;
+    dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const GeometryGuide &f)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::GeometryGuide(";
+    dbg << f.name << ", " << f.formula;
+    dbg << ")";
     return dbg;
 }
 
 QDebug operator<<(QDebug dbg, const Scene3D &f)
 {
-    //TODO: operator<<
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::Scene3D(";
+    dbg << "camera: " << f.camera << ", ";
+    dbg << "lightRig: " << f.lightRig;
+    if (f.backdropPlane.has_value()) dbg << ", backdropPlane: " << f.backdropPlane.value();
+    dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Scene3D::Camera &f)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::Camera(";
+    dbg << "type: " << static_cast<int>(f.type);
+    if (f.zoom.has_value()) dbg << ", zoom: " << f.zoom.value();
+    if (f.fovAngle.has_value()) dbg << ", fovAngle: " << f.fovAngle.value().toString();
+    if (!f.rotation.isEmpty()) dbg << ", rotation: " << f.rotation;
+    dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Scene3D::BackdropPlane &f)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::BackdropPlane(";
+    if (!f.anchor.isEmpty()) dbg << "anchor: " << f.anchor;
+    if (!f.norm.isEmpty()) dbg << ", norm: " << f.norm;
+    if (!f.up.isEmpty()) dbg << ", up: " << f.up;
+    dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Scene3D::LightRig &f)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::LightRig(";
+    dbg << "type: " << static_cast<int>(f.type);
+    dbg << ", lightDirection: " << static_cast<int>(f.lightDirection);
+    if (!f.rotation.isEmpty()) dbg << ", rotation: " << f.rotation;
+    dbg << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Bevel &f)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::Bevel(";
+    if (f.width.isValid()) dbg << ", width: " << f.width;
+    if (f.height.isValid()) dbg << ", height: " << f.height;
+    if (f.type.has_value()) dbg << ", type: " << static_cast<int>(f.type.value());
+    dbg << ")";
     return dbg;
 }
 
 QDebug operator<<(QDebug dbg, const Shape3D &f)
 {
-    //TODO: operator<<
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::Shape3D(";
+    if (f.bevelTop.has_value()) dbg << "bevelTop: " << f.bevelTop.value();
+    if (f.bevelBottom.has_value()) dbg << ", bevelBottom: " << f.bevelBottom.value();
+    if (f.extrusionColor.isValid()) dbg << ", extrusionColor: " << f.extrusionColor;
+    if (f.contourColor.isValid()) dbg << ", contourColor: " << f.contourColor;
+    if (f.z.isValid()) dbg << ", z: " << f.z;
+    if (f.extrusionHeight.isValid()) dbg << ", extrusionHeight: " << f.extrusionHeight;
+    if (f.contourWidth.isValid()) dbg << ", contourWidth: " << f.contourWidth;
+    if (f.material.has_value()) dbg << ", material: " << static_cast<int>(f.material.value());
+    dbg << ")";
     return dbg;
 }
 
@@ -918,6 +1007,12 @@ QDebug operator<<(QDebug dbg, const Transform2D &f)
 QDebug operator<<(QDebug dbg, const Coordinate &f)
 {
     dbg.nospace() << "QXlsx::Coordinate(" << f.toString() << ")";
+    return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const Angle &f)
+{
+    dbg.nospace() << "QXlsx::Angle(" << f.toString() << ")";
     return dbg.space();
 }
 

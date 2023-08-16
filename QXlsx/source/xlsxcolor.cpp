@@ -520,6 +520,7 @@ void ColorTransform::read(QXmlStreamReader &reader)
                 vals.insert(Type::Shade, fromST_Percent(val));
             if (reader.name() == QLatin1String("tint"))
                 vals.insert(Type::Tint, fromST_Percent(val));
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -532,11 +533,11 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
         switch (i.key()) {
             case Type::Tint:
                 writer.writeEmptyElement("a:tint");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Shade:
                 writer.writeEmptyElement("a:shade");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Complement:
                 writer.writeEmptyElement("a:comp");
@@ -549,87 +550,87 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 break;
             case Type::Alpha:
                 writer.writeEmptyElement("a:alpha");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::AlphaOff:
                 writer.writeEmptyElement("a:alphaOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::AlphaModulation:
                 writer.writeEmptyElement("a:alphaMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Hue:
                 writer.writeEmptyElement("a:hue");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::HueOff:
                 writer.writeEmptyElement("a:hueOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::HueModulation:
                 writer.writeEmptyElement("a:hueMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Saturation:
                 writer.writeEmptyElement("a:sat");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::SaturationOff:
                 writer.writeEmptyElement("a:satOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::SaturationModulation:
                 writer.writeEmptyElement("a:satMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Luminescence:
                 writer.writeEmptyElement("a:lum");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::LuminescenceOff:
                 writer.writeEmptyElement("a:lumOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::LuminescenceModulation:
                 writer.writeEmptyElement("a:lumMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Red:
                 writer.writeEmptyElement("a:red");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::RedOff:
                 writer.writeEmptyElement("a:redOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::RedModulation:
                 writer.writeEmptyElement("a:redMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Green:
                 writer.writeEmptyElement("a:green");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::GreenOff:
                 writer.writeEmptyElement("a:greenOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::GreenModulation:
                 writer.writeEmptyElement("a:greenMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Blue:
                 writer.writeEmptyElement("a:blue");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::BlueOff:
                 writer.writeEmptyElement("a:blueOff");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::BlueModulation:
                 writer.writeEmptyElement("a:blueMod");
-                writer.writeAttribute("val", QString::number(i.value().toDouble() * 100.0)+"%");
+                writer.writeAttribute("val", QString::number(i.value().toDouble())+"%");
                 break;
             case Type::Gamma:
                 writer.writeEmptyElement("a:gamma");

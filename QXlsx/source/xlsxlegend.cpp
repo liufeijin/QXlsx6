@@ -203,8 +203,11 @@ void Legend::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("spPr"))
                 d->shape.read(reader);
             else if (reader.name() == QLatin1String("txPr"))
-                d->text.read(reader);
-            else if (reader.name() == QLatin1String("extLst")) {}
+                d->text.read(reader, false);
+            else if (reader.name() == QLatin1String("extLst")) {
+                //TODO:
+                reader.skipCurrentElement();
+            }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -221,9 +224,9 @@ void Legend::write(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:legendPos"), s);
     }
     for (const auto &e: d->entries) e.write(writer, QLatin1String("c:legendEntry"));
-    if (d->layout.isValid()) d->layout.write(writer, QLatin1String("c:layout"));
+    d->layout.write(writer, QLatin1String("c:layout"));
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
-    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("a:spPr"));
+    if (d->shape.isValid()) d->shape.write(writer, QLatin1String("c:spPr"));
     if (d->text.isValid()) d->text.write(writer, QLatin1String("c:txPr"), false);
     writer.writeEndElement();
 }
@@ -278,7 +281,7 @@ void LegendEntry::read(QXmlStreamReader &reader)
             }
             else if (reader.name() == QLatin1String("txPr"))
                 entry.read(reader);
-            else if (reader.name() == QLatin1String("extLst")) {}
+            else reader.skipCurrentElement();
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;

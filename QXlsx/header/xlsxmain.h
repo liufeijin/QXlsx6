@@ -377,7 +377,7 @@ public:
 
 };
 
-class ExtensionList
+class QXLSX_EXPORT ExtensionList
 {
 public:
     void write(QXmlStreamWriter &writer, const QString &name) const;
@@ -391,7 +391,7 @@ private:
  * @brief The NumberFormat class represents the number formatting for
  * the parent element.
  */
-class NumberFormat
+class QXLSX_EXPORT NumberFormat
 {
 public:
     NumberFormat();
@@ -418,7 +418,7 @@ public:
 
 QDebug operator<<(QDebug dbg, const NumberFormat &f);
 
-class Percentage
+class QXLSX_EXPORT Percentage
 {
 public:
     /**
@@ -462,7 +462,7 @@ private:
  * as a number of points (i.e. EMU / 12700)
  * or as a qualified measure in mm, pt, in etc.
  */
-class Coordinate
+class QXLSX_EXPORT Coordinate
 {
 public:
     /**
@@ -531,7 +531,7 @@ private:
  * The class is used to set character spacing, either in points,
  * or as a qualified measure in mm, pt, in etc.
  */
-class TextPoint
+class QXLSX_EXPORT TextPoint
 {
 public:
     /**
@@ -649,12 +649,15 @@ public:
     bool operator != (const Transform2D &other) const;
 };
 
-struct GeometryGuide
+struct QXLSX_EXPORT GeometryGuide
 {
+    GeometryGuide() {}
     GeometryGuide(const QString &name, const QString &formula) :
         name(name), formula(formula) {}
     QString name;
     QString formula;
+
+    bool isValid() const {return !name.isEmpty() || !formula.isEmpty();}
 
     bool operator == (const GeometryGuide &other) const
     {
@@ -666,7 +669,6 @@ struct GeometryGuide
     }
 };
 
-//TODO: add normal constructors
 class QXLSX_EXPORT PresetGeometry2D
 {
 public:
@@ -685,6 +687,8 @@ public:
 class QXLSX_EXPORT PresetTextShape
 {
 public:
+    PresetTextShape() {}
+    PresetTextShape(TextShapeType textShapeType) : prst{textShapeType} {}
     QList<GeometryGuide> avLst; //element, optional
     TextShapeType prst; // attribute, required
 
@@ -853,6 +857,12 @@ QDebug operator<<(QDebug dbg, const PresetTextShape &f);
 QDebug operator<<(QDebug dbg, const Scene3D &f);
 QDebug operator<<(QDebug dbg, const Shape3D &f);
 QDebug operator<<(QDebug dbg, const Coordinate &f);
+QDebug operator<<(QDebug dbg, const GeometryGuide &f);
+QDebug operator<<(QDebug dbg, const Bevel &f);
+QDebug operator<<(QDebug dbg, const Scene3D::Camera &f);
+QDebug operator<<(QDebug dbg, const Scene3D::LightRig &f);
+QDebug operator<<(QDebug dbg, const Scene3D::BackdropPlane &f);
+QDebug operator<<(QDebug dbg, const Angle &f);
 
 }
 

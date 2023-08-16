@@ -579,7 +579,7 @@ void Chart::saveToXmlFile(QIODevice *device) const
     writeEmptyElement(writer, QLatin1String("c:style"), d->styleID);
 
     d->saveXmlChart(writer);
-    if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "a:spPr");
+    if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "c:spPr");
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
 
@@ -639,7 +639,6 @@ bool Chart::loadFromXmlFile(QIODevice *device)
             }
             else if (reader.name() == QLatin1String("extLst"))
                 d->chartSpaceExtList.read(reader);
-
         }
     }
 
@@ -794,6 +793,7 @@ void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
         axesIds << a.value(QLatin1String("val")).toInt();
     else if (reader.name() == QLatin1String("gapDepth"))
         parseAttributePercent(a, QLatin1String("val"), gapDepth);
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadSurfaceChart(QXmlStreamReader &reader)
@@ -809,6 +809,7 @@ void CT_XXXChart::loadSurfaceChart(QXmlStreamReader &reader)
         readBandFormats(reader);
     else if (reader.name() == QLatin1String("axId"))
         axesIds << a.value(QLatin1String("val")).toInt();
+    else  reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadBubbleChart(QXmlStreamReader &reader)
@@ -835,6 +836,7 @@ void CT_XXXChart::loadBubbleChart(QXmlStreamReader &reader)
         if (val == QLatin1String("area")) bubbleSizeRepresents = Chart::BubbleSizeRepresents::Area;
         if (val == QLatin1String("w")) bubbleSizeRepresents = Chart::BubbleSizeRepresents::Width;
     }
+    else  reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadPieChart(QXmlStreamReader &reader)
@@ -918,6 +920,7 @@ void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
         axesIds << a.value(QLatin1String("val")).toInt();
     else if (reader.name() == QLatin1String("gapDepth"))
         parseAttributePercent(a, QLatin1String("val"), gapDepth);
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadBarChart(QXmlStreamReader &reader)
@@ -960,6 +963,7 @@ void CT_XXXChart::loadBarChart(QXmlStreamReader &reader)
             serLines << sh;
         }
     }
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadScatterChart(QXmlStreamReader &reader)
@@ -979,6 +983,7 @@ void CT_XXXChart::loadScatterChart(QXmlStreamReader &reader)
         labels.read(reader);
     else if (reader.name() == QLatin1String("axId"))
         axesIds << a.value(QLatin1String("val")).toInt();
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
@@ -1000,6 +1005,7 @@ void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
         upDownBars.read(reader);
     else if (reader.name() == QLatin1String("axId"))
         axesIds << a.value(QLatin1String("val")).toInt();
+    else reader.skipCurrentElement();
 }
 
 void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
@@ -1019,6 +1025,9 @@ void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
         labels.read(reader);
     else if (reader.name() == QLatin1String("axId"))
         axesIds << a.value(QLatin1String("val")).toInt();
+    else if (reader.name() == QLatin1String("extLst")) {
+        reader.skipCurrentElement();
+    }
 }
 
 void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
@@ -1042,7 +1051,7 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     if (dTable.has_value()) dTable->write(writer, QLatin1String("c:dTable"));
     if (plotAreaExtList.isValid()) plotAreaExtList.write(writer, QLatin1String("c:extLst"));
 
-    if (plotAreaShape.isValid()) plotAreaShape.write(writer, "a:spPr");
+    if (plotAreaShape.isValid()) plotAreaShape.write(writer, "c:spPr");
     writer.writeEndElement(); // c:plotArea
 
     // c:legend
@@ -1073,6 +1082,9 @@ void CT_XXXChart::readBandFormats(QXmlStreamReader &reader)
                     parseAttributeInt(reader.attributes(), QLatin1String("val"), idx);
                 else if (reader.name() == QLatin1String("spPr"))
                     sh.read(reader);
+                else if (reader.name() == QLatin1String("extLst")) {
+                    reader.skipCurrentElement();
+                }
             }
             else if (token == QXmlStreamReader::EndElement && reader.name() == name)
                 break;
@@ -1106,7 +1118,7 @@ void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("a:spPr"));
+        dropLines.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
@@ -1190,7 +1202,7 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
         if (!serLines.isEmpty()) {
             for (const auto &ser: serLines) {
                 writer.writeStartElement(QLatin1String("c:serLines"));
-                ser.write(writer, QLatin1String("a:spPr"));
+                ser.write(writer, QLatin1String("c:spPr"));
                 writer.writeEndElement();
             }
         }
@@ -1211,13 +1223,13 @@ void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("a:spPr"));
+        dropLines.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     if (type == Chart::Type::Line) {
         if (hiLowLines.isValid()) {
             writer.writeStartElement(QLatin1String("c:hiLowLines"));
-            hiLowLines.write(writer, QLatin1String("a:spPr"));
+            hiLowLines.write(writer, QLatin1String("c:spPr"));
             writer.writeEndElement();
         }
         if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
@@ -1262,7 +1274,7 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         if (!serLines.isEmpty()) {
             for (const auto &ser: serLines) {
                 writer.writeStartElement(QLatin1String("c:serLines"));
-                ser.write(writer, QLatin1String("a:spPr"));
+                ser.write(writer, QLatin1String("c:spPr"));
                 writer.writeEndElement();
             }
         }
@@ -1298,12 +1310,12 @@ void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("a:spPr"));
+        dropLines.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     if (hiLowLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:hiLowLines"));
-        hiLowLines.write(writer, QLatin1String("a:spPr"));
+        hiLowLines.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
@@ -1334,7 +1346,7 @@ void CT_XXXChart::saveBandFormats(QXmlStreamWriter &writer) const
         writer.writeStartElement(QLatin1String("c:bandFmt"));
         writeEmptyElement(writer, QLatin1String("c:idx"), key);
         if (const auto &val = bandFormats.value(key); val.isValid())
-            val.write(writer, QLatin1String("a:spPr"));
+            val.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     writer.writeEndElement();
@@ -1356,6 +1368,9 @@ void UpDownBar::read(QXmlStreamReader &reader)
                 reader.readNextStartElement();
                 downBar.read(reader);
             }
+            else if (reader.name() == QLatin1String("extLst")) {
+                reader.skipCurrentElement();
+            }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
@@ -1372,12 +1387,12 @@ void UpDownBar::write(QXmlStreamWriter &writer, const QString &name) const
     }
     if (upBar.isValid()) {
         writer.writeStartElement(QLatin1String("c:upBars"));
-        upBar.write(writer, QLatin1String("a:spPr"));
+        upBar.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     if (downBar.isValid()) {
         writer.writeStartElement(QLatin1String("c:downBars"));
-        downBar.write(writer, QLatin1String("a:spPr"));
+        downBar.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
     writer.writeEndElement();
@@ -1951,7 +1966,7 @@ void DataTable::write(QXmlStreamWriter &writer, const QString &name) const
     writeEmptyElement(writer, QLatin1String("c:showVertBorder"), showVerticalBorder);
     writeEmptyElement(writer, QLatin1String("c:showOutline"), showOutline);
     writeEmptyElement(writer, QLatin1String("c:showKeys"), showKeys);
-    if (shape.isValid()) shape.write(writer, QLatin1String("a:spPr"));
+    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
     if (textProperties.isValid()) textProperties.write(writer, QLatin1String("c:txPr"), false);
     if (extension.isValid()) extension.write(writer, QLatin1String("c:extLst"));
     writer.writeEndElement();
