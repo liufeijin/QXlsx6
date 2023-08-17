@@ -1882,11 +1882,12 @@ void CharacterProperties::read(QXmlStreamReader &reader)
                 effect.read(reader);
             }
             else if (reader.name() == QLatin1String("effectDag")) {
-
+                //TODO: effect DAG
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("highlight")) {
-                reader.readNextStartElement();
-                highlightColor.read(reader);
+                if (reader.readNextStartElement())
+                    highlightColor.read(reader);
             }
             else if (reader.name() == QLatin1String("uLnTx")) {
                 textUnderlineFollowsText = true;
@@ -1967,7 +1968,11 @@ void CharacterProperties::write(QXmlStreamWriter &writer, const QString &name) c
     if (line.isValid()) line.write(writer, QLatin1String("a:ln"));
     if (fill.isValid()) fill.write(writer);
     if (effect.isValid()) effect.write(writer);
-    if (highlightColor.isValid()) highlightColor.write(writer, QLatin1String("a:highlight"));
+    if (highlightColor.isValid()) {
+        writer.writeStartElement(QLatin1String("a:highlight"));
+        highlightColor.write(writer);
+        writer.writeEndElement();
+    }
     if (textUnderlineFollowsText.has_value() && textUnderlineFollowsText.value())
         writer.writeEmptyElement(QLatin1String("a:uLnTx"));
     else if (textUnderline.isValid()) textUnderline.write(writer, QLatin1String("a:uLn"));

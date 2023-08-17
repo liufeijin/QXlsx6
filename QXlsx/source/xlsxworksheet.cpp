@@ -1183,12 +1183,6 @@ uint Worksheet::getImageCount()
 }
 
 
-
-/*!
- * Creates an chart with the given \a size and insert
- * at the position \a row, \a column.
- * The chart will be returned.
- */
 Chart *Worksheet::insertChart(int row, int column, const QSize &size)
 {
 	Q_D(Worksheet);
@@ -1637,7 +1631,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
                 if (string.fragmentFormat(i).hasFontData())
                 {
 					writer.writeStartElement(QStringLiteral("rPr"));
-					//:Todo
+                    //Todo
 					writer.writeEndElement();// rPr
 				}
 				writer.writeStartElement(QStringLiteral("t"));
@@ -2519,7 +2513,7 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
                             {
                                 if (reader.readNextStartElement())
                                 {
-									//:Todo, add rich text read support
+                                    //Todo, add rich text read support
                                     if (reader.name() == QLatin1String("t"))
                                     {
 										cell->d_func()->value = reader.readElementText();

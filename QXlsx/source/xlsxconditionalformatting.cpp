@@ -200,7 +200,7 @@ bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const 
         skipFormula = true;
     } else if (type == Highlight_TimePeriod) {
         cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("timePeriod");
-        //:Todo
+        //Todo
         return false;
     } else if (type == Highlight_Duplicate) {
         cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("duplicateValues");

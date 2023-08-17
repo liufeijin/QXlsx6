@@ -140,39 +140,132 @@ public:
         SmallCaps
     };
 
-    std::optional<bool> kumimoji;
+    std::optional<bool> kumimoji; /**< @brief Specifies whether the numbers contained within
+                                       vertical text continue vertically with the
+                                       text or whether they are to be displayed horizontally
+                                       while the surrounding characters
+                                       continue in a vertical fashion. */
+    /**
+     *  @brief Specifies the language to be used when the generating application is displaying the user
+        interface controls.
+     */
     QString language; // f.e. "en-US"
+    /**
+     * @brief Specifies the alternate language to use when the generating application is displaying the
+     * user interface controls.
+     *
+     * If this attribute is omitted, then language is used.
+     */
     QString alternateLanguage; // f.e. "en-US"
-    std::optional<double> fontSize; //in pt
-    std::optional<bool> bold;
-    std::optional<bool> italic;
-    std::optional<UnderlineType> underline;
-    std::optional<StrikeType> strike;
-    std::optional<double> kerningFontSize; //in pt
-    std::optional<CapitalizationType> capitalization;
-    std::optional<TextPoint> spacing;
-    std::optional<bool> normalizeHeights;
-    std::optional<double> baseline;
-    std::optional<bool> noProofing;
-    std::optional<bool> proofingNeeded;
-    std::optional<bool> checkForSmartTagsNeeded;
-    std::optional<bool> spellingErrorFound;
-    std::optional<int> smartTagId;
-    QString bookmarkLinkTarget;
-    LineFormat line;
-    FillFormat fill;
-    Effect effect;
-    Color highlightColor;
+    std::optional<double> fontSize; /**<  @brief Specifies the size, in points, of text within a text run.*/
+    std::optional<bool> bold; /**< @brief Specifies whether a run of text is formatted as bold text. */
+    std::optional<bool> italic; /**< @brief Specifies whether a run of text is formatted as italic text. */
+    std::optional<UnderlineType> underline; /**< @brief  Specifies whether a run of text is formatted as underlined text. */
+    std::optional<StrikeType> strike; /**< @brief Specifies whether a run of text is formatted as strikethrough text. */
+    std::optional<double> kerningFontSize; /**< @brief  Specifies the minimum font point size at which
+                                                 character kerning occurs for this text run.
 
+                                                 If this attribute is omitted, then kerning
+                                                 occurs for all font sizes down to a 0 point
+                                                 font. */
+    std::optional<CapitalizationType> capitalization; /**< @brief  Specifies the capitalization that is to be applied to the text run. */
+    std::optional<TextPoint> spacing; /**< @brief Specifies the spacing in points between characters within a text run. */
+    std::optional<bool> normalizeHeights; /**< @brief Specifies the normalization of height that is
+                                               to be applied to the text run. */
+    std::optional<double> baseline;  /**< @brief Specifies the baseline for both the superscript
+                                          and subscript fonts.
+
+                                          The size is specified
+                                          using a percentage where 1% is equal to
+                                          1 percent of the font size and 100% is equal to
+                                          100 percent font of the font size. */
+    std::optional<bool> noProofing; /**< @brief Specifies that a run of text has been selected
+                                         by the user to not be checked for mistakes.
+
+                                         Therefore if there are spelling, grammar, etc
+                                         mistakes within this text the generating
+                                         application should ignore them. */
+    std::optional<bool> proofingNeeded; /**< @brief  Specifies that the content of a text run
+                                              has changed since the proofing tools have last
+                                              been run.
+
+                                              Effectively this flags text that
+                                              is to be checked again by the generating
+                                              application for mistakes such as spelling, grammar, etc. */
+    std::optional<bool> checkForSmartTagsNeeded; /**< @brief Specifies whether or not a text run has been
+                                                      checked for smart tags.
+
+                                                      A value of
+                                                      true here indicates to the generating application
+                                                      that this text run should be checked for
+                                                      smart tags. */
+    std::optional<bool> spellingErrorFound; /**< @brief  Specifies that when this run of
+                                                 text was checked for spelling, grammar, etc. that a
+                                                 mistake was indeed found.
+
+                                                 This allows
+                                                 the generating application to effectively save the
+                                                 state of the mistakes within the document instead
+                                                 of having to perform a full pass check
+                                                 upon opening the document. */
+    std::optional<int> smartTagId; /**< @brief Specifies a smart tag identifier for a run of text.
+
+                                        This ID is unique throughout the file and is used
+                                        to reference corresponding auxiliary information about
+                                        the smart tag. */
+    QString bookmarkLinkTarget; /**< @brief Specifies the link target name that is used
+                                     to reference to the proper link properties in a
+                                     custom XML part within the document */
+    LineFormat line; /**< @brief Specifies the line format to be applied to this text run. */
+    FillFormat fill; /**< @brief Specifies the fill format to be applied to this text run. */
+    Effect effect; /**< @brief Specifies the effects (blur, shadow etc.) to be applied to this text run. */
+    Color highlightColor; /**< @brief Specifies the color to highlight this text run */
+
+    /**
+     * @brief Specifies that the stroke style of an underline for a run of text should be
+     * the same as of the text run within which it is contained (that is #line).
+     *
+     * If this parameter is set, then #textUnderline is ignored.
+     */
     std::optional<bool> textUnderlineFollowsText;
+    /**
+     * @brief Specifies a distinct stroke style of an underline if it should differ from #line.
+     *
+     * If this parameter is set, then #textUnderlineFollowsText should be nullopt or false.
+     */
     LineFormat textUnderline;
-
+    /**
+     * @brief Specifies that the fill style of an underline for a run of text should be
+     * the same as of the text run within which it is contained (that is #fill).
+     *
+     * If this parameter is set, then #textUnderlineFill is ignored.
+     */
     std::optional<bool> textUnderlineFillFollowsText;
+    /**
+     * @brief Specifies a distinct fill style of an underline if it should differ from #fill.
+     *
+     * If this parameter is set, then #textUnderlineFillFollowsText should be nullopt or false.
+     */
     FillFormat textUnderlineFill;
+    /**
+     * @brief Specifies a Latin Font to be used for a specific run of text.
+     */
     Font latinFont;
+    /**
+     * @brief Specifies an East Asian Font to be used for a specific run of text.
+     */
     Font eastAsianFont;
+    /**
+     * @brief Specifies a complex script (Arabic, Tamil etc.) Font to be used for a specific run of text.
+     */
     Font complexScriptFont;
+    /**
+     * @brief Specifies a symbolic Font to be used for a specific run of text.
+     */
     Font symbolFont;
+    /**
+     * @brief Specifies whether the contents of this run shall have right-to-left characteristics
+     */
     std::optional<bool> rightToLeft;
 
     //TODO: hyperlinks
@@ -574,9 +667,17 @@ Reserved Values:
 class Paragraph
 {
 public:
-    //TODO: convert to shared data
     std::optional<ParagraphProperties> paragraphProperties;
     QList<TextRun> textRuns;
+    /**
+     * @brief the text run properties that are to be used if another run is inserted after the last run
+specified.
+
+This effectively saves the run property state so that it can be applied when the user enters additional
+text. If this element is omitted, then the application can determine which default properties to apply. It is
+recommended that this element be specified at the end of the list of text runs within the paragraph so that an
+orderly list is maintained.
+     */
     std::optional<CharacterProperties> endParagraphDefaultCharacterProperties;
 
     bool isValid() const;

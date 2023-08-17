@@ -101,6 +101,13 @@ public:
     bool getImage(int row, int column, QImage& img);
     uint getImageCount();
 
+    /**
+     * @brief creates a new chart and places it inside the current worksheet.
+     * @param row the row index of the chart top left corner.
+     * @param column the column index of the chart top left corner.
+     * @param size the chart size in pixels.
+     * @return pointer to the new chart or nullptr if no chart was created.
+     */
     Chart *insertChart(int row, int column, const QSize &size);
 
     bool mergeCells(const CellRange &range, const Format &format=Format());
