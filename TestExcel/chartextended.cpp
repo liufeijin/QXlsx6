@@ -101,6 +101,7 @@ int chartExtended()
     chart24->setLegend(Legend::Position::Right);
     chart24->title().setStringReference(CellRange(4,1,5,1), xlsx.currentSheet());
     chart24->title().defaultCharacterProperties().underline = CharacterProperties::UnderlineType::Double;
+    chart24->title().defaultCharacterProperties().capitalization = CharacterProperties::CapitalizationType::SmallCaps;
     chart24->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
     /// Title positioning and other properties

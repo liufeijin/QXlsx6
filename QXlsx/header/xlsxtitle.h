@@ -39,8 +39,6 @@ class AbstractSheet;
  * @code
  * Title title;
  * title.setHtml("<b>Graph</b> of <i>temperatures</i>");
- * //and optionally set text, paragraph and character properties
- *
  * @endcode
  *
  * 2. Set the plain string and default paragraph and character properties
@@ -60,6 +58,8 @@ class AbstractSheet;
  * title.defaultCharacterProperties().fontSize = 20.0; // 20 pt
  * title.defaultCharacterProperties().bold = true; // 20 pt
  * @endcode
+ *
+ * You can also create a title piece-by-piece using the low-level methods of Text class.
  *
  */
 class QXLSX_EXPORT Title
@@ -101,6 +101,10 @@ public:
     bool isPlainString() const;
     bool isStringReference() const;
 
+    /**
+     * @brief returns a reference to the title's text.
+     * @return
+     */
     Text &text();
     Text text() const;
     void setText(const Text &text);

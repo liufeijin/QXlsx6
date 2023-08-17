@@ -182,6 +182,8 @@ public:
     bool operator ==(const CharacterProperties &other) const;
     bool operator !=(const CharacterProperties &other) const;
 
+    bool isValid() const;
+
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
     static CharacterProperties from(const QTextCharFormat &format);
@@ -490,15 +492,31 @@ public:
     bool operator!=(const ListStyleProperties &other) const;
 };
 
-class TextRun
+/**
+ * @brief Specifies a fragment of the text paragraph with its own character formatting.
+ */
+class QXLSX_EXPORT TextRun
 {
 public:
+    /**
+     * @brief specifies the text run type.
+     */
     enum class Type
     {
-        None,
-        Regular,
-        LineBreak,
-        TextField
+        None, /**< The text run is invalid */
+        Regular, /**< The text run is a plain text */
+        LineBreak, /**< The text run is a line break (like &lt;br&gt;) */
+        TextField /**< The text run is a generated text that the application should update periodically.
+
+Each piece of text when it is generated is given a unique
+                        guid that is used to refer to a specific
+                        field. At the time of creation the text field indicates
+                        the kind of text that should be used to update this field.
+                        This update fieldType is used so that all applications that did
+                        not create this text field can still know what kind of text
+                        it should be updated with. Thus the new application can
+                        then attach an update fieldType to the text field guid for continual updating.
+*/
     };
     TextRun();
     TextRun(const TextRun &other);
@@ -508,24 +526,50 @@ public:
     bool operator ==(const TextRun &other) const;
     bool operator !=(const TextRun &other) const;
 
-    Type type = Type::None;
-    QString text;
-    std::optional<CharacterProperties> characterProperties;
+    Type type = Type::None; /**< text run type */
+    QString text; /**< A plain string */
+    std::optional<CharacterProperties> characterProperties; /**< optional character properties */
 
     //text field properties
-    std::optional<ParagraphProperties> paragraphProperties;
-    QString guid; //required
-    QString fieldType; //optional
+    std::optional<ParagraphProperties> paragraphProperties; /**< optional text field's paragraph properties */
+    QString guid; /**< the unique to this document, host specified token that is
+                       used to identify the field */
+    QString fieldType; /**< the type of text that should be used to update this
+                            text field. This is used to inform the rendering
+                            application what text it should use to update this
+                            text field. There are no specific syntax restrictions
+                            placed on this attribute.
+
+Reserved Values:
+
+|Value | Description |
+|----|----|
+|slidenum | presentation slide number |
+|datetime | default date time format for the rendering application |
+|datetime1 | MM/DD/YYYY date time format [Example: 10/12/2007 ] |
+|datetime2 | Day, Month DD, YYYY date time format [Example: Friday, October 12, 2007 ] |
+|datetime3 | DD Month YYYY date time format [Example: 12 October 2007] |
+|datetime4 | Month DD, YYYY date time format [Example: October 12, 2007] |
+|datetime5 | DD-Mon-YY date time format [Example: 12-Oct-07] |
+|datetime6 | Month YY date time format [Example: October 07 ] |
+|datetime7 | Mon-YY date time format [Example: Oct-07 ] |
+|datetime8 | MM/DD/YYYY hh:mm AM/PM date time format [Example: 10/12/2007 4:28 PM ] |
+|datetime9 | MM/DD/YYYY hh:mm:ss AM/PM date time format [Example: 10/12/2007 4:28:34 PM] |
+|datetime10| hh:mm date time format [Example: 16:28] |
+|datetime11|  hh:mm:ss date time format [Example: 16:28:34] |
+|datetime12|  hh:mm AM/PM date time format [Example: 4:28 PM] |
+|datetime13 | hh:mm:ss: AM/PM date time format [Example: 4:28:34 PM] |
+
+*/
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
 };
 
 /**
- * @brief The Paragraph class
- * The class is used to represent a paragraph in the text.
- * Each paragraph has properties (\see ParagraphProperties class), and zero to
- * infinity text runs (\see TextRun), i.e. blocks of texts with the specific formatting.
+ * @brief The class is used to represent a paragraph in the text.
+ * Each paragraph has ParagraphProperties and zero to
+ * infinity TextRun, i.e. fragments of text with the specific formatting.
  */
 class Paragraph
 {
@@ -609,26 +653,126 @@ public:
     void setDefaultCharacterProperties(const CharacterProperties &defaultCharacterProperties);
 
     /**
-     * @brief addFragment adds new text run to the last paragraph
-     * @param text plain text
-     * @param format text characters format
+     * @brief adds a new paragraph and sets the first text fragment.
+     * @param text text of the first fragment.
+     * @param characterProperties properties of the first fragment.
+     * @param paragraphProperties properties of a new paragraph.
      */
-    void addFragment(const QString &text, const CharacterProperties &format);
-
+    void addParagraph(const QString &text = QString(),
+                      const CharacterProperties &characterProperties = CharacterProperties(),
+                      const ParagraphProperties &paragraphProperties = ParagraphProperties());
     /**
-     * @brief fragmentText returns text of the fragment with index \index from the
-     * last paragraph.
-     * @param index index of the text fragment (a.k.a. text run)
+     * @brief adds a new paragraph
+     * @param paragraph
+     */
+    void addParagraph(const Paragraph &paragraph);
+    /**
+     * @brief inserts a new paragraph
+     * @param index valid paragraph index [0..paragraphsCount]
+     * @param text text of the first fragment.
+     * @param characterProperties properties of the first fragment.
+     * @param paragraphProperties properties of a new paragraph.
+     */
+    void insertParagraph(int index, const QString &text = QString(),
+                         const CharacterProperties &characterProperties = CharacterProperties(),
+                         const ParagraphProperties &paragraphProperties = ParagraphProperties());
+    void insertParagraph(int index, const Paragraph &paragraph);
+    /**
+     * @brief returns a copy of the paragraph.
+     * @param index paragraph index
+     * @return a copy of the paragraph or invalid Paragraph if the index is out of bounds.
+     */
+    Paragraph paragraph(int index) const;
+    /**
+     * @brief returns a reference to the paragraph.
+     * @param index paragraph index (must be valid).
+     * @return a reference to the paragraph or fails if the the index is out of bounds.
+     */
+    Paragraph &paragraph(int index);
+    /**
+     * @brief returns the reference to the last paragraph.
+     * @return a reference to the paragraph. If there's no paragraphs a new one will be created.
+     */
+    Paragraph &lastParagraph();
+    /**
+     * @brief sets the new value of a paragraph.
+     * @param index paragraph index (must be valid).
+     * @param paragraph new value of a paragraph.
+     */
+    void setParagraph(int index, const Paragraph &paragraph);
+    /**
+     * @brief returns paragraphs count.
      * @return
      */
-    QString fragmentText(int index) const;
+    int paragraphsCount() const;
     /**
-     * @brief fragmentFormat format of the fragment with index \index from the
+     * @brief removes paragraph from the text
+     * @param index the paragraph index
+     */
+    void removeParagraph(int index);
+
+    /**
+     * @brief adds new text fragment to the last paragraph.
+     * @param text plain text.
+     * @param format text characters format.
+     *
+     * If there is no paragraphs, a new one will be created.
+     */
+    void addFragment(const QString &text,
+                     const CharacterProperties &format = CharacterProperties());
+    /**
+     * @brief adds new text fragment to the paragraph with index paragraphIndex.
+     * @param paragraphIndex the paragraph index.
+     * @param text plain text.
+     * @param format text characters format.
+     */
+    void addFragment(int paragraphIndex, const QString &text,
+                     const CharacterProperties &format = CharacterProperties());
+    void insertFragment(int paragraphIndex, int fragmentIndex, const QString &text,
+                     const CharacterProperties &format = CharacterProperties());
+
+    void addLineBreak(const CharacterProperties &format = CharacterProperties());
+    void addLineBreak(int paragraphIndex, const CharacterProperties &format = CharacterProperties());
+    void insertLineBreak(int paragraphIndex, int fragmentIndex, const CharacterProperties &format = CharacterProperties());
+
+    /**
+     * @brief adds a new text field to the last paragraph.
+     * @param guid A non-empty text field guid.
+     * @param text An initial text for the field.
+     * @param type optional text field type.
+     */
+    void addTextField(const QString &guid, const QString &text = QString(), const QString &type = QString());
+    /**
+     * @brief fragmentText returns the text of the fragment from the paragraph.
+     * @param paragraphIndex index of the paragraph.
+     * @param fragmentIndex index of the text fragment (a.k.a. text run).
+     * @return valid string if such paragraph and fragment exist, empty string otherwise.
+     */
+    QString fragmentText(int paragraphIndex, int fragmentIndex) const;
+    /**
+     * @brief fragmentFormat format of the fragment from the
      * last paragraph.
      * @param index index of the text fragment (a.k.a. text run)
      * @return
      */
     CharacterProperties fragmentFormat(int index) const;
+
+    TextRun fragment(int paragraphIndex, int fragmentIndex) const;
+    /**
+     * @brief returns the reference to the fragment.
+     * @param paragraphIndex valid paragraph index.
+     * @param fragmentIndex valid fragment index.
+     * @return the reference to the fragment or fails if no such fragment exists.
+     */
+    TextRun &fragment(int paragraphIndex, int fragmentIndex);
+
+    /**
+     * @brief returns the last fragment of the last paragraph.
+     * @return reference to the fragment.
+     * @note if the last paragraph has no fragments or there's no paragraphs
+     * the method will create the default fragment of Type::Regular.
+     */
+    TextRun &lastFragment();
 
     void read(QXmlStreamReader &reader, bool diveInto = true);
     void write(QXmlStreamWriter &writer, const QString &name, bool diveInto = true) const;

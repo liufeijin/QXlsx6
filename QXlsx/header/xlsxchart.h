@@ -228,8 +228,10 @@ public:
      * @warning This method does not change the previous subcharts type nor the
      * prevoius series type.
      *
-     * @example If you need to add both bar series and line
+     * If you need to add both bar series and line
      * series to the chart, you can do it this way:
+     *
+     * @example
      *
      * @code
      * //set Type::Bar to the chart
@@ -240,7 +242,7 @@ public:
      * //set Type::Line to the chart
      * chart->setType(Chart::Type::Line);
      * //add line series
-     * chart.addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("C1:C10"),
+     * chart->addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("C1:C10"),
      *     xlsx.sheet("Sheet1"), true);
      * @endcode
      *

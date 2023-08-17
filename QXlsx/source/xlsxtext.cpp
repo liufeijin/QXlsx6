@@ -257,19 +257,165 @@ bool Text::isValid() const
     return true;
 }
 
+void Text::addParagraph(const QString &text,
+                  const CharacterProperties &characterProperties,
+                  const ParagraphProperties &paragraphProperties)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    Paragraph p;
+    if (paragraphProperties.isValid())
+        p.paragraphProperties = paragraphProperties;
+    TextRun r(TextRun::Type::Regular, text, characterProperties);
+    p.textRuns << r;
+    d->paragraphs << p;
+}
+
+void Text::addParagraph(const Paragraph &paragraph)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    d->paragraphs << paragraph;
+}
+
+void Text::insertParagraph(int index, const QString &text,
+                     const CharacterProperties &characterProperties,
+                     const ParagraphProperties &paragraphProperties)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (index < 0 || index > d->paragraphs.size()) return;
+    Paragraph p;
+    if (paragraphProperties.isValid())
+        p.paragraphProperties = paragraphProperties;
+    TextRun r(TextRun::Type::Regular, text, characterProperties);
+    p.textRuns << r;
+    d->paragraphs.insert(index, p);
+}
+
+void Text::insertParagraph(int index, const Paragraph &paragraph)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (index < 0 || index > d->paragraphs.size()) return;
+    d->paragraphs.insert(index, paragraph);
+}
+
+Paragraph Text::paragraph(int index) const
+{
+    if (d) {
+        if (index >= 0 && index < d->paragraphs.size())
+            return d->paragraphs.at(index);
+    }
+    return {};
+}
+
+Paragraph &Text::paragraph(int index)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    return d->paragraphs[index];
+}
+
+Paragraph &Text::lastParagraph()
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (d->paragraphs.isEmpty()) d->paragraphs << Paragraph();
+    return d->paragraphs.last();
+}
+
+void Text::setParagraph(int index, const Paragraph &paragraph)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (index >= 0 && index < d->paragraphs.size())
+        d->paragraphs[index] = paragraph;
+}
+
+int Text::paragraphsCount() const
+{
+    if (d) return d->paragraphs.size();
+    return 0;
+}
+
+void Text::removeParagraph(int index)
+{
+    if (!d) return;
+    if (index >= 0 && index < d->paragraphs.size())
+        d->paragraphs.removeAt(index);
+}
+
 void Text::addFragment(const QString &text, const CharacterProperties &format)
 {
     if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
     if (d->paragraphs.isEmpty()) d->paragraphs << Paragraph();
     d->paragraphs.last().textRuns << TextRun(TextRun::Type::Regular, text, format);
 }
 
-QString Text::fragmentText(int index) const
+void Text::addFragment(int paragraphIndex, const QString &text, const CharacterProperties &format)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return;
+    d->paragraphs[paragraphIndex].textRuns << TextRun(TextRun::Type::Regular, text, format);
+}
+
+void Text::insertFragment(int paragraphIndex, int fragmentIndex, const QString &text,
+                 const CharacterProperties &format)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return;
+    auto &p = d->paragraphs[paragraphIndex];
+    if (fragmentIndex < 0 || fragmentIndex > p.textRuns.size()) return;
+    p.textRuns.insert(fragmentIndex, TextRun(TextRun::Type::Regular, text, format));
+}
+
+void Text::addLineBreak(const CharacterProperties &format)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (d->paragraphs.isEmpty()) d->paragraphs << Paragraph();
+    d->paragraphs.last().textRuns << TextRun(TextRun::Type::LineBreak, "", format);
+}
+
+void Text::addLineBreak(int paragraphIndex, const CharacterProperties &format)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return;
+    d->paragraphs[paragraphIndex].textRuns << TextRun(TextRun::Type::LineBreak, "", format);
+}
+
+void Text::insertLineBreak(int paragraphIndex, int fragmentIndex, const CharacterProperties &format)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return;
+    auto &p = d->paragraphs[paragraphIndex];
+    if (fragmentIndex < 0 || fragmentIndex > p.textRuns.size()) return;
+    p.textRuns.insert(fragmentIndex, TextRun(TextRun::Type::LineBreak, "", format));
+}
+
+void Text::addTextField(const QString &guid, const QString &text, const QString &type)
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (d->paragraphs.isEmpty()) d->paragraphs << Paragraph();
+    d->paragraphs.last().textRuns << TextRun(TextRun::Type::TextField, text, CharacterProperties());
+    d->paragraphs.last().textRuns.last().guid = guid;
+    d->paragraphs.last().textRuns.last().fieldType = type;
+}
+
+QString Text::fragmentText(int paragraphIndex, int fragmentIndex) const
 {
     if (d) {
-        if (d->paragraphs.isEmpty()) return {};
-        if (index < 0 || index >= d->paragraphs.last().textRuns.count()) return {};
-        return d->paragraphs.last().textRuns[index].text;
+        if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return {};
+        const auto &p = d->paragraphs[paragraphIndex];
+        if (fragmentIndex < 0 || fragmentIndex >= p.textRuns.size()) return {};
+        return p.textRuns[fragmentIndex].text;
     }
     return QString();
 }
@@ -282,6 +428,32 @@ CharacterProperties Text::fragmentFormat(int index) const
         return d->paragraphs.last().textRuns[index].characterProperties.value_or(CharacterProperties());
     }
     return {};
+}
+
+TextRun Text::fragment(int paragraphIndex, int fragmentIndex) const
+{
+    if (d) {
+        if (paragraphIndex < 0 || paragraphIndex >= d->paragraphs.size()) return {};
+        const auto &p = d->paragraphs[paragraphIndex];
+        if (fragmentIndex < 0 || fragmentIndex > p.textRuns.size()) return {};
+        return p.textRuns.at(fragmentIndex);
+    }
+    return {};
+}
+
+TextRun &Text::fragment(int paragraphIndex, int fragmentIndex)
+{
+    return d->paragraphs[paragraphIndex].textRuns[fragmentIndex];
+}
+
+TextRun &Text::lastFragment()
+{
+    if (!d) d = new TextPrivate;
+    d->type = Type::RichText;
+    if (d->paragraphs.isEmpty()) d->paragraphs << Paragraph();
+    auto &p = d->paragraphs.last();
+    if (p.textRuns.isEmpty()) p.textRuns << TextRun(TextRun::Type::Regular);
+    return p.textRuns.last();
 }
 
 void Text::read(QXmlStreamReader &reader, bool diveInto)
@@ -1243,12 +1415,6 @@ void ParagraphProperties::writeTabStops(QXmlStreamWriter &writer, const QString 
 
 ParagraphProperties ParagraphProperties::from(const QTextBlock &block)
 {
-    static int i=1;
-    qDebug()<<"block"<<i++;
-    qDebug()<<"paragraph"<<block.blockFormat().properties();
-    qDebug()<<"chars"<<block.charFormat().properties();
-    for (auto g: block.textFormats())
-        qDebug()<<g.format.properties();
     ParagraphProperties pr;
     const auto paragraphFormat = block.blockFormat();
     if (!paragraphFormat.isEmpty()) {
@@ -1536,9 +1702,9 @@ TextRun::TextRun(const TextRun &other) :
 }
 
 TextRun::TextRun(TextRun::Type type, const QString &text, const CharacterProperties &properties)
-    : type{type}, text{text}, characterProperties{properties}
+    : type{type}, text{text}
 {
-
+    if (properties.isValid()) characterProperties = properties;
 }
 
 TextRun::TextRun(TextRun::Type type)
@@ -1589,6 +1755,44 @@ bool CharacterProperties::operator ==(const CharacterProperties &other) const
 bool CharacterProperties::operator !=(const CharacterProperties &other) const
 {
     return !operator==(other);
+}
+
+bool CharacterProperties::isValid() const
+{
+    if (kumimoji.has_value()) return true;
+    if (!language.isEmpty()) return true;
+    if (!alternateLanguage.isEmpty()) return true;
+    if (fontSize.has_value()) return true;
+    if (bold.has_value()) return true;
+    if (italic.has_value()) return true;
+    if (underline.has_value()) return true;
+    if (strike.has_value()) return true;
+    if (kerningFontSize.has_value()) return true;
+    if (capitalization.has_value()) return true;
+    if (spacing.has_value()) return true;
+    if (normalizeHeights.has_value()) return true;
+    if (baseline.has_value()) return true;
+    if (noProofing.has_value()) return true;
+    if (proofingNeeded.has_value()) return true;
+    if (checkForSmartTagsNeeded.has_value()) return true;
+    if (spellingErrorFound.has_value()) return true;
+    if (smartTagId.has_value()) return true;
+    if (!bookmarkLinkTarget.isEmpty()) return true;
+    if (line.isValid()) return true;
+    if (fill.isValid()) return true;
+    if (effect.isValid()) return true;
+    if (highlightColor.isValid()) return true;
+    if (textUnderlineFollowsText.has_value()) return true;
+    if (textUnderline.isValid()) return true;
+    if (textUnderlineFillFollowsText.has_value()) return true;
+    if (textUnderlineFill.isValid()) return true;
+    if (latinFont.isValid()) return true;
+    if (eastAsianFont.isValid()) return true;
+    if (complexScriptFont.isValid()) return true;
+    if (symbolFont.isValid()) return true;
+    if (rightToLeft.has_value()) return true;
+
+    return false;
 }
 
 void CharacterProperties::read(QXmlStreamReader &reader)
