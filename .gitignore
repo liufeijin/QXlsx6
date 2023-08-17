@@ -405,3 +405,5 @@ ASALocalRun/
 
 # clangd cache
 .cache/
+/TestExcel/TestExcel.pro.user.798cf27
+/doc/html
