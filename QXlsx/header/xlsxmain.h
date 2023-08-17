@@ -383,6 +383,8 @@ public:
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);
     bool isValid() const;
+    bool operator==(const ExtensionList &other) const;
+    bool operator!=(const ExtensionList &other) const;
 private:
     QByteArray vals;
 };

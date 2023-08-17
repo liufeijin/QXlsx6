@@ -42,6 +42,7 @@ bool LabelPrivate::operator ==(const LabelPrivate &other) const
     if (properties != other.properties) return false;
     if (layout != other.layout) return false;
     if (text != other.text) return false;
+    if (extList != other.extList) return false;
     return true;
 }
 
@@ -404,6 +405,9 @@ void Labels::read(QXmlStreamReader &reader)
                 reader.readNextStartElement();
                 d->leaderLines.read(reader);
             }
+            else if (reader.name() == QLatin1String("extLst")) {
+                d->extLst.read(reader);
+            }
             else d->defaultProperties.read(reader);
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
@@ -428,6 +432,7 @@ void Labels::write(QXmlStreamWriter &writer) const
             writer.writeEndElement();
         }
     }
+    if (d->extLst.isValid()) d->extLst.write(writer, QLatin1String("c:extLst"));
 
     writer.writeEndElement();
 }
@@ -450,7 +455,7 @@ LabelsPrivate::LabelsPrivate()
 
 LabelsPrivate::LabelsPrivate(const LabelsPrivate &other) : QSharedData(other),
     labels{other.labels}, visible{other.visible}, showLeaderLines{other.showLeaderLines},
-    defaultProperties{other.defaultProperties}
+    defaultProperties{other.defaultProperties}, extLst{other.extLst}
 {
 
 }
@@ -568,6 +573,7 @@ bool LabelsPrivate::operator ==(const LabelsPrivate &other) const
     if (showLeaderLines != other.showLeaderLines) return false;
     if (leaderLines != other.leaderLines) return false;
     if (defaultProperties != other.defaultProperties) return false;
+    if (extLst != other.extLst) return false;
     return true;
 }
 

@@ -199,6 +199,7 @@ public:
     std::optional<bool> showLeaderLines;
     ShapeFormat leaderLines;
     SharedLabelProperties defaultProperties;
+    ExtensionList extLst;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Label::ShowParameters)

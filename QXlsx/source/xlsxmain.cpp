@@ -866,7 +866,7 @@ void ExtensionList::write(QXmlStreamWriter &writer, const QString &name) const
     if (vals.isEmpty()) return;
 //
     writer.writeStartElement(name);
-    writer.writeComment("");
+    writer.writeCharacters("");
     writer.device()->write(vals);
     writer.writeEndElement();
 }
@@ -879,20 +879,59 @@ void ExtensionList::read(QXmlStreamReader &reader)
 
     if (reader.readNextStartElement()) {
         while (!reader.isEndElement() || reader.name() != name) {
-//            qDebug()<<reader.tokenString()<<reader.qualifiedName() << reader.namespaceUri() << reader.prefix();
-            w.writeCurrentToken(reader);
+            QXmlStreamReader::TokenType token = reader.tokenType();
+            switch (token) {
+                case QXmlStreamReader::NoToken:
+                    break;
+                case QXmlStreamReader::Invalid:
+                    break;
+                case QXmlStreamReader::StartDocument:
+                    break;
+                case QXmlStreamReader::EndDocument:
+                    break;
+                case QXmlStreamReader::StartElement:
+                    w.writeStartElement(reader.qualifiedName().toString());
+                    w.writeAttributes(reader.attributes());
+                    for (auto &a: reader.namespaceDeclarations())
+                        w.writeNamespace(a.namespaceUri().toString(), a.prefix().toString());
+                    break;
+                case QXmlStreamReader::EndElement:
+                    w.writeEndElement();
+                    break;
+                case QXmlStreamReader::Characters:
+                    w.writeCharacters(reader.text().toString());
+                    break;
+                case QXmlStreamReader::Comment:
+                    w.writeComment(reader.text().toString());
+                    break;
+                case QXmlStreamReader::DTD:
+                    w.writeDTD(reader.text().toString());
+                    break;
+                case QXmlStreamReader::EntityReference:
+                    break;
+                case QXmlStreamReader::ProcessingInstruction:
+                    break;
+
+            }
             reader.readNext();
         }
     }
-    vals.replace("<n1:", "<c:");
-    vals.replace("</n1:", "</c:");
 
-//    qDebug()<<vals;
+    qDebug()<<vals;
 }
 
 bool ExtensionList::isValid() const
 {
     return !vals.isEmpty();
+}
+
+bool ExtensionList::operator==(const ExtensionList &other) const
+{
+    return vals == other.vals;
+}
+bool ExtensionList::operator!=(const ExtensionList &other) const
+{
+    return vals != other.vals;
 }
 
 QDebug operator<<(QDebug dbg, const PresetTextShape &f)
