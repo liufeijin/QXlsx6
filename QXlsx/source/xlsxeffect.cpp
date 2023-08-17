@@ -73,7 +73,7 @@ Effect::Effect(Type type)
     d->type = type;
 }
 
-Effect::Effect(const QXlsx::Effect &other) : d(other.d)
+Effect::Effect(const Effect &other) : d(other.d)
 {
 
 }

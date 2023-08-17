@@ -44,22 +44,12 @@ CellPrivate::CellPrivate(const CellPrivate * const cp)
 */
 
 /*!
-  \enum Cell::CellType
-  \value BooleanType      Boolean type
-  \value NumberType       Number type, can be blank or used with forumula
-  \value ErrorType        Error type
-  \value SharedStringType Shared string type
-  \value StringType       String type, can be used with forumula
-  \value InlineStringType Inline string type
-  */
-
-/*!
  * \internal
  * Created by Worksheet only.
  */
 // qint32 styleIndex = (-1)
 Cell::Cell(const QVariant &data, 
-	CellType type, 
+    Type type,
 	const Format &format, 
 	Worksheet *parent,
 	qint32 styleIndex ) :
@@ -93,7 +83,7 @@ Cell::~Cell()
 /*!
  * Return the dataType of this Cell
  */
-Cell::CellType Cell::cellType() const
+Cell::Type Cell::cellType() const
 {
 	Q_D(const Cell);
 
@@ -271,16 +261,16 @@ bool Cell::isDateTime() const
 {
 	Q_D(const Cell);
 
-	Cell::CellType cellType = d->cellType;
+    Type cellType = d->cellType;
     double dValue = d->value.toDouble(); // number
 //	QString strValue = d->value.toString().toUtf8();
 	bool isValidFormat = d->format.isValid();
     bool isDateTimeFormat = d->format.isDateTimeFormat(); // datetime format
 
     // dev67
-    if ( cellType == NumberType ||
-         cellType == DateType ||
-         cellType == CustomType )
+    if ( cellType == Type::Number ||
+         cellType == Type::Date ||
+         cellType == Type::Custom )
     {
         if ( dValue >= 0 &&
              isValidFormat &&
@@ -332,9 +322,9 @@ bool Cell::isRichString() const
 {
 	Q_D(const Cell);
 
-    if ( d->cellType != SharedStringType &&
-            d->cellType != InlineStringType &&
-            d->cellType != StringType )
+    if ( d->cellType != Type::SharedString &&
+            d->cellType != Type::InlineString &&
+            d->cellType != Type::String )
     {
 		return false;
     }
@@ -350,11 +340,11 @@ qint32 Cell::styleNumber() const
 	return ret; 
 }
 
-bool Cell::isDateType(CellType cellType, const Format &format)
+bool Cell::isDateType(Type cellType, const Format &format)
 {
-    if ( cellType == NumberType ||
-         cellType == DateType ||
-         cellType == CustomType )
+    if ( cellType == Type::Number||
+         cellType == Type::Date||
+         cellType == Type::Custom)
     {
         return format.isValid() && format.isDateTimeFormat();
     }

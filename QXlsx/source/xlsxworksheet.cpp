@@ -205,7 +205,7 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
             auto cell = std::make_shared<Cell>(it2.value().get());
 			cell->d_ptr->parent = sheet;
 
-			if (cell->cellType() == Cell::SharedStringType)
+            if (cell->cellType() == Cell::Type::SharedString)
 				d->workbook->sharedStrings()->addSharedString(cell->d_ptr->richString);
 
 			sheet_d->cellTable[row][col] = cell;
@@ -647,7 +647,7 @@ bool Worksheet::writeString(int row, int column, const RichString &value, const 
 	if (value.fragmentCount() == 1 && value.fragmentFormat(0).isValid())
 		fmt.mergeFormat(value.fragmentFormat(0));
 	d->workbook->styles()->addXfFormat(fmt);
-    auto cell = std::make_shared<Cell>(value.toPlainString(), Cell::SharedStringType, fmt, this);
+    auto cell = std::make_shared<Cell>(value.toPlainString(), Cell::Type::SharedString, fmt, this);
 	cell->d_ptr->richString = value;
 	d->cellTable[row][column] = cell;
 	return true;
@@ -717,7 +717,7 @@ bool Worksheet::writeInlineString(int row, int column, const QString &value, con
 
 	Format fmt = format.isValid() ? format : d->cellFormat(row, column);
 	d->workbook->styles()->addXfFormat(fmt);
-    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::InlineStringType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::InlineString, fmt, this);
 	return true;
 }
 
@@ -746,7 +746,7 @@ bool Worksheet::writeNumeric(int row, int column, double value, const Format &fo
 
 	Format fmt = format.isValid() ? format : d->cellFormat(row, column);
 	d->workbook->styles()->addXfFormat(fmt);
-    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::NumberType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Number, fmt, this);
 	return true;
 }
 
@@ -792,7 +792,7 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
 		d->sharedFormulaMap[si] = formula;
 	}
 
-    auto data = std::make_shared<Cell>(result, Cell::NumberType, fmt, this);
+    auto data = std::make_shared<Cell>(result, Cell::Type::Number, fmt, this);
 	data->d_ptr->formula = formula;
 	d->cellTable[row][column] = data;
 
@@ -806,7 +806,7 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
 					if(Cell *cell = cellAt(r, c)) {
 						cell->d_ptr->formula = sf;
 					} else {
-                        auto newCell = std::make_shared<Cell>(result, Cell::NumberType, fmt, this);
+                        auto newCell = std::make_shared<Cell>(result, Cell::Type::Number, fmt, this);
 						newCell->d_ptr->formula = sf;
 						d->cellTable[r][c] = newCell;
 					}
@@ -845,7 +845,7 @@ bool Worksheet::writeBlank(int row, int column, const Format &format)
 	d->workbook->styles()->addXfFormat(fmt);
 
 	//Note: NumberType with an invalid QVariant value means blank.
-    d->cellTable[row][column] = std::make_shared<Cell>(QVariant{}, Cell::NumberType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(QVariant{}, Cell::Type::Number, fmt, this);
 
 	return true;
 }
@@ -874,7 +874,7 @@ bool Worksheet::writeBool(int row, int column, bool value, const Format &format)
 
 	Format fmt = format.isValid() ? format : d->cellFormat(row, column);
 	d->workbook->styles()->addXfFormat(fmt);
-    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::BooleanType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Boolean, fmt, this);
 
 	return true;
 }
@@ -908,7 +908,7 @@ bool Worksheet::writeDateTime(int row, int column, const QDateTime &dt, const Fo
 
 	double value = datetimeToNumber(dt, d->workbook->isDate1904());
 
-    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::NumberType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Number, fmt, this);
 
 	return true;
 }
@@ -938,7 +938,7 @@ bool Worksheet::writeDate(int row, int column, const QDate &dt, const Format &fo
 
     double value = datetimeToNumber(QDateTime(dt, QTime(0,0,0)), d->workbook->isDate1904());
 
-    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::NumberType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Number, fmt, this);
 
     return true;
 }
@@ -971,7 +971,7 @@ bool Worksheet::writeTime(int row, int column, const QTime &t, const Format &for
 		fmt.setNumberFormat(QStringLiteral("hh:mm:ss"));
 	d->workbook->styles()->addXfFormat(fmt);
 
-    d->cellTable[row][column] = std::make_shared<Cell>(timeToNumber(t), Cell::NumberType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(timeToNumber(t), Cell::Type::Number, fmt, this);
 
 	return true;
 }
@@ -1037,7 +1037,7 @@ bool Worksheet::writeHyperlink(int row, int column, const QUrl &url, const Forma
 
 	//Write the hyperlink string as normal string.
 	d->sharedStrings()->addSharedString(displayString);
-    d->cellTable[row][column] = std::make_shared<Cell>(displayString, Cell::SharedStringType, fmt, this);
+    d->cellTable[row][column] = std::make_shared<Cell>(displayString, Cell::Type::SharedString, fmt, this);
 
 	//Store the hyperlink data in a separate table
 	d->urlTable[row][column] = QSharedPointer<XlsxHyperlinkData>(new XlsxHyperlinkData(XlsxHyperlinkData::External, urlString, locationString, QString(), tip));
@@ -1612,7 +1612,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
     else if ((cIt = colsInfoHelper.constFind(col)) != colsInfoHelper.constEnd() && !(*cIt)->format.isEmpty())
         writer.writeAttribute(QStringLiteral("s"), QString::number((*cIt)->format.xfIndex()));
 
-    if (cell->cellType() == Cell::SharedStringType) // 's'
+    if (cell->cellType() == Cell::Type::SharedString) // 's'
     {
 		int sst_idx;
 		if (cell->isRichString())
@@ -1623,7 +1623,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
 		writer.writeAttribute(QStringLiteral("t"), QStringLiteral("s"));
 		writer.writeTextElement(QStringLiteral("v"), QString::number(sst_idx));
     }
-    else if (cell->cellType() == Cell::InlineStringType) // 'inlineStr'
+    else if (cell->cellType() == Cell::Type::InlineString) // 'inlineStr'
     {
 		writer.writeAttribute(QStringLiteral("t"), QStringLiteral("inlineStr"));
 		writer.writeStartElement(QStringLiteral("is"));
@@ -1659,7 +1659,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
 		}
 		writer.writeEndElement();//is
     }
-    else if (cell->cellType() == Cell::NumberType) // 'n'
+    else if (cell->cellType() == Cell::Type::Number) // 'n'
     {
         writer.writeAttribute(QStringLiteral("t"), QStringLiteral("n")); // dev67
 
@@ -1676,7 +1676,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
 			writer.writeTextElement(QStringLiteral("v"), QString::number(value, 'g', 15));
 		}
     }
-    else if (cell->cellType() == Cell::StringType) // 'str'
+    else if (cell->cellType() == Cell::Type::String) // 'str'
     {
 		writer.writeAttribute(QStringLiteral("t"), QStringLiteral("str"));
 		if (cell->hasFormula())
@@ -1684,7 +1684,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
 
 		writer.writeTextElement(QStringLiteral("v"), cell->value().toString());
     }
-    else if (cell->cellType() == Cell::BooleanType) // 'b'
+    else if (cell->cellType() == Cell::Type::Boolean) // 'b'
     {
 		writer.writeAttribute(QStringLiteral("t"), QStringLiteral("b"));
 
@@ -1699,7 +1699,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
 
 		writer.writeTextElement(QStringLiteral("v"), cell->value().toBool() ? QStringLiteral("1") : QStringLiteral("0"));
 	}
-    else if (cell->cellType() == Cell::DateType) // 'd'
+    else if (cell->cellType() == Cell::Type::Date) // 'd'
     {
         // dev67
 
@@ -1715,7 +1715,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
          writer.writeTextElement(QStringLiteral("v"), cell->value().toString() );
 
     }
-    else if (cell->cellType() == Cell::ErrorType) // 'e'
+    else if (cell->cellType() == Cell::Type::Error) // 'e'
     {
         writer.writeAttribute(QStringLiteral("t"), QStringLiteral("e"));
         writer.writeTextElement(QStringLiteral("v"), cell->value().toString() );
@@ -2406,49 +2406,49 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 				}
 
                 // Cell::CellType cellType = Cell::NumberType;
-                Cell::CellType cellType = Cell::CustomType;
+                auto cellType = Cell::Type::Custom;
 
 				if (attributes.hasAttribute(QLatin1String("t"))) // Type
 				{
 					const auto typeString = attributes.value(QLatin1String("t"));
                     if (typeString == QLatin1String("s")) // Shared string
 					{
-						cellType = Cell::SharedStringType;
+                        cellType = Cell::Type::SharedString;
 					}
                     else if (typeString == QLatin1String("inlineStr")) //  Inline String
 					{
-						cellType = Cell::InlineStringType;
+                        cellType = Cell::Type::InlineString;
 					}
                     else if (typeString == QLatin1String("str")) // String
 					{
-						cellType = Cell::StringType;
+                        cellType = Cell::Type::String;
 					}
                     else if (typeString == QLatin1String("b")) // Boolean
 					{
-						cellType = Cell::BooleanType;
+                        cellType = Cell::Type::Boolean;
 					}
                     else if (typeString == QLatin1String("e")) // Error
 					{
-						cellType = Cell::ErrorType;
+                        cellType = Cell::Type::Error;
 					}
                     else if (typeString == QLatin1String("d")) // Date
                     {
-                        cellType = Cell::DateType;
+                        cellType = Cell::Type::Date;
                     }
                     else if (typeString == QLatin1String("n")) // Number
                     {
-                        cellType = Cell::NumberType;
+                        cellType = Cell::Type::Number;
                     }
 					else
 					{
                         // custom type
-                        cellType = Cell::CustomType;
+                        cellType = Cell::Type::Custom;
 					}
 				}
 
 				if (Cell::isDateType(cellType, format))
 				{
-					cellType = Cell::DateType;
+                    cellType = Cell::Type::Date;
 				}
 
 				// create a heap of new cell
@@ -2474,7 +2474,7 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 						else if (reader.name() == QLatin1String("v")) // Value
 						{
 							QString value = reader.readElementText();
-							if (cellType == Cell::SharedStringType)
+                            if (cellType == Cell::Type::SharedString)
 							{
 								int sst_idx = value.toInt();
 								sharedStrings()->incRefByStringIndex(sst_idx);
@@ -2484,15 +2484,15 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 								if (rs.isRichString())
 									cell->d_func()->richString = rs;
 							}
-							else if (cellType == Cell::NumberType)
+                            else if (cellType == Cell::Type::Number)
 							{
 								cell->d_func()->value = value.toDouble();
 							}
-							else if (cellType == Cell::BooleanType)
+                            else if (cellType == Cell::Type::Boolean)
 							{
 								cell->d_func()->value = value.toInt() ? true : false;
 							}
-                            else  if (cellType == Cell::DateType)
+                            else  if (cellType == Cell::Type::Date)
                             {
                                 // [dev54] DateType
 

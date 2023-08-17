@@ -25,7 +25,7 @@ public:
     Worksheet *parent;
     Cell *q_ptr;
 public:
-    Cell::CellType cellType;
+    Cell::Type cellType;
     QVariant value;
 
     CellFormula formula;

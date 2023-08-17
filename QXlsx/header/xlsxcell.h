@@ -33,21 +33,27 @@ private:
     friend class WorksheetPrivate;
 
 public:
-    enum CellType // See ECMA 376, 18.18.11. ST_CellType (Cell Type) for more information.
+    /**
+     * @brief The CellType enum specifies the cell's data type.
+     */
+    enum class Type
     {
-        BooleanType,
-        DateType,
-        ErrorType,
-        InlineStringType,
-        NumberType,
-        SharedStringType,
-        StringType,
-        CustomType, // custom or un-defined cell type
+        Boolean, /**< Cell contains a boolean */
+        Date, /**< Cell contains a date in the ISO 8601 format. */
+        Error, /**< Cell contains an error. */
+        InlineString, /**< Cell containing an (inline) rich string, i.e., one not in
+                            the shared string table.  If this cell type is used, then
+                            the cell value is in the _is_ element rather than the _v_
+                            element in the cell (c element) */
+        Number, /**< Cell contains a number */
+        SharedString, /**< Cell contains a shared string */
+        String, /**< Cell contains a formula string */
+        Custom, /**< Custom cell type, not defined in the ECMA-376 */
 	};
 
 public:
     Cell(const QVariant &data = QVariant(),
-            CellType type = NumberType,
+            Type type = Type::Number,
             const Format &format = Format(),
             Worksheet *parent = nullptr,
             qint32 styleIndex = (-1) );
@@ -58,7 +64,7 @@ public:
     CellPrivate * const d_ptr; // See D-pointer and Q-pointer of Qt, for more information.
 
 public:
-	CellType cellType() const;
+    Type cellType() const;
 	QVariant value() const;
 	QVariant readValue() const;
 	Format format() const;
@@ -73,7 +79,7 @@ public:
 
 	qint32 styleNumber() const;
 
-	static bool isDateType(CellType cellType, const Format &format);
+    static bool isDateType(Type cellType, const Format &format);
 
 };
 
