@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(QXlsx
-    VERSION 1.4.5
+    VERSION 1.4.6
     LANGUAGES CXX
 )
 

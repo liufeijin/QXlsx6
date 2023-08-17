@@ -3,6 +3,7 @@
 TARGET = QXlsx
 TEMPLATE = lib
 CONFIG += staticlib
+VERSION = 1.4.6
 QT += core
 QT += gui-private
 
