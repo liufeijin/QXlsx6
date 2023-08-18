@@ -7,6 +7,66 @@
 
 QT_BEGIN_NAMESPACE_XLSX
 
+class AxisPrivate : public QSharedData
+{
+public:
+    int id = -1;
+    Axis::Scaling scaling;
+    std::optional<bool> visible;
+    Axis::Position position = Axis::Position::None;
+    Axis::Type type = Axis::Type::None;
+
+    int crossAxis = -1;
+    std::optional<Axis::CrossesType> crossesType;
+    std::optional<double> crossesPosition;
+
+    bool majorGridlinesOn = false;
+    bool minorGridlinesOn = false;
+    ShapeFormat majorGridlines;
+    ShapeFormat minorGridlines;
+
+    Title title;
+    Text textProperties;
+    NumberFormat numberFormat;
+
+    std::optional<Axis::TickMark> majorTickMark;
+    std::optional<Axis::TickMark> minorTickMark;
+
+    std::optional<Axis::TickLabelPosition> tickLabelPosition;
+    ShapeFormat shape;
+
+    //Cat, Date
+    std::optional<bool> axAuto;
+    std::optional<int> labelOffset;
+
+    //Cat
+    std::optional<Axis::LabelAlignment> labelAlignment;
+    std::optional<bool> noMultiLevelLabels;
+
+    //Date, Val
+    std::optional<double> majorUnit;
+    std::optional<double> minorUnit;
+
+    //Date
+    std::optional<Axis::TimeUnit> baseTimeUnit;
+    std::optional<Axis::TimeUnit> majorTimeUnit;
+    std::optional<Axis::TimeUnit> minorTimeUnit;
+
+    //Cat, Ser
+    std::optional<int> tickLabelSkip;
+    std::optional<int> tickMarkSkip;
+
+    //Val
+    std::optional<Axis::CrossesBetweenType> crossesBetween;
+    DisplayUnits displayUnits;
+
+    AxisPrivate();
+    AxisPrivate(const AxisPrivate &other);
+    ~AxisPrivate();
+
+    bool operator == (const AxisPrivate &other) const;
+};
+
 void Axis::Scaling::write(QXmlStreamWriter &writer) const
 {
     if (!isValid()) {
@@ -98,6 +158,13 @@ Axis::Axis(Axis::Type type, Axis::Position position)
 Axis::Axis(const Axis &other) : d(other.d)
 {
 
+}
+
+Axis &Axis::operator=(const Axis &other)
+{
+    if (*this != other)
+        d = other.d;
+    return *this;
 }
 
 Axis::~Axis()
@@ -563,7 +630,7 @@ void Axis::write(QXmlStreamWriter &writer) const
         }
     }
 
-    if (d->title.isValid()) d->title.write(writer);
+    if (d->title.isValid()) d->title.write(writer, QLatin1String("c:title"));
 
     writer.writeEmptyElement("c:crossAx");
     if (d->crossAxis != -1)
@@ -874,144 +941,157 @@ bool AxisPrivate::operator ==(const AxisPrivate &other) const
     return true;
 }
 
+class DisplayUnitsPrivate : public QSharedData
+{
+public:
+    DisplayUnitsPrivate();
+    DisplayUnitsPrivate(const DisplayUnitsPrivate &other);
+    ~DisplayUnitsPrivate();
+    bool operator==(const DisplayUnitsPrivate &other) const;
+
+    std::optional<double> customUnit;
+    std::optional<DisplayUnits::BuiltInUnit> builtInUnit;
+    Title title;
+    bool labelVisible = true;
+    ExtensionList extLst;
+};
+
+DisplayUnitsPrivate::DisplayUnitsPrivate()
+{
+
+}
+DisplayUnitsPrivate::DisplayUnitsPrivate(const DisplayUnitsPrivate &other)
+    : QSharedData{other}, customUnit{other.customUnit}, builtInUnit{other.builtInUnit},
+      title{other.title}, labelVisible{other.labelVisible}, extLst{other.extLst}
+{
+
+}
+DisplayUnitsPrivate::~DisplayUnitsPrivate()
+{
+
+}
+bool DisplayUnitsPrivate::operator==(const DisplayUnitsPrivate &other) const
+{
+    if (customUnit != other.customUnit) return false;
+    if (builtInUnit != other.builtInUnit) return false;
+    if (title != other.title) return false;
+    if (labelVisible != other.labelVisible) return false;
+    if (extLst != other.extLst) return false;
+    return true;
+}
+
 DisplayUnits::DisplayUnits()
 {
 
 }
 
-DisplayUnits::DisplayUnits(double customUnit)
+DisplayUnits::DisplayUnits(double customUnit) : d{new DisplayUnitsPrivate}
 {
-    mCustomUnit = customUnit;
+    d->customUnit = customUnit;
 }
 
-DisplayUnits::DisplayUnits(DisplayUnits::BuiltInUnit unit)
+DisplayUnits::DisplayUnits(DisplayUnits::BuiltInUnit unit) : d{new DisplayUnitsPrivate}
 {
-    mBuiltInUnit = unit;
+    d->builtInUnit = unit;
+}
+
+DisplayUnits::DisplayUnits(const DisplayUnits &other) : d{other.d}
+{
+
+}
+
+DisplayUnits::~DisplayUnits()
+{
+
+}
+
+DisplayUnits &DisplayUnits::operator=(const DisplayUnits &other)
+{
+    if (*this != other)
+        d = other.d;
+    return *this;
 }
 
 std::optional<double> DisplayUnits::customUnit() const
 {
-    return mCustomUnit;
+    if (d) return d->customUnit;
+    return {};
 }
 
 void DisplayUnits::setCustomUnit(double customUnit)
 {
-    mCustomUnit = customUnit;
+    if (!d) d = new DisplayUnitsPrivate;
+    d->customUnit = customUnit;
 }
 
 std::optional<DisplayUnits::BuiltInUnit> DisplayUnits::builtInUnit() const
 {
-    return mBuiltInUnit;
+    if (d) return d->builtInUnit;
+    return {};
 }
 
 void DisplayUnits::setBuiltInUnit(DisplayUnits::BuiltInUnit builtInUnit)
 {
-    mBuiltInUnit = builtInUnit;
-}
-
-Layout DisplayUnits::layout() const
-{
-    return mLayout;
-}
-
-Layout &DisplayUnits::layout()
-{
-    return mLayout;
-}
-
-void DisplayUnits::setLayout(const Layout &layout)
-{
-    mLayout = layout;
+    if (!d) d = new DisplayUnitsPrivate;
+    d->builtInUnit = builtInUnit;
 }
 
 bool DisplayUnits::labelVisible() const
 {
-    return mLabelVisible;
+    if (d) return d->labelVisible;
+    return {};
 }
 
 void DisplayUnits::setLabelVisible(bool visible)
 {
-    mLabelVisible = visible;
+    if (!d) d = new DisplayUnitsPrivate;
+    d->labelVisible = visible;
 }
 
-Text DisplayUnits::text() const
+Title DisplayUnits::title() const
 {
-    return mText;
+    if (d) return d->title;
+    return {};
 }
 
-Text &DisplayUnits::text()
+Title &DisplayUnits::title()
 {
-    return mText;
+    if (!d) d = new DisplayUnitsPrivate;
+    return d->title;
 }
 
-void DisplayUnits::setText(const Text &text)
+void DisplayUnits::setTitle(const Title &title)
 {
-    mText = text;
-}
-
-Text DisplayUnits::textProperties() const
-{
-    return mTextProperties;
-}
-
-Text &DisplayUnits::textProperties()
-{
-    return mTextProperties;
-}
-
-void DisplayUnits::setTextProperties(const Text &textProperties)
-{
-    mTextProperties = textProperties;
-}
-
-ShapeFormat DisplayUnits::shape() const
-{
-    return mShape;
-}
-
-ShapeFormat &DisplayUnits::shape()
-{
-    return mShape;
-}
-
-void DisplayUnits::setShape(const ShapeFormat &shape)
-{
-    mShape = shape;
+    if (!d) d = new DisplayUnitsPrivate;
+    d->title = title;
 }
 
 bool DisplayUnits::isValid() const
 {
-    if (mCustomUnit.has_value()) return true;
-    if (mBuiltInUnit.has_value()) return true;
-    if (mShape.isValid()) return true;
-    if (mLayout.isValid()) return true;
-    if (mText.isValid()) return true;
-    if (mTextProperties.isValid()) return true;
+    if (d) return true;
     return false;
 }
 
 void DisplayUnits::read(QXmlStreamReader &reader)
 {
+    if (!d) d = new DisplayUnitsPrivate;
     const auto &name = reader.name();
     while (!reader.atEnd()) {
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("custUnit"))
-                parseAttributeDouble(a, QLatin1String("val"), mCustomUnit);
+                parseAttributeDouble(a, QLatin1String("val"), d->customUnit);
             else if (reader.name() == QLatin1String("builtInUnit")) {
                 BuiltInUnit u; fromString(a.value(QLatin1String("val")).toString(), u);
-                mBuiltInUnit = u;
+                d->builtInUnit = u;
             }
-            else if (reader.name() == QLatin1String("layout")) {
-                mLayout.read(reader);
-                mLabelVisible = true;
+            else if (reader.name() == QLatin1String("dispUnitsLbl")) {
+                d->labelVisible = true;
+                d->title.read(reader);
             }
-            else if (reader.name() == QLatin1String("tx")) mText.read(reader);
-            else if (reader.name() == QLatin1String("spPr")) mShape.read(reader);
-            else if (reader.name() == QLatin1String("txPr")) mTextProperties.read(reader, false);
             else if (reader.name() == QLatin1String("extLst")) {
-                reader.skipCurrentElement();
+                d->extLst.read(reader);
             }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
@@ -1023,32 +1103,21 @@ void DisplayUnits::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (!isValid()) return;
     writer.writeStartElement(name);
-    if (mCustomUnit.has_value()) writeEmptyElement(writer, QLatin1String("c:custUnit"), mCustomUnit);
-    else if (mBuiltInUnit.has_value()) {
-        QString s; toString(mBuiltInUnit.value(), s);
+    if (d->customUnit.has_value()) writeEmptyElement(writer, QLatin1String("c:custUnit"), d->customUnit);
+    else if (d->builtInUnit.has_value()) {
+        QString s; toString(d->builtInUnit.value(), s);
         writeEmptyElement(writer, QLatin1String("c:builtInUnit"), s);
     }
-    if (mLabelVisible) {
-        writer.writeStartElement(QLatin1String("c:dispUnitsLbl"));
-        mLayout.write(writer, QLatin1String("c:layout"));
-        if (mText.isValid()) mText.write(writer, QLatin1String("c:tx"));
-        if (mTextProperties.isValid()) mText.write(writer, QLatin1String("c:txPr"), false);
-        if (mShape.isValid()) mShape.write(writer, QLatin1String("c:spPr"));
-        writer.writeEndElement();
-    }
+    if (d->labelVisible && d->title.isValid())
+        d->title.write(writer, QLatin1String("c:dispUnitsLbl"));
     writer.writeEndElement();
 }
 
 bool DisplayUnits::operator ==(const DisplayUnits &other) const
 {
-    if (mCustomUnit != other.mCustomUnit) return false;
-    if (mBuiltInUnit != other.mBuiltInUnit) return false;
-    if (mLayout != other.mLayout) return false;
-    if (mShape != other.mShape) return false;
-    if (mText != other.mText) return false;
-    if (mTextProperties != other.mTextProperties) return false;
-    if (mLabelVisible != other.mCustomUnit) return false;
-    return true;
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return *this->d.constData() == *other.d.constData();
 }
 
 bool DisplayUnits::operator !=(const DisplayUnits &other) const

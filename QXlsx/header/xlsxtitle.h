@@ -151,7 +151,7 @@ public:
 
     bool isValid() const;
 
-    void write(QXmlStreamWriter &writer) const;
+    void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);
 
     bool operator ==(const Title &other) const;

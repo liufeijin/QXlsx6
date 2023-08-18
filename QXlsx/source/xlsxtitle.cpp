@@ -284,9 +284,9 @@ bool Title::isValid() const
     return false;
 }
 
-void Title::write(QXmlStreamWriter &writer) const
+void Title::write(QXmlStreamWriter &writer, const QString &name) const
 {
-    writer.writeStartElement(QLatin1String("c:title"));
+    writer.writeStartElement(name);
     if (d->text.isValid()) d->text.write(writer, "c:tx");
     d->layout.write(writer, "c:layout");
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
@@ -295,7 +295,7 @@ void Title::write(QXmlStreamWriter &writer) const
     if (d->textProperties.isValid())
         d->textProperties.write(writer, QLatin1String("c:txPr"), false);
 
-    writer.writeEndElement(); // c:title
+    writer.writeEndElement();
 }
 
 void Title::read(QXmlStreamReader &reader)

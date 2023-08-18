@@ -1033,7 +1033,7 @@ void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
 void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("c:chart"));
-    if (title.isValid()) title.write(writer);
+    if (title.isValid()) title.write(writer, QLatin1String("c:title"));
     writeEmptyElement(writer, QLatin1String("c:autoTitleDeleted"), autoTitleDeleted);
 
     writer.writeStartElement(QStringLiteral("c:plotArea"));

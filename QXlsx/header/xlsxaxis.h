@@ -23,6 +23,7 @@ class WorksheetPrivate;
 class RichStringPrivate;
 class SharedStrings;
 
+class DisplayUnitsPrivate;
 /**
  * @brief The DisplayUnits struct specifies the units properties for the value axis
  */
@@ -43,16 +44,15 @@ struct QXLSX_EXPORT DisplayUnits
     DisplayUnits();
     DisplayUnits(double customUnit);
     DisplayUnits(BuiltInUnit unit);
+    DisplayUnits(const DisplayUnits &other);
+    ~DisplayUnits();
+    DisplayUnits &operator=(const DisplayUnits &other);
 
     std::optional<double> customUnit() const;
     void setCustomUnit(double customUnit);
 
     std::optional<BuiltInUnit> builtInUnit() const;
     void setBuiltInUnit(BuiltInUnit builtInUnit);
-
-    Layout layout() const;
-    Layout &layout();
-    void setLayout(const Layout &layout);
 
     /**
      * @brief labelVisible returns the visibility of the display units label
@@ -65,17 +65,9 @@ struct QXLSX_EXPORT DisplayUnits
      */
     void setLabelVisible(bool visible);
 
-    Text text() const;
-    Text &text();
-    void setText(const Text &text);
-
-    Text textProperties() const;
-    Text &textProperties();
-    void setTextProperties(const Text &textProperties);
-
-    ShapeFormat shape() const;
-    ShapeFormat &shape();
-    void setShape(const ShapeFormat &shape);
+    Title title() const;
+    Title &title();
+    void setTitle(const Title &title);
 
     bool isValid() const;
 
@@ -98,13 +90,7 @@ private:
         {BuiltInUnit::Trillions, "trillions"},
     });
 
-    std::optional<double> mCustomUnit;
-    std::optional<BuiltInUnit> mBuiltInUnit;
-    Layout mLayout;
-    ShapeFormat mShape;
-    Text mText;
-    Text mTextProperties;
-    bool mLabelVisible = true;
+    QSharedDataPointer<DisplayUnitsPrivate> d;
 };
 
 class AxisPrivate;
@@ -142,10 +128,10 @@ public:
      * @brief The CrossesType enum specifies the possible crossing points for an axis.
      */
     enum class CrossesType {
-        Minimum, /**< Axis crosses at the minimum value of the chart. */
-        Maximum, /**< Axis crosses at the maximum value of the chart. */
-        Position, /**< Axis crosses at the value specified with setCrossesAt() */
-        AutoZero /**< The category axis crosses at the zero point of the value axis (if possible),
+        Minimum, /**< @brief Axis crosses at the minimum value of the chart. */
+        Maximum, /**< @brief Axis crosses at the maximum value of the chart. */
+        Position, /**< @brief Axis crosses at the value specified with setCrossesAt() */
+        AutoZero /**< @brief The category axis crosses at the zero point of the value axis (if possible),
                       or the minimum value (if the minimum is greater than zero) or the maximum
                       (if the maximum is less than zero) */
     };
@@ -154,28 +140,28 @@ public:
      */
     enum class CrossesBetweenType
     {
-        Between, /**< the value axis shall cross the category axis between data markers. */
-        MidCat /**< the value axis shall cross the category axis at the midpoint of a category. */
+        Between, /**< @brief the value axis shall cross the category axis between data markers. */
+        MidCat /**< @brief the value axis shall cross the category axis at the midpoint of a category. */
     };
     /**
      * @brief The TickMark enum specifies the possible positions for tick marks.
      */
     enum class TickMark
     {
-        None, /**< there shall be no tick marks.*/
-        In, /**< the tick marks shall be inside the plot area. */
-        Out, /**<  the tick marks shall be outside the plot area. */
-        Cross /**< the tick marks shall cross the axis. */
+        None, /**< @brief there shall be no tick marks.*/
+        In, /**< @brief the tick marks shall be inside the plot area. */
+        Out, /**<  @brief the tick marks shall be outside the plot area. */
+        Cross /**< @brief the tick marks shall cross the axis. */
     };
     /**
      * @brief The TickLabelPosition enum specifies the possible positions for tick labels
      */
     enum class TickLabelPosition
     {
-        High, /**<  the axis labels shall be at the high end of the perpendicular axis */
-        Low, /**< the axis labels shall be at the low end of the perpendicular axis */
-        NextTo, /**< the axis labels shall be next to the axis */
-        None /**< the axis labels are not drawn */
+        High, /**< @brief  the axis labels shall be at the high end of the perpendicular axis */
+        Low, /**< @brief the axis labels shall be at the low end of the perpendicular axis */
+        NextTo, /**< @brief the axis labels shall be next to the axis */
+        None /**< @brief the axis labels are not drawn */
     };
 
     /**
@@ -183,18 +169,18 @@ public:
      */
     enum class LabelAlignment
     {
-        Center, /**< the text shall be centered */
-        Left, /**< the text shall be left justified */
-        Right /**< the text shall be right justified */
+        Center, /**< @brief the text shall be centered */
+        Left, /**< @brief the text shall be left justified */
+        Right /**< @brief the text shall be right justified */
     };
     /**
      * @brief The TimeUnit enum  specifies a unit of time to use on a date axis.
      */
     enum class TimeUnit
     {
-        Days, /**< the chart data shall be shown in days. */
-        Months, /**< the chart data shall be shown in months. */
-        Years /**<  the chart data shall be shown in years. */
+        Days, /**< @brief the chart data shall be shown in days. */
+        Months, /**< @brief the chart data shall be shown in months. */
+        Years /**<  @brief the chart data shall be shown in years. */
     };
 
     /**
@@ -215,6 +201,7 @@ public:
      * @param other
      */
     Axis(const Axis &other);
+    Axis &operator=(const Axis &other);
     ~Axis();
 
     bool isValid() const;
@@ -507,65 +494,7 @@ private:
 QDebug operator<<(QDebug dbg, const Axis &axis);
 #endif
 
-class AxisPrivate : public QSharedData
-{
-public:
-    int id = -1;
-    Axis::Scaling scaling;
-    std::optional<bool> visible;
-    Axis::Position position = Axis::Position::None;
-    Axis::Type type = Axis::Type::None;
 
-    int crossAxis = -1;
-    std::optional<Axis::CrossesType> crossesType;
-    std::optional<double> crossesPosition;
-
-    bool majorGridlinesOn = false;
-    bool minorGridlinesOn = false;
-    ShapeFormat majorGridlines;
-    ShapeFormat minorGridlines;
-
-    Title title;
-    Text textProperties;
-    NumberFormat numberFormat;
-
-    std::optional<Axis::TickMark> majorTickMark;
-    std::optional<Axis::TickMark> minorTickMark;
-
-    std::optional<Axis::TickLabelPosition> tickLabelPosition;
-    ShapeFormat shape;
-
-    //Cat, Date
-    std::optional<bool> axAuto;
-    std::optional<int> labelOffset;
-
-    //Cat
-    std::optional<Axis::LabelAlignment> labelAlignment;
-    std::optional<bool> noMultiLevelLabels;
-
-    //Date, Val
-    std::optional<double> majorUnit;
-    std::optional<double> minorUnit;
-
-    //Date
-    std::optional<Axis::TimeUnit> baseTimeUnit;
-    std::optional<Axis::TimeUnit> majorTimeUnit;
-    std::optional<Axis::TimeUnit> minorTimeUnit;
-
-    //Cat, Ser
-    std::optional<int> tickLabelSkip;
-    std::optional<int> tickMarkSkip;
-
-    //Val
-    std::optional<Axis::CrossesBetweenType> crossesBetween;
-    DisplayUnits displayUnits;
-
-    AxisPrivate();
-    AxisPrivate(const AxisPrivate &other);
-    ~AxisPrivate();
-
-    bool operator == (const AxisPrivate &other) const;
-};
 
 QT_END_NAMESPACE_XLSX
 
