@@ -21,7 +21,7 @@
 #include <type_traits>
 #include <string>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class CellReference;
 
@@ -65,6 +65,7 @@ void parseAttributeInt(const QXmlStreamAttributes &a, const QLatin1String &name,
 void parseAttributeUInt(const QXmlStreamAttributes &a, const QLatin1String &name, uint &target);
 void parseAttributeString(const QXmlStreamAttributes &a, const QLatin1String &name, QString &target);
 void parseAttributeDouble(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<double> &target);
+void parseAttributeDouble(const QXmlStreamAttributes &a, const QLatin1String &name, double &target);
 
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, bool val);
@@ -95,5 +96,5 @@ bool isSpaceReserveNeeded(const QString &string);
 
 QString convertSharedFormula(const QString &rootFormula, const CellReference &rootCell, const CellReference &cell);
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXUTILITY_H

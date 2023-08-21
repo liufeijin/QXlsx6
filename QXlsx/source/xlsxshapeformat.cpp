@@ -1,6 +1,27 @@
 #include "xlsxshapeformat.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
+
+class ShapePrivate : public QSharedData
+{
+public:
+    std::optional<ShapeFormat::BlackWhiteMode> blackWhiteMode;
+    std::optional<Transform2D> xfrm;
+    std::optional<PresetGeometry2D> presetGeometry;
+    //TODO: CustomGeometry2D
+
+    FillFormat fill;
+    LineFormat line;
+    Effect effectList; //TODO: Effect DAG
+    std::optional<Scene3D> scene3D; // element, optional
+    std::optional<Shape3D> shape3D; // element, optional
+
+    ShapePrivate();
+    ShapePrivate(const ShapePrivate &other);
+    ~ShapePrivate();
+
+    bool operator == (const ShapePrivate &other) const;
+};
 
 ShapePrivate::ShapePrivate()
 {
@@ -32,6 +53,25 @@ bool ShapePrivate::operator ==(const ShapePrivate &other) const
     if (line != other.line) return false;
 
     return true;
+}
+
+ShapeFormat::ShapeFormat()
+{
+
+}
+ShapeFormat::ShapeFormat(const ShapeFormat &other) : d{other.d}
+{
+
+}
+ShapeFormat::~ShapeFormat()
+{
+
+}
+ShapeFormat &ShapeFormat::operator=(const ShapeFormat &other)
+{
+    if (*this != other)
+        d = other.d;
+    return *this;
 }
 
 std::optional<ShapeFormat::BlackWhiteMode> ShapeFormat::blackWhiteMode() const
@@ -262,6 +302,6 @@ QDebug operator<<(QDebug dbg, const ShapeFormat &f)
     return dbg;
 }
 
-QT_END_NAMESPACE_XLSX
+}
 
 

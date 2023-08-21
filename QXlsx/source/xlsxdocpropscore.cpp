@@ -11,7 +11,7 @@
 
 #include "xlsxdocpropscore_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 DocPropsCore::DocPropsCore(CreateFlag flag)
     :AbstractOOXmlFile(flag)
@@ -173,4 +173,4 @@ bool DocPropsCore::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

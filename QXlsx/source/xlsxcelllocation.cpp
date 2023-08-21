@@ -10,7 +10,7 @@
 #include "xlsxcell.h"
 #include "xlsxcelllocation.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 CellLocation::CellLocation()
 {
@@ -20,4 +20,4 @@ CellLocation::CellLocation()
     cell.reset();
 }
 
-QT_END_NAMESPACE_XLSX
+}

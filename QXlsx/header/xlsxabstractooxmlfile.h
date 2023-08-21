@@ -5,7 +5,7 @@
 
 #include "xlsxglobal.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Relationships;
 class AbstractOOXmlFilePrivate;
@@ -42,6 +42,6 @@ protected:
     AbstractOOXmlFilePrivate *d_ptr;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXABSTRACTOOXMLFILE_H

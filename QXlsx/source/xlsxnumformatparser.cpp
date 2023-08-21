@@ -5,7 +5,7 @@
 #include <QtGlobal>
 #include <QString>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 bool NumFormatParser::isDateTime(const QString &formatCode)
 {
@@ -71,4 +71,4 @@ bool NumFormatParser::isDateTime(const QString &formatCode)
     return false;
 }
 
-QT_END_NAMESPACE_XLSX
+}

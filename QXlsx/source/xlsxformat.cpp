@@ -9,7 +9,7 @@
 #include "xlsxcolor.h"
 #include "xlsxnumformatparser_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 FormatPrivate::FormatPrivate()
 	: dirty(true)
@@ -178,8 +178,10 @@ Format::Format(const Format &other)
  */
 Format &Format::operator =(const Format &other)
 {
-	d = other.d;
-	return *this;
+    if (*this != other) {
+        d = other.d;
+    }
+    return *this;
 }
 
 /*!
@@ -1434,4 +1436,4 @@ QDebug operator<<(QDebug dbg, const Format &f)
 }
 #endif
 
-QT_END_NAMESPACE_XLSX
+}

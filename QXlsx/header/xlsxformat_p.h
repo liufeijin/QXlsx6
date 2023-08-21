@@ -9,7 +9,7 @@
 
 #include "xlsxformat.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class FormatPrivate : public QSharedData
 {
@@ -125,6 +125,6 @@ public:
 };
 
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif

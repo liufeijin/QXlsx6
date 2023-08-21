@@ -15,7 +15,7 @@
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxabstractsheet.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class SharedStrings;
 class Styles;
@@ -90,6 +90,6 @@ private:
     AbstractSheet *addSheet(const QString &name, int sheetId, AbstractSheet::SheetType type = AbstractSheet::ST_WorkSheet);
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXWORKBOOK_H

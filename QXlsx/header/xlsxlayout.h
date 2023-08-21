@@ -12,7 +12,7 @@
 #include "xlsxglobal.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LayoutPrivate;
 
@@ -115,7 +115,7 @@ private:
 
 QDebug operator<<(QDebug dbg, const Layout &f);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::Layout)
 

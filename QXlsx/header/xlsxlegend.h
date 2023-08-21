@@ -13,24 +13,40 @@
 #include "xlsxtext.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LegendPrivate;
 
 /**
- * @brief The LegendEntry class is used to specify properties for a single legend entry: series,
+ * @brief The LegendEntry class specifies properties for a single legend entry: series,
  * trend lines etc.
  */
 class QXLSX_EXPORT LegendEntry
 {
 public:
+    /**
+     * @brief creates an invalid LegendEntry.
+     */
     LegendEntry();
-    LegendEntry(int index, bool visible);
+    /**
+     * @brief creates a LegendEntry and sets its _index_.
+     * @param index the entry index (series, trend lines etc.).
+     */
+    LegendEntry(int index);
+    /**
+     * @brief creates a LegendEntry for a series with _index_, sets the _text_ and makes it _visible_.
+     * @param index the entry index (series, trend lines etc.).
+     * @param visible visibility of the LegendEntry.
+     * @param text text of the LegendEntry.
+     */
     LegendEntry(int index, bool visible, const Text &text);
 
     int idx = -1;
     std::optional<bool> visible;
     Text entry;
+
+    bool isValid() const;
+    bool operator==(const LegendEntry &other) const;
 
 private:
     friend class Legend;
@@ -76,34 +92,35 @@ public:
     Text &text();
     void setText(const Text &text);
 
+    /**
+     * @brief sets visibility to the specific legend entry.
+     * @param index index of the entry.
+     * @param visible visibility of the legend entry.
+     *
+     * By default all legend entries are visible. You can use this method to change
+     * the visibility of a specific entry.
+     */
     void setEntryVisible(int index, bool visible);
+    /**
+     * @brief returns the visibility of a specific legend entry.
+     * @param index the entry index.
+     * @return valid std::optional if the visibility of the entry was changed,
+     * nullopt if the visibility of the entry is the default.
+     */
     std::optional<bool> entryVisible(int index) const;
 
     /**
-     * @brief addEntry adds a new legend entry with the text and visible for series
-     * with index or modifies the existing legend entry.
-     *
-     * Use this method to manually remove the series entry from the legend, as
-     * by default the chart legend does not have any entries (this means all the
-     * series are visible in the chart legend, and they have the default text).
-     *
-     * @param index series index
-     * @param text entry text
-     * @param visible visibility of the entry.
+     * @brief returns legend entry for the series with index index.
+     * @param index the entry index.
+     * @return reference to the legend entry.
      */
-    void addEntry(int index, const Text &text, bool visible);
-    /**
-     * @brief returns legend entry for the series with index index. Such an entry
-     * must be added to the legend manually, as by default the chart legend does not
-     * have any entries (this means all the series are visible in the chart legend, and
-     * they have the default text).
-     * @param index m
-     * @return pointer to the legend entry with index if such an entry exists, nullptr otherwise
-     */
-    LegendEntry *entry(int index);
+    LegendEntry &entry(int index); //TODO: test this method
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
+
+    bool operator ==(const Legend &other) const;
+    bool operator !=(const Legend &other) const;
 private:
 
     SERIALIZE_ENUM(Position,
@@ -114,12 +131,11 @@ private:
         {Position::TopRight, "tr"},
         {Position::Right, "r"},
     });
-    // there can only be one legend per chart, so there's actually no need to do it shallow-copyable,
-    //note: replace with smart pointer
+
     QSharedDataPointer<LegendPrivate> d;
 };
 
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXLEGEND_H

@@ -6,7 +6,7 @@
 #include "xlsxutility_p.h"
 #include "xlsxdatetype.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 DateType::DateType()
 {
@@ -82,4 +82,4 @@ bool DateType::getValue(double* pD)
 }
 */
 
-QT_END_NAMESPACE_XLSX
+}

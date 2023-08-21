@@ -52,7 +52,7 @@
 #include "xlsxformat.h"
 #include "xlsxabstractooxmlfile.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Format;
 class Color;
@@ -138,6 +138,6 @@ private:
     bool m_emptyFormatAdded;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXSTYLES_H

@@ -10,7 +10,7 @@
 #include <QSharedData>
 #include <QString>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class CellFormulaPrivate : public QSharedData
 {
@@ -26,6 +26,6 @@ public:
     int si;  //Shared group index
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXCELLFORMULA_P_H

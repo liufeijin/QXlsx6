@@ -12,13 +12,12 @@
 #include "xlsxmain.h"
 #include "xlsxfillformat.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class EffectPrivate;
 
 /**
- * @brief The EffectPrivate class implements the EG_EffectProperties which is used to set
- * effects for shapes
+ * @brief The Effect class represents effects for shapes.
  */
 class Effect
 {
@@ -242,6 +241,6 @@ private:
 QDebug operator<<(QDebug dbg, const Effect &e);
 
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXEFFECT_H

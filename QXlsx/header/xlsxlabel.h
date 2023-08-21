@@ -14,7 +14,7 @@
 #include "xlsxshapeformat.h"
 #include "xlsxlayout.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LabelPrivate;
 class SharedLabelProperties;
@@ -185,28 +185,11 @@ private:
     QSharedDataPointer<LabelsPrivate> d;
 };
 
-class LabelsPrivate : public QSharedData
-{
-public:
-    LabelsPrivate();
-    LabelsPrivate(const LabelsPrivate &other);
-    ~LabelsPrivate();
-
-    bool operator ==(const LabelsPrivate &other) const;
-
-    QList<Label> labels;
-    std::optional<bool> visible;
-    std::optional<bool> showLeaderLines;
-    ShapeFormat leaderLines;
-    SharedLabelProperties defaultProperties;
-    ExtensionList extLst;
-};
-
 Q_DECLARE_OPERATORS_FOR_FLAGS(Label::ShowParameters)
 
 QDebug operator<<(QDebug dbg, const Labels &f);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::Labels)
 Q_DECLARE_METATYPE(QXlsx::Label)

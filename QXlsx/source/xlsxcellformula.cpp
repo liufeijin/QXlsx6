@@ -11,7 +11,7 @@
 #include "xlsxcellformula_p.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 CellFormulaPrivate::CellFormulaPrivate(const QString &formula_, const CellRange &ref_, CellFormula::FormulaType type_)
     :formula(formula_), type(type_), reference(ref_), ca(false), si(0)
@@ -100,7 +100,8 @@ CellFormula::CellFormula(const CellFormula &other)
  */
 CellFormula &CellFormula::operator =(const CellFormula &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -446,4 +447,4 @@ bool CellFormula::operator !=(const CellFormula &formula) const
             || d->si !=formula.d->si;
 }
 
-QT_END_NAMESPACE_XLSX
+}

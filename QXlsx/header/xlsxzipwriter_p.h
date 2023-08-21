@@ -11,7 +11,7 @@
 
 class QZipWriter;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class ZipWriter
 {
@@ -29,6 +29,6 @@ private:
     QZipWriter *m_writer;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_ZIPWRITER_H

@@ -13,7 +13,7 @@
 #include "xlsxabstractooxmlfile_p.h"
 #include "xlsxdrawing_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class AbstractSheetPrivate : public AbstractOOXmlFilePrivate
 {
@@ -31,6 +31,6 @@ public:
     AbstractSheet::SheetType type;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXABSTRACTSHEET_P_H

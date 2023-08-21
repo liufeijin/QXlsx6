@@ -7,7 +7,7 @@
 
 #include "xlsxglobal.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class QXLSX_EXPORT CellReference
 {
@@ -40,7 +40,7 @@ private:
     int _row, _column;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_TYPEINFO(QXlsx::CellReference, Q_MOVABLE_TYPE);
 

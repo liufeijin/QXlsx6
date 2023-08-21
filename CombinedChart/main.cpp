@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
         xlsx.write(2, i+1, i*i*i);   //A2:A10
         xlsx.write(3, i+1, i*i);    //B2:B10
     }
+    /**
+
+    An example of a chart with series of different types.
+
+    */
 
     Chart *chart1 = xlsx.insertChart(4, 3, QSize(600, 600));
     chart1->setLegend(Legend::Position::Right);
@@ -45,6 +50,13 @@ int main(int argc, char *argv[])
     //The second series - line chart
     chart1->setType(Chart::Type::Line);
     chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true);
+
+    /**
+
+    An example of a chart with series of different types. The first series is placed 
+    on the left axis, the second one is on the right axis.
+
+    */
 
     Chart *chart2 = xlsx.insertChart(4, 15, QSize(600, 600));
     chart2->setLegend(Legend::Position::Right);
@@ -74,7 +86,7 @@ int main(int argc, char *argv[])
 
     //right now both left and right axes are plotted on the left. We need to properly
     //position the right axis.
-    rightAxis.setCrossesType(Axis::CrossesType::Maximum);
+    rightAxis.setCrossesType(Axis::CrossesType::Maximum); // Comment out this line to see what changes.
 
     xlsx.saveAs("combinedChart1.xlsx");
 

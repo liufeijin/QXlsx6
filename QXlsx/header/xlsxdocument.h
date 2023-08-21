@@ -13,7 +13,7 @@
 #include "xlsxformat.h"
 #include "xlsxworksheet.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Workbook;
 class Cell;
@@ -138,6 +138,6 @@ private:
     DocumentPrivate* const d_ptr;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXDOCUMENT_H

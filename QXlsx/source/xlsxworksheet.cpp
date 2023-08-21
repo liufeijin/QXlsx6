@@ -40,7 +40,7 @@
 #include "xlsxcellformula_p.h"
 #include "xlsxcelllocation.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 WorksheetPrivate::WorksheetPrivate(Worksheet *p, Worksheet::CreateFlag flag)
 : AbstractSheetPrivate(p, flag),
@@ -3074,4 +3074,4 @@ QVector<CellLocation> Worksheet::getFullCells(int* maxRow, int* maxCol)
     return ret;
 }
 
-QT_END_NAMESPACE_XLSX
+}

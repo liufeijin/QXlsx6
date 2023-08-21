@@ -13,7 +13,7 @@
 
 #include "xlsxglobal.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class QXLSX_EXPORT DateType
 {
@@ -44,5 +44,5 @@ protected:
 */
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif 

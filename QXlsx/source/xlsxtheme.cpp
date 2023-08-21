@@ -4,7 +4,7 @@
 
 #include <QIODevice>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 const char *defaultXmlData =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -213,4 +213,4 @@ bool Theme::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

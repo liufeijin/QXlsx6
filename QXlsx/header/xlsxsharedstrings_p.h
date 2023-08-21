@@ -46,7 +46,7 @@
 #include "xlsxrichstring.h"
 #include "xlsxabstractooxmlfile.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class XlsxSharedStringInfo
 {
@@ -93,6 +93,6 @@ private:
     int m_stringCount;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXSHAREDSTRINGS_H

@@ -33,7 +33,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 class RichStringPrivate;
 class RichString;
 // qHash is a friend, but we can't use default arguments for friends (§8.3.6.4)
@@ -87,7 +87,7 @@ private:
   QDebug operator<<(QDebug dbg, const RichString &rs);
 #endif
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::RichString)
 

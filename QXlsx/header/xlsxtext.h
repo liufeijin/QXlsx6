@@ -15,12 +15,12 @@
 #include "xlsxshapeformat.h"
 
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Text;
 
 /**
- * @brief The TextProperties class is used to set the text body layout
+ * @brief The TextProperties class represents the text body layout
  */
 class QXLSX_EXPORT TextProperties
 {
@@ -89,7 +89,6 @@ public:
     std::optional<Shape3D> text3D;
     Coordinate z;
 
-    //QByteArray idKey() const;
     bool isValid() const;
 
     bool operator ==(const TextProperties &other) const;
@@ -586,7 +585,7 @@ public:
 };
 
 /**
- * @brief Specifies a fragment of the text paragraph with its own character formatting.
+ * @brief Represents a fragment of the text paragraph with its own character formatting.
  */
 class QXLSX_EXPORT TextRun
 {
@@ -596,31 +595,42 @@ public:
      */
     enum class Type
     {
-        None, /**< The text run is invalid */
-        Regular, /**< The text run is a plain text */
-        LineBreak, /**< The text run is a line break (like &lt;br&gt;) */
-        TextField /**< The text run is a generated text that the application should update periodically.
+        None, /**< @brief The text run is invalid */
+        Regular, /**< @brief The text run is a plain text */
+        LineBreak, /**< @brief The text run is a line break (like &lt;br&gt;) */
+        TextField /**< @brief The text run is a generated text that the application should update periodically.
 
-Each piece of text when it is generated is given a unique
-                        guid that is used to refer to a specific
-                        field. At the time of creation the text field indicates
-                        the kind of text that should be used to update this field.
-                        This update fieldType is used so that all applications that did
-                        not create this text field can still know what kind of text
-                        it should be updated with. Thus the new application can
-                        then attach an update fieldType to the text field guid for continual updating.
+Each piece of text when it is generated is given a unique guid that is used to
+refer to a specific field. At the time of creation the text field indicates the
+kind of text that should be used to update this field. This update fieldType is
+used so that all applications that did not create this text field can still know
+what kind of text it should be updated with. Thus the new application can then
+attach an update fieldType to the text field guid for continual updating.
 */
     };
+    /**
+     * @brief creates an invalid TextRun.
+     */
     TextRun();
     TextRun(const TextRun &other);
+    /**
+     * @brief creates a new TextRun of type with text and properties.
+     * @param type the type of a text run: Regular, LineBreak, TextField or None (invalid).
+     * @param text the text of this fragment.
+     * @param properties character properties of this fragment.
+     */
     TextRun(Type type, const QString &text, const CharacterProperties &properties);
+    /**
+     * @brief creates a new TextRun of specified type.
+     * @param type
+     */
     TextRun(Type type);
 
     bool operator ==(const TextRun &other) const;
     bool operator !=(const TextRun &other) const;
 
     Type type = Type::None; /**< text run type */
-    QString text; /**< A plain string */
+    QString text; /**< a plain string */
     std::optional<CharacterProperties> characterProperties; /**< optional character properties */
 
     //text field properties
@@ -664,7 +674,7 @@ Reserved Values:
  * Each paragraph has ParagraphProperties and zero to
  * infinity TextRun, i.e. fragments of text with the specific formatting.
  */
-class Paragraph
+class QXLSX_EXPORT Paragraph
 {
 public:
     std::optional<ParagraphProperties> paragraphProperties;
@@ -917,7 +927,7 @@ QDebug operator<<(QDebug dbg, const CharacterProperties &t);
 QDebug operator<<(QDebug dbg, const TextRun &t);
 QDebug operator<<(QDebug dbg, const ParagraphProperties::TabAlign &t);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::Text)
 

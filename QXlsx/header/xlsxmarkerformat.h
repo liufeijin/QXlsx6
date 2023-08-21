@@ -13,7 +13,7 @@
 #include "xlsxglobal.h"
 #include "xlsxshapeformat.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Worksheet;
 class WorksheetPrivate;
@@ -22,6 +22,13 @@ class SharedStrings;
 
 class MarkerFormatPrivate;
 
+/**
+ * @brief The MarkerFormat class represents the series marker.
+ *
+ * The class is _implicitly shareable_: the deep copy occurs only in the non-const methods.
+ *
+ * The marker has type(), size() in pt and shape() properties.
+ */
 class QXLSX_EXPORT MarkerFormat
 {
 public:
@@ -50,7 +57,15 @@ public:
     std::optional<MarkerType> type() const;
     void setType(MarkerType type);
 
+    /**
+     * @brief returns the marker size
+     * @return valid optional value if the size was set, nullopt otherwise.
+     */
     std::optional<int> size() const;
+    /**
+     * @brief sets the marker size.
+     * @param size a number 2..72. If the marker size is not set, the default size is 5.
+     */
     void setSize(int size);
 
     ShapeFormat shape() const;
@@ -61,6 +76,9 @@ public:
     void read(QXmlStreamReader &reader);
 
     bool isValid() const;
+
+    bool operator==(const MarkerFormat &other) const;
+    bool operator!=(const MarkerFormat &other) const;
 private:
     SERIALIZE_ENUM(MarkerType,
     {
@@ -88,6 +106,6 @@ private:
   QDebug operator<<(QDebug dbg, const MarkerFormat &f);
 #endif
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXMARKERFORMAT_H

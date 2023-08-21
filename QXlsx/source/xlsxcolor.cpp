@@ -8,7 +8,7 @@
 #include "xlsxcolor.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 Color::Color() : type_(ColorType::Invalid)
 {
@@ -723,5 +723,5 @@ QDataStream &operator>>(QDataStream &s, ColorTransform &tr)
 
 #endif
 
-QT_END_NAMESPACE_XLSX
+}
 

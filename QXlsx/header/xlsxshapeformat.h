@@ -17,7 +17,7 @@
 #include "xlsxlineformat.h"
 #include "xlsxeffect.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class ShapePrivate;
 
@@ -38,12 +38,18 @@ public:
         Hidden, // "hidden
     };
 
+    ShapeFormat();
+    ShapeFormat(const ShapeFormat &other);
+    ~ShapeFormat();
+    ShapeFormat &operator=(const ShapeFormat &other);
+
     std::optional<ShapeFormat::BlackWhiteMode> blackWhiteMode() const;
     void setBlackWhiteMode(ShapeFormat::BlackWhiteMode val);
 
     std::optional<Transform2D> transform2D() const;
     void setTransform2D(Transform2D val);
 
+    //TODO: add methods to set the shape directly.
     std::optional<PresetGeometry2D> presetGeometry() const;
     void setPresetGeometry(PresetGeometry2D val);
 
@@ -93,27 +99,8 @@ private:
 
 QDebug operator<<(QDebug dbg, const ShapeFormat &f);
 
-class ShapePrivate : public QSharedData
-{
-public:
-    std::optional<ShapeFormat::BlackWhiteMode> blackWhiteMode;
-    std::optional<Transform2D> xfrm;
-    std::optional<PresetGeometry2D> presetGeometry;
-    //TODO: CustomGeometry2D
+}
 
-    FillFormat fill;
-    LineFormat line;
-    Effect effectList; //TODO: Effect DAG
-    std::optional<Scene3D> scene3D; // element, optional
-    std::optional<Shape3D> shape3D; // element, optional
-
-    ShapePrivate();
-    ShapePrivate(const ShapePrivate &other);
-    ~ShapePrivate();
-
-    bool operator == (const ShapePrivate &other) const;
-};
-
-QT_END_NAMESPACE_XLSX
+Q_DECLARE_METATYPE(QXlsx::ShapeFormat)
 
 #endif // XLSXSHAPEPROPERTIES_H

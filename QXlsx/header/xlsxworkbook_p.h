@@ -13,7 +13,7 @@
 #include "xlsxsimpleooxmlfile_p.h"
 #include "xlsxrelationships_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 struct XlsxDefineNameData
 {
@@ -69,6 +69,6 @@ public:
     int last_sheet_id;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXWORKBOOK_P_H

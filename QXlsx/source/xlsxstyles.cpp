@@ -15,7 +15,7 @@
 #include "xlsxutility_p.h"
 #include "xlsxcolor.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 /*
   When loading from existing .xlsx file. we should create a clean styles object.
@@ -1406,4 +1406,4 @@ QColor Styles::getColorByIndex(int idx)
     return m_indexedColors[idx];
 }
 
-QT_END_NAMESPACE_XLSX
+}

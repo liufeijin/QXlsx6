@@ -14,7 +14,7 @@
 #include "xlsxworkbook.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 /*
      The vertices that define the position of a graphical object
@@ -1200,4 +1200,4 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
 }
 
 
-QT_END_NAMESPACE_XLSX
+}

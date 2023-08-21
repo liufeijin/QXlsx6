@@ -22,7 +22,7 @@
 
 class WorksheetTest;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class DocumentPrivate;
 class Workbook;
@@ -167,5 +167,5 @@ private:
     bool loadFromXmlFile(QIODevice *device) override;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXWORKSHEET_H

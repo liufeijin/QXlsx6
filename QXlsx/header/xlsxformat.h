@@ -14,7 +14,7 @@
 
 class FormatTest;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Styles;
 class Worksheet;
@@ -257,6 +257,6 @@ private:
   QDebug operator<<(QDebug dbg, const Format &f);
 #endif
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_FORMAT_H

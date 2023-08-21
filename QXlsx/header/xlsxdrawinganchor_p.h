@@ -14,7 +14,7 @@
 
 #include "xlsxglobal.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Drawing;
 class MediaFile;
@@ -164,6 +164,6 @@ public:
     void saveToXml(QXmlStreamWriter &writer) const override;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXDRAWINGANCHOR_P_H

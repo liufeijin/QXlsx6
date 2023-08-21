@@ -38,7 +38,7 @@
 
 #include "xlsxrichstring.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class RichStringPrivate : public QSharedData
 {
@@ -55,6 +55,6 @@ public:
     bool _dirty;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXRICHSTRING_P_H

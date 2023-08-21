@@ -42,7 +42,7 @@
 #include <QString>
 #include <QIODevice>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 struct XlsxRelationship
 {
@@ -84,6 +84,6 @@ private:
     QList<XlsxRelationship> m_relationships;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXRELATIONSHIPS_H

@@ -7,7 +7,7 @@
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxabstractooxmlfile_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 AbstractOOXmlFilePrivate::AbstractOOXmlFilePrivate(AbstractOOXmlFile *q, AbstractOOXmlFile::CreateFlag flag=AbstractOOXmlFile::F_NewFromScratch)
     : relationships(new Relationships), flag(flag), q_ptr(q)
@@ -94,4 +94,4 @@ Relationships *AbstractOOXmlFile::relationships() const
 }
 
 
-QT_END_NAMESPACE_XLSX
+}

@@ -5,7 +5,7 @@
 
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 bool Transform2D::isValid() const
 {
@@ -446,6 +446,17 @@ qint64 Coordinate::toEMU() const
         return val.value<qint64>();
     if (val.userType() == QMetaType::Double)
         return qint64(val.value<double>() * 12700);
+    if (val.userType() == QMetaType::QString) {
+        QString s = val.toString();
+        QString suffix = s.right(2);
+        if (suffix == "mm" || suffix == "cm" || suffix == "in" || suffix == "pt"
+            || suffix == "pc" || suffix == "pi") s.chop(2);
+        if (suffix == "pt") return qint64(s.toDouble() * 12700);
+        if (suffix == "mm") return qint64(s.toDouble() * 500); // 1 mm = 500 EMU
+        if (suffix == "cm") return qint64(s.toDouble() * 50); // 1 cm = 50 EMU
+        if (suffix == "in") return qint64(s.toDouble() * 12700 * 72); // 1 in = 72*12700 EMU
+        if (suffix == "pc" || suffix == "pi") return qint64(s.toDouble() * 12700 * 12); // 1 pc = 12*12700 EMU
+    }
 
     return {};
 }
@@ -467,6 +478,12 @@ double Coordinate::toPoints() const
     return double(v) / 12700.0;
 }
 
+double Coordinate::toPixels(int dpi) const
+{
+    qint64 v = toEMU();
+    return double(v) / 12700.0 / 72.0 * dpi;
+}
+
 void Coordinate::setEMU(qint64 val)
 {
     this->val = QVariant::fromValue<qint64>(val);
@@ -480,6 +497,11 @@ void Coordinate::setString(const QString &val)
 void Coordinate::setPoints(double points)
 {
     this->val = QVariant::fromValue<double>(points);
+}
+
+void Coordinate::setPixels(double pixels, int dpi)
+{
+    this->val = qint64(pixels / dpi * 72.0 * 12700.0);
 }
 
 Coordinate Coordinate::create(const QStringView &val)
@@ -738,6 +760,11 @@ void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Co
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target)
 {
     if (a.hasAttribute(name)) target = Angle::create(a.value(name).toString());
+}
+
+void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Percentage &target)
+{
+    if (a.hasAttribute(name)) target = Percentage(fromST_Percent(a.value(name).toString()));
 }
 
 bool Scene3D::Camera::operator ==(const Scene3D::Camera &other) const
@@ -1068,7 +1095,7 @@ QDebug operator<<(QDebug dbg, const Angle &f)
     return dbg.space();
 }
 
-QT_END_NAMESPACE_XLSX
+}
 
 
 

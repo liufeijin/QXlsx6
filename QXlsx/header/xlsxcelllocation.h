@@ -14,7 +14,7 @@
 
 #include "xlsxglobal.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Cell;
 
@@ -29,5 +29,5 @@ public:
     std::shared_ptr<Cell> cell;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif

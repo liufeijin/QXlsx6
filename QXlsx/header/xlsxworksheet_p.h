@@ -22,7 +22,7 @@
 class QXmlStreamWriter;
 class QXmlStreamReader;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 const int XLSX_ROW_MAX = 1048576;
 const int XLSX_COLUMN_MAX = 16384;
@@ -248,5 +248,5 @@ private:
     static double calculateColWidth(int characters);
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXWORKSHEET_P_H

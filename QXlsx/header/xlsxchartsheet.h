@@ -8,7 +8,7 @@
 
 #include "xlsxabstractsheet.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Workbook;
 class DocumentPrivate;
@@ -34,5 +34,5 @@ private:
     bool loadFromXmlFile(QIODevice *device) override;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXCHARTSHEET_H

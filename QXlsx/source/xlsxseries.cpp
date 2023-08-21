@@ -2,9 +2,59 @@
 
 #include <optional>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
+
+class SeriesPrivate : public QSharedData
+{
+public:
+    SeriesPrivate();
+    SeriesPrivate(const SeriesPrivate &other);
+    ~SeriesPrivate();
+
+    //Properties common to all series types
+    Series::Type type = Series::Type::None;
+    int index;
+    int order;
+    Text name; // either ref or string
+    ShapeFormat shape;
+    QList<DataPoint> dataPoints; //data point formatting, except for SurfaceSer
+    Labels labels; // except for SurfaceSer
+
+    //Line, Radar, Bar, Area, Pie, Surface - cat
+    //Scatter, Bubble - xVal;
+    DataSource xVal;
+    //Line, Radar, Bar, Area, Pie, Surface - val
+    //Scatter, Bubble - yVal
+    DataSource yVal;
+    DataSource bubbleVal; //Bubble - bubbleSize
 
 
+    //Line, Scatter, Bar, Area, Bubble
+//    <xsd:element name="trendline" type="CT_Trendline" minOccurs="0" maxOccurs="unbounded"/>
+    //Line, Scatter, Bar, Area, Bubble
+    std::optional<ErrorBars> errorBars; //TODO: due to some required properties errorBars is always valid, so rewrite it as QSharedData
+
+    //Line, Scatter, Radar
+    MarkerFormat marker;
+
+    //Bar, Bubble
+    std::optional<bool> invertIfNegative;
+
+    //Bar, Area
+    std::optional<PictureOptions> pictureOptions;
+
+    //Line, Scatter
+    std::optional<bool> smooth;
+
+    //Properties for Bar series
+    std::optional<Series::BarShape> barShape;
+
+    //Properties for Pie series
+    std::optional<int> pieExplosion;
+
+    //Properties for Bubble series
+    std::optional<bool> bubble3D;
+};
 
 SeriesPrivate::SeriesPrivate()
 {
@@ -20,6 +70,29 @@ SeriesPrivate::SeriesPrivate(const SeriesPrivate &other) : QSharedData(other)
 SeriesPrivate::~SeriesPrivate()
 {
 
+}
+
+bool TrendLineLabel::isValid() const
+{
+    return !numberFormat.isEmpty() || title.isValid();
+}
+
+bool TrendLineLabel::operator==(const TrendLineLabel &other) const
+{
+    return numberFormat == other.numberFormat && title == other.title;
+}
+bool TrendLineLabel::operator!=(const TrendLineLabel &other) const
+{
+    return !(operator==(other));
+}
+
+void TrendLineLabel::read(QXmlStreamReader &reader)
+{
+    //TODO
+}
+void TrendLineLabel::write(QXmlStreamWriter &writer, const QString &name) const
+{
+    //TODO
 }
 
 Series::Series()
@@ -49,6 +122,13 @@ Series::Series(const Series &other): d(other.d)
 Series::~Series()
 {
 
+}
+
+Series &Series::operator=(const Series &other)
+{
+    if (*this != other)
+        d = other.d;
+    return *this;
 }
 
 int Series::index() const
@@ -891,7 +971,7 @@ bool Series::operator !=(const Series &other) const
     return d != other.d;
 }
 
-QT_END_NAMESPACE_XLSX
+}
 
 
 

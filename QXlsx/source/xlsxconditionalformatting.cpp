@@ -11,7 +11,7 @@
 #include "xlsxcellrange.h"
 #include "xlsxstyles_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 ConditionalFormattingPrivate::ConditionalFormattingPrivate()
 {
@@ -748,4 +748,4 @@ bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

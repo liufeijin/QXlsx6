@@ -1,6 +1,6 @@
 #include "xlsxlayout.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LayoutPrivate: public QSharedData
 {
@@ -39,7 +39,8 @@ Layout::~Layout()
 
 Layout &Layout::operator=(const Layout &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -410,4 +411,4 @@ QDebug operator<<(QDebug dbg, const Layout &f)
     return dbg;
 }
 
-QT_END_NAMESPACE_XLSX
+}

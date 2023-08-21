@@ -10,7 +10,7 @@
 class QXmlStreamWriter;
 class QXmlStreamReader;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class CellFormulaPrivate;
 class CellRange;
@@ -50,6 +50,6 @@ private:
     QExplicitlySharedDataPointer<CellFormulaPrivate> d;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXCELLFORMULA_H

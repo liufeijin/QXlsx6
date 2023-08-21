@@ -15,7 +15,7 @@
 #include <cmath>
 #include <string>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 double fromST_Percent(QStringView val)
 {
@@ -364,6 +364,11 @@ void parseAttributeDouble(const QXmlStreamAttributes &a, const QLatin1String &na
     if (a.hasAttribute(name)) target = a.value(name).toDouble();
 }
 
+void parseAttributeDouble(const QXmlStreamAttributes &a, const QLatin1String &name, double &target)
+{
+    if (a.hasAttribute(name)) target = a.value(name).toDouble();
+}
+
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val)
 {
     if (val.has_value()) {
@@ -454,4 +459,4 @@ void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::op
     if (val.has_value()) writer.writeAttribute(name, QString::number(val.value()));
 }
 
-QT_END_NAMESPACE_XLSX
+}

@@ -15,7 +15,7 @@
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Worksheet;
 class CellRange;
@@ -100,6 +100,6 @@ private:
     QSharedDataPointer<DataValidationPrivate> d;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXDATAVALIDATION_H

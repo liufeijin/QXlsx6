@@ -61,16 +61,13 @@ $${QXLSX_HEADERPATH}xlsxeffect.h \
 $${QXLSX_HEADERPATH}xlsxlabel.h \
 $${QXLSX_HEADERPATH}xlsxfont.h \
 $${QXLSX_HEADERPATH}xlsxtext.h \
-$${QXLSX_HEADERPATH}xlsxtext_p.h \
 $${QXLSX_HEADERPATH}xlsxtitle.h \
 $${QXLSX_HEADERPATH}xlsxfillformat.h \
 $${QXLSX_HEADERPATH}xlsxmain.h \
 $${QXLSX_HEADERPATH}xlsxshapeformat.h \
 $${QXLSX_HEADERPATH}xlsxaxis.h \
 $${QXLSX_HEADERPATH}xlsxmarkerformat.h \
-$${QXLSX_HEADERPATH}xlsxmarkerformat_p.h \
 $${QXLSX_HEADERPATH}xlsxlineformat.h \
-$${QXLSX_HEADERPATH}xlsxlineformat_p.h \
 $${QXLSX_HEADERPATH}xlsxabstractooxmlfile.h \
 $${QXLSX_HEADERPATH}xlsxabstractooxmlfile_p.h \
 $${QXLSX_HEADERPATH}xlsxabstractsheet.h \
@@ -85,7 +82,6 @@ $${QXLSX_HEADERPATH}xlsxcell_p.h \
 $${QXLSX_HEADERPATH}xlsxchart.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet_p.h \
-$${QXLSX_HEADERPATH}xlsxchart_p.h \
 $${QXLSX_HEADERPATH}xlsxcolor.h \
 $${QXLSX_HEADERPATH}xlsxconditionalformatting.h \
 $${QXLSX_HEADERPATH}xlsxconditionalformatting_p.h \

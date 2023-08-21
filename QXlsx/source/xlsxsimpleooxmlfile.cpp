@@ -5,7 +5,7 @@
 #include <QtGlobal>
 #include <QIODevice>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 SimpleOOXmlFile::SimpleOOXmlFile(CreateFlag flag)
     :AbstractOOXmlFile(flag)
@@ -34,4 +34,4 @@ bool SimpleOOXmlFile::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

@@ -8,7 +8,7 @@
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxrelationships_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class AbstractOOXmlFilePrivate
 {
@@ -26,6 +26,6 @@ public:
     AbstractOOXmlFile *q_ptr;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXOOXMLFILE_P_H

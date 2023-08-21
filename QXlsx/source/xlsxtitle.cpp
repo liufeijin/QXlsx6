@@ -7,7 +7,7 @@
 #include "xlsxshapeformat.h"
 #include "xlsxabstractsheet.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 //      <xsd:element name="tx" type="CT_Tx" minOccurs="0" maxOccurs="1"/>
 //      <xsd:element name="layout" type="CT_Layout" minOccurs="0" maxOccurs="1"/>
@@ -51,7 +51,7 @@ Title::Title(const Title &other) : d(other.d)
 
 Title &Title::operator=(const Title &other)
 {
-    d = other.d;
+    if (*this != other) d = other.d;
     return *this;
 }
 
@@ -401,4 +401,4 @@ QDebug operator<<(QDebug dbg, const Title &f)
     return dbg;
 }
 
-QT_END_NAMESPACE_XLSX
+}

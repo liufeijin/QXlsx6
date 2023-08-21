@@ -5,7 +5,7 @@
 #include "xlsxaxis.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class AxisPrivate : public QSharedData
 {
@@ -225,6 +225,8 @@ int Axis::id() const
 void Axis::setId(int id)
 {
     if (!d) d = new AxisPrivate;
+    else d.detach();
+
     d->id = id;
 }
 
@@ -1161,4 +1163,4 @@ void Axis::setTextProperties(const Text &textProperties)
     d->textProperties = textProperties;
 }
 
-QT_END_NAMESPACE_XLSX
+}

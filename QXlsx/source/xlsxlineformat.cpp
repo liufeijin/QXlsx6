@@ -5,9 +5,54 @@
 #include <QDebug>
 
 #include "xlsxlineformat.h"
-#include "xlsxlineformat_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
+
+//<xsd:complexType name="CT_LineProperties">
+//    <xsd:sequence>
+//      <xsd:group ref="EG_LineFillProperties" minOccurs="0" maxOccurs="1"/>
+//      <xsd:group ref="EG_LineDashProperties" minOccurs="0" maxOccurs="1"/>
+//      <xsd:group ref="EG_LineJoinProperties" minOccurs="0" maxOccurs="1"/>
+//      <xsd:element name="headEnd" type="CT_LineEndProperties" minOccurs="0" maxOccurs="1"/>
+//      <xsd:element name="tailEnd" type="CT_LineEndProperties" minOccurs="0" maxOccurs="1"/>
+//      <xsd:element name="extLst" type="CT_OfficeArtExtensionList" minOccurs="0" maxOccurs="1"/>
+//    </xsd:sequence>
+//    <xsd:attribute name="w" type="ST_LineWidth" use="optional"/>
+//    <xsd:attribute name="cap" type="ST_LineCap" use="optional"/>
+//    <xsd:attribute name="cmpd" type="ST_CompoundLine" use="optional"/>
+//    <xsd:attribute name="algn" type="ST_PenAlignment" use="optional"/>
+//  </xsd:complexType>
+
+class LineFormatPrivate : public QSharedData
+{
+public:
+    FillFormat fill;
+    Coordinate width; //pt or EMU
+    std::optional<LineFormat::CompoundLineType> compoundLineType;
+    std::optional<LineFormat::StrokeType> strokeType;
+    QVector<double> dashPattern; //valid only if strokeType == Custom
+    std::optional<LineFormat::LineCap> lineCap;
+    std::optional<LineFormat::PenAlignment> penAlignment;
+
+    std::optional<LineFormat::LineJoin> lineJoin;
+    Percentage miterLimit;
+
+    std::optional<LineFormat::LineEndType> tailType;
+    std::optional<LineFormat::LineEndType> headType;
+    std::optional<LineFormat::LineEndSize> tailLength;
+    std::optional<LineFormat::LineEndSize> headLength;
+    std::optional<LineFormat::LineEndSize> tailWidth;
+    std::optional<LineFormat::LineEndSize> headWidth;
+
+    LineFormatPrivate();
+    LineFormatPrivate(const LineFormatPrivate &other);
+    ~LineFormatPrivate();
+
+    bool operator == (const LineFormatPrivate &format) const;
+
+    void parse(const QPen &pen);
+    QPen toPen() const;
+};
 
 LineFormatPrivate::LineFormatPrivate()
 {
@@ -55,9 +100,133 @@ bool LineFormatPrivate::operator ==(const LineFormatPrivate &format) const
     return true;
 }
 
-/*!
- *  Creates a new invalid format.
- */
+void LineFormatPrivate::parse(const QPen &pen)
+{
+    switch (pen.joinStyle()) {
+        case Qt::MiterJoin: {
+            lineJoin = LineFormat::LineJoin::Miter;
+            miterLimit = Percentage(pen.miterLimit()*100);
+            break;
+        }
+        case Qt::BevelJoin: lineJoin = LineFormat::LineJoin::Bevel; break;
+        case Qt::RoundJoin: lineJoin = LineFormat::LineJoin::Round; break;
+        case Qt::SvgMiterJoin: lineJoin = LineFormat::LineJoin::Miter; break;
+        default: break;
+    }
+    switch (pen.capStyle()) {
+        case Qt::FlatCap: lineCap = LineFormat::LineCap::Flat; break;
+        case Qt::SquareCap: lineCap = LineFormat::LineCap::Square; break;
+        case Qt::RoundCap: lineCap = LineFormat::LineCap::Round; break;
+        default: break;
+    }
+    if (pen.width() == 0 || pen.widthF() == 0) {//check if both comparisons are needed
+        width.setString("0px");
+    }
+    else {
+        width.setString(QString::number(pen.widthF(), 'f', 2)+"px");
+    }
+    fill.setBrush(pen.brush());
+
+    switch (pen.style()) {
+        case Qt::NoPen: fill = FillFormat(FillFormat::FillType::NoFill);  break;
+        case Qt::SolidLine: strokeType = LineFormat::StrokeType::Solid; break;
+        case Qt::DashLine: strokeType = LineFormat::StrokeType::Dash; break;
+        case Qt::DotLine: strokeType = LineFormat::StrokeType::Dot; break;
+        case Qt::DashDotLine: strokeType = LineFormat::StrokeType::DashDot; break;
+        case Qt::DashDotDotLine: {
+            strokeType = LineFormat::StrokeType::Custom;
+            //111100010001000
+            dashPattern = {4,3,1,3,1,3};
+            break;
+        }
+        case Qt::CustomDashLine: {
+            strokeType = LineFormat::StrokeType::Custom;
+            dashPattern = pen.dashPattern();
+            break;
+        }
+        default: break;
+    }
+}
+
+QPen LineFormatPrivate::toPen() const
+{
+    QPen pen;
+    if (fill.isValid())
+        pen.setBrush(fill.toBrush());
+    else pen.setStyle(Qt::NoPen);
+    if (width.isValid())
+        pen.setWidthF(width.toPixels());
+    else pen.setWidth(0);
+    LineFormat::StrokeType t = strokeType.value_or(LineFormat::StrokeType::Solid);
+    switch (t) {
+        case LineFormat::StrokeType::Solid: pen.setStyle(Qt::SolidLine); break;
+        case LineFormat::StrokeType::Dot: pen.setStyle(Qt::DotLine); break;
+        case LineFormat::StrokeType::Dash: pen.setStyle(Qt::DashLine); break;
+        case LineFormat::StrokeType::DashDot: pen.setStyle(Qt::DashDotLine); break;
+        case LineFormat::StrokeType::LongDash: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({8,3});
+            break;
+        }
+        case LineFormat::StrokeType::SystemDot: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({1,1});
+            break;
+        }
+        case LineFormat::StrokeType::SystemDash: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({3,1});
+            break;
+        }
+        case LineFormat::StrokeType::SystemDashDot: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({3,1,1,1});
+            break;
+        }
+        case LineFormat::StrokeType::SystemDashDotDot: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({3,1,1,1,1,1});
+            break;
+        }
+        case LineFormat::StrokeType::LongDashDot: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({8,3,1,3});
+            break;
+        }
+        case LineFormat::StrokeType::LongDashDotDot: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern({8,3,1,3,1,3});
+            break;
+        }
+        case LineFormat::StrokeType::Custom: {
+            pen.setStyle(Qt::CustomDashLine);
+            pen.setDashPattern(dashPattern);
+        }
+    }
+
+    if (lineJoin.has_value()) {
+        switch (lineJoin.value()) {
+            case LineFormat::LineJoin::Bevel: pen.setJoinStyle(Qt::BevelJoin); break;
+            case LineFormat::LineJoin::Round: pen.setJoinStyle(Qt::RoundJoin); break;
+            case LineFormat::LineJoin::Miter: pen.setJoinStyle(Qt::MiterJoin); break;
+        }
+    }
+    if (miterLimit.isValid()) {
+        pen.setJoinStyle(Qt::MiterJoin);
+        pen.setMiterLimit(miterLimit.toDouble()/100);
+    }
+
+    if (lineCap.has_value()) {
+        switch (lineCap.value()) {
+            case LineFormat::LineCap::Flat: pen.setCapStyle(Qt::FlatCap); break;
+            case LineFormat::LineCap::Round: pen.setCapStyle(Qt::RoundCap); break;
+            case LineFormat::LineCap::Square: pen.setCapStyle(Qt::SquareCap); break;
+        }
+    }
+
+    return pen;
+}
+
 LineFormat::LineFormat()
 {
     //The d pointer is initialized with a null pointer
@@ -79,6 +248,12 @@ LineFormat::LineFormat(FillFormat::FillType fill, qint64 widthInEMU, QColor colo
     setWidth(widthInEMU);
 }
 
+LineFormat::LineFormat(const QPen &pen)
+{
+    d = new LineFormatPrivate;
+    d->parse(pen);
+}
+
 /*!
    Creates a new format with the same attributes as the \a other format.
  */
@@ -94,7 +269,7 @@ LineFormat::LineFormat(const LineFormat &other)
  */
 LineFormat &LineFormat::operator =(const LineFormat &other)
 {
-	d = other.d;
+    if (*this != other) d = other.d;
 	return *this;
 }
 
@@ -103,6 +278,19 @@ LineFormat &LineFormat::operator =(const LineFormat &other)
  */
 LineFormat::~LineFormat()
 {
+}
+
+QPen LineFormat::toPen() const
+{
+    if (d)
+        return d->toPen();
+    return {};
+}
+
+void LineFormat::setPen(const QPen &pen)
+{
+    d = new LineFormatPrivate;
+    d->parse(pen);
 }
 
 FillFormat::FillType LineFormat::type() const
@@ -119,7 +307,7 @@ void LineFormat::setType(FillFormat::FillType type)
 
 Color LineFormat::color() const
 {
-    if (d && d->fill.isValid()) return d->fill.color();
+    if (d) return d->fill.color();
     return Color();
 }
 
@@ -206,6 +394,18 @@ void LineFormat::setStrokeType(LineFormat::StrokeType val)
     d->strokeType = val;
 }
 
+QVector<double> LineFormat::dashPattern() const
+{
+    if (d) return d->dashPattern;
+    return {};
+}
+void LineFormat::setDashPattern(QVector<double> pattern)
+{
+    if (!d) d = new LineFormatPrivate;
+    d->strokeType = LineFormat::StrokeType::Custom;
+    d->dashPattern = pattern;
+}
+
 LineFormat::LineCap LineFormat::lineCap() const
 {
     if (d) return d->lineCap.value();
@@ -228,6 +428,17 @@ void LineFormat::setLineJoin(LineFormat::LineJoin val)
 {
     if (!d) d = new LineFormatPrivate;
     d->lineJoin = val;
+}
+
+Percentage LineFormat::miterLimit() const
+{
+    if (d) return d->miterLimit;
+    return {};
+}
+void LineFormat::setMiterLimit(Percentage val)
+{
+    if (!d) d = new LineFormatPrivate;
+    d->miterLimit = val;
 }
 
 std::optional<LineFormat::LineEndType> LineFormat::lineEndType()
@@ -338,22 +549,46 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
     }
     if (d->fill.isValid()) d->fill.write(writer);
     if (d->strokeType.has_value()) {
-        writer.writeEmptyElement("a:prstDash");
-        switch (d->strokeType.value()) {
-            case LineFormat::StrokeType::Solid: writer.writeAttribute("val", "solid"); break;
-            case LineFormat::StrokeType::Dot: writer.writeAttribute("val", "sysDash"); break;
-            case LineFormat::StrokeType::RoundDot: writer.writeAttribute("val", "sysDot"); break;
-            case LineFormat::StrokeType::Dash: writer.writeAttribute("val", "dash"); break;
-            case LineFormat::StrokeType::DashDot: writer.writeAttribute("val", "dashDot"); break;
-            case LineFormat::StrokeType::LongDash: writer.writeAttribute("val", "lgDash"); break;
-            case LineFormat::StrokeType::LongDashDot: writer.writeAttribute("val", "lgDashDot"); break;
-            case LineFormat::StrokeType::LongDashDotDot: writer.writeAttribute("val", "lgDashDotDot"); break;
+        if (d->strokeType.value() != LineFormat::StrokeType::Custom) {
+            writer.writeEmptyElement("a:prstDash");
+            switch (d->strokeType.value()) {
+                case LineFormat::StrokeType::Solid: writer.writeAttribute("val", "solid"); break;
+                case LineFormat::StrokeType::SystemDash: writer.writeAttribute("val", "sysDash"); break;
+                case LineFormat::StrokeType::SystemDot: writer.writeAttribute("val", "sysDot"); break;
+                case LineFormat::StrokeType::Dash: writer.writeAttribute("val", "dash"); break;
+                case LineFormat::StrokeType::DashDot: writer.writeAttribute("val", "dashDot"); break;
+                case LineFormat::StrokeType::LongDash: writer.writeAttribute("val", "lgDash"); break;
+                case LineFormat::StrokeType::LongDashDot: writer.writeAttribute("val", "lgDashDot"); break;
+                case LineFormat::StrokeType::LongDashDotDot: writer.writeAttribute("val", "lgDashDotDot"); break;
+                case LineFormat::StrokeType::Dot: writer.writeAttribute("val", "dot"); break;
+                case LineFormat::StrokeType::SystemDashDot: writer.writeAttribute("val", "sysDashDot"); break;
+                case LineFormat::StrokeType::SystemDashDotDot: writer.writeAttribute("val", "sysDashDotDot"); break;
+                default: break;
+            }
+        }
+        else if (!d->dashPattern.isEmpty()) {
+            writer.writeStartElement("a:custDash");
+            for (int i = 0; i < d->dashPattern.size();) {
+                writer.writeEmptyElement(QLatin1String("a:ds"));
+                writer.writeAttribute(QLatin1String("d"), toST_Percent(d->dashPattern[i]));
+                i++;
+                if (i < d->dashPattern.size())
+                    writer.writeAttribute(QLatin1String("sp"), toST_Percent(d->dashPattern[i]));
+                else
+                    writer.writeAttribute(QLatin1String("sp"), "100%");
+                i++;
+            }
+            writer.writeEndElement();
         }
     }
     if (d->lineJoin.has_value()) {
         switch (d->lineJoin.value()) {
             case LineJoin::Bevel: writer.writeEmptyElement("a:bevel"); break;
-            case LineJoin::Miter: writer.writeEmptyElement("a:miter"); break;
+            case LineJoin::Miter: {
+                writer.writeEmptyElement("a:miter");
+                if (d->miterLimit.isValid()) writer.writeAttribute("lim", d->miterLimit.toString());
+                break;
+            }
             case LineJoin::Round: writer.writeEmptyElement("a:round"); break;
         }
     }
@@ -453,9 +688,16 @@ void LineFormat::read(QXmlStreamReader &reader)
                 fromString(reader.attributes().value("val").toString(), t);
                 d->strokeType = t;
             }
+            else if (reader.name() == QLatin1String("custDash")) {
+                d->strokeType = LineFormat::StrokeType::Custom;
+                readDashPattern(reader);
+            }
             else if (reader.name() == QLatin1String("round")) d->lineJoin = LineFormat::LineJoin::Round;
             else if (reader.name() == QLatin1String("bevel")) d->lineJoin = LineFormat::LineJoin::Bevel;
-            else if (reader.name() == QLatin1String("miter")) d->lineJoin = LineFormat::LineJoin::Miter;
+            else if (reader.name() == QLatin1String("miter")) {
+                d->lineJoin = LineFormat::LineJoin::Miter;
+                parseAttribute(reader.attributes(), QLatin1String("lim"), d->miterLimit);
+            }
             else if (reader.name() == QLatin1String("headEnd")) {
                 const auto &a = reader.attributes();
                 if (a.hasAttribute("type")) {
@@ -511,6 +753,28 @@ void LineFormat::read(QXmlStreamReader &reader)
     }
 }
 
+void LineFormat::readDashPattern(QXmlStreamReader &reader)
+{
+    if (!d) d = new LineFormatPrivate;
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("ds")) {
+                double dash;
+                parseAttributeDouble(reader.attributes(), QLatin1String("d"), dash);
+                if (dash > 0) d->dashPattern << dash;
+                double space;
+                parseAttributeDouble(reader.attributes(), QLatin1String("sp"), space);
+                if (space > 0) d->dashPattern << space;
+            }
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
 bool LineFormat::operator ==(const LineFormat &other) const
 {
     if (d == other.d) return true;
@@ -552,4 +816,4 @@ QDebug operator<<(QDebug dbg, const LineFormat &f)
 }
 #endif
 
-QT_END_NAMESPACE_XLSX
+}

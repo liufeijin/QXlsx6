@@ -15,7 +15,7 @@
 #include "xlsxseries.h"
 #include "xlsxlegend.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class AbstractSheet;
 class Worksheet;
@@ -230,8 +230,6 @@ public:
      *
      * If you need to add both bar series and line
      * series to the chart, you can do it this way:
-     *
-     * @example
      *
      * @code
      * //set Type::Bar to the chart
@@ -988,6 +986,6 @@ private:
 
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_CHART_H

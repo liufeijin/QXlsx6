@@ -16,12 +16,7 @@
 #include "xlsxtitle.h"
 #include "xlsxtext.h"
 
-QT_BEGIN_NAMESPACE_XLSX
-
-class Worksheet;
-class WorksheetPrivate;
-class RichStringPrivate;
-class SharedStrings;
+namespace QXlsx {
 
 class DisplayUnitsPrivate;
 /**
@@ -94,7 +89,22 @@ private:
 };
 
 class AxisPrivate;
-
+/**
+ * @brief The Axis class represents an axis on a chart.
+ *
+ * The Axis class has a number of required parameters: #type(), #position(), #id(), #crossAxis()
+ * and various optional parameters that specify its look and behaviour.
+ *
+ * The class is _explicitly shareable_: unless you set a new id with #setId() the two
+ * copies of Axis represent the same object. Thus each axis must have a unique ID.
+ *
+ * A chart can have as many axes as you need. But caution should be applied to properly
+ * position axes on the chart. See [CombinedChart example](../../CombinedChart/main.cpp) of
+ * three axes: bottom, left and right one.
+ *
+ * To add an axis on a chart use Chart::addDefaultAxes and Chart::addAxis methods. They make
+ * sure that each axis on the chart has unique ID.
+ */
 class QXLSX_EXPORT Axis
 {
 public:
@@ -119,11 +129,23 @@ public:
     /**
      * @brief The Type enum specifies the axis type
      */
-    enum class Type { None = (-1), Category, Value, Date, Series };
+    enum class Type {
+        None = (-1), /**< @brief the invalid axis type */
+        Category, /**< @brief Axis represents categorized values */
+        Value,  /**< @brief Axis represents numerical values */
+        Date,  /**< @brief Axis represents date and time values */
+        Series  /**< @brief Axis represents series names */
+    };
     /**
      * @brief The Position enum specifies the axis position
      */
-    enum class Position { None = (-1), Left, Right, Top, Bottom };
+    enum class Position {
+        None = (-1), /**< @brief the invalid axis position */
+        Left, /**< @brief the axis is positioned on the left */
+        Right, /**< @brief the axis is positioned on the right */
+        Top, /**< @brief the axis is positioned on top of the chart */
+        Bottom /**< @brief the axis is positioned on bottom of the chart */
+    };
     /**
      * @brief The CrossesType enum specifies the possible crossing points for an axis.
      */
@@ -487,7 +509,7 @@ private:
 
     friend QDebug operator<<(QDebug, const Axis &axis);
 
-    QSharedDataPointer<AxisPrivate> d;
+    QExplicitlySharedDataPointer<AxisPrivate> d;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -496,7 +518,7 @@ QDebug operator<<(QDebug dbg, const Axis &axis);
 
 
 
-QT_END_NAMESPACE_XLSX
+}
 
 
 

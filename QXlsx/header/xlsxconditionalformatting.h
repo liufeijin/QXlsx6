@@ -17,7 +17,7 @@
 
 class ConditionalFormattingTest;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Format;
 class Worksheet;
@@ -115,6 +115,6 @@ private:
     QSharedDataPointer<ConditionalFormattingPrivate> d;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXCONDITIONALFORMATTING_H

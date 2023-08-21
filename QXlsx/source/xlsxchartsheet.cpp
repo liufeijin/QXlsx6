@@ -13,7 +13,7 @@
 #include "xlsxdrawinganchor_p.h"
 #include "xlsxchart.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 ChartsheetPrivate::ChartsheetPrivate(Chartsheet *p, Chartsheet::CreateFlag flag)
     : AbstractSheetPrivate(p, flag), chart(0)
@@ -139,4 +139,4 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

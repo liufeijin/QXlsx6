@@ -11,7 +11,7 @@
 #include "xlsxworkbook.h"
 #include "xlsxcontenttypes_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class DocumentPrivate
 {
@@ -36,6 +36,6 @@ public:
 	bool isLoad; 
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXDOCUMENT_P_H

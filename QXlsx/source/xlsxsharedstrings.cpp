@@ -14,7 +14,7 @@
 #include "xlsxformat_p.h"
 #include "xlsxcolor.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 /*
  * Note that, when we open an existing .xlsx file (broken file?),
@@ -379,4 +379,4 @@ bool SharedStrings::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

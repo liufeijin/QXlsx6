@@ -64,7 +64,7 @@
 	elements of the package and writes them into the XLSX file.
 */
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 namespace xlsxDocumentCpp {
 	std::string copyTag(const std::string &sFrom, const std::string &sTo, const std::string &tag) {
@@ -1452,4 +1452,4 @@ bool Document::autosizeColumnWidth(void)
 }
 
 
-QT_END_NAMESPACE_XLSX
+}

@@ -21,7 +21,7 @@
 #include "xlsxutility_p.h"
 #include "xlsxchart.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag) :
     AbstractOOXmlFilePrivate(q, flag)
@@ -737,4 +737,4 @@ void Workbook::addChartFile(QSharedPointer<Chart> chart)
         d->chartFiles.append(chart);
 }
 
-QT_END_NAMESPACE_XLSX
+}

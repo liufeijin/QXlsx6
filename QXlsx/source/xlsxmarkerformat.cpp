@@ -3,9 +3,22 @@
 #include <QDebug>
 
 #include "xlsxmarkerformat.h"
-#include "xlsxmarkerformat_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
+
+class MarkerFormatPrivate : public QSharedData
+{
+public:
+    std::optional<int> size; // [2..72]
+    std::optional<MarkerFormat::MarkerType> markerType;
+    ShapeFormat shape;
+
+    MarkerFormatPrivate();
+    MarkerFormatPrivate(const MarkerFormatPrivate &other);
+    ~MarkerFormatPrivate();
+
+    bool operator==(const MarkerFormatPrivate &other) const;
+};
 
 MarkerFormatPrivate::MarkerFormatPrivate()
 {
@@ -23,9 +36,12 @@ MarkerFormatPrivate::~MarkerFormatPrivate()
 
 }
 
-/*!
- *  Creates a new invalid format.
- */
+bool MarkerFormatPrivate::operator==(const MarkerFormatPrivate &other) const
+{
+    return (size == other.size && markerType == other.markerType
+            && shape == other.shape);
+}
+
 MarkerFormat::MarkerFormat()
 {
     //The d pointer is initialized with a null pointer
@@ -52,7 +68,7 @@ MarkerFormat::MarkerFormat(const MarkerFormat &other)
  */
 MarkerFormat &MarkerFormat::operator =(const MarkerFormat &other)
 {
-    d = other.d;
+    if (*this != other) d = other.d;
     return *this;
 }
 
@@ -153,6 +169,17 @@ bool MarkerFormat::isValid() const
     return false;
 }
 
+bool MarkerFormat::operator==(const MarkerFormat &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return (*this->d.constData() == *other.d.constData());
+}
+bool MarkerFormat::operator!=(const MarkerFormat &other) const
+{
+    return !operator==(other);
+}
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const MarkerFormat &f)
 {
@@ -161,4 +188,4 @@ QDebug operator<<(QDebug dbg, const MarkerFormat &f)
 }
 #endif
 
-QT_END_NAMESPACE_XLSX
+}

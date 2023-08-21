@@ -12,7 +12,7 @@
 #include "xlsxformat.h"
 #include "xlsxcolor.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class XlsxCfVoData
 {
@@ -93,7 +93,7 @@ public:
     QList<CellRange> ranges;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::XlsxCfVoData)
 #endif // XLSXCONDITIONALFORMATTING_P_H

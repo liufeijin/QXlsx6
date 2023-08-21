@@ -2,9 +2,38 @@
 #include "xlsxutility_p.h"
 #include <QDebug>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
+class FillFormatPrivate: public QSharedData
+{
+public:
+    FillFormatPrivate();
+    FillFormatPrivate(const FillFormatPrivate &other);
+    ~FillFormatPrivate();
 
+    void parse(const QBrush &brush);
+    QBrush toBrush() const;
+
+    FillFormat::FillType type;
+    Color color;
+
+    //Gradient fill properties
+    QMap<double, Color> gradientList;
+    std::optional<Angle> linearShadeAngle; //0..360
+    std::optional<bool> linearShadeScaled;
+    std::optional<FillFormat::PathShadeType> pathShadeType;
+    std::optional<QRectF> pathShadeRect;
+    std::optional<QRectF> tileRect;
+    std::optional<FillFormat::TileFlipMode> tileFlipMode;
+    std::optional<bool> rotWithShape;
+
+    //Pattern fill properties
+    Color foregroundColor;
+    Color backgroundColor;
+    std::optional<FillFormat::PatternType> patternType;
+
+    bool operator==(const FillFormatPrivate &other) const;
+};
 
 FillFormatPrivate::FillFormatPrivate()
 {
@@ -53,6 +82,18 @@ bool FillFormatPrivate::operator==(const FillFormatPrivate &other) const
     return true;
 }
 
+void FillFormatPrivate::parse(const QBrush &brush)
+{
+
+}
+
+QBrush FillFormatPrivate::toBrush() const
+{
+    QBrush brush;
+
+    return brush;
+}
+
 FillFormat::FillFormat()
 {
 
@@ -64,6 +105,12 @@ FillFormat::FillFormat(FillFormat::FillType type)
     d->type = type;
 }
 
+FillFormat::FillFormat(const QBrush &brush)
+{
+    d = new FillFormatPrivate;
+    d->parse(brush);
+}
+
 FillFormat::FillFormat(const FillFormat &other) : d(other.d)
 {
 
@@ -71,8 +118,26 @@ FillFormat::FillFormat(const FillFormat &other) : d(other.d)
 
 FillFormat &FillFormat::operator=(const FillFormat &rhs)
 {
-    d = rhs.d;
+    if (*this != rhs)
+        d = rhs.d;
     return *this;
+}
+
+FillFormat::~FillFormat()
+{
+
+}
+
+void FillFormat::setBrush(const QBrush &brush)
+{
+    d = new FillFormatPrivate;
+    d->parse(brush);
+}
+
+QBrush FillFormat::toBrush() const
+{
+    if (d) return d->toBrush();
+    return {};
 }
 
 FillFormat::FillType FillFormat::type() const
@@ -573,7 +638,7 @@ QDebug operator<<(QDebug dbg, const FillFormat &f)
 }
 #endif
 
-QT_END_NAMESPACE_XLSX
+}
 
 
 

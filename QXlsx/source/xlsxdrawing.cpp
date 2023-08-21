@@ -9,7 +9,7 @@
 #include "xlsxdrawinganchor_p.h"
 #include "xlsxabstractsheet.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 Drawing::Drawing(AbstractSheet *sheet, CreateFlag flag)
     :AbstractOOXmlFile(flag), sheet(sheet)
@@ -81,4 +81,4 @@ bool Drawing::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

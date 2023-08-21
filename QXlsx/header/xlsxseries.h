@@ -14,10 +14,10 @@
 #include "xlsxshapeformat.h"
 #include "xlsxmarkerformat.h"
 #include "xlsxutility_p.h"
-#include "xlsxtext.h"
+#include "xlsxtitle.h"
 #include "xlsxlabel.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class SeriesPrivate;
 
@@ -58,7 +58,7 @@ public:
 
 
 /**
- * @brief The DataSource class is used to specify data source for the series
+ * @brief The DataSource class represents data source for the series
  */
 class QXLSX_EXPORT DataSource
 {
@@ -184,19 +184,17 @@ private:
     });
 };
 
-class TrendLineLabel
+//TODO:
+class QXLSX_EXPORT TrendLineLabel
 {
 public:
-    Layout layout;
-    Text text;
     QString numberFormat;
-    ShapeFormat shape;
-//    Text textBody;
+    Title title;
 
     bool isValid() const;
 
-    bool operator==(const ErrorBars &other) const;
-    bool operator!=(const ErrorBars &other) const;
+    bool operator==(const TrendLineLabel &other) const;
+    bool operator!=(const TrendLineLabel &other) const;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
@@ -282,6 +280,7 @@ public:
     explicit Series(Type type);
     Series(const Series &other);
     ~Series();
+    Series &operator=(const Series &other);
 
     Type type() const;
     void setType(Type type);
@@ -565,58 +564,6 @@ private:
     QSharedDataPointer<SeriesPrivate> d;
 };
 
-class SeriesPrivate : public QSharedData
-{
-public:
-    SeriesPrivate();
-    SeriesPrivate(const SeriesPrivate &other);
-    ~SeriesPrivate();
-
-    //Properties common to all series types
-    Series::Type type = Series::Type::None;
-    int index;
-    int order;
-    Text name; // either ref or string
-    ShapeFormat shape;
-    QList<DataPoint> dataPoints; //data point formatting, except for SurfaceSer
-    Labels labels; // except for SurfaceSer
-
-    //Line, Radar, Bar, Area, Pie, Surface - cat
-    //Scatter, Bubble - xVal;
-    DataSource xVal;
-    //Line, Radar, Bar, Area, Pie, Surface - val
-    //Scatter, Bubble - yVal
-    DataSource yVal;
-    DataSource bubbleVal; //Bubble - bubbleSize
-
-
-    //Line, Scatter, Bar, Area, Bubble
-//    <xsd:element name="trendline" type="CT_Trendline" minOccurs="0" maxOccurs="unbounded"/>
-    //Line, Scatter, Bar, Area, Bubble
-    std::optional<ErrorBars> errorBars; //TODO: due to some required properties errorBars is always valid, so rewrite it as QSharedData
-
-    //Line, Scatter, Radar
-    MarkerFormat marker;
-
-    //Bar, Bubble
-    std::optional<bool> invertIfNegative;
-
-    //Bar, Area
-    std::optional<PictureOptions> pictureOptions;
-
-    //Line, Scatter
-    std::optional<bool> smooth;
-
-    //Properties for Bar series
-    std::optional<Series::BarShape> barShape;
-
-    //Properties for Pie series
-    std::optional<int> pieExplosion;
-
-    //Properties for Bubble series
-    std::optional<bool> bubble3D;
-};
-
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXSERIES_H

@@ -8,7 +8,7 @@
 
 #include "xlsxdatavalidation.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class    DataValidationPrivate : public QSharedData
 {
@@ -33,5 +33,5 @@ public:
     QList<CellRange> ranges;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXDATAVALIDATION_P_H

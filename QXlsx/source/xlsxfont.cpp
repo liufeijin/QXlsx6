@@ -1,7 +1,7 @@
 #include "xlsxfont.h"
 #include <QSharedData>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class FontPrivate: public QSharedData
 {
@@ -41,7 +41,8 @@ Font::Font(const Font &other) : d(other.d)
 
 Font &Font::operator =(const Font &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -166,4 +167,4 @@ bool FontPrivate::operator ==(const FontPrivate &other) const
             && pitchFamily == other.pitchFamily && charset == other.charset);
 }
 
-QT_END_NAMESPACE_XLSX
+}

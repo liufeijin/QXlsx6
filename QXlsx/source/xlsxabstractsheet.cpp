@@ -6,7 +6,7 @@
 #include "xlsxabstractsheet_p.h"
 #include "xlsxworkbook.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 AbstractSheetPrivate::AbstractSheetPrivate(AbstractSheet *p, AbstractSheet::CreateFlag flag)
     : AbstractOOXmlFilePrivate(p, flag)
@@ -183,4 +183,4 @@ Workbook *AbstractSheet::workbook() const
     return d->workbook;
 }
 
-QT_END_NAMESPACE_XLSX
+}

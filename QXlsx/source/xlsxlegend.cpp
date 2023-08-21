@@ -1,6 +1,6 @@
 #include "xlsxlegend.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LegendPrivate : public QSharedData
 {
@@ -15,6 +15,8 @@ public:
     std::optional<bool> overlay;
     ShapeFormat shape;
     Text text;
+
+    bool operator==(const LegendPrivate &other) const;
 };
 
 Legend::Legend()
@@ -39,7 +41,8 @@ Legend::~Legend()
 
 Legend &Legend::operator=(const Legend &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -136,13 +139,14 @@ void Legend::setEntryVisible(int index, bool visible)
     });
     if (e != d->entries.end()) e->visible = visible;
     else {
-        d->entries << LegendEntry(index, visible);
+        d->entries << LegendEntry(index);
+        d->entries.last().visible = visible;
     }
 }
 
 std::optional<bool> Legend::entryVisible(int index) const
 {
-    if (!d) return {};
+    if (!d) return std::nullopt;
 
     const auto e = std::find_if(d->entries.constBegin(), d->entries.constEnd(), [index](const LegendEntry &e){
              return e.idx == index;
@@ -152,29 +156,17 @@ std::optional<bool> Legend::entryVisible(int index) const
     return {};
 }
 
-void Legend::addEntry(int index, const Text &text, bool visible)
-{
-    if (!d) d = new LegendPrivate;
-
-    auto e = std::find_if(d->entries.begin(), d->entries.end(), [index](LegendEntry &e){
-             return e.idx == index;
-    });
-    if (e != d->entries.end()) {
-        e->visible = visible;
-        e->entry = text;
-    }
-    else d->entries << LegendEntry(index, visible, text);
-}
-
-LegendEntry *Legend::entry(int index)
+LegendEntry &Legend::entry(int index)
 {
     if (!d) d = new LegendPrivate;
 
     auto e = std::find_if(d->entries.begin(), d->entries.end(), [index](const LegendEntry &e) {
         return e.idx == index;
     });
-    if (e != d->entries.end()) return &*e;
-    return nullptr;
+    if (e != d->entries.end()) return *e;
+
+    d->entries << LegendEntry(index);
+    return d->entries.last();
 }
 
 void Legend::read(QXmlStreamReader &reader)
@@ -231,6 +223,17 @@ void Legend::write(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
+bool Legend::operator ==(const Legend &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return (*this->d.constData() == *other.d.constData());
+}
+bool Legend::operator !=(const Legend &other) const
+{
+    return !operator==(other);
+}
+
 LegendPrivate::LegendPrivate()
 {
 
@@ -248,13 +251,24 @@ LegendPrivate::~LegendPrivate()
 
 }
 
+bool LegendPrivate::operator==(const LegendPrivate &other) const
+{
+    if (pos != other.pos) return false;
+    if (entries != other.entries) return false;
+    if (layout != other.layout) return false;
+    if (overlay != other.overlay) return false;
+    if (shape != other.shape) return false;
+    if (text != other.text) return false;
+    return true;
+}
+
 LegendEntry::LegendEntry()
 {
 
 }
 
-LegendEntry::LegendEntry(int index, bool visible)
-    : idx{index}, visible{visible}
+LegendEntry::LegendEntry(int index)
+    : idx{index}
 {
 
 }
@@ -263,6 +277,19 @@ LegendEntry::LegendEntry(int index, bool visible, const Text &text)
     : idx{index}, visible{visible}, entry{text}
 {
 
+}
+
+bool LegendEntry::isValid() const
+{
+    if (idx > -1) {
+        return visible.has_value() || entry.isValid();
+    }
+    return false;
+}
+bool LegendEntry::operator==(const LegendEntry &other) const
+{
+    //indexes should be different, otherwise LegendEntry is invalid
+    return visible == other.visible && entry == other.entry;
 }
 
 void LegendEntry::read(QXmlStreamReader &reader)
@@ -297,4 +324,4 @@ void LegendEntry::write(QXmlStreamWriter &writer, const QString &name) const
     writer.writeEndElement();
 }
 
-QT_END_NAMESPACE_XLSX
+}

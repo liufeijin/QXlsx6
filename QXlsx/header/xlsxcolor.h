@@ -12,7 +12,7 @@
 #include "xlsxglobal.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 //<xsd:group name="EG_ColorChoice">
 //    <xsd:choice>
@@ -312,7 +312,7 @@ QDataStream &operator>>(QDataStream &s, Color &color);
 
 QDebug operator<<(QDebug dbg, const Color &c);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::ColorTransform)
 Q_DECLARE_METATYPE(QXlsx::Color)

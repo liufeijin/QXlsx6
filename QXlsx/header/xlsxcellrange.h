@@ -9,7 +9,7 @@
 #include "xlsxglobal.h"
 #include "xlsxcellreference.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 // dev57
 class QXLSX_EXPORT CellRange
@@ -66,7 +66,7 @@ private:
     int right;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_TYPEINFO(QXlsx::CellRange, Q_MOVABLE_TYPE);
 

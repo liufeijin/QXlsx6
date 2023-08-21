@@ -9,7 +9,7 @@
 
 #include "xlsxrelationships_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 const QLatin1String schema_doc("http://schemas.openxmlformats.org/officeDocument/2006/relationships");
 const QLatin1String schema_msPackage("http://schemas.microsoft.com/office/2006/relationships");
@@ -166,4 +166,4 @@ bool Relationships::isEmpty() const
     return m_relationships.isEmpty();
 }
 
-QT_END_NAMESPACE_XLSX
+}

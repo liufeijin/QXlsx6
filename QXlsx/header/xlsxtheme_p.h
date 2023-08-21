@@ -9,7 +9,7 @@
 
 #include "xlsxabstractooxmlfile.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Theme : public AbstractOOXmlFile
 {
@@ -24,6 +24,6 @@ public:
     QByteArray xmlData;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXTHEME_H

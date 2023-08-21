@@ -420,23 +420,26 @@ public:
 
 QDebug operator<<(QDebug dbg, const NumberFormat &f);
 
+/**
+ * @brief The Percentage class represents a percentage value.
+ */
 class QXLSX_EXPORT Percentage
 {
 public:
     /**
-     * @brief Percentage creates an invalid precentage value.
+     * @brief creates an invalid precentage value.
      */
     Percentage() {}
     /**
-     * @brief Percentage creates the percentage value that allows fractions.
+     * @brief creates the percentage value that allows fractions.
      * @param val value (depending on the element, this can be either positive
-     * or negative percentage, less ot greated than 100)
+     * or negative percentage, less ot greater than 100)
      */
     explicit Percentage(double val);
     /**
-     * @brief Percentage creates the percentage that allows only integer value.
+     * @brief creates the percentage that allows only integer value.
      * @param val value (depending on the element, this can be either positive
-     * or negative percentage, less ot greated than 100).
+     * or negative percentage, less ot greater than 100).
      */
     explicit Percentage(int val);
 
@@ -458,9 +461,10 @@ private:
     QVariant val;
 };
 
+void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Percentage &target);
+
 /**
- * @brief The Coordinate class
- * The class is used to set a coordinate, either as a whole number in EMU,
+ * @brief The Coordinate class represents a coordinate, either as a whole number in EMU,
  * as a number of points (i.e. EMU / 12700)
  * or as a qualified measure in mm, pt, in etc.
  */
@@ -492,26 +496,38 @@ public:
     explicit Coordinate(double points);
 
     /**
-     * @brief toEMU returns coordinate as EMU (i.e. points * 12700)
-     * @return EMU
+     * @brief returns coordinate as EMU (i.e. points * 12700).
+     * @return EMU integer value in EMUs (1 pt is 12700 EMU).
      */
     qint64 toEMU() const;
 
     /**
-     * @brief toString returns string representation of coordinate
+     * @brief returns string representation of the coordinate.
      * @return
      */
     QString toString() const;
 
     /**
-     * @brief toPoints return coordinate in points (i.e. EMU / 12700)
+     * @brief returns coordinate in points (i.e. EMU / 12700)
      * @return
      */
     double toPoints() const;
 
+    /**
+     * @brief returns coordinate in pixels.
+     * @return pixels at 96 DPI (default).
+     */
+    double toPixels(int dpi = 96) const;
+
     void setEMU(qint64 val);
     void setString(const QString &val);
     void setPoints(double points);
+    /**
+     * @brief sets the coordinate value in pixels (at 96 DPI by default)
+     * and stores it in EMUs.
+     * @param pixels new value in px.
+     */
+    void setPixels(double pixels, int dpi = 96);
 
     /**
      * @brief create parses val and creates a valid Coordinate
@@ -529,8 +545,7 @@ private:
 };
 
 /**
- * @brief The TextPoint class
- * The class is used to set character spacing, either in points,
+ * @brief The TextPoint class represents character spacing, either in points,
  * or as a qualified measure in mm, pt, in etc.
  */
 class QXLSX_EXPORT TextPoint
@@ -585,8 +600,7 @@ private:
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Coordinate &target);
 
 /**
- * @brief The Angle class
- * This simple type represents an angle in 60,000ths of a degree. Positive
+ * @brief The Angle class represents an angle in 60,000ths of a degree. Positive
  * angles are clockwise (i.e., towards the positive y axis); negative angles are
  * counter-clockwise (i.e., towards the negative y axis).
  */

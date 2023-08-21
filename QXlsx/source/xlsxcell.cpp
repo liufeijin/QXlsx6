@@ -16,7 +16,7 @@
 #include "xlsxworksheet.h"
 #include "xlsxworkbook.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 CellPrivate::CellPrivate(Cell *p) :
 	q_ptr(p)
@@ -215,11 +215,7 @@ QVariant Cell::readValue() const
 	}
 
 	if (hasFormula())
-	{
-		QString formulaString = this->formula().formulaText();
-		ret = formulaString;
-		return ret; // return formula string 
-	}
+        ret = this->formula().formulaText();
 
 	return ret;
 }
@@ -351,4 +347,4 @@ bool Cell::isDateType(Type cellType, const Format &format)
 	return false;
 }
 
-QT_END_NAMESPACE_XLSX
+}

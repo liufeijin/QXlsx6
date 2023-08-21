@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <private/qzipwriter_p.h>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 ZipWriter::ZipWriter(const QString &filePath)
 {
@@ -45,4 +45,4 @@ void ZipWriter::close()
     m_writer->close();
 }
 
-QT_END_NAMESPACE_XLSX
+}

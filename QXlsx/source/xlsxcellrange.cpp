@@ -8,7 +8,7 @@
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 /*!
     \class CellRange
@@ -124,4 +124,4 @@ bool CellRange::isValid() const
     return left <= right && top <= bottom;
 }
 
-QT_END_NAMESPACE_XLSX
+}

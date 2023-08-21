@@ -12,7 +12,7 @@
 #include "xlsxglobal.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 //<xsd:complexType name="CT_TextFont">
 //    <xsd:attribute name="typeface" type="ST_TextTypeface" use="required"/>
@@ -134,7 +134,7 @@ private:
 
 QDebug operator<<(QDebug dbg, const Font &c);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::Font)
 

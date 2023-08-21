@@ -9,7 +9,7 @@
 #include "xlsxrichstring_p.h"
 #include "xlsxformat_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 RichStringPrivate::RichStringPrivate()
     :_dirty(true)
@@ -75,7 +75,7 @@ RichString::~RichString()
  */
 RichString &RichString::operator =(const RichString &other)
 {
-    this->d = other.d;
+    if (*this != other) this->d = other.d;
     return *this;
 }
 
@@ -336,4 +336,4 @@ QDebug operator<<(QDebug dbg, const RichString &rs)
 }
 #endif
 
-QT_END_NAMESPACE_XLSX
+}

@@ -9,7 +9,7 @@
 #include "xlsxchartsheet.h"
 #include "xlsxabstractsheet_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class ChartsheetPrivate : public AbstractSheetPrivate
 {
@@ -21,5 +21,5 @@ public:
     Chart *chart;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXCHARTSHEET_P_H

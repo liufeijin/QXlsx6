@@ -5,12 +5,10 @@
 #include <QTemporaryFile>
 
 #include "xlsxtext.h"
-#include "xlsxtext_p.h"
-#include "xlsxformat_p.h"
 #include "xlsxmain.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class TextPrivate : public QSharedData
 {
@@ -513,7 +511,7 @@ void Text::write(QXmlStreamWriter &writer, const QString &name, bool diveInto) c
 
 Text &Text::operator=(const Text &other)
 {
-    this->d = other.d;
+    if (*this != other) d = other.d;
     return *this;
 }
 
@@ -2358,7 +2356,7 @@ QDebug operator<<(QDebug dbg, const ParagraphProperties::TabAlign &t)
 //std::optional<bool> (\w+);
 //if (t.\1.has_value()) dbg << "\1: " << t.\1.value() << ", ";
 
-QT_END_NAMESPACE_XLSX
+}
 
 
 

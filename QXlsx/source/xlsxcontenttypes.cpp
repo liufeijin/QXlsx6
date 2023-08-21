@@ -9,7 +9,7 @@
 
 #include "xlsxcontenttypes_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 ContentTypes::ContentTypes(CreateFlag flag)
     :AbstractOOXmlFile(flag)
@@ -181,4 +181,4 @@ bool ContentTypes::loadFromXmlFile(QIODevice *device)
     return true;
 }
 
-QT_END_NAMESPACE_XLSX
+}

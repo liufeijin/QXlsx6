@@ -13,7 +13,7 @@
 class QIODevice;
 class QXmlStreamWriter;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class DrawingAnchor;
 class Workbook;
@@ -33,6 +33,6 @@ public:
     QList<DrawingAnchor *> anchors;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_DRAWING_H

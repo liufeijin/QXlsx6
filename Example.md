@@ -83,6 +83,16 @@ Loads xlsx file that was created in Excel and writes it back.
 
 The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table etc.
 
+## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/CombinedChart)
+
+Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
+
+![](markdown.data/combinedchart.png)
+
+## [ChartLineFill](https://github.com/QtExcel/QXlsx/tree/master/ChartLineFill)
+
+Demonstrates various line parameters.
+
 ## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/HelloAndroid)
 
 - See 'HelloAndroid' example using QML and native C++.

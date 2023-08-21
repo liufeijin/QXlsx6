@@ -13,7 +13,7 @@
 
 class QZipReader;
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class  ZipReader
 {
@@ -32,6 +32,6 @@ private:
     QStringList m_filePaths;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // QXLSX_XLSXZIPREADER_P_H

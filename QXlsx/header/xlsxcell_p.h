@@ -13,7 +13,7 @@
 #include "xlsxrichstring.h"
 #include "xlsxcellformula.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class CellPrivate
 {
@@ -36,6 +36,6 @@ public:
     qint32 styleNumber;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXCELL_P_H

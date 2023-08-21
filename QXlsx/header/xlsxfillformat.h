@@ -6,6 +6,7 @@
 #include <QByteArray>
 #include <QList>
 #include <QVariant>
+#include <QBrush>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QSharedData>
@@ -15,7 +16,7 @@
 #include "xlsxmain.h"
 #include "xlsxutility_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class FillFormatPrivate;
 
@@ -106,11 +107,16 @@ public:
 
     FillFormat();
     explicit FillFormat(FillType type);
+    FillFormat(const QBrush &brush);
     FillFormat(const FillFormat &other);
     FillFormat &operator=(const FillFormat &rhs);
+    ~FillFormat();
 
     FillType type() const;
     void setType(FillType type);
+
+    void setBrush(const QBrush &brush);
+    QBrush toBrush() const;
 
     /* Solid fill properties */
     /**
@@ -278,37 +284,9 @@ private:
     void writeGradientList(QXmlStreamWriter &writer) const;
 };
 
-class FillFormatPrivate: public QSharedData
-{
-public:
-    FillFormatPrivate();
-    FillFormatPrivate(const FillFormatPrivate &other);
-    ~FillFormatPrivate();
-
-    FillFormat::FillType type;
-    Color color;
-
-    //Gradient fill properties
-    QMap<double, Color> gradientList;
-    std::optional<Angle> linearShadeAngle; //0..360
-    std::optional<bool> linearShadeScaled;
-    std::optional<FillFormat::PathShadeType> pathShadeType;
-    std::optional<QRectF> pathShadeRect;
-    std::optional<QRectF> tileRect;
-    std::optional<FillFormat::TileFlipMode> tileFlipMode;
-    std::optional<bool> rotWithShape;
-
-    //Pattern fill properties
-    Color foregroundColor;
-    Color backgroundColor;
-    std::optional<FillFormat::PatternType> patternType;
-
-    bool operator==(const FillFormatPrivate &other) const;
-};
-
 QDebug operator<<(QDebug dbg, const FillFormat &f);
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_TYPEINFO(QXlsx::FillFormat, Q_MOVABLE_TYPE);
 Q_DECLARE_METATYPE(QXlsx::FillFormat)

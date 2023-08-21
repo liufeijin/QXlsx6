@@ -17,18 +17,19 @@
 #include "xlsxtext.h"
 #include "xlsxcellrange.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class TitlePrivate;
 class AbstractSheet;
 
 /**
- * @brief The Title class is used to specify the chart title or the axis title properties.
+ * @brief The Title class represents the chart title, the displayed units label,
+ * the trend line label or the axis title.
  *
  * The class is used to specify the title's:
- * - Text, either as a reference to the other cell or as a formatted text.
+ * - Text, either as a reference to other cell(s) or as a formatted text.
  * - Layout (positioning of a chart / axis title on screen)
- * - overlay (positioning of a chart / axis title on screen)
+ * - overlay (laying the title over a chart)
  * - ShapeFormat properties (f.e. line and fill)
  * - text and paragraph properties.
  *
@@ -61,44 +62,84 @@ class AbstractSheet;
  *
  * You can also create a title piece-by-piece using the low-level methods of Text class.
  *
+ * Title is _implicitly shareable_: the deep copy occurs only in the non-const methods.
  */
 class QXLSX_EXPORT Title
 {
 public:
+    /**
+     * @brief creates an invalid title
+     */
     Title();
     /**
-     * @brief Title creates new Title and sets plain text to it.
-     * @param text
+     * @brief creates new Title and sets plain text to it.
+     * @param text a plain string.
      */
     Title(const QString &text);
     Title(const Title &other);
     Title &operator=(const Title &other);
     ~Title();
 
+    /**
+     * @brief returns the title's text as plain string
+     * @return
+     */
     QString toPlainText() const;
+    /**
+     * @brief sets the title's text as plain string and _clears_ the formatting.
+     * @param text a plain string.
+     */
     void setPlainText(const QString &text);
 
+    /**
+     * @brief returns the title's text as an html string (not implemented yet).
+     * @return
+     */
     QString toHtml() const;
+    /**
+     * @brief sets the title's text as formatted text.
+     * @param formattedText
+     */
     void setHtml(const QString &formattedText);
 
+    /**
+     * @brief returns the title's text as a reference string.
+     * @return valid string if the title is reference text, empty string otherwise.
+     */
     QString stringReference() const;
     /**
-     * @brief setStringReference sets title as string reference.
+     * @brief sets the title's text as a reference string.
      * @note the method does not check reference for validity.
      * @param reference a string like "Sheet1!A1".
      */
     void setStringReference(const QString &reference);
     /**
-     * @brief setStringReference sets title as string reference.
+     * @brief sets title's text as string reference.
      * @param range reference range
      * @param sheet pointer to a sheet that contains the range.
      */
     void setStringReference(const CellRange &range, AbstractSheet *sheet);
 
 
-
+    /**
+     * @brief returns whether the title's text is a formatted text.
+     * @return true if the title's text is set as an html text, false otherwise.
+     * @note this method does not check if the formatting is actually present in the text. It merely
+     * checks the Text::type().
+     */
     bool isRichString() const; //only checks type, ignores actual formatting
+    /**
+     * @brief returns whether the title's text is a plain text without formatting.
+     * @return true if the title's text was set as a plain text.
+     * @note this method does not check if the formatting is actually absent in the text. It merely
+     * checks the Text::type().
+     */
     bool isPlainString() const;
+    /**
+     * @brief returns whether the title's text is a string reference.
+     * @return true if the title's text was set as a string reference.
+     * @note this method merely checks the Text::type().
+     */
     bool isStringReference() const;
 
     /**
@@ -106,11 +147,31 @@ public:
      * @return
      */
     Text &text();
+    /**
+     * @brief returns a copy of the title's text.
+     * @return
+     */
     Text text() const;
+    /**
+     * @brief sets the title's text.
+     * @param text
+     */
     void setText(const Text &text);
 
+    /**
+     * @brief returns a copy of the title's text properties. See TextProperties for more info.
+     * @return
+     */
     TextProperties textProperties() const;
+    /**
+     * @brief returns a reference to the title's text properties. See TextProperties for more info.
+     * @return
+     */
     TextProperties &textProperties();
+    /**
+     * @brief sets the title's text properties.
+     * @param textProperties
+     */
     void setTextProperties(const TextProperties &textProperties);
 
     ParagraphProperties defaultParagraphProperties() const;
@@ -122,33 +183,57 @@ public:
     void setDefaultCharacterProperties(const CharacterProperties &defaultCharacterProperties);
 
     /**
-     * @brief layout returns the title positioning layout.
-     * @return shallow copy of the title Layout.
+     * @brief returns the title's positioning layout.
+     * @return a copy of the title Layout.
      */
     Layout layout() const;
+    /**
+     * @brief returns a reference to the title's positioning layout.
+     * @return
+     */
     Layout &layout();
+    /**
+     * @brief sets the title's positioning layout.
+     * @param layout
+     */
     void setLayout(const Layout &layout);
     /**
-     * @brief moveTo moves the title layout to the specified point.
+     * @brief moves the title to the specified point.
      * @param point (0,0) is the top left corner, (1,1) is the bottom right corner.
+     *
+     * To fine-tune the title position use the Layout methods.
      */
     void moveTo(const QPointF &point);
 
     /**
-     * @brief overlay This element specifies that other chart elements shall be allowed to overlap this chart element.
+     * @brief specifies that other chart elements shall be allowed to overlap this chart element.
      * @return true if this chart element can be overlapped by other chart elements, false otherwise.
      */
     std::optional<bool> overlay() const;
     /**
-     * @brief setOverlay specifies that other chart elements shall be allowed to overlap this chart element.
+     * @brief specifies that other chart elements shall be allowed to overlap this chart element.
      * @param overlay true if this chart element can be overlapped by other chart elements, false otherwise.
      */
     void setOverlay(bool overlay);
-
+    /**
+     * @brief returns the title's shape parameters.
+     * @return a copy of the title's shape.
+     */
     ShapeFormat shape() const;
+    /**
+     * @brief returns a reference to the title's shape.
+     * @return
+     */
     ShapeFormat &shape();
+    /**
+     * @brief sets the title's shape.
+     * @param shape
+     */
     void setShape(const ShapeFormat &shape);
-
+    /**
+     * @brief returns whether the title has any parameters set.
+     * @return true if any of the title's parameters are valid (set).
+     */
     bool isValid() const;
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
@@ -166,9 +251,7 @@ private:
 
 QDebug operator<<(QDebug dbg, const Title &f);
 
-//TODO: add all documentation
-
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_METATYPE(QXlsx::Title)
 

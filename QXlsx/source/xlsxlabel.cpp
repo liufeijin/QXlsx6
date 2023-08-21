@@ -1,6 +1,6 @@
 #include "xlsxlabel.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class LabelPrivate : public QSharedData
 {
@@ -66,7 +66,8 @@ Label::Label(const Label &other) : d(other.d)
 
 Label &Label::operator=(const Label &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -232,6 +233,23 @@ Label::operator QVariant() const
     return QVariant(cref, this);
 }
 
+class LabelsPrivate : public QSharedData
+{
+public:
+    LabelsPrivate();
+    LabelsPrivate(const LabelsPrivate &other);
+    ~LabelsPrivate();
+
+    bool operator ==(const LabelsPrivate &other) const;
+
+    QList<Label> labels;
+    std::optional<bool> visible;
+    std::optional<bool> showLeaderLines;
+    ShapeFormat leaderLines;
+    SharedLabelProperties defaultProperties;
+    ExtensionList extLst;
+};
+
 Labels::Labels()
 {
 
@@ -258,7 +276,8 @@ Labels::~Labels()
 
 Labels &Labels::operator=(const Labels &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -614,4 +633,4 @@ QDebug operator<<(QDebug dbg, const Label &f)
     return dbg;
 }
 
-QT_END_NAMESPACE_XLSX
+}

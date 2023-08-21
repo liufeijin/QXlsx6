@@ -1,6 +1,6 @@
 #include "xlsxeffect.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class EffectPrivate : public QSharedData
 {
@@ -85,7 +85,8 @@ Effect::~Effect()
 
 Effect &QXlsx::Effect::operator=(const QXlsx::Effect &other)
 {
-    d = other.d;
+    if (*this != other)
+        d = other.d;
     return *this;
 }
 
@@ -1011,6 +1012,6 @@ QDebug operator<<(QDebug dbg, const Effect &e)
     return dbg;
 }
 
-QT_END_NAMESPACE_XLSX
+}
 
 

@@ -9,7 +9,7 @@
 #include "xlsxworksheet.h"
 #include "xlsxcellrange.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 DataValidationPrivate::DataValidationPrivate()
     :validationType(DataValidation::None), validationOperator(DataValidation::Between)
@@ -534,4 +534,4 @@ DataValidation DataValidation::loadFromXml(QXmlStreamReader &reader)
     return validation;
 }
 
-QT_END_NAMESPACE_XLSX
+}

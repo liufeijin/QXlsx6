@@ -5,7 +5,7 @@
 
 #include "xlsxmediafile_p.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 MediaFile::MediaFile(const QByteArray &bytes, const QString &suffix, const QString &mimeType)
     : m_contents(bytes), m_suffix(suffix), m_mimeType(mimeType)
@@ -75,4 +75,4 @@ QByteArray MediaFile::hashKey() const
     return m_hashKey;
 }
 
-QT_END_NAMESPACE_XLSX
+}

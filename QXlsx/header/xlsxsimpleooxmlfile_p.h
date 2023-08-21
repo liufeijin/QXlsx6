@@ -40,7 +40,7 @@
 #include <QString>
 #include <QIODevice>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class SimpleOOXmlFile : public AbstractOOXmlFile
 {
@@ -55,6 +55,6 @@ public:
     QByteArray xmlData;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 #endif // XLSXSIMPLEOOXMLFILE_H

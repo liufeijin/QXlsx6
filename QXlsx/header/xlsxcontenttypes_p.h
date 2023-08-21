@@ -11,7 +11,7 @@
 
 #include "xlsxabstractooxmlfile.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class ContentTypes : public AbstractOOXmlFile
 {
@@ -51,5 +51,5 @@ private:
     QString m_document_prefix;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXCONTENTTYPES_H

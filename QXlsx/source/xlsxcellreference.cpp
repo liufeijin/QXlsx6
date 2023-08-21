@@ -6,7 +6,7 @@
 
 #include <QRegularExpression>
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 namespace {
 
@@ -151,4 +151,4 @@ bool CellReference::isValid() const
     return _row > 0 && _column > 0;
 }
 
-QT_END_NAMESPACE_XLSX
+}

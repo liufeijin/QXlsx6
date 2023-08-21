@@ -6,7 +6,7 @@
 #include "xlsxglobal.h"
 #include "xlsxabstractooxmlfile.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 class Workbook;
 class Drawing;
@@ -45,5 +45,5 @@ protected:
     Drawing *drawing() const;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 #endif // XLSXABSTRACTSHEET_H
