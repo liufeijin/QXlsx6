@@ -1,6 +1,7 @@
 #include "xlsxfillformat.h"
 #include "xlsxutility_p.h"
 #include <QDebug>
+#include <QtMath>
 
 namespace QXlsx {
 
@@ -19,11 +20,13 @@ public:
 
     //Gradient fill properties
     QMap<double, Color> gradientList;
-    std::optional<Angle> linearShadeAngle; //0..360
+    //linear gradient
+    Angle linearShadeAngle; //0..360
     std::optional<bool> linearShadeScaled;
+    //path gradient
     std::optional<FillFormat::PathShadeType> pathShadeType;
-    std::optional<QRectF> pathShadeRect;
-    std::optional<QRectF> tileRect;
+    std::optional<RelativeRect> pathShadeRect;
+    std::optional<RelativeRect> tileRect;
     std::optional<FillFormat::TileFlipMode> tileFlipMode;
     std::optional<bool> rotWithShape;
 
@@ -31,6 +34,9 @@ public:
     Color foregroundColor;
     Color backgroundColor;
     std::optional<FillFormat::PatternType> patternType;
+
+    //Blip fill has not been yet implemented.
+
 
     bool operator==(const FillFormatPrivate &other) const;
 };
@@ -84,7 +90,124 @@ bool FillFormatPrivate::operator==(const FillFormatPrivate &other) const
 
 void FillFormatPrivate::parse(const QBrush &brush)
 {
+    switch (brush.style()) {
+        case Qt::NoBrush: type = FillFormat::FillType::NoFill; break;
+        case Qt::SolidPattern: {
+            type = FillFormat::FillType::SolidFill;
+            color = Color(Color::ColorType::RGBColor, brush.color()); break;
+        }
+        case Qt::Dense1Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent80;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense2Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent75;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense3Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent60;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense4Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent50;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense5Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent30;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense6Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent20;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::Dense7Pattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Percent5;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::HorPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Horizontal;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::VerPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Vertical;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::CrossPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::Cross;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::BDiagPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::UpwardDiagonal;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::FDiagPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::DownwardDiagonal;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::DiagCrossPattern: {
+            type = FillFormat::FillType::PatternFill;
+            patternType = FillFormat::PatternType::OpenDiamond;
+            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            break;
+        }
+        case Qt::LinearGradientPattern: {
+            const auto gradient = brush.gradient();
+            if (gradient->type() == QGradient::LinearGradient) {
+                auto mode = gradient->coordinateMode();
+                auto stops = gradient->stops();
+                auto spread = gradient->spread();
+                auto start = static_cast<const QLinearGradient*>(gradient)->start();
+                auto end = static_cast<const QLinearGradient*>(gradient)->finalStop();
 
+                //vector from start to end will give us the gradient angle
+                auto angle = atan2((end-start).y(), (end-start).x())/M_PI*360; //gradient angle
+                linearShadeAngle = Angle(angle);
+                if (mode == QGradient::LogicalMode)
+                    linearShadeScaled = false;
+                if (mode == QGradient::ObjectMode)
+                    linearShadeScaled = true;
+                for (auto st: stops)
+                    gradientList.insert(st.first, Color(Color::ColorType::RGBColor, st.second));
+                switch (spread) {
+                    case QGradient::PadSpread: tileFlipMode = FillFormat::TileFlipMode::None; break;
+                    case QGradient::RepeatSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
+                    case QGradient::ReflectSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
+                }
+            }
+            break;
+        }
+        case Qt::RadialGradientPattern:
+            break;
+        case Qt::ConicalGradientPattern:
+            break;
+        case Qt::TexturePattern: //TODO: blip fill
+            break;
+
+    }
 }
 
 QBrush FillFormatPrivate::toBrush() const
@@ -188,7 +311,13 @@ void FillFormat::setGradientList(const QMap<double, Color> &list)
     d->gradientList = list;
 }
 
-std::optional<Angle> FillFormat::linearShadeAngle() const
+void FillFormat::addGradientStop(double stop, const Color &color)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->gradientList.insert(stop, color);
+}
+
+Angle FillFormat::linearShadeAngle() const
 {
     if (d)  return d->linearShadeAngle;
     return {};
@@ -224,25 +353,25 @@ void FillFormat::setPathShadeType(FillFormat::PathShadeType pathShadeType)
     d->pathShadeType = pathShadeType;
 }
 
-std::optional<QRectF> FillFormat::pathShadeRect() const
+std::optional<RelativeRect> FillFormat::pathShadeRect() const
 {
     if (d)  return d->pathShadeRect;
     return {};
 }
 
-void FillFormat::setPathShadeRect(QRectF rect)
+void FillFormat::setPathShadeRect(RelativeRect rect)
 {
     if (!d) d = new FillFormatPrivate;
     d->pathShadeRect = rect;
 }
 
-std::optional<QRectF> FillFormat::tileRect() const
+std::optional<RelativeRect> FillFormat::tileRect() const
 {
     if (d)  return d->tileRect;
     return {};
 }
 
-void FillFormat::setTileRect(QRectF rect)
+void FillFormat::setTileRect(RelativeRect rect)
 {
     if (!d) d = new FillFormatPrivate;
     d->tileRect = rect;
@@ -441,24 +570,14 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
 
                 reader.readNextStartElement();
                 if (reader.name() == QLatin1String("fillToRect")) {
-                    const auto &attr = reader.attributes();
-                    QRectF r;
-                    r.setTop(fromST_Percent(attr.value("t")));
-                    r.setLeft(fromST_Percent(attr.value("l")));
-                    r.setRight(fromST_Percent(attr.value("r")));
-                    r.setBottom(fromST_Percent(attr.value("b")));
+                    RelativeRect r;
+                    r.read(reader);
                     d->pathShadeRect = r;
                 }
             }
             else if (reader.name() == QLatin1String("tileRect")) {
-                const auto &attr = reader.attributes();
-                QRectF r;
-                if (!attr.isEmpty()) {
-                    r.setTop(fromST_Percent(attr.value("t")));
-                    r.setLeft(fromST_Percent(attr.value("l")));
-                    r.setRight(fromST_Percent(attr.value("r")));
-                    r.setBottom(fromST_Percent(attr.value("b")));
-                }
+                RelativeRect r;
+                r.read(reader);
                 d->tileRect = r;
             }
             else reader.skipCurrentElement();
@@ -491,10 +610,10 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
     if (d->rotWithShape.has_value()) writer.writeAttribute("rotWithShape", d->rotWithShape.value() ? "true" : "false");
     writeGradientList(writer);
 
-    if (d->linearShadeAngle.has_value() || d->linearShadeScaled.has_value()) {
+    if (d->linearShadeAngle.isValid() || d->linearShadeScaled.has_value()) {
         writer.writeEmptyElement("a:lin");
-        if (d->linearShadeAngle.has_value())
-            writer.writeAttribute("ang", d->linearShadeAngle->toString());
+        if (d->linearShadeAngle.isValid())
+            writer.writeAttribute("ang", d->linearShadeAngle.toString());
         if (d->linearShadeScaled.has_value())
             writer.writeAttribute("scaled", d->linearShadeScaled.value() ? "true" : "false");
     }
@@ -506,23 +625,12 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
             case PathShadeType::Circle: writer.writeAttribute("path", "circle"); break;
             case PathShadeType::Rectangle: writer.writeAttribute("path", "rect"); break;
         }
-        if (d->pathShadeRect.has_value()) {
-            writer.writeEmptyElement("a:fillToRect");
-            writer.writeAttribute("t", toST_Percent(d->pathShadeRect->top()));
-            writer.writeAttribute("b", toST_Percent(d->pathShadeRect->bottom()));
-            writer.writeAttribute("l", toST_Percent(d->pathShadeRect->left()));
-            writer.writeAttribute("r", toST_Percent(d->pathShadeRect->right()));
-        }
-
+        if (d->pathShadeRect.has_value())
+            d->pathShadeRect->write(writer, "a:fillToRect");
         writer.writeEndElement();
     }
-    if (d->tileRect.has_value() && d->tileRect->isValid()) {
-        writer.writeEmptyElement("a:tileRect");
-        writer.writeAttribute("t", toST_Percent(d->tileRect->top()));
-        writer.writeAttribute("b", toST_Percent(d->tileRect->bottom()));
-        writer.writeAttribute("l", toST_Percent(d->tileRect->left()));
-        writer.writeAttribute("r", toST_Percent(d->tileRect->right()));
-    }
+    if (d->tileRect.has_value() && d->tileRect->isValid())
+        d->tileRect->write(writer, "a:tileRect");
 
     writer.writeEndElement();
 }
@@ -605,7 +713,7 @@ void FillFormat::writeGradientList(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("a:gsLst"));
     for (auto i = d->gradientList.constBegin(); i!= d->gradientList.constEnd(); ++i) {
         writer.writeStartElement(QLatin1String("a:gs"));
-        writer.writeAttribute("pos", QString::number(i.key())+'%');
+        writer.writeAttribute("pos", toST_Percent(i.key()));
         i.value().write(writer);
         writer.writeEndElement();
     }
@@ -621,7 +729,7 @@ QDebug operator<<(QDebug dbg, const FillFormat &f)
     dbg << "type: "<< static_cast<int>(f.d->type) << ", ";
     if (f.d->color.isValid()) dbg << "color: " << f.d->color << ", ";
     dbg << "gradientList: "<< f.d->gradientList << ", ";
-    if (f.d->linearShadeAngle.has_value()) dbg << "linearShadeAngle: " << f.d->linearShadeAngle.value().toString() << ", ";
+    if (f.d->linearShadeAngle.isValid()) dbg << "linearShadeAngle: " << f.d->linearShadeAngle.toString() << ", ";
     if (f.d->linearShadeScaled.has_value()) dbg << "linearShadeScaled: " << f.d->linearShadeScaled.value() << ", ";
     if (f.d->pathShadeType.has_value()) dbg << "pathShadeType: " << static_cast<int>(f.d->pathShadeType.value()) << ", ";
     if (f.d->pathShadeRect.has_value()) dbg << "pathShadeRect: " << f.d->pathShadeRect.value() << ", ";

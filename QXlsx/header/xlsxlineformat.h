@@ -216,8 +216,18 @@ public:
     std::optional<LineJoin> lineJoin() const;
     void setLineJoin(LineJoin val);
 
-    Percentage miterLimit() const;
-    void setMiterLimit(Percentage val);
+    /**
+     * @brief returns the amount by which lines is extended to form a miter join -
+     * otherwise miter joins can extend infinitely far (for lines which are almost parallel).
+     * @return value in percents if the parameter is set. The value of 100 equals 100%.
+     */
+    std::optional<double> miterLimit() const;
+    /**
+     * @brief sets the amount by which lines is extended to form a miter join -
+     * otherwise miter joins can extend infinitely far (for lines which are almost parallel).
+     * @param val positive value in percents. The value of 100 equals 100%.
+     */
+    void setMiterLimit(double val);
 
     std::optional<LineEndType> lineEndType();
     std::optional<LineEndType> lineStartType();

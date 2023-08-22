@@ -335,11 +335,13 @@ public:
      *
      * Applicable to: Category axis, Date axis.
      *
-     * @return
+     * @return valid optional value if labelOffset is set, nullopt otherwise.
      */
     std::optional<int> labelOffset() const;
     /**
      * @brief setLabelOffset sets the distance of labels, in percents, from the axis.
+     *
+     * If not set, the default value is 100.
      *
      * Applicable to: Category axis, Date axis.
      *

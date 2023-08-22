@@ -390,6 +390,44 @@ private:
 };
 
 /**
+ * @brief The RelativeRect class specifies the rectangle with edges relative to
+ * the parent's rectangle.
+ * Each edge of the rectangle is defined by a percentage offset from the
+ * corresponding edge of the parent's bounding box. A positive percentage specifies
+ * an inset, while a negative percentage specifies an outset.
+ */
+class RelativeRect
+{
+public:
+    /**
+     * @brief creates an invalid RelativeRect.
+     */
+    RelativeRect();
+    /**
+     * @brief creates a RelativeRect with fully specified edges.
+     * @param left a percentage offset from the left edge of the parent's bounding box
+     * @param top a percentage offset from the top edge of the parent's bounding box
+     * @param right a percentage offset from the right edge of the parent's bounding box
+     * @param bottom a percentage offset from the bottom edge of the parent's bounding box
+     *
+     * Values of 100 equal 100%. Values can be positive or negative.
+     */
+    RelativeRect(double left, double top, double right, double bottom);
+    std::optional<double> left; /**< @brief a percentage offset from the left edge of the parent's bounding box */
+    std::optional<double> top; /**< @brief a percentage offset from the top edge of the parent's bounding box */
+    std::optional<double> right; /**< @brief right a percentage offset from the right edge of the parent's bounding box */
+    std::optional<double> bottom; /**< @brief bottom a percentage offset from the bottom edge of the parent's bounding box */
+
+    void write(QXmlStreamWriter &writer, const QString &name) const;
+    void read(QXmlStreamReader &reader);
+    bool isValid() const;
+    bool operator==(const RelativeRect &other) const;
+    bool operator!=(const RelativeRect &other) const;
+};
+
+QDebug operator<<(QDebug dbg, const RelativeRect &r);
+
+/**
  * @brief The NumberFormat class represents the number formatting for
  * the parent element.
  */
@@ -419,49 +457,6 @@ public:
 };
 
 QDebug operator<<(QDebug dbg, const NumberFormat &f);
-
-/**
- * @brief The Percentage class represents a percentage value.
- */
-class QXLSX_EXPORT Percentage
-{
-public:
-    /**
-     * @brief creates an invalid precentage value.
-     */
-    Percentage() {}
-    /**
-     * @brief creates the percentage value that allows fractions.
-     * @param val value (depending on the element, this can be either positive
-     * or negative percentage, less ot greater than 100)
-     */
-    explicit Percentage(double val);
-    /**
-     * @brief creates the percentage that allows only integer value.
-     * @param val value (depending on the element, this can be either positive
-     * or negative percentage, less ot greater than 100).
-     */
-    explicit Percentage(int val);
-
-    double toDouble() const;
-    void setDouble(double val);
-
-    int toInt() const;
-    void setInt(int val);
-
-    QString toString() const;
-
-    bool isValid() const;
-    static Percentage create(QStringView s);
-
-    bool operator == (const Percentage &other) const;
-    bool operator != (const Percentage &other) const;
-
-private:
-    QVariant val;
-};
-
-void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Percentage &target);
 
 /**
  * @brief The Coordinate class represents a coordinate, either as a whole number in EMU,
@@ -608,21 +603,21 @@ class QXLSX_EXPORT Angle
 {
 public:
     /**
-     * @brief Angle creates invalid angle
+     * @brief Angle creates an invalid angle
      */
     Angle() {}
 
     /**
-     * @brief Angle creates angle in 60,000ths of a degree
+     * @brief creates an angle in 60,000ths of a degree
      * @param angleInFrac the angle value in 60,000ths of a degree
      */
-    explicit Angle(qint64 angleInFrac);
+    Angle(qint64 angleInFrac);
 
     /**
-     * @brief Angle creates angle in degrees
+     * @brief creates an angle in degrees
      * @param angleInDegrees the angle value in degrees
      */
-    explicit Angle(double angleInDegrees);
+    Angle(double angleInDegrees);
 
     qint64 toFrac() const;
     double toDegrees() const;
@@ -630,9 +625,10 @@ public:
 
     void setFrac(qint64 frac);
     void setDegrees(double degrees);
+    bool isValid() const;
 
     /**
-     * @brief create parses s and creates an Angle
+     * @brief parses s and creates an Angle
      * @param s string representation of an angle
      * @return
      */
@@ -641,10 +637,9 @@ public:
     bool operator == (const Angle &other) const;
     bool operator != (const Angle &other) const;
 private:
-    qint64 val = 0;
+    std::optional<qint64> val;
 };
 
-void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<Angle> &target);
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target);
 
 class QXLSX_EXPORT Transform2D
@@ -652,7 +647,7 @@ class QXLSX_EXPORT Transform2D
 public:
     std::optional<QPoint> offset; //element ext, optional
     std::optional<QSize> extension; //element off, optional
-    std::optional<Angle> rotation; //attribute rot, optional
+    Angle rotation; //attribute rot, optional
     std::optional<bool> flipHorizontal; //attribute flipH, optional
     std::optional<bool> flipVertical; //attribute flipV, optional
 
@@ -731,8 +726,8 @@ public:
     public:
         QVector<Angle> rotation; //element, optional
         CameraType type = CameraType::obliqueTop; //atribute, required
-        std::optional<Angle> fovAngle; //attribute, optional
-        std::optional<double> zoom; //attribute, optional
+        Angle fovAngle; //attribute, optional
+        std::optional<double> zoom; /**< @brief camera zoom, in %. Must be positive. Defaults to 100. */
         bool operator ==(const Camera &other) const;
         bool operator !=(const Camera &other) const;
     };

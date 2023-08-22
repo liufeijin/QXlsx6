@@ -26,13 +26,17 @@ class FillFormatPrivate;
 class QXLSX_EXPORT FillFormat
 {
 public:
+    /**
+     * @brief The FillType enum specifies the fill type for lines and shapes.
+     *
+     */
     enum class FillType {
-        NoFill,
-        SolidFill,
-        GradientFill,
-        BlipFill,
-        PatternFill,
-        GroupFill
+        NoFill, /**< @brief line or shape is not filled (not drawn) */
+        SolidFill, /**< @brief line or shape has one color */
+        GradientFill, /**< @brief line or shape is drawn with gradient */
+        BlipFill, /**< @brief shape is filled with a picture (not applicable to lines) */
+        PatternFill, /**< @brief line or shape is filled with a predefined pattern */
+        GroupFill  /**< @brief shape inherits the fill properties of a group (not applicable to lines)*/
     };
     enum class PathShadeType
     {
@@ -93,7 +97,7 @@ public:
         HorizontalBrick,
         DiagonalBrick,
         SolidDiamond,
-        Opendiamond,
+        OpenDiamond,
         DottedDiamond,
         Plaid,
         Sphere,
@@ -139,30 +143,96 @@ public:
 
     /**
      * @brief returns the gradients list for the gradient fill
-     * @return
+     * @return QMap, where keys are color stops in percents, values are gradient colors.
      */
     QMap<double, Color> gradientList() const;
     /**
-     * @brief setGradientList sets the gradients list for the gradient fill
-     * @param list a map with keys being the color stops ([0..1]), values being the colors.
+     * @brief setGradientList sets the gradient list for the gradient fill
+     * @param list a map with keys being the color stops (in percents), values being the colors.
      */
     void setGradientList(const QMap<double, Color> &list);
-
-    std::optional<Angle> linearShadeAngle() const;
+    /**
+     * @brief adds a gradient stop to the gradient list.
+     * @param stop percentage value (100.0 is 100%).
+     * @param color Color.
+     */
+    void addGradientStop(double stop, const Color &color);
+    /**
+     * @brief returns the direction of color change for the linear gradient.
+     * @return valid Angle if the parameter is set.
+     *
+     * The direction of color change is measured clockwise starting from the horizontal.
+     */
+    Angle linearShadeAngle() const;
+    /**
+     * @brief sets the direction of color change for the linear gradient.
+     * @param val the direction measured clockwise starting from the horizontal.
+     */
+    //TODO: test and check clockwise or counterclockwise
     void setLinearShadeAngle(Angle val);
-
+    /**
+     * @brief returns whether the linear gradient angle scales with the fill region.
+     * If set to true, the linearShadeAngle() is scaled to the shape's fill region.
+     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
+     * will be scaled to vector(300,-200), that is an angle of 33.69°.
+     * @return
+     */
     std::optional<bool> linearShadeScaled() const;
+    /**
+     * @brief sets whether the linear gradient angle scales with the fill region.
+     * @param scaled if true, then the linearShadeAngle() will be scaled to the shape's fill region.
+     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
+     * will be scaled to vector(300,-200), that is an angle of 33.69°.
+     * If false, the gradient angle is independent of the shape's fill region.
+     */
     void setLinearShadeScaled(bool scaled);
 
+    /**
+     * @brief returns the type of the path gradient.
+     * @return
+     */
     std::optional<PathShadeType> pathShadeType() const;
     void setPathShadeType(PathShadeType pathShadeType);
 
-    std::optional<QRectF> pathShadeRect() const;
-    void setPathShadeRect(QRectF rect);
+    /**
+     * @brief returns the "focus" rectangle for the center shade, specified
+     * relative to the fill tile rectangle. The center shade fills the entire
+     * tile except for the margins specified by pathShadeRect.
+     * @return
+     */
+    std::optional<RelativeRect> pathShadeRect() const;
+    /**
+     * @brief sets the "focus" rectangle for the center shade, specified
+     * relative to the fill tile rectangle. The center shade fills the entire
+     * tile except for the margins specified by rect.
+     * @param rect
+     */
+    void setPathShadeRect(RelativeRect rect);
 
-    std::optional<QRectF> tileRect() const;
-    void setTileRect(QRectF rect);
+    /**
+     * @brief returns a rectangular region of the shape to which the gradient
+     * is applied.  This region is then tiled across the remaining area of the
+     * shape to complete the fill.  The tile rectangle is defined by percentage
+     * offsets from the sides of the shape's bounding box.
 
+     * @return valid RelativeRect if the parameter is set, nullopt otherwise.
+     */
+    std::optional<RelativeRect> tileRect() const;
+    /**
+     * @brief sets a rectangular region of the shape to which the gradient
+     * is applied. This region is then tiled across the remaining area of the
+     * shape to complete the fill. The tile rectangle is defined by percentage
+     * offsets from the sides of the shape's bounding box.
+     *
+     * This parameter is applicable to both linear and path gradients.
+     *
+     * @param rect
+     */
+    void setTileRect(RelativeRect rect);
+    /**
+     * @brief tileFlipMode
+     * @return
+     */
     std::optional<FillFormat::TileFlipMode> tileFlipMode() const;
     void setTileFlipMode(TileFlipMode tileFlipMode);
 
@@ -255,7 +325,7 @@ private:
         {PatternType::HorizontalBrick, "horzBrick"},
         {PatternType::DiagonalBrick, "diagBrick"},
         {PatternType::SolidDiamond, "solidDmnd"},
-        {PatternType::Opendiamond, "openDmnd"},
+        {PatternType::OpenDiamond, "openDmnd"},
         {PatternType::DottedDiamond, "dotDmnd"},
         {PatternType::Plaid, "plaid"},
         {PatternType::Sphere, "sphere"},

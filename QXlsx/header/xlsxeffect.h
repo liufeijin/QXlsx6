@@ -139,23 +139,24 @@ public:
     void setInnerShadowBlurRadius(const Coordinate &newInnerShadowBlurRadius);
     Coordinate innerShadowOffset() const;
     void setInnerShadowOffset(const Coordinate &newInnerShadowOffset);
-    std::optional<Angle> innerShadowDirection() const;
+    Angle innerShadowDirection() const;
     void setInnerShadowDirection(Angle newInnerShadowDirection);
+
     Color outerShadowColor() const;
     void setOuterShadowColor(const Color &newOuterShadowColor);
     Coordinate outerShadowBlurRadius() const;
     void setOuterShadowBlurRadius(const Coordinate &newOuterShadowBlurRadius);
     Coordinate outerShadowOffset() const;
     void setOuterShadowOffset(const Coordinate &newOuterShadowOffset);
-    std::optional<Angle> outerShadowDirection() const;
+    Angle outerShadowDirection() const;
     void setOuterShadowDirection(Angle newOuterShadowDirection);
     std::optional<double> outerShadowHorizontalScalingFactor() const;
     void setOuterShadowHorizontalScalingFactor(double newOuterShadowHorizontalScalingFactor);
     std::optional<double> outerShadowVerticalScalingFactor() const;
     void setOuterShadowVerticalScalingFactor(double newOuterShadowVerticalScalingFactor);
-    std::optional<Angle> outerShadowHorizontalSkewFactor() const;
+    Angle outerShadowHorizontalSkewFactor() const;
     void setOuterShadowHorizontalSkewFactor(Angle newOuterShadowHorizontalSkewFactor);
-    std::optional<Angle> outerShadowVerticalSkewFactor() const;
+    Angle outerShadowVerticalSkewFactor() const;
     void setOuterShadowVerticalSkewFactor(Angle newOuterShadowVerticalSkewFactor);
     std::optional<bool> outerShadowRotateWithShape() const;
     void setOuterShadowRotateWithShape(bool newOuterShadowRotateWithShape);
@@ -165,7 +166,7 @@ public:
     void setPresetShadowColor(const Color &newPresetShadowColor);
     Coordinate presetShadowOffset() const;
     void setPresetShadowOffset(const Coordinate &newPresetShadowOffset);
-    std::optional<Angle> presetShadowDirection() const;
+    Angle presetShadowDirection() const;
     void setPresetShadowDirection(Angle newPresetShadowDirection);
     /**
      * @brief presetShadow returns the preset shadow type from the range [1..20]
@@ -189,17 +190,17 @@ public:
     void setReflectionEndPosition(double newReflectionEndPosition);
     Coordinate reflectionShadowOffset() const;
     void setReflectionShadowOffset(const Coordinate &newReflectionShadowOffset);
-    std::optional<Angle> reflectionGradientDirection() const;
+    Angle reflectionGradientDirection() const;
     void setReflectionGradientDirection(Angle newReflectionGradientDirection);
-    std::optional<Angle> reflectionOffsetDirection() const;
+    Angle reflectionOffsetDirection() const;
     void setReflectionOffsetDirection(Angle newReflectionOffsetDirection);
     std::optional<double> reflectionHorizontalScalingFactor() const;
     void setReflectionHorizontalScalingFactor(double newReflectionHorizontalScalingFactor);
     std::optional<double> reflectionVerticalScalingFactor() const;
     void setReflectionVerticalScalingFactor(double newReflectionVerticalScalingFactor);
-    std::optional<Angle> reflectionHorizontalSkewFactor() const;
+    Angle reflectionHorizontalSkewFactor() const;
     void setReflectionHorizontalSkewFactor(Angle newReflectionHorizontalSkewFactor);
-    std::optional<Angle> reflectionVerticalSkewFactor() const;
+    Angle reflectionVerticalSkewFactor() const;
     void setReflectionVerticalSkewFactor(Angle newReflectionVerticalSkewFactor);
     std::optional<Effect::Alignment> reflectionShadowAlignment() const;
     void setReflectionShadowAlignment(Alignment newReflectionShadowAlignment);

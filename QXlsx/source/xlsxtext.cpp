@@ -681,7 +681,7 @@ bool TextProperties::isValid() const
     if (verticalOverflow.has_value()) return true;
     if (horizontalOverflow.has_value()) return true;
     if (verticalOrientation.has_value()) return true;
-    if (rotation.has_value()) return true;
+    if (rotation.isValid()) return true;
     if (wrap.has_value()) return true;
     if (leftInset.isValid()) return true;
     if (rightInset.isValid()) return true;
@@ -804,8 +804,8 @@ void TextProperties::write(QXmlStreamWriter &writer) const
     writeAttribute(writer, QLatin1String("forceAA"), forceAntiAlias);
     writeAttribute(writer, QLatin1String("upright"), upright);
     writeAttribute(writer, QLatin1String("compatLnSpc"), compatibleLineSpacing);
-    if (rotation.has_value())
-        writer.writeAttribute(QLatin1String("rot"), rotation->toString());
+    if (rotation.isValid())
+        writer.writeAttribute(QLatin1String("rot"), rotation.toString());
     if (verticalOverflow.has_value()) {
         switch (verticalOverflow.value()) {
             case TextProperties::OverflowType::Overflow:
@@ -2200,7 +2200,7 @@ QDebug operator<<(QDebug dbg, const TextProperties &t)
         if (t.verticalOverflow.has_value()) dbg << "verticalOverflow: " << static_cast<int>(t.verticalOverflow.value()) << ", ";
         if (t.horizontalOverflow.has_value()) dbg << "horizontalOverflow: " << static_cast<int>(t.horizontalOverflow.value()) << ", ";
         if (t.verticalOrientation.has_value()) dbg << "verticalOrientation: " << static_cast<int>(t.verticalOrientation.value()) << ", ";
-        if (t.rotation.has_value()) dbg << "rotation: " << t.rotation.value().toString() << ", ";
+        if (t.rotation.isValid()) dbg << "rotation: " << t.rotation.toString() << ", ";
         if (t.wrap.has_value()) dbg << "wrap: " << t.wrap.value() << ", ";
         if (t.leftInset.isValid()) dbg << "leftInset: " << t.leftInset.toString() << ", ";
         if (t.rightInset.isValid()) dbg << "rightInset: " << t.rightInset.toString() << ", ";

@@ -24,23 +24,23 @@ public:
     Color innerShadowColor;
     Coordinate innerShadowBlurRadius;
     Coordinate innerShadowOffset;
-    std::optional<Angle> innerShadowDirection;
+    Angle innerShadowDirection;
 
 
     Color outerShadowColor;
     Coordinate outerShadowBlurRadius;
     Coordinate outerShadowOffset;
-    std::optional<Angle> outerShadowDirection;
+    Angle outerShadowDirection;
     std::optional<double> outerShadowHorizontalScalingFactor; //in %
     std::optional<double> outerShadowVerticalScalingFactor; //in %
-    std::optional<Angle> outerShadowHorizontalSkewFactor;
-    std::optional<Angle> outerShadowVerticalSkewFactor;
+    Angle outerShadowHorizontalSkewFactor;
+    Angle outerShadowVerticalSkewFactor;
     std::optional<bool> outerShadowRotateWithShape;
     std::optional<Effect::Alignment> outerShadowAlignment;
 
     Color presetShadowColor;
     Coordinate presetShadowOffset;
-    std::optional<Angle> presetShadowDirection;
+    Angle presetShadowDirection;
     std::optional<int> presetShadow;
 
     //reflection properties
@@ -50,12 +50,12 @@ public:
     std::optional<double> reflectionEndOpacity;
     std::optional<double> reflectionEndPosition;
     Coordinate reflectionShadowOffset;
-    std::optional<Angle> reflectionGradientDirection;
-    std::optional<Angle> reflectionOffsetDirection;
+    Angle reflectionGradientDirection;
+    Angle reflectionOffsetDirection;
     std::optional<double> reflectionHorizontalScalingFactor; //in %
     std::optional<double> reflectionVerticalScalingFactor; //in %
-    std::optional<Angle> reflectionHorizontalSkewFactor;
-    std::optional<Angle> reflectionVerticalSkewFactor;
+    Angle reflectionHorizontalSkewFactor;
+    Angle reflectionVerticalSkewFactor;
     std::optional<Effect::Alignment> reflectionShadowAlignment;
     std::optional<bool> reflectionRotateWithShape;
 
@@ -249,10 +249,10 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         writer.writeEndElement();
     }
     if (d->innerShadowBlurRadius.isValid() || d->innerShadowColor.isValid()
-        || d->innerShadowDirection.has_value() || d->innerShadowOffset.isValid()) {
+        || d->innerShadowDirection.isValid() || d->innerShadowOffset.isValid()) {
         writer.writeStartElement(QLatin1String("a:innerShdw"));
-        if (d->innerShadowDirection.has_value())
-            writer.writeAttribute(QLatin1String("dir"), d->innerShadowDirection->toString());
+        if (d->innerShadowDirection.isValid())
+            writer.writeAttribute(QLatin1String("dir"), d->innerShadowDirection.toString());
         if (d->innerShadowBlurRadius.isValid())
             writer.writeAttribute(QLatin1String("blurRad"), d->innerShadowBlurRadius.toString());
         if (d->innerShadowOffset.isValid())
@@ -261,13 +261,13 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         writer.writeEndElement();
     }
     if (d->outerShadowAlignment.has_value() || d->outerShadowBlurRadius.isValid()
-        || d->outerShadowColor.isValid() || d->outerShadowDirection.has_value()
+        || d->outerShadowColor.isValid() || d->outerShadowDirection.isValid()
         || d->outerShadowHorizontalScalingFactor.has_value() || d->outerShadowVerticalScalingFactor.has_value()
-        || d->outerShadowHorizontalSkewFactor.has_value() || d->outerShadowVerticalSkewFactor.has_value()
+        || d->outerShadowHorizontalSkewFactor.isValid() || d->outerShadowVerticalSkewFactor.isValid()
         || d->outerShadowOffset.isValid() || d->outerShadowRotateWithShape.has_value()) {
         writer.writeStartElement(QLatin1String("a:outerShdw"));
-        if (d->outerShadowDirection.has_value())
-            writer.writeAttribute(QLatin1String("dir"), d->outerShadowDirection->toString());
+        if (d->outerShadowDirection.isValid())
+            writer.writeAttribute(QLatin1String("dir"), d->outerShadowDirection.toString());
         if (d->outerShadowBlurRadius.isValid())
             writer.writeAttribute(QLatin1String("blurRad"), d->outerShadowBlurRadius.toString());
         if (d->outerShadowOffset.isValid())
@@ -282,18 +282,18 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
             writer.writeAttribute(QLatin1String("sx"), toST_Percent(d->outerShadowHorizontalScalingFactor.value()));
         if (d->outerShadowVerticalScalingFactor.has_value())
             writer.writeAttribute(QLatin1String("sy"), toST_Percent(d->outerShadowVerticalScalingFactor.value()));
-        if (d->outerShadowHorizontalSkewFactor.has_value())
-            writer.writeAttribute(QLatin1String("kx"), d->outerShadowHorizontalSkewFactor->toString());
-        if (d->outerShadowVerticalSkewFactor.has_value())
-            writer.writeAttribute(QLatin1String("ky"), d->outerShadowVerticalSkewFactor->toString());
+        if (d->outerShadowHorizontalSkewFactor.isValid())
+            writer.writeAttribute(QLatin1String("kx"), d->outerShadowHorizontalSkewFactor.toString());
+        if (d->outerShadowVerticalSkewFactor.isValid())
+            writer.writeAttribute(QLatin1String("ky"), d->outerShadowVerticalSkewFactor.toString());
         if (d->outerShadowColor.isValid()) d->outerShadowColor.write(writer);
         writer.writeEndElement();
     }
     if (d->presetShadow.has_value() || d->presetShadowColor.isValid()
-        || d->presetShadowDirection.has_value() || d->presetShadowOffset.isValid()) {
+        || d->presetShadowDirection.isValid() || d->presetShadowOffset.isValid()) {
         writer.writeStartElement(QLatin1String("a:prstShdw"));
-        if (d->presetShadowDirection.has_value())
-            writer.writeAttribute(QLatin1String("dir"), d->presetShadowDirection->toString());
+        if (d->presetShadowDirection.isValid())
+            writer.writeAttribute(QLatin1String("dir"), d->presetShadowDirection.toString());
         if (d->presetShadowOffset.isValid())
             writer.writeAttribute(QLatin1String("dist"), d->presetShadowOffset.toString());
         if (d->presetShadow.has_value()) {
@@ -305,14 +305,14 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
     }
     if (d->reflectionBlurRadius.isValid() || d->reflectionEndOpacity.has_value()
         || d->reflectionStartOpacity.has_value() || d->reflectionStartPosition.has_value()
-        || d->reflectionEndPosition.has_value() || d->reflectionGradientDirection.has_value()
-        || d->reflectionOffsetDirection.has_value() || d->reflectionShadowOffset.isValid()
-        || d->reflectionHorizontalScalingFactor.has_value() || d->reflectionHorizontalSkewFactor.has_value()
-        || d->reflectionVerticalScalingFactor.has_value() || d->reflectionVerticalSkewFactor.has_value()
+        || d->reflectionEndPosition.has_value() || d->reflectionGradientDirection.isValid()
+        || d->reflectionOffsetDirection.isValid() || d->reflectionShadowOffset.isValid()
+        || d->reflectionHorizontalScalingFactor.has_value() || d->reflectionHorizontalSkewFactor.isValid()
+        || d->reflectionVerticalScalingFactor.has_value() || d->reflectionVerticalSkewFactor.isValid()
         || d->reflectionRotateWithShape.has_value() || d->reflectionShadowAlignment.has_value()) {
         writer.writeEmptyElement(QLatin1String("a:reflection"));
-        if (d->reflectionGradientDirection.has_value())
-            writer.writeAttribute(QLatin1String("dir"), d->reflectionGradientDirection->toString());
+        if (d->reflectionGradientDirection.isValid())
+            writer.writeAttribute(QLatin1String("dir"), d->reflectionGradientDirection.toString());
         if (d->reflectionEndOpacity.has_value())
             writer.writeAttribute(QLatin1String("endA"), toST_Percent(d->reflectionEndOpacity.value()));
         if (d->reflectionStartOpacity.has_value())
@@ -321,8 +321,8 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
             writer.writeAttribute(QLatin1String("stPos"), toST_Percent(d->reflectionStartPosition.value()));
         if (d->reflectionEndPosition.has_value())
             writer.writeAttribute(QLatin1String("endPos"), toST_Percent(d->reflectionEndPosition.value()));
-        if (d->reflectionOffsetDirection.has_value())
-            writer.writeAttribute(QLatin1String("fadeDir"), d->reflectionOffsetDirection->toString());
+        if (d->reflectionOffsetDirection.isValid())
+            writer.writeAttribute(QLatin1String("fadeDir"), d->reflectionOffsetDirection.toString());
         if (d->reflectionBlurRadius.isValid())
             writer.writeAttribute(QLatin1String("blurRad"), d->reflectionBlurRadius.toString());
         if (d->reflectionShadowOffset.isValid())
@@ -337,10 +337,10 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
             writer.writeAttribute(QLatin1String("sx"), toST_Percent(d->reflectionHorizontalScalingFactor.value()));
         if (d->reflectionVerticalScalingFactor.has_value())
             writer.writeAttribute(QLatin1String("sy"), toST_Percent(d->reflectionVerticalScalingFactor.value()));
-        if (d->reflectionHorizontalSkewFactor.has_value())
-            writer.writeAttribute(QLatin1String("kx"), d->reflectionHorizontalSkewFactor->toString());
-        if (d->reflectionVerticalSkewFactor.has_value())
-            writer.writeAttribute(QLatin1String("ky"), d->reflectionVerticalSkewFactor->toString());
+        if (d->reflectionHorizontalSkewFactor.isValid())
+            writer.writeAttribute(QLatin1String("kx"), d->reflectionHorizontalSkewFactor.toString());
+        if (d->reflectionVerticalSkewFactor.isValid())
+            writer.writeAttribute(QLatin1String("ky"), d->reflectionVerticalSkewFactor.toString());
 
     }
     if (d->softEdgesBlurRadius.isValid()) {
@@ -568,7 +568,7 @@ void Effect::setInnerShadowOffset(const Coordinate &newInnerShadowOffset)
     d->innerShadowOffset = newInnerShadowOffset;
 }
 
-std::optional<Angle> Effect::innerShadowDirection() const
+Angle Effect::innerShadowDirection() const
 {
     if (d)
         return d->innerShadowDirection;
@@ -620,7 +620,7 @@ void Effect::setOuterShadowOffset(const Coordinate &newOuterShadowOffset)
     d->outerShadowOffset = newOuterShadowOffset;
 }
 
-std::optional<Angle> Effect::outerShadowDirection() const
+Angle Effect::outerShadowDirection() const
 {
     if (d)
         return d->outerShadowDirection;
@@ -659,7 +659,7 @@ void Effect::setOuterShadowVerticalScalingFactor(double newOuterShadowVerticalSc
     d->outerShadowVerticalScalingFactor = newOuterShadowVerticalScalingFactor;
 }
 
-std::optional<Angle> Effect::outerShadowHorizontalSkewFactor() const
+Angle Effect::outerShadowHorizontalSkewFactor() const
 {
     if (d)
         return d->outerShadowHorizontalSkewFactor;
@@ -672,7 +672,7 @@ void Effect::setOuterShadowHorizontalSkewFactor(Angle newOuterShadowHorizontalSk
     d->outerShadowHorizontalSkewFactor = newOuterShadowHorizontalSkewFactor;
 }
 
-std::optional<Angle> Effect::outerShadowVerticalSkewFactor() const
+Angle Effect::outerShadowVerticalSkewFactor() const
 {
     if (d)
         return d->outerShadowVerticalSkewFactor;
@@ -737,7 +737,7 @@ void Effect::setPresetShadowOffset(const Coordinate &newPresetShadowOffset)
     d->presetShadowOffset = newPresetShadowOffset;
 }
 
-std::optional<Angle> Effect::presetShadowDirection() const
+Angle Effect::presetShadowDirection() const
 {
     if (d)
         return d->presetShadowDirection;
@@ -842,7 +842,7 @@ void Effect::setReflectionShadowOffset(const Coordinate &newReflectionShadowOffs
     d->reflectionShadowOffset = newReflectionShadowOffset;
 }
 
-std::optional<Angle> Effect::reflectionGradientDirection() const
+Angle Effect::reflectionGradientDirection() const
 {
     if (d)
         return d->reflectionGradientDirection;
@@ -855,7 +855,7 @@ void Effect::setReflectionGradientDirection(Angle newReflectionGradientDirection
     d->reflectionGradientDirection = newReflectionGradientDirection;
 }
 
-std::optional<Angle> Effect::reflectionOffsetDirection() const
+Angle Effect::reflectionOffsetDirection() const
 {
     if (d)
         return d->reflectionOffsetDirection;
@@ -894,7 +894,7 @@ void Effect::setReflectionVerticalScalingFactor(double newReflectionVerticalScal
     d->reflectionVerticalScalingFactor = newReflectionVerticalScalingFactor;
 }
 
-std::optional<Angle> Effect::reflectionHorizontalSkewFactor() const
+Angle Effect::reflectionHorizontalSkewFactor() const
 {
     if (d)
         return d->reflectionHorizontalSkewFactor;
@@ -907,7 +907,7 @@ void Effect::setReflectionHorizontalSkewFactor(Angle newReflectionHorizontalSkew
     d->reflectionHorizontalSkewFactor = newReflectionHorizontalSkewFactor;
 }
 
-std::optional<Angle> Effect::reflectionVerticalSkewFactor() const
+Angle Effect::reflectionVerticalSkewFactor() const
 {
     if (d)
         return d->reflectionVerticalSkewFactor;
@@ -976,20 +976,20 @@ QDebug operator<<(QDebug dbg, const Effect &e)
         if (e.d->innerShadowColor.isValid()) dbg << "innerShadowColor: " << e.d->innerShadowColor << ", ";
         if (e.d->innerShadowBlurRadius.isValid()) dbg << "innerShadowBlurRadius: " << e.d->innerShadowBlurRadius.toString() << ", ";
         if (e.d->innerShadowOffset.isValid()) dbg << "innerShadowOffset: " << e.d->innerShadowOffset.toString() << ", ";
-        if (e.d->innerShadowDirection.has_value()) dbg << "innerShadowDirection: " << e.d->innerShadowDirection.value().toString() << ", ";
+        if (e.d->innerShadowDirection.isValid()) dbg << "innerShadowDirection: " << e.d->innerShadowDirection.toString() << ", ";
         if (e.d->outerShadowColor.isValid()) dbg << "outerShadowColor: " << e.d->outerShadowColor << ", ";
         if (e.d->outerShadowBlurRadius.isValid()) dbg << "outerShadowBlurRadius: " << e.d->outerShadowBlurRadius.toString() << ", ";
         if (e.d->outerShadowOffset.isValid()) dbg << "outerShadowOffset: " << e.d->outerShadowOffset.toString() << ", ";
-        if (e.d->outerShadowDirection.has_value()) dbg << "outerShadowDirection: " << e.d->outerShadowDirection.value().toString() << ", ";
+        if (e.d->outerShadowDirection.isValid()) dbg << "outerShadowDirection: " << e.d->outerShadowDirection.toString() << ", ";
         if (e.d->outerShadowHorizontalScalingFactor.has_value()) dbg << "outerShadowHorizontalScalingFactor: " << e.d->outerShadowHorizontalScalingFactor.value() << ", "; //in %
         if (e.d->outerShadowVerticalScalingFactor.has_value()) dbg << "outerShadowVerticalScalingFactor: " << e.d->outerShadowVerticalScalingFactor.value() << ", "; //in %
-        if (e.d->outerShadowHorizontalSkewFactor.has_value()) dbg << "outerShadowHorizontalSkewFactor: " << e.d->outerShadowHorizontalSkewFactor.value().toString() << ", ";
-        if (e.d->outerShadowVerticalSkewFactor.has_value()) dbg << "outerShadowVerticalSkewFactor: " << e.d->outerShadowVerticalSkewFactor.value().toString() << ", ";
+        if (e.d->outerShadowHorizontalSkewFactor.isValid()) dbg << "outerShadowHorizontalSkewFactor: " << e.d->outerShadowHorizontalSkewFactor.toString() << ", ";
+        if (e.d->outerShadowVerticalSkewFactor.isValid()) dbg << "outerShadowVerticalSkewFactor: " << e.d->outerShadowVerticalSkewFactor.toString() << ", ";
         if (e.d->outerShadowRotateWithShape.has_value()) dbg << "outerShadowRotateWithShape: " << e.d->outerShadowRotateWithShape.value() << ", ";
         if (e.d->outerShadowAlignment.has_value()) dbg << "type: " << static_cast<int>(e.d->outerShadowAlignment.value()) << ", ";
         if (e.d->presetShadowColor.isValid()) dbg << "presetShadowColor: " << e.d->presetShadowColor << ", ";
         if (e.d->presetShadowOffset.isValid()) dbg << "presetShadowOffset: " << e.d->presetShadowOffset.toString() << ", ";
-        if (e.d->presetShadowDirection.has_value()) dbg << "presetShadowDirection: " << e.d->presetShadowDirection.value().toString() << ", ";
+        if (e.d->presetShadowDirection.isValid()) dbg << "presetShadowDirection: " << e.d->presetShadowDirection.toString() << ", ";
         if (e.d->presetShadow.has_value()) dbg << "presetShadow: " << e.d->presetShadow.value() << ", ";
         if (e.d->reflectionBlurRadius.isValid()) dbg << "reflectionBlurRadius: " << e.d->reflectionBlurRadius.toString() << ", ";
         if (e.d->reflectionStartOpacity.has_value()) dbg << "reflectionStartOpacity: " << e.d->reflectionStartOpacity.value() << ", ";
@@ -997,12 +997,12 @@ QDebug operator<<(QDebug dbg, const Effect &e)
         if (e.d->reflectionEndOpacity.has_value()) dbg << "reflectionEndOpacity: " << e.d->reflectionEndOpacity.value() << ", ";
         if (e.d->reflectionEndPosition.has_value()) dbg << "reflectionEndPosition: " << e.d->reflectionEndPosition.value() << ", ";
         if (e.d->reflectionShadowOffset.isValid()) dbg << "reflectionShadowOffset: " << e.d->reflectionShadowOffset.toString() << ", ";
-        if (e.d->reflectionGradientDirection.has_value()) dbg << "reflectionGradientDirection: " << e.d->reflectionGradientDirection.value().toString() << ", ";
-        if (e.d->reflectionOffsetDirection.has_value()) dbg << "reflectionOffsetDirection: " << e.d->reflectionOffsetDirection.value().toString() << ", ";
+        if (e.d->reflectionGradientDirection.isValid()) dbg << "reflectionGradientDirection: " << e.d->reflectionGradientDirection.toString() << ", ";
+        if (e.d->reflectionOffsetDirection.isValid()) dbg << "reflectionOffsetDirection: " << e.d->reflectionOffsetDirection.toString() << ", ";
         if (e.d->reflectionHorizontalScalingFactor.has_value()) dbg << "reflectionHorizontalScalingFactor: " << e.d->reflectionHorizontalScalingFactor.value() << ", "; //in %
         if (e.d->reflectionVerticalScalingFactor.has_value()) dbg << "reflectionVerticalScalingFactor: " << e.d->reflectionVerticalScalingFactor.value() << ", "; //in %
-        if (e.d->reflectionHorizontalSkewFactor.has_value()) dbg << "reflectionHorizontalSkewFactor: " << e.d->reflectionHorizontalSkewFactor.value().toString() << ", ";
-        if (e.d->reflectionVerticalSkewFactor.has_value()) dbg << "reflectionVerticalSkewFactor: " << e.d->reflectionVerticalSkewFactor.value().toString() << ", ";
+        if (e.d->reflectionHorizontalSkewFactor.isValid()) dbg << "reflectionHorizontalSkewFactor: " << e.d->reflectionHorizontalSkewFactor.toString() << ", ";
+        if (e.d->reflectionVerticalSkewFactor.isValid()) dbg << "reflectionVerticalSkewFactor: " << e.d->reflectionVerticalSkewFactor.toString() << ", ";
         if (e.d->reflectionShadowAlignment.has_value()) dbg << "type: " << static_cast<int>(e.d->reflectionShadowAlignment.value()) << ", ";
         if (e.d->reflectionRotateWithShape.has_value()) dbg << "reflectionRotateWithShape: " << e.d->reflectionRotateWithShape.value() << ", ";
         if (e.d->softEdgesBlurRadius.isValid()) dbg << "softEdgesBlurRadius: " << e.d->softEdgesBlurRadius.toString() << ", ";

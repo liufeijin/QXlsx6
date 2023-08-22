@@ -32,6 +32,7 @@ namespace QXlsx {
 class ColorTransform
 {
 public:
+    //TODO: full help
     enum class Type
     {
         Tint, //<xsd:element name="tint" type="CT_PositiveFixedPercentage" minOccurs="1" maxOccurs="1"/>

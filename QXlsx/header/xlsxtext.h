@@ -62,7 +62,7 @@ public:
     std::optional<OverflowType> verticalOverflow;
     std::optional<OverflowType> horizontalOverflow;
     std::optional<VerticalType> verticalOrientation;
-    std::optional<Angle> rotation;
+    Angle rotation;
     std::optional<bool> wrap;
     Coordinate leftInset;
     Coordinate rightInset;

@@ -35,7 +35,7 @@ public:
     std::optional<LineFormat::PenAlignment> penAlignment;
 
     std::optional<LineFormat::LineJoin> lineJoin;
-    Percentage miterLimit;
+    std::optional<double> miterLimit;
 
     std::optional<LineFormat::LineEndType> tailType;
     std::optional<LineFormat::LineEndType> headType;
@@ -105,7 +105,7 @@ void LineFormatPrivate::parse(const QPen &pen)
     switch (pen.joinStyle()) {
         case Qt::MiterJoin: {
             lineJoin = LineFormat::LineJoin::Miter;
-            miterLimit = Percentage(pen.miterLimit()*100);
+            miterLimit = pen.miterLimit()*100;
             break;
         }
         case Qt::BevelJoin: lineJoin = LineFormat::LineJoin::Bevel; break;
@@ -211,9 +211,9 @@ QPen LineFormatPrivate::toPen() const
             case LineFormat::LineJoin::Miter: pen.setJoinStyle(Qt::MiterJoin); break;
         }
     }
-    if (miterLimit.isValid()) {
+    if (miterLimit.has_value()) {
         pen.setJoinStyle(Qt::MiterJoin);
-        pen.setMiterLimit(miterLimit.toDouble()/100);
+        pen.setMiterLimit(miterLimit.value()/100);
     }
 
     if (lineCap.has_value()) {
@@ -430,12 +430,12 @@ void LineFormat::setLineJoin(LineFormat::LineJoin val)
     d->lineJoin = val;
 }
 
-Percentage LineFormat::miterLimit() const
+std::optional<double> LineFormat::miterLimit() const
 {
     if (d) return d->miterLimit;
     return {};
 }
-void LineFormat::setMiterLimit(Percentage val)
+void LineFormat::setMiterLimit(double val)
 {
     if (!d) d = new LineFormatPrivate;
     d->miterLimit = val;
@@ -586,7 +586,7 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
             case LineJoin::Bevel: writer.writeEmptyElement("a:bevel"); break;
             case LineJoin::Miter: {
                 writer.writeEmptyElement("a:miter");
-                if (d->miterLimit.isValid()) writer.writeAttribute("lim", d->miterLimit.toString());
+                if (d->miterLimit.has_value()) writer.writeAttribute("lim", toST_Percent(d->miterLimit.value()));
                 break;
             }
             case LineJoin::Round: writer.writeEmptyElement("a:round"); break;
@@ -696,7 +696,7 @@ void LineFormat::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("bevel")) d->lineJoin = LineFormat::LineJoin::Bevel;
             else if (reader.name() == QLatin1String("miter")) {
                 d->lineJoin = LineFormat::LineJoin::Miter;
-                parseAttribute(reader.attributes(), QLatin1String("lim"), d->miterLimit);
+                parseAttributePercent(reader.attributes(), QLatin1String("lim"), d->miterLimit);
             }
             else if (reader.name() == QLatin1String("headEnd")) {
                 const auto &a = reader.attributes();

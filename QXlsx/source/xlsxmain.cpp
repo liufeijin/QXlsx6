@@ -11,7 +11,7 @@ bool Transform2D::isValid() const
 {
     bool valid = offset.has_value();
     valid |= extension.has_value();
-    valid |= rotation.has_value();
+    valid |= rotation.isValid();
     valid |= flipHorizontal.has_value();
     valid |= flipVertical.has_value();
 
@@ -22,7 +22,7 @@ void Transform2D::write(QXmlStreamWriter &writer, const QString& name) const
 {
     if (isValid()) {
         writer.writeStartElement(name);
-        if (rotation.has_value()) writer.writeAttribute(QLatin1String("rot"), rotation.value().toString());
+        if (rotation.isValid()) writer.writeAttribute(QLatin1String("rot"), rotation.toString());
         if (flipHorizontal.has_value()) writer.writeAttribute(QLatin1String("flipH"), flipHorizontal.value() ? "true" : "false");
         if (flipVertical.has_value()) writer.writeAttribute(QLatin1String("flipV"), flipVertical.value() ? "true" : "false");
         if (extension.has_value()) {
@@ -290,8 +290,8 @@ void Scene3D::writeCamera(QXmlStreamWriter &writer, const QString &name) const
     writer.writeStartElement(name);
     auto meta = QMetaEnum::fromType<CameraType>();
     writer.writeAttribute(QLatin1String("prst"), meta.valueToKey(static_cast<int>(camera.type)));
-    if (camera.fovAngle.has_value()) {
-        writer.writeAttribute(QLatin1String("fov"), camera.fovAngle->toString());
+    if (camera.fovAngle.isValid()) {
+        writer.writeAttribute(QLatin1String("fov"), camera.fovAngle.toString());
     }
     if (camera.zoom.has_value()) {
         writer.writeAttribute(QLatin1String("zoom"), toST_Percent(camera.zoom.value()));
@@ -706,17 +706,19 @@ Angle::Angle(double angleInDegrees) : val(qint64(angleInDegrees * 60000))
 
 qint64 Angle::toFrac() const
 {
-    return val;
+    return val.value_or(0);
 }
 
 double Angle::toDegrees() const
 {
-    return double(val) / 60000.0;
+    return double(val.value_or(0)) / 60000.0;
 }
 
 QString Angle::toString() const
 {
-    return QString::number(val);
+    if (val.has_value())
+        return QString::number(val.value());
+    return {};
 }
 
 void Angle::setFrac(qint64 frac)
@@ -727,6 +729,11 @@ void Angle::setFrac(qint64 frac)
 void Angle::setDegrees(double degrees)
 {
     val = qint64(degrees * 60000);
+}
+
+bool Angle::isValid() const
+{
+    return val.has_value();
 }
 
 Angle Angle::create(const QString &s)
@@ -747,7 +754,7 @@ bool Angle::operator !=(const Angle &other) const
     return val != other.val;
 }
 
-void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<Angle> &target)
+void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target)
 {
     if (a.hasAttribute(name)) target = Angle::create(a.value(name).toString());
 }
@@ -755,16 +762,6 @@ void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, st
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Coordinate &target)
 {
     if (a.hasAttribute(name)) target = Coordinate::create(a.value(name));
-}
-
-void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target)
-{
-    if (a.hasAttribute(name)) target = Angle::create(a.value(name).toString());
-}
-
-void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Percentage &target)
-{
-    if (a.hasAttribute(name)) target = Percentage(fromST_Percent(a.value(name).toString()));
 }
 
 bool Scene3D::Camera::operator ==(const Scene3D::Camera &other) const
@@ -837,55 +834,6 @@ void NumberFormat::read(QXmlStreamReader &reader)
     const auto &a = reader.attributes();
     if (a.hasAttribute(QLatin1String("formatCode"))) format = a.value(QLatin1String("formatCode")).toString();
     parseAttributeBool(a, QLatin1String("sourceLinked"), sourceLinked);
-}
-
-Percentage::Percentage(double val) : val{val}
-{
-
-}
-
-Percentage::Percentage(int val) : val{val}
-{
-
-}
-
-double Percentage::toDouble() const
-{
-    return val.toDouble();
-}
-
-void Percentage::setDouble(double val)
-{
-    this->val = val;
-}
-
-int Percentage::toInt() const
-{
-    return val.toInt();
-}
-
-void Percentage::setInt(int val)
-{
-    this->val = val;
-}
-
-QString Percentage::toString() const
-{
-    if (val.userType() == QMetaType::Double)
-        return QString::number(val.toDouble(), 'f')+'%';
-    if (val.userType() == QMetaType::Int)
-        return QString::number(val.toInt())+'%';
-    return QString();
-}
-
-bool Percentage::isValid() const
-{
-    return val.isValid();
-}
-
-Percentage Percentage::create(QStringView s)
-{
-    return Percentage(fromST_Percent(s));
 }
 
 void ExtensionList::write(QXmlStreamWriter &writer, const QString &name) const
@@ -1001,7 +949,7 @@ QDebug operator<<(QDebug dbg, const Scene3D::Camera &f)
     dbg << "QXlsx::Camera(";
     dbg << "type: " << static_cast<int>(f.type);
     if (f.zoom.has_value()) dbg << ", zoom: " << f.zoom.value();
-    if (f.fovAngle.has_value()) dbg << ", fovAngle: " << f.fovAngle.value().toString();
+    if (f.fovAngle.isValid()) dbg << ", fovAngle: " << f.fovAngle.toString();
     if (!f.rotation.isEmpty()) dbg << ", rotation: " << f.rotation;
     dbg << ")";
     return dbg;
@@ -1076,7 +1024,7 @@ QDebug operator<<(QDebug dbg, const Transform2D &f)
     dbg.nospace() << "QXlsx::Transform2D(";
     if (f.offset.has_value()) dbg << "offset="<<f.offset.value()<<", ";
     if (f.extension.has_value()) dbg << "extension="<<f.extension.value()<<", ";
-    if (f.rotation.has_value()) dbg << "rotation="<<f.rotation->toString()<<", ";
+    if (f.rotation.isValid()) dbg << "rotation="<<f.rotation.toString()<<", ";
     if (f.flipHorizontal.has_value()) dbg << "flipHorizontal="<<f.flipHorizontal.value()<<", ";
     if (f.flipVertical.has_value()) dbg << "offset="<<f.flipVertical.value();
     dbg << ")";
@@ -1093,6 +1041,61 @@ QDebug operator<<(QDebug dbg, const Angle &f)
 {
     dbg.nospace() << "QXlsx::Angle(" << f.toString() << ")";
     return dbg.space();
+}
+
+RelativeRect::RelativeRect()
+{
+}
+
+RelativeRect::RelativeRect(double left, double top, double right, double bottom)
+    : left{left}, top{top}, right{right}, bottom{bottom}
+{
+
+}
+
+
+void RelativeRect::write(QXmlStreamWriter &writer, const QString &name) const
+{
+    if (!isValid()) return;
+    writer.writeEmptyElement(name);
+    if (left.has_value()) writer.writeAttribute(QLatin1String("l"), toST_Percent(left.value()));
+    if (right.has_value()) writer.writeAttribute(QLatin1String("r"), toST_Percent(right.value()));
+    if (top.has_value()) writer.writeAttribute(QLatin1String("t"), toST_Percent(top.value()));
+    if (bottom.has_value()) writer.writeAttribute(QLatin1String("b"), toST_Percent(bottom.value()));
+}
+
+void RelativeRect::read(QXmlStreamReader &reader)
+{
+    const auto &a = reader.attributes();
+    if (a.hasAttribute(QLatin1String("l"))) left = fromST_Percent(a.value(QLatin1String("l")));
+    if (a.hasAttribute(QLatin1String("r"))) right = fromST_Percent(a.value(QLatin1String("r")));
+    if (a.hasAttribute(QLatin1String("t"))) top = fromST_Percent(a.value(QLatin1String("t")));
+    if (a.hasAttribute(QLatin1String("b"))) bottom = fromST_Percent(a.value(QLatin1String("b")));
+}
+
+bool RelativeRect::isValid() const
+{
+    return left.has_value() || right.has_value() || top.has_value() || bottom.has_value();
+}
+bool  RelativeRect::operator==(const RelativeRect &other) const
+{
+    return left == other.left && right == other.right &&
+            top == other.top && bottom == other.bottom;
+}
+bool  RelativeRect::operator!=(const RelativeRect &other) const
+{
+    return !operator==(other);
+}
+
+QDebug operator<<(QDebug dbg, const RelativeRect &r)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "{l: " << toST_Percent(r.left.value_or(0)) <<
+           ", t: " << toST_Percent(r.top.value_or(0)) <<
+           ", r: " << toST_Percent(r.right.value_or(0)) <<
+           ", b: " << toST_Percent(r.bottom.value_or(0)) << "}";
+    return dbg;
 }
 
 }

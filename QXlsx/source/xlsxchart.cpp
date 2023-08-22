@@ -450,10 +450,22 @@ void Chart::setChartShape(const ShapeFormat &shape)
     d->chartSpaceShape = shape;
 }
 
+ShapeFormat &Chart::chartShape()
+{
+    Q_D(Chart);
+    return d->chartSpaceShape;
+}
+
 void Chart::setPlotAreaShape(const ShapeFormat &shape)
 {
     Q_D(Chart);
     d->plotAreaShape = shape;
+}
+
+ShapeFormat &Chart::plotAreaShape()
+{
+    Q_D(Chart);
+    return d->plotAreaShape;
 }
 
 Axis& Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
@@ -2041,6 +2053,84 @@ void Chart::setHoleSise(int holeSize)
     if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
     d->subcharts.last().holeSize = holeSize;
 }
+
+Chart::OfPieType Chart::ofPieType() const
+{
+    Q_D(const Chart);
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().ofPieType;
+}
+
+void Chart::setOfPieType(OfPieType type)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    d->subcharts.last().ofPieType = type;
+}
+
+std::optional<Chart::SplitType> Chart::splitType() const
+{
+    Q_D(const Chart);
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().splitType;
+}
+
+void Chart::setSplitType(SplitType splitType)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    d->subcharts.last().splitType = splitType;
+}
+
+std::optional<double> Chart::splitPos() const
+{
+    Q_D(const Chart);
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().splitPos;
+}
+
+void Chart::setSplitPos(double value)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    d->subcharts.last().splitPos = value;
+}
+
+QList<int> Chart::customSplit() const
+{
+    Q_D(const Chart);
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().customSplit;
+}
+
+void Chart::setCustomSplit(const QList<int> &indexes)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    d->subcharts.last().customSplit = indexes;
+}
+
+std::optional<int> Chart::secondPieSize() const
+{
+    Q_D(const Chart);
+    if (d->subcharts.isEmpty()) return {};
+    return d->subcharts.last().secondPieSize;
+}
+
+void Chart::setSecondPieSize(int size)
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
+    d->subcharts.last().secondPieSize = size;
+}
+
+
+
 
 DataTable &Chart::dataTable()
 {

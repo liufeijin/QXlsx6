@@ -74,7 +74,7 @@ public:
         Doughnut,
         Bar,
         Bar3D,
-        OfPie,
+        OfPie, /**< @brief Pie of pie chart (or bar of pie based on the ofPieChart parameter.) */
         Surface,
         Surface3D,
         Bubble,
@@ -112,18 +112,27 @@ other along the value axis and scaled to total 100%*/
         Area,
         Width
     };
+    /**
+     * @brief The OfPieType enum specifies the second pie type on a OfPie chart.
+     */
     enum class OfPieType
     {
-        Bar,
-        Pie
+        Bar,  /**< @brief The second pie is a bar chart. */
+        Pie /**< @brief The second pie is a pie chart.*/
     };
+    /**
+     * @brief The SplitType enum specifies how to split the data points between
+     * the first pie and second pie or bar on a OfPie chart.
+     */
     enum class SplitType
     {
-        Auto,
-        Custom,
-        Position,
-        Percent,
-        Value
+        Auto, /**< @brief automatic selection of data points that go to the second pie.  */
+        Custom, /**< @brief the second pie contains data points selected manually via
+                     setCustomSplit().*/
+        Position, /**< @brief last splitPos() data points go to the second pie.*/
+        Percent, /**< @brief data points with value less than splitPos() percents
+                      of the sum of all values go to the second pie. */
+        Value /**< @brief data points with value less than splitPos() go to the second pie. */
     };
     enum class BarDirection
     {
@@ -258,7 +267,10 @@ public:
     void setPlotAreaLineFormat(const LineFormat &format);
 
     void setChartShape(const ShapeFormat &shape);
+    ShapeFormat &chartShape();
+
     void setPlotAreaShape(const ShapeFormat &shape);
+    ShapeFormat &plotAreaShape();
 
     /**
      * @brief addSeries adds one or more series defined by range.
@@ -320,7 +332,7 @@ public:
      */
     void setSeriesAxesIDs(const QList<int> &axesIds);
     /**
-     * @brief setSeriesAxesIDs sets axes for the specific series
+     * @brief sets axes for the specific series
      * @param series pointer to the series
      * @param axesIds a list of 0, 2 or 3 items.
      * @note axesIds are ids, not indexes. \see Axis::id()
@@ -349,7 +361,7 @@ public:
     void setSeriesAxesIDs(Series *series, const QList<int> &axesIds);
 
     /**
-     * @brief setSeriesDefaultAxes sets all available axes for all series
+     * @brief sets all available axes for all series
      * added to the chart.
      *
      * The method doesn't check for the axes availability and sets all available
@@ -362,14 +374,14 @@ public:
      */
     void setSeriesDefaultAxes();
     /**
-     * @brief moveSeries changes the series order in which it is drawn on the chart.
+     * @brief changes the series order in which it is drawn on the chart.
      * @param oldOrder
      * @param newOrder
      */
     void moveSeries(int oldOrder, int newOrder);
 
     /**
-     * @brief addDefaultAxes adds all necessary axes to the chart.
+     * @brief adds all necessary axes to the chart.
      *
      * You can use this method to create all default axes. If you want to later fine-tune them,
      * use axis(int idx) method.
@@ -391,7 +403,7 @@ public:
      */
     QList<int> addDefaultAxes();
     /**
-     * @brief addAxis adds a new axis with specified parameters.
+     * @brief adds a new axis with specified parameters.
      * @param type axis type: Cat, Val, Date or Ser.
      * @param pos Axis position: Bottom, Left, Top or Right.
      * @param title optional axis title.
@@ -400,13 +412,13 @@ public:
     Axis &addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
     void addAxis(const Axis &axis);
     /**
-     * @brief axis returns axis that has index idx
+     * @brief returns axis that has index idx
      * @param idx valid index (0 <= idx < axesCount())
      * @return pointer to the axis if such axis exists, nullptr otherwise
      */
     Axis *axis(int idx);
     /**
-     * @brief axis returns axis that has position pos.
+     * @brief returns axis that has position pos.
      * @param pos Axis::Position.
      *
      * @note A chart can have several axes positioned at pos. This method returns
@@ -416,7 +428,7 @@ public:
      */
     Axis *axis(Axis::Position pos);
     /**
-     * @brief axis returns an axis that has type type.
+     * @brief returns an axis that has type type.
      * @param type Axis::Type.
      *
      * @note A chart can have several axes of the same type (f.e. scatter chart
@@ -442,46 +454,46 @@ public:
      */
     bool removeAxis(Axis *axis);
     /**
-     * @brief axesCount returns the axes count
+     * @brief returns the axes count
      * @return
      */
     int axesCount() const;
 
     /**
-     * @brief setTitle sets formatted title to the chart.
+     * @brief sets formatted title to the chart.
      * @param title
      */
     void setTitle(const Title &title);
     /**
-     * @brief setTitle sets plain text title to the chart.
+     * @brief sets plain text title to the chart.
      * @param title
      */
     void setTitle(const QString &title);
     /**
-     * @brief title returns reference to the chart title
+     * @brief returns reference to the chart title
      * @return
      */
     Title &title();
     /**
-     * @brief title returns a copy of the chart's title
+     * @brief returns a copy of the chart's title
      * @return
      */
     Title title() const;
 
     /**
-     * @brief setLegend moves the chart legend to position pos with chart overlay
+     * @brief moves the chart legend to position pos with chart overlay
      * @param position
      * @param overlay
      */
     void setLegend(Legend::Position position, bool overlay = false);
     /**
-     * @brief legend returns reference to the chart legend.
+     * @brief returns reference to the chart legend.
      * @return reference to the default legend.
      */
     Legend &legend();
 
     /**
-     * @brief grouping returns the kind of grouping for a line or area chart.
+     * @brief returns the kind of grouping for a line or area chart.
      *
      * ApplicableTo: Area, Area3D, Line, Line3D.
      *
@@ -489,7 +501,7 @@ public:
      */
     std::optional<Chart::Grouping> grouping() const;
     /**
-     * @brief setGrouping sets the kind of grouping for a line or area chart.
+     * @brief sets the kind of grouping for a line or area chart.
      *
      * ApplicableTo: Area, Area3D, Line, Line3D.
      *
@@ -498,7 +510,7 @@ public:
     void setGrouping(Chart::Grouping grouping);
 
     /**
-     * @brief barGrouping returns the kind of grouping for a bar chart.
+     * @brief returns the kind of grouping for a bar chart.
      *
      * ApplicableTo: Bar, Bar3D.
      *
@@ -506,7 +518,7 @@ public:
      */
     std::optional<Chart::BarGrouping> barGrouping() const;
     /**
-     * @brief setBarGrouping sets the kind of grouping for a bar chart.
+     * @brief sets the kind of grouping for a bar chart.
      *
      * Applicable to chart types: Bar, Bar3D.
      *
@@ -515,7 +527,7 @@ public:
     void setBarGrouping(Chart::BarGrouping grouping);
 
     /**
-     * @brief varyColors specifies that each data marker in the series has a different color.
+     * @brief specifies that each data marker in the series has a different color.
      *
      * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
      * Pie, Pie3D, Doughnut, OfPie, Bubble.
@@ -528,7 +540,7 @@ public:
      */
     std::optional<bool> varyColors() const;
     /**
-     * @brief setVaryColors sets that each data marker in the series has a different color.
+     * @brief sets that each data marker in the series has a different color.
      *
      * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
      * Pie, Pie3D, Doughnut, OfPie, Bubble.
@@ -539,7 +551,7 @@ public:
     void setVaryColors(bool varyColors);
 
     /**
-     * @brief labels returns the entire chart labels properties.
+     * @brief returns the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
      * data labels for an entire series or the entire chart.  It contains child
@@ -555,7 +567,7 @@ public:
      */
     Labels labels() const;
     /**
-     * @brief labels returns the entire chart labels properties.
+     * @brief returns the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
      * data labels for an entire series or the entire chart.  It contains child
@@ -570,7 +582,7 @@ public:
      */
     Labels &labels();
     /**
-     * @brief setLabels sets the entire chart labels properties.
+     * @brief sets the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
      * data labels for an entire series or the entire chart.  It contains child
@@ -586,7 +598,7 @@ public:
     void setLabels(const Labels &labels);
 
     /**
-     * @brief dropLines returns the chart drop lines.
+     * @brief returns the chart drop lines.
      *
      * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
      *
@@ -594,7 +606,7 @@ public:
      */
     ShapeFormat dropLines() const;
     /**
-     * @brief dropLines returns the chart drop lines.
+     * @brief returns the chart drop lines.
      *
      * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
      *
@@ -602,7 +614,7 @@ public:
      */
     ShapeFormat &dropLines();
     /**
-     * @brief setDropLines sets the chart drop lines.
+     * @brief sets the chart drop lines.
      *
      * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
      *
@@ -611,7 +623,7 @@ public:
     void setDropLines(const ShapeFormat &dropLines);
 
     /**
-     * @brief hiLowLines returns the chart high-low lines.
+     * @brief returns the chart high-low lines.
      *
      * Applicable to chart types: Line, Stock.
      *
@@ -619,7 +631,7 @@ public:
      */
     ShapeFormat hiLowLines() const;
     /**
-     * @brief hiLowLines returns the chart high-low lines.
+     * @brief returns the chart high-low lines.
      *
      * Applicable to chart types: Line, Stock
      *
@@ -627,7 +639,7 @@ public:
      */
     ShapeFormat &hiLowLines();
     /**
-     * @brief setHLowLines sets the chart high-low lines.
+     * @brief sets the chart high-low lines.
      *
      * Applicable to chart types: Line, Stock
      *
@@ -636,7 +648,7 @@ public:
     void setHiLowLines(const ShapeFormat &hiLowLines);
 
     /**
-     * @brief upDownBars returns the chart up-dow lines.
+     * @brief returns the chart up-dow lines.
      *
      * Applicable to chart types: Line, Stock.
      *
@@ -644,7 +656,7 @@ public:
      */
     UpDownBar upDownBars() const;
     /**
-     * @brief upDownBars returns the chart up-down lines.
+     * @brief returns the chart up-down lines.
      *
      * Applicable to chart types: Line, Stock
      *
@@ -652,7 +664,7 @@ public:
      */
     UpDownBar &upDownBars();
     /**
-     * @brief setUpDownBars sets the chart up-down lines.
+     * @brief sets the chart up-down lines.
      *
      * Applicable to chart types: Line, Stock
      *
@@ -661,7 +673,7 @@ public:
     void setUpDownBars(const UpDownBar &upDownBars);
 
     /**
-     * @brief markerShown if true, the chart series marker is shown.
+     * @brief if true, the chart series marker is shown.
      *
      * Applicable to chart types: Line.
      *
@@ -669,7 +681,7 @@ public:
      */
     std::optional<bool> markerShown() const;
     /**
-     * @brief setMarkerShown sets that the chart series marker shall be shown.
+     * @brief sets that the chart series marker shall be shown.
      *
      * Applicable to chart types: Line.
      *
@@ -678,7 +690,7 @@ public:
     void setMarkerShown(bool markerShown);
 
     /**
-     * @brief smooth returns smoothing of the chart series. If true, the line
+     * @brief returns smoothing of the chart series. If true, the line
      * connecting the points on the chart is smoothed using Catmull-Rom splines.
      *
      * Applicable to chart types: Line.
@@ -687,17 +699,18 @@ public:
      */
     std::optional<bool> smooth() const;
     /**
-     * @brief setSmooth sets smoothing of the chart series. If true, the line
+     * @brief sets smoothing of the chart series. If true, the line
      * connecting the points on the chart shall be smoothed using Catmull-Rom splines.
      *
      * Applicable to chart types: Line.
      *
-     * @param smooth
+     * @param smooth if true, the line
+     * connecting the points on the chart is smoothed using Catmull-Rom splines.
      */
     void setSmooth(bool smooth);
 
     /**
-     * @brief gapDepth specifies the space between bar or column clusters, as a
+     * @brief specifies the space between bar or column clusters, as a
      * percentage of the bar or column width.
      *
      * Applicable to chart types: Line3D, Bar3D, Area3D.
@@ -706,17 +719,19 @@ public:
      */
     std::optional<int> gapDepth() const;
     /**
-     * @brief setGapDepth sets the space between bar or column clusters, as a
+     * @brief sets the space between bar or column clusters, as a
      * percentage of the bar or column width.
      *
      * Applicable to chart types: Line3D, Bar3D, Area3D.
+     *
+     * The default value is 100.
      *
      * @param gapDepth value of the gap depth, in percents (100 equals the bar width).
      */
     void setGapDepth(int gapDepth);
 
     /**
-     * @brief scatterStyle returns the style of the scatter chart.
+     * @brief returns the style of the scatter chart.
      *
      * The default value is ScatterStyle::Marker.
      *
@@ -724,7 +739,7 @@ public:
      */
     ScatterStyle scatterStyle() const;
     /**
-     * @brief setScatterStyle sets the style of the scatter chart.
+     * @brief sets the style of the scatter chart.
      *
      * If not set, the default value is ScatterStyle::Marker.
      *
@@ -733,7 +748,7 @@ public:
     void setScatterStyle(ScatterStyle scatterStyle);
 
     /**
-     * @brief radarStyle returns the style of the radar chart.
+     * @brief returns the style of the radar chart.
      *
      * The default value is RadarStyle::Standard.
      *
@@ -741,7 +756,7 @@ public:
      */
     RadarStyle radarStyle() const;
     /**
-     * @brief setRadarStyle sets the style of the radar chart.
+     * @brief sets the style of the radar chart.
      *
      * If not set, the default value is RadarStyle::Standard.
      *
@@ -750,7 +765,7 @@ public:
     void setRadarStyle(RadarStyle radarStyle);
 
     /**
-     * @brief barDirection returns whether the series form a bar (horizontal)
+     * @brief returns whether the series form a bar (horizontal)
      * chart or a column (vertical) chart.
      *
      * The default value is BarDirection::Column.
@@ -761,7 +776,7 @@ public:
      */
     BarDirection barDirection() const;
     /**
-     * @brief setBarDirection sets whether the series form a bar (horizontal)
+     * @brief sets whether the series form a bar (horizontal)
      * chart or a column (vertical) chart.
      *
      * If not set, the default value is BarDirection::Column.
@@ -773,7 +788,7 @@ public:
     void setBarDirection(BarDirection barDirection);
 
     /**
-     * @brief gapWidth returns the space between bar or column clusters, as a
+     * @brief returns the space between bar or column clusters, as a
      * percentage of the bar or column width.
      *
      * Applicable to chart types: Bar, Bar3D, OfPie.
@@ -782,17 +797,19 @@ public:
      */
     std::optional<int> gapWidth() const;
     /**
-     * @brief setGapWidth sets the space between bar or column clusters, as a
+     * @brief sets the space between bar or column clusters, as a
      * percentage of the bar or column width.
      *
      * Applicable to chart types: Bar, Bar3D, OfPie.
+     *
+     * The default value is 150.
      *
      * @param gapWidth gap width in percents (0..500).
      */
     void setGapWidth(int gapWidth);
 
     /**
-     * @brief overlap specifies how much bars and columns shall overlap on 2-D charts.
+     * @brief specifies how much bars and columns shall overlap on 2-D charts.
      *
      * Applicable to chart types: Bar.
      *
@@ -800,7 +817,9 @@ public:
      */
     std::optional<int> overlap() const;
     /**
-     * @brief setOverlap sets how much bars and columns shall overlap on 2-D charts.
+     * @brief sets how much bars and columns shall overlap on 2-D charts.
+     *
+     * If not set, the default value is 0.
      *
      * Applicable to chart types: Bar.
      *
@@ -870,7 +889,7 @@ public:
     void setFirstSliceAngle(int angle);
 
     /**
-     * @brief holeSize returns the size, in percents, of the hole in a doughnut chart.
+     * @brief returns the size, in percents, of the hole in a doughnut chart.
      *
      * Applicable to chart types: Doughnut.
      *
@@ -878,13 +897,101 @@ public:
      */
     std::optional<int> holeSize() const;
     /**
-     * @brief setHoleSise sets the size, in percents, of the hole in a doughnut chart.
+     * @brief sets the size, in percents, of the hole in a doughnut chart.
      *
      * Applicable to chart types: Doughnut.
+     *
+     * The default value is 10.
      *
      * @param holeSize the hole size in percents in the range [1..90]
      */
     void setHoleSise(int holeSize);
+
+    //+ofpie
+    /**
+     * @brief returns the OfPie chart type.
+     *
+     * The default value is OfPieType::Pie.
+     *
+     * @return OfPieType::Bar or OfPieType::Pie enum value.
+     */
+    Chart::OfPieType ofPieType() const;
+    /**
+     * @brief sets the OfPie chart type.
+     * @param type OfPieType::Bar or OfPieType::Pie enum value.
+     */
+    void setOfPieType(OfPieType type);
+
+    /**
+     * @brief returns the OfPie chart split type (how to split the data points
+     * between the first pie and second pie or bar.)
+     *
+     * The default value is SplitType::Auto
+     */
+    std::optional<SplitType> splitType() const;
+    /**
+     * @brief sets the OfPie chart split type (how to split the data points
+     * between the first pie and second pie or bar.)
+     * @param splitType SplitType enum.
+     */
+    void setSplitType(SplitType splitType);
+    /**
+     * @brief returns a value used to determine which data points are in the
+     * second pie on an OfPie chart.
+     * If splitType() is Position, splitPos equals to the number of last data points.
+     * If Percent, splitPos is the percentage of the data points sum, and data points
+     * with value less than splitPos go to the second pie.
+     * If Value, splitPos is the value below which data points go to the second pie.
+     */
+    std::optional<double> splitPos() const;
+    /**
+     * @brief sets the value that shall be used to determine which data points are in the
+     * second pie on an OfPie chart.
+     * @param value If splitType() is Position, value equals to the number of last data points.
+     * If Percent, value is the percentage of the data points sum, and data points
+     * with value less than that go to the second pie.
+     * If Value, value is the value below which data points go to the second pie.
+     */
+    void setSplitPos(double value);
+    /**
+     * @brief returns the list of data points indexes (starting from 1) that go to
+     * the second pie on an OfPie chart.
+     *
+     * This parameter is valid only if splitType() is SplitType::Custom.
+     */
+    QList<int> customSplit() const;
+    /**
+     * @brief sets the list of data points indexes (starting from 1) that go to
+     * the second pie on an OfPie chart.
+     * @param indexes the list of valid data points indexes (starting from 1).
+     */
+    void setCustomSplit(const QList<int> &indexes);
+    /**
+     * @brief returns the second pie size of an OfPie chart, as a percentage
+     * of the size of the first pie.
+     * @return valid percentage value (5..200%) or nullopt if the parameter is not set.
+     */
+    std::optional<int> secondPieSize() const;
+    /**
+     * @brief sets the second pie size of an OfPie chart, as a percentage
+     * of the size of the first pie.
+     *
+     * If not set, the default value is 75.
+     *
+     * @param size percentage value (5..200).
+     */
+    void setSecondPieSize(int size);
+
+    //TODO: the rest of
+    //+bubble
+    std::optional<bool> bubble3D;
+    std::optional<bool> showNegBubbles;
+    std::optional<int> bubbleScale; // in % [0..300]
+    std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
+    //TODO: the rest of
+    //+surface, +surface3d
+    std::optional<bool> wireframe;
+    QMap<int, ShapeFormat> bandFormats;
 
     /**
      * @brief setDataTableVisible sets the visibility of the chart data table
