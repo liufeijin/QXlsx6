@@ -50,13 +50,16 @@ Color::Color(const Color &other) : type_{other.type_}, val{other.val}, tr{other.
 
 Color &Color::operator=(const Color &other)
 {
-    type_= other.type_;
-    val = other.val;
-    tr = other.tr;
-    lastColor = other.lastColor;
-    isCRGB = other.isCRGB;
-    isDirty = other.isDirty;
-    m_key = other.m_key;
+    if (*this != other) {
+        type_= other.type_;
+        val = other.val;
+        tr = other.tr;
+        lastColor = other.lastColor;
+        isCRGB = other.isCRGB;
+        isDirty = other.isDirty;
+        m_key = other.m_key;
+    }
+    return *this;
 }
 
 Color::~Color()

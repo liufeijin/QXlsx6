@@ -201,31 +201,69 @@ public:
 };
 
 /**
- * @brief Manages a trend line for Line, Scatter, Bar, Area, Bubble series
+ * @brief Represents a trend line for Line, Scatter, Bar, Area, Bubble series
  */
 class QXLSX_EXPORT TrendLine
 {
 public:
-    enum class LineType
+    /**
+     * @brief The LineType enum specifies the trend line type
+     */
+    enum class Type
     {
-        Exponential, //"exp"/>
-        Linear, //"linear"/>
-        Logarithmic, //"log"/>
-        MovingAverage, //"movingAvg"/>
-        Polynomial, //"poly"/>
-        Power, //"power"/>
+        Invalid, /**< invalid type */
+        Exponential, /**< Exponential trend line*/
+        Linear, /**< Linear trend line*/
+        Logarithmic, /**< Logarithmic trend line*/
+        MovingAverage, /**< MovingAverage trend line*/
+        Polynomial, /**< Polynomial trend line*/
+        Power, /**< Power trend line*/
     };
-
+    /**
+     * @brief trend line name to be shown in the chart legend.
+     * Can be empty, it means the default-constructed trend line name will be shown in the legend.
+     */
     QString name; //optional
+    /**
+     * @brief line and fill properties for the trend line.
+     * If not valid, the trend line is solid black
+     */
     ShapeFormat shape; //optional
-    LineType type; //required
+    /**
+     * @brief trend line type. See TrendLine::Type enum.
+     */
+    Type type = Type::Invalid; //required
+    /**
+     * @brief order of the polynomial trend line
+     */
     std::optional<int> order; //2..6
+    /**
+     * @brief period of the moving average trend line.
+     */
     std::optional<int> period; //2..
+    /**
+     * @brief measure of the trend line forward projection
+     */
     std::optional<double> forward;
+    /**
+     * @brief measure of the trend line backward projection
+     */
     std::optional<double> backward;
+    /**
+     * @brief specifies the Y-coordinate of intersection of the trend line with the Y axis
+     */
     std::optional<double> intercept;
+    /**
+     * @brief specifies whether to display the approximation reliability value on the trend line label.
+     */
     std::optional<bool> dispRSqr;
+    /**
+     * @brief specifies whether to display the trend line formula on its label.
+     */
     std::optional<bool> dispEq;
+    /**
+     * @brief specifies the trend line label parameters.
+     */
     std::optional<TrendLineLabel> label;
 
 
@@ -237,14 +275,14 @@ public:
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
 private:
-    SERIALIZE_ENUM(LineType,
+    SERIALIZE_ENUM(Type,
     {
-        {LineType::Exponential, "exp"},
-        {LineType::Linear, "linear"},
-        {LineType::Logarithmic, "log"},
-        {LineType::MovingAverage, "movingAvg"},
-        {LineType::Polynomial, "poly"},
-        {LineType::Power, "power"},
+        {Type::Exponential, "exp"},
+        {Type::Linear, "linear"},
+        {Type::Logarithmic, "log"},
+        {Type::MovingAverage, "movingAvg"},
+        {Type::Polynomial, "poly"},
+        {Type::Power, "power"},
     });
 };
 
