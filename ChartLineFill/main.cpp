@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
     FillFormat f(FillFormat::FillType::GradientFill);
     //the gradient fill is applied to the range [30%..70%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
-    f.addGradientStop(30, Color("red")); //first 30% of the shape will be filled with red
-    f.addGradientStop(70, Color("blue")); //last 30% of the shape will be filled with blue
+    f.addGradientStop(30, QString("red")); //first 30% of the shape will be filled with red
+    f.addGradientStop(70, QString("blue")); //last 30% of the shape will be filled with blue
     //set the linear gradient angle of 45 degrees
     f.setLinearShadeAngle(45.0);
     //make this angle be actually from the top left corner to the bottom right corner of the shape
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
     //shrink the gradient by applying the edge margins of 20% at the top and bottom,
     //and 45% at left and right
     RelativeRect rr(45,20,45,20); f1.setTileRect(rr);
-    //THis parameter is actually ignored by Excel.
+    //This parameter is actually ignored by Excel.
     f1.setTileFlipMode(FillFormat::TileFlipMode::XY);
     chart5->chartShape().setFill(f1);
 

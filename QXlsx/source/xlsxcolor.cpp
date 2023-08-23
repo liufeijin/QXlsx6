@@ -4,6 +4,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QDebug>
+#include <QtMath>
 
 #include "xlsxcolor.h"
 #include "xlsxutility_p.h"
@@ -11,40 +12,51 @@
 
 namespace QXlsx {
 
-Color::Color() : type_(ColorType::Invalid)
+Color::Color() : type_(Type::Invalid)
 {
 
 }
 
-Color::Color(Color::ColorType type) : type_(type)
+Color::Color(bool autoColor) : type_{Type::Auto}, val{autoColor}
 {
 
 }
 
-Color::Color(Color::ColorType type, QColor color) : type_(type)
+Color::Color(QColor color) : type_{Type::RGB}
 {
     setRgb(color);
 }
 
-Color::Color(Color::SchemeColor color) : type_{ColorType::SchemeColor}
+Color::Color(Color::SchemeColor color) : type_{Type::Scheme}
 {
     val = static_cast<int>(color);
 }
 
-Color::Color(Color::SystemColor color) : type_{ColorType::SystemColor}
+Color::Color(Color::SystemColor color) : type_{Type::System}
 {
     val = static_cast<int>(color);
 }
 
-Color::Color(const QString &colorName) : type_{ColorType::PresetColor}
+Color::Color(const QString &colorName) : type_{Type::Preset}
 {
     val = colorName;
 }
 
-Color::Color(const Color &other) : val{other.val}, type_{other.type_}, tr{other.tr},
-    lastColor{other.lastColor}
+Color::Color(const Color &other) : type_{other.type_}, val{other.val}, tr{other.tr},
+    lastColor{other.lastColor}, isCRGB{other.isCRGB}, isDirty{other.isDirty}, m_key{other.m_key}
 {
 
+}
+
+Color &Color::operator=(const Color &other)
+{
+    type_= other.type_;
+    val = other.val;
+    tr = other.tr;
+    lastColor = other.lastColor;
+    isCRGB = other.isCRGB;
+    isDirty = other.isDirty;
+    m_key = other.m_key;
 }
 
 Color::~Color()
@@ -54,44 +66,28 @@ Color::~Color()
 
 bool Color::isValid() const
 {
-    if (type_ == ColorType::Invalid) return false;
+    if (type_ == Type::Invalid) return false;
     return val.isValid();
 }
 
 void Color::setRgb(const QColor &color)
 {
-    if (type_ == ColorType::RGBColor || type_ == ColorType::CRGBColor || type_ == ColorType::SimpleColor) {
-        val = color;
-    }
+    type_ = Type::RGB;
+    val = color;
     isDirty = true;
 }
 
 void Color::setHsl(const QColor &color)
 {
-    if (type_ == ColorType::HSLColor) val = color;
+    type_ = Type::HSL;
+    val = color;
     isDirty = true;
 }
 
 void Color::setIndexedColor(int index)
 {
-    if (type_ == ColorType::SimpleColor) val = index;
-    isDirty = true;
-}
-
-void Color::setAutoColor(bool autoColor)
-{
-    if (type_ == ColorType::SimpleColor) val = autoColor;
-    isDirty = true;
-}
-
-void Color::setThemeColor(uint theme, double tint)
-{
-    if (type_ == ColorType::SimpleColor) {
-        QVariantMap map;
-        map.insert("theme", theme);
-        map.insert("tint", tint);
-        val = map;
-    }
+    type_ = Type::Indexed;
+    val = index;
     isDirty = true;
 }
 
@@ -99,21 +95,21 @@ void Color::setPresetColor(const QString &colorName)
 {
     if (colorName.isEmpty()) return;
 
-    type_ = ColorType::PresetColor;
+    type_ = Type::Preset;
     val = colorName;
     isDirty = true;
 }
 
 void Color::setSchemeColor(Color::SchemeColor color)
 {
-    type_ = ColorType::SchemeColor;
+    type_ = Type::Scheme;
     val = static_cast<int>(color);
     isDirty = true;
 }
 
 void Color::setSystemColor(Color::SystemColor color)
 {
-    type_ = ColorType::SystemColor;
+    type_ = Type::System;
     val = static_cast<int>(color);
     isDirty = true;
 }
@@ -124,30 +120,73 @@ void Color::addTransform(ColorTransform::Type transform, QVariant val)
     isDirty = true;
 }
 
-Color::ColorType Color::type() const
+ColorTransform Color::transforms() const
+{
+    return tr;
+}
+
+QColor Color::transformed() const
+{
+    return tr.transformed(toQColor());
+}
+
+bool Color::hasTransform(ColorTransform::Type type) const
+{
+    return tr.hasTransform(type);
+}
+QVariant Color::transform(ColorTransform::Type type) const
+{
+    return tr.transform(type);
+}
+
+Color::Type Color::type() const
 {
     return type_;
 }
 
+bool Color::isAutoColor() const
+{
+    return type_ == Type::Auto;
+}
+
 QColor Color::rgb() const
 {
-    return (type_ == ColorType::RGBColor || type_ == ColorType::CRGBColor || type_ == ColorType::SimpleColor)
+    return (type_ == Type::RGB)
             ? val.value<QColor>() : QColor();
 }
 
 QColor Color::hsl() const
 {
-    return type_ == ColorType::HSLColor ? val.value<QColor>() : QColor();
+    return type_ == Type::HSL ? val.value<QColor>() : QColor();
+}
+
+QColor Color::toQColor() const
+{
+    if (type_ == Type::HSL || type_ == Type::RGB) return val.value<QColor>();
+    if (type_ == Type::Preset) return QColor(val.toString());
+    return {};
 }
 
 QColor Color::presetColor() const
 {
-    return (type_ == ColorType::PresetColor) ? QColor(val.toString()) : QColor();
+    return (type_ == Type::Preset) ? QColor(val.toString()) : QColor();
 }
 
-QString Color::schemeColor() const
+QString Color::presetColorName() const
 {
-    if (type_ != ColorType::SchemeColor) return QString();
+    return (type_ == Type::Preset) ? val.toString() : QString();
+}
+
+Color::SchemeColor Color::schemeColor() const
+{
+    if (type_ != Type::Scheme) return SchemeColor::Style;
+    SchemeColor c = static_cast<SchemeColor>(val.toInt());
+    return c;
+}
+
+QString Color::schemeColorName() const
+{
+    if (type_ != Type::Scheme) return QString();
 
     SchemeColor c = static_cast<SchemeColor>(val.toInt());
     QString s;
@@ -156,9 +195,16 @@ QString Color::schemeColor() const
     return s;
 }
 
-QString Color::systemColor() const
+Color::SystemColor Color::systemColor() const
 {
-    if (type_ != ColorType::SystemColor) return QString();
+    if (type_ != Type::System) return SystemColor::None;
+    SystemColor c = static_cast<SystemColor>(val.toInt());
+    return c;
+}
+
+QString Color::systemColorName() const
+{
+    if (type_ != Type::System) return QString();
 
     SystemColor c = static_cast<SystemColor>(val.toInt());
     QString s;
@@ -169,65 +215,108 @@ QString Color::systemColor() const
 
 int Color::indexedColor() const
 {
-    return (type_ == ColorType::SimpleColor && val.userType() == QMetaType::Int) ? val.toInt() : -1;
+    return (type_ == Type::Indexed) ? val.toInt() : -1;
 }
 
-bool Color::isAutoColor() const
-{
-    return (type_ == ColorType::SimpleColor && val.userType() == QMetaType::Bool) ? val.toBool() : false;
-}
+//QPair<int, double> Color::themeColor() const
+//{
+//    if (type_ != Type::Indexed || val.userType() != QMetaType::QVariantMap) return {-1, 0.0};
 
-QPair<int, double> Color::themeColor() const
-{
-    if (type_ != ColorType::SimpleColor || val.userType() != QMetaType::QVariantMap) return {-1, 0.0};
-
-    auto m = val.toMap();
-    return {m.value("theme").toInt(), m.value("tint").toDouble()};
-}
+//    auto m = val.toMap();
+//    return {m.value("theme").toInt(), m.value("tint").toDouble()};
+//}
 
 bool Color::write(QXmlStreamWriter &writer, const QString &node) const
 {
-    switch (type_) {
-        case ColorType::SimpleColor: {
-            if (!node.isEmpty())
-                writer.writeEmptyElement(node); //color, bgColor, fgColor
-            else
-                writer.writeEmptyElement(QStringLiteral("color"));
-
-            if (val.userType() == qMetaTypeId<QColor>()) {
-                writer.writeAttribute(QStringLiteral("rgb"), Color::toARGBString(val.value<QColor>()));
-            } else if (val.userType() == QMetaType::QVariantMap) {
-                auto themes = val.toMap();
-                writer.writeAttribute(QStringLiteral("theme"), QString::number(themes.value(QStringLiteral("theme")).toUInt()));
-                if (themes.value(QStringLiteral("tint")).toDouble() != 0.0)
-                    writer.writeAttribute(QStringLiteral("tint"), QString::number(themes.value(QStringLiteral("tint")).toDouble()));
-            } else if (val.userType() == QMetaType::Int) {
-                writer.writeAttribute(QStringLiteral("indexed"), val.toString());
-            } else {
-                writer.writeAttribute(QStringLiteral("auto"), val.toBool() ? "true" : "false");
+    if (!node.isEmpty()) {
+        //colors for the cells
+        writer.writeEmptyElement(node);
+        switch (type_) {
+            case Type::Auto: writer.writeAttribute(QStringLiteral("auto"), val.toBool() ? "true" : "false"); break;
+            case Type::HSL:
+            case Type::RGB: {
+                //write hsl as rgb, as there is no hsl in colors of cells
+                if (val.userType() == qMetaTypeId<QColor>()) {
+                    QColor c = val.value<QColor>();
+                    writer.writeAttribute(QStringLiteral("rgb"), Color::toARGBString(tr.transformed(c)));
+                }
+                break;
             }
-            break;
+            case Type::Preset: {
+                QColor c; c.setNamedColor(val.toString());
+                writer.writeAttribute(QStringLiteral("rgb"), Color::toARGBString(tr.transformed(c)));
+                break;
+            }
+            case Type::Scheme: {
+                //not all scheme color can be written
+                switch (schemeColor()) {
+                    case SchemeColor::Background1:
+                    case SchemeColor::Text1:
+                    case SchemeColor::Background2:
+                    case SchemeColor::Text2:
+                    case SchemeColor::Style: break;
+                    case SchemeColor::Accent1: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("4")); break;
+                    case SchemeColor::Accent2: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("5")); break;
+                    case SchemeColor::Accent3: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("6")); break;
+                    case SchemeColor::Accent4: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("7")); break;
+                    case SchemeColor::Accent5: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("8")); break;
+                    case SchemeColor::Accent6: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("9")); break;
+                    case SchemeColor::Hlink: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("10")); break;
+                    case SchemeColor::FollowedHlink: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("11")); break;
+                    case SchemeColor::Dark1: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("0")); break;
+                    case SchemeColor::Light1: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("1")); break;
+                    case SchemeColor::Dark2: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("2")); break;
+                    case SchemeColor::Light2: writer.writeAttribute(QStringLiteral("theme"), QStringLiteral("3")); break;
+                }
+                if (tr.hasTransform(ColorTransform::Type::Tint)) {
+                    auto tint = tr.transform(ColorTransform::Type::Tint).toDouble() / 100;
+                    writer.writeAttribute(QStringLiteral("tint"), QString::number(tint));
+                }
+                else if (tr.hasTransform(ColorTransform::Type::Shade)) {
+                    auto shade = -tr.transform(ColorTransform::Type::Shade).toDouble() / 100;
+                    writer.writeAttribute(QStringLiteral("tint"), QString::number(shade));
+                }
+                break;
+            }
+            case Type::System: break;
+            case Type::Indexed: {
+                writer.writeAttribute(QStringLiteral("indexed"), val.toString());
+                if (tr.hasTransform(ColorTransform::Type::Tint)) {
+                    auto tint = tr.transform(ColorTransform::Type::Tint).toDouble() / 100;
+                    writer.writeAttribute(QStringLiteral("tint"), QString::number(tint));
+                }
+                else if (tr.hasTransform(ColorTransform::Type::Shade)) {
+                    auto shade = -tr.transform(ColorTransform::Type::Shade).toDouble() / 100;
+                    writer.writeAttribute(QStringLiteral("tint"), QString::number(shade));
+                }
+                break;
+            }
+            case Type::Invalid: break;
         }
-        case ColorType::CRGBColor: {
-            writer.writeStartElement(QLatin1String("a:scrgbClr"));
-            QColor col = val.value<QColor>();
-            writer.writeAttribute(QLatin1String("r"), QString::number(col.redF()*100)+"%");
-            writer.writeAttribute(QLatin1String("g"), QString::number(col.greenF()*100)+"%");
-            writer.writeAttribute(QLatin1String("b"), QString::number(col.blueF()*100)+"%");
+        return true;
+    }
 
+    switch (type_) {
+        case Type::Auto:
+        case Type::Indexed:
+        case Type::Invalid: return false;
+        case Type::RGB: {
+            if (isCRGB) {
+                writer.writeStartElement(QLatin1String("a:scrgbClr"));
+                QColor col = val.value<QColor>();
+                writer.writeAttribute(QLatin1String("r"), QString::number(col.redF()*100)+"%");
+                writer.writeAttribute(QLatin1String("g"), QString::number(col.greenF()*100)+"%");
+                writer.writeAttribute(QLatin1String("b"), QString::number(col.blueF()*100)+"%");
+            }
+            else {
+                writer.writeStartElement(QLatin1String("a:srgbClr"));
+                writer.writeAttribute(QLatin1String("val"), toRGBString(val.value<QColor>()));
+            }
             tr.write(writer);
             writer.writeEndElement();
             break;
         }
-        case ColorType::RGBColor: {
-            writer.writeStartElement(QLatin1String("a:srgbClr"));
-            writer.writeAttribute(QLatin1String("val"), toRGBString(val.value<QColor>()));
-
-            tr.write(writer);
-            writer.writeEndElement();
-            break;
-        }
-        case ColorType::HSLColor: {
+        case Type::HSL: {
             writer.writeStartElement(QLatin1String("a:hslClr"));
             QColor col = val.value<QColor>();
             writer.writeAttribute(QLatin1String("hue"), QString::number(qint64(col.hueF()*21600000)));
@@ -238,7 +327,7 @@ bool Color::write(QXmlStreamWriter &writer, const QString &node) const
             writer.writeEndElement();
             break;
         }
-        case ColorType::PresetColor: {
+        case Type::Preset: {
             writer.writeStartElement(QLatin1String("a:prstClr"));
             writer.writeAttribute(QLatin1String("val"), val.toString());
 
@@ -246,17 +335,17 @@ bool Color::write(QXmlStreamWriter &writer, const QString &node) const
             writer.writeEndElement();
             break;
         }
-        case ColorType::SchemeColor: {
+        case Type::Scheme: {
             writer.writeStartElement(QLatin1String("a:schemeClr"));
-            writer.writeAttribute(QLatin1String("val"), schemeColor());
+            writer.writeAttribute(QLatin1String("val"), schemeColorName());
 
             tr.write(writer);
             writer.writeEndElement();
             break;
         }
-        case ColorType::SystemColor: {
+        case Type::System: {
             writer.writeStartElement(QLatin1String("a:sysClr"));
-            writer.writeAttribute(QLatin1String("val"), systemColor());
+            writer.writeAttribute(QLatin1String("val"), systemColorName());
 
             if (lastColor.isValid())
                 writer.writeAttribute(QLatin1String("lastClr"), toRGBString(lastColor));
@@ -265,61 +354,86 @@ bool Color::write(QXmlStreamWriter &writer, const QString &node) const
             writer.writeEndElement();
             break;
         }
-        default: break;
     }
 
     return true;
 }
 
-bool Color::read(QXmlStreamReader &reader)
+bool Color::readSimple(QXmlStreamReader &reader)
 {
-    const auto& attributes = reader.attributes();
-    const auto name = reader.name();
-    if (type_ == ColorType::Invalid) {
-            if (name == QLatin1String("scrgbClr")) type_ = ColorType::CRGBColor;
-            else if (name == QLatin1String("srgbClr")) type_ = ColorType::RGBColor;
-            else if (name == QLatin1String("sysClr")) type_ = ColorType::SystemColor;
-            else if (name == QLatin1String("hslClr")) type_ = ColorType::HSLColor;
-            else if (name == QLatin1String("prstClr")) type_ = ColorType::PresetColor;
-            else if (name == QLatin1String("schemeClr")) type_ = ColorType::SchemeColor;
-            else type_ = ColorType::SimpleColor;
+    const auto& a = reader.attributes();
+    if (a.hasAttribute(QLatin1String("rgb"))) {
+        type_ = Type::RGB;
+        const auto& colorString = a.value(QLatin1String("rgb")).toString();
+        val.setValue(fromARGBString(colorString));
+    } else if (a.hasAttribute(QLatin1String("indexed"))) {
+        type_ = Type::Indexed;
+        int index = a.value(QLatin1String("indexed")).toInt();
+        val.setValue(index);
+    } else if (a.hasAttribute(QLatin1String("theme"))) {
+        type_ = Type::Scheme;
+        const auto& theme = a.value(QLatin1String("theme")).toString();
+
+        switch (theme.toInt()) {
+            case 0: val = static_cast<int>(SchemeColor::Dark1); break;
+            case 1: val = static_cast<int>(SchemeColor::Light1); break;
+            case 2: val = static_cast<int>(SchemeColor::Dark2); break;
+            case 3: val = static_cast<int>(SchemeColor::Light2); break;
+            case 4: val = static_cast<int>(SchemeColor::Accent1); break;
+            case 5: val = static_cast<int>(SchemeColor::Accent2); break;
+            case 6: val = static_cast<int>(SchemeColor::Accent3); break;
+            case 7: val = static_cast<int>(SchemeColor::Accent4); break;
+            case 8: val = static_cast<int>(SchemeColor::Accent5); break;
+            case 9: val = static_cast<int>(SchemeColor::Accent6); break;
+            case 10: val = static_cast<int>(SchemeColor::Hlink); break;
+            case 11: val = static_cast<int>(SchemeColor::FollowedHlink); break;
+            default: return false;
+        }
+    } else if (a.hasAttribute(QLatin1String("auto"))) {
+        val.setValue(fromST_Boolean(a.value(QLatin1String("auto"))));
     }
-    //SimpleColor
+    if (a.hasAttribute(QLatin1String("tint"))) {
+        auto tint = a.value(QLatin1String("tint")).toDouble();
+        if (tint > 0) addTransform(ColorTransform::Type::Tint, tint*100);
+        if (tint < 0) addTransform(ColorTransform::Type::Shade, -tint*100);
+    }
+    return true;
+}
+
+bool Color::readComplex(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    if (name == QLatin1String("scrgbClr")) {
+        type_ = Type::RGB;
+        isCRGB = true;
+    }
+    else if (name == QLatin1String("srgbClr")) type_ = Type::RGB;
+    else if (name == QLatin1String("sysClr")) type_ = Type::System;
+    else if (name == QLatin1String("hslClr")) type_ = Type::HSL;
+    else if (name == QLatin1String("prstClr")) type_ = Type::Preset;
+    else if (name == QLatin1String("schemeClr")) type_ = Type::Scheme;
+    else type_ = Type::Invalid;
+
+    const auto& attributes = reader.attributes();
     switch (type_) {
-        case ColorType::SimpleColor: {
-            if (attributes.hasAttribute(QLatin1String("rgb"))) {
-                const auto& colorString = attributes.value(QLatin1String("rgb")).toString();
-                val.setValue(fromARGBString(colorString));
-            } else if (attributes.hasAttribute(QLatin1String("indexed"))) {
-                int index = attributes.value(QLatin1String("indexed")).toInt();
-                val.setValue(index);
-            } else if (attributes.hasAttribute(QLatin1String("theme"))) {
-                const auto& theme = attributes.value(QLatin1String("theme")).toString();
-                const auto& tint = attributes.value(QLatin1String("tint")).toString();
-                setThemeColor(theme.toUInt(), tint.toDouble());
-            } else if (attributes.hasAttribute(QLatin1String("auto"))) {
-                val.setValue(fromST_Boolean(attributes.value(QLatin1String("auto"))));
+        case Type::RGB: {
+            if (isCRGB) {
+                auto r = fromST_Percent(attributes.value(QLatin1String("r")));
+                auto g = fromST_Percent(attributes.value(QLatin1String("g")));
+                auto b = fromST_Percent(attributes.value(QLatin1String("b")));
+                QColor color = QColor::fromRgbF(r / 100.0,
+                                                g / 100.0,
+                                                b / 100.0);
+                val = color;
             }
-            break;
-        }
-        case ColorType::CRGBColor: {
-            auto r = fromST_Percent(attributes.value(QLatin1String("r")));
-            auto g = fromST_Percent(attributes.value(QLatin1String("g")));
-            auto b = fromST_Percent(attributes.value(QLatin1String("b")));
-            QColor color = QColor::fromRgbF(r / 100.0,
-                                            g / 100.0,
-                                            b / 100.0);
-            tr.read(reader);
-            setRgb(color);
-            break;
-        }
-        case ColorType::RGBColor: {
-            const auto& colorString = attributes.value(QLatin1String("val")).toString();
-            val.setValue(fromARGBString(colorString));
+            else {
+                const auto& colorString = attributes.value(QLatin1String("val")).toString();
+                val.setValue(fromARGBString(colorString));
+            }
             tr.read(reader);
             break;
         }
-        case ColorType::HSLColor: {
+        case Type::HSL: {
             Angle h;
             parseAttribute(attributes, QLatin1String("hue"), h);
             auto s = fromST_Percent(attributes.value(QLatin1String("sat")));
@@ -331,13 +445,13 @@ bool Color::read(QXmlStreamReader &reader)
             tr.read(reader);
             break;
         }
-        case ColorType::PresetColor: {
+        case Type::Preset: {
             const auto& colorString = attributes.value(QLatin1String("val")).toString();
             val.setValue(colorString);
             tr.read(reader);
             break;
         }
-        case ColorType::SchemeColor: {
+        case Type::Scheme: {
             const auto& colorString = attributes.value(QLatin1String("val")).toString();
             Color::SchemeColor col;
             fromString(colorString, col);
@@ -345,7 +459,7 @@ bool Color::read(QXmlStreamReader &reader)
             tr.read(reader);
             break;
         }
-        case ColorType::SystemColor: {
+        case Type::System: {
             const auto& colorString = attributes.value(QLatin1String("val")).toString();
             Color::SystemColor col;
             fromString(colorString, col);
@@ -356,10 +470,20 @@ bool Color::read(QXmlStreamReader &reader)
                 lastColor = fromARGBString(attributes.value(QLatin1String("lastClr")).toString());
             break;
         }
-        default: break;
+        default: return false;
     }
-    isDirty = true;
     return true;
+}
+
+bool Color::read(QXmlStreamReader &reader)
+{
+    isDirty = true;
+    const auto &name = reader.name();
+    if (name == QLatin1String("scrgbClr") || name == QLatin1String("srgbClr") ||
+        name == QLatin1String("sysClr") || name == QLatin1String("hslClr") ||
+        name == QLatin1String("prstClr") || name == QLatin1String("schemeClr"))
+        return readComplex(reader);
+    return readSimple(reader);
 }
 
 bool Color::operator ==(const Color &other) const
@@ -396,6 +520,7 @@ Color::operator QVariant() const
 QColor Color::fromARGBString(const QString &c)
 {
     QColor color;
+
     if (c.startsWith(u'#')) {
         color.setNamedColor(c);
     } else {
@@ -420,42 +545,298 @@ QDebug operator<<(QDebug dbg, const Color &c)
     if (!c.isValid())
         dbg.nospace() << "Color(invalid)";
     else switch (c.type_) {
-        case Color::ColorType::RGBColor:
-            dbg.nospace() << "Color(rgb, " << c.rgb();  break;
-        case Color::ColorType::HSLColor:
+        case Color::Type::RGB: {
+            if (c.isCRGB)
+                dbg.nospace() << "Color(crgb, " << c.rgb();
+            else
+                dbg.nospace() << "Color(rgb, " << c.rgb();
+            break;
+        }
+        case Color::Type::HSL:
             dbg.nospace() << "Color(hsl, " << c.hsl().toHsl();  break;
-        case Color::ColorType::CRGBColor:
-            dbg.nospace() << "Color(crgb, " << c.rgb();  break;
-        case Color::ColorType::PresetColor:
+        case Color::Type::Preset:
             dbg.nospace() << "Color(preset, " << c.presetColor();  break;
-        case Color::ColorType::SchemeColor:
+        case Color::Type::Scheme:
             dbg.nospace() << "Color(scheme, " << c.schemeColor();  break;
-        case Color::ColorType::SystemColor:
+        case Color::Type::System:
             dbg.nospace() << "Color(system, " << c.systemColor();
             if (c.lastColor.isValid()) dbg.nospace() << ", lastColor " << c.lastColor;
             break;
-        case Color::ColorType::SimpleColor:
-            dbg.nospace() << "Color(simple, " << c.rgb();  break;
+        case Color::Type::Indexed:
+            dbg.nospace() << "Color(indexed, " << c.indexedColor();  break;
+        case Color::Type::Auto:
+            dbg.nospace() << "Color(auto"; break;
         default: break;
     }
     if (!c.tr.vals.isEmpty()) {
-        dbg.nospace() << ", transforms ";
-        for (auto key: c.tr.vals.keys()) {
-            QString s;
-            c.tr.toString(key, s);
-            dbg.nospace() << s << ": " << c.tr.vals.value(key);
-        }
+        dbg.nospace() << ", transforms: "<< c.tr;
     }
     dbg.nospace() << ")";
 
-//    else if (c.isRgbColor())
-//        dbg.nospace() << c.rgbColor();
-//    else if (c.isIndexedColor())
-//        dbg.nospace() << "XlsxColor(indexed," << c.indexedColor() << ")";
-//    else if (c.isThemeColor())
-//        dbg.nospace() << "XlsxColor(theme," << c.themeColor().join(QLatin1Char(':')) << ')';
-
     return dbg.space();
+}
+
+bool ColorTransform::hasTransform(Type type) const
+{
+    return vals.contains(type);
+}
+QVariant ColorTransform::transform(Type type) const
+{
+    return vals.value(type);
+}
+
+QColor &ColorTransform::applyTransform(Type type, const QVariant &val, QColor &color)
+{
+    switch (type) {
+        case Type::Tint: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            auto l1 = val.toDouble() / 100.0;
+            color = QColor::fromHslF(h, s, l*l1+(1-l1), a);
+            break;
+        }
+        case Type::Shade: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            auto l1 = val.toDouble() / 100.0;
+            color = QColor::fromHslF(h, s, l*l1, a);
+            break;
+        }
+        case Type::Complement: {
+            if (val.toBool()) {
+                auto h = color.hslHueF();
+                auto s = color.hslSaturationF();
+                auto l = color.lightnessF();
+                auto a = color.alphaF();
+                h+=0.5;
+                if (h>1) h-=1;
+                color = QColor::fromHslF(h, s, l, a);
+            }
+            break;
+        }
+        case Type::Inverse: {
+            if (val.toBool()) {
+                auto h = color.hslHueF();
+                auto s = color.hslSaturationF();
+                auto l = color.lightnessF();
+                auto a = color.alphaF();
+                h+=0.5; if (h>1) h-=1;
+                l+=0.5; if (l>1) l-=1;
+                color = QColor::fromHslF(h, s, l, a);
+            }
+            break;
+        }
+        case Type::Grayscale: {
+            if (val.toBool()) {
+                auto a = color.alphaF();
+                color = qGray(color.rgba());
+                color.setAlphaF(a);
+            }
+            break;
+        }
+        case Type::Alpha: {
+            color.setAlphaF(val.toDouble()/100);
+            break;
+        }
+        case Type::AlphaOffset: {
+            auto a = color.alphaF();
+            a += val.toDouble()/100;
+            if (a < 0) a = 0;
+            if (a > 1) a = 1;
+            color.setAlphaF(a);
+            break;
+        }
+        case Type::AlphaModulation: {
+            auto a = color.alphaF();
+            a *= val.toDouble()/100;
+            if (a < 0) a = 0;
+            if (a > 1) a = 1;
+            color.setAlphaF(a);
+            break;
+        }
+        case Type::Hue: {
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            color = QColor::fromHslF(val.toDouble()/360, s, l, a);
+            break;
+        }
+        case Type::HueOffset: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            h += val.toDouble()/360;
+            if (h > 1) h -= 1;
+            if (h < 0) h += 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::HueModulation: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            h *= val.toDouble()/100;
+            if (h > 1) h -= 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::Saturation: {
+            auto h = color.hslHueF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            color = QColor::fromHslF(h, val.toDouble()/100, l, a);
+            break;
+        }
+        case Type::SaturationOffset: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            s += val.toDouble()/100;
+            if (s > 1) s -= 1;
+            if (s < 0) s += 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::SaturationModulation: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            s *= val.toDouble()/100;
+            if (s > 1) s -= 1;
+            if (s < 0) s += 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::Luminance: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto a = color.alphaF();
+            color = QColor::fromHslF(h, s, val.toDouble()/100, a);
+            break;
+        }
+        case Type::LuminanceOffset: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            l += val.toDouble()/100;
+            if (l > 1) l -= 1;
+            if (l < 0) l += 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::LuminanceModulation: {
+            auto h = color.hslHueF();
+            auto s = color.hslSaturationF();
+            auto l = color.lightnessF();
+            auto a = color.alphaF();
+            l *= val.toDouble()/100;
+            if (l > 1) l -= 1;
+            if (l < 0) l += 1;
+            color = QColor::fromHslF(h, s, l, a);
+            break;
+        }
+        case Type::Red: {
+            color.setRedF(val.toDouble()/100); break;
+        }
+        case Type::RedOffset: {
+            auto r = color.redF();
+            r += val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setRedF(r);
+            break;
+        }
+        case Type::RedModulation: {
+            auto r = color.redF();
+            r *= val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setRedF(r);
+            break;
+        }
+        case Type::Green: {
+            color.setGreenF(val.toDouble()/100);
+            break;
+        }
+        case Type::GreenOffset: {
+            auto r = color.greenF();
+            r += val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setGreenF(r);
+            break;
+        }
+        case Type::GreenModulation: {
+            auto r = color.greenF();
+            r *= val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setGreenF(r);
+            break;
+        }
+        case Type::Blue: {
+            color.setBlueF(val.toDouble()/100);
+            break;
+        }
+        case Type::BlueOffset: {
+            auto r = color.blueF();
+            r += val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setBlueF(r);
+            break;
+        }
+        case Type::BlueModulation: {
+            auto r = color.blueF();
+            r *= val.toDouble()/100;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+            color.setBlueF(r);
+            break;
+        }
+        case Type::Gamma: {
+            if (val.toBool()) {
+                auto gamma = [](double val) -> double {
+                    return (val <= 0.0031308 ? val*12.92 : 1.055*std::pow(val, 1.0 / 2.4) - 0.055);
+                };
+                color.setRedF(gamma(color.redF()));
+                color.setGreenF(gamma(color.greenF()));
+                color.setBlueF(gamma(color.blueF()));
+            }
+            break;
+        }
+        case Type::InverseGamma: {
+            if (val.toBool()) {
+                auto invgamma = [](double val) -> double {
+                    return (val <= 0.04045 ? val/12.92 : std::pow((val+0.055)/1.055, 2.4) );
+                };
+                color.setRedF(invgamma(color.redF()));
+                color.setGreenF(invgamma(color.greenF()));
+                color.setBlueF(invgamma(color.blueF()));
+            }
+            break;
+        }
+    }
+    return color;
+}
+
+QColor ColorTransform::transformed(const QColor &inputColor) const
+{
+    QColor result = inputColor;
+    for (auto key: vals.keys()) {
+        applyTransform(key, vals.value(key), result);
+    }
+
+    return result;
 }
 
 void ColorTransform::read(QXmlStreamReader &reader)
@@ -469,13 +850,13 @@ void ColorTransform::read(QXmlStreamReader &reader)
             if (reader.name() == QLatin1String("alpha"))
                 vals.insert(Type::Alpha, fromST_Percent(val));
             if (reader.name() == QLatin1String("alphaOff"))
-                vals.insert(Type::AlphaOff, fromST_Percent(val));
+                vals.insert(Type::AlphaOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("alphaMod"))
                 vals.insert(Type::AlphaModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("blue"))
                 vals.insert(Type::Blue, fromST_Percent(val));
             if (reader.name() == QLatin1String("blueOff"))
-                vals.insert(Type::BlueOff, fromST_Percent(val));
+                vals.insert(Type::BlueOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("blueMod"))
                 vals.insert(Type::BlueModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("comp"))
@@ -487,35 +868,35 @@ void ColorTransform::read(QXmlStreamReader &reader)
             if (reader.name() == QLatin1String("green"))
                 vals.insert(Type::Green, fromST_Percent(val));
             if (reader.name() == QLatin1String("greenOff"))
-                vals.insert(Type::GreenOff, fromST_Percent(val));
+                vals.insert(Type::GreenOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("greenMod"))
                 vals.insert(Type::GreenModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("hue"))
-                vals.insert(Type::Hue, fromST_Percent(val));
+                vals.insert(Type::Hue, double(val.toULongLong()) / 60000.0);
             if (reader.name() == QLatin1String("hueMod"))
                 vals.insert(Type::HueModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("hueOff"))
-                vals.insert(Type::HueOff, fromST_Percent(val));
+                vals.insert(Type::HueOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("inv"))
                 vals.insert(Type::Inverse, true);
             if (reader.name() == QLatin1String("invGamma"))
                 vals.insert(Type::InverseGamma, true);
             if (reader.name() == QLatin1String("lum"))
-                vals.insert(Type::Luminescence, fromST_Percent(val));
+                vals.insert(Type::Luminance, fromST_Percent(val));
             if (reader.name() == QLatin1String("lumOff"))
-                vals.insert(Type::LuminescenceOff, fromST_Percent(val));
+                vals.insert(Type::LuminanceOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("lumMod"))
-                vals.insert(Type::LuminescenceModulation, fromST_Percent(val));
+                vals.insert(Type::LuminanceModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("red"))
                 vals.insert(Type::Red, fromST_Percent(val));
             if (reader.name() == QLatin1String("redOff"))
-                vals.insert(Type::RedOff, fromST_Percent(val));
+                vals.insert(Type::RedOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("redMod"))
                 vals.insert(Type::RedModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("sat"))
                 vals.insert(Type::Saturation, fromST_Percent(val));
             if (reader.name() == QLatin1String("satOff"))
-                vals.insert(Type::SaturationOff, fromST_Percent(val));
+                vals.insert(Type::SaturationOffset, fromST_Percent(val));
             if (reader.name() == QLatin1String("satMod"))
                 vals.insert(Type::SaturationModulation, fromST_Percent(val));
             if (reader.name() == QLatin1String("shade"))
@@ -542,19 +923,19 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f', 2)+"%");
                 break;
             case Type::Complement:
-                writer.writeEmptyElement("a:comp");
+                if (i.value().toBool()) writer.writeEmptyElement("a:comp");
                 break;
             case Type::Inverse:
-                writer.writeEmptyElement("a:inv");
+                if (i.value().toBool()) writer.writeEmptyElement("a:inv");
                 break;
             case Type::Grayscale:
-                writer.writeEmptyElement("a:gray");
+                if (i.value().toBool()) writer.writeEmptyElement("a:gray");
                 break;
             case Type::Alpha:
                 writer.writeEmptyElement("a:alpha");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f', 2)+"%");
                 break;
-            case Type::AlphaOff:
+            case Type::AlphaOffset:
                 writer.writeEmptyElement("a:alphaOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f', 2)+"%");
                 break;
@@ -566,7 +947,7 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:hue");
                 writer.writeAttribute("val", QString::number(qint64(i.value().toDouble()*60000)));
                 break;
-            case Type::HueOff:
+            case Type::HueOffset:
                 writer.writeEmptyElement("a:hueOff");
                 writer.writeAttribute("val", QString::number(qint64(i.value().toDouble()*60000)));
                 break;
@@ -578,7 +959,7 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:sat");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::SaturationOff:
+            case Type::SaturationOffset:
                 writer.writeEmptyElement("a:satOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
@@ -586,15 +967,15 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:satMod");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::Luminescence:
+            case Type::Luminance:
                 writer.writeEmptyElement("a:lum");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::LuminescenceOff:
+            case Type::LuminanceOffset:
                 writer.writeEmptyElement("a:lumOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::LuminescenceModulation:
+            case Type::LuminanceModulation:
                 writer.writeEmptyElement("a:lumMod");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
@@ -602,7 +983,7 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:red");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::RedOff:
+            case Type::RedOffset:
                 writer.writeEmptyElement("a:redOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
@@ -614,7 +995,7 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:green");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::GreenOff:
+            case Type::GreenOffset:
                 writer.writeEmptyElement("a:greenOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
@@ -626,7 +1007,7 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement("a:blue");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
-            case Type::BlueOff:
+            case Type::BlueOffset:
                 writer.writeEmptyElement("a:blueOff");
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
@@ -635,10 +1016,10 @@ void ColorTransform::write(QXmlStreamWriter &writer) const
                 writer.writeAttribute("val", QString::number(i.value().toDouble(), 'f')+"%");
                 break;
             case Type::Gamma:
-                writer.writeEmptyElement("a:gamma");
+                if (i.value().toBool()) writer.writeEmptyElement("a:gamma");
                 break;
             case Type::InverseGamma:
-                writer.writeEmptyElement("a:invGamma");
+                if (i.value().toBool()) writer.writeEmptyElement("a:invGamma");
                 break;
         }
     }
@@ -689,7 +1070,7 @@ QDataStream &operator>>(QDataStream &s, Color &color)
 {
     int t;
     s >> t;
-    color.type_ = static_cast<Color::ColorType>(t);
+    color.type_ = static_cast<Color::Type>(t);
     s >> color.val;
     s >> color.lastColor;
     s >> color.tr;

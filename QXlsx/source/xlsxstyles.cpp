@@ -457,7 +457,7 @@ void Styles::writeFont(QXmlStreamWriter &writer, const Format &format, bool isDx
 
     if (format.hasProperty(FormatPrivate::P_Font_Color)) {
         Color color = format.property(FormatPrivate::P_Font_Color).value<Color>();
-        color.write(writer);
+        color.write(writer, QStringLiteral("color"));
     }
 
     if (!isDxf) {
@@ -612,7 +612,7 @@ void Styles::writeSubBorder(QXmlStreamWriter &writer, const QString &type, int s
 
     writer.writeStartElement(type);
     writer.writeAttribute(QStringLiteral("style"), stylesString[style]);
-    color.write(writer); //write color element
+    color.write(writer, QStringLiteral("color")); //write color element
 
     writer.writeEndElement();//type
 }
@@ -843,7 +843,7 @@ bool Styles::readFont(QXmlStreamReader &reader, Format &format)
             } else if (reader.name() == QLatin1String("extend")) {
                 format.setProperty(FormatPrivate::P_Font_Extend, attributes.value(QLatin1String("val")).toInt());
             } else if (reader.name() == QLatin1String("color")) {
-                Color color(Color::ColorType::SimpleColor);
+                Color color;
                 color.read(reader);
                 format.setProperty(FormatPrivate::P_Font_Color, color);
             } else if (reader.name() == QLatin1String("sz")) {

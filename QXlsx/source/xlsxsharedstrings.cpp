@@ -171,7 +171,7 @@ void SharedStrings::writeRichStringPart_rPr(QXmlStreamWriter &writer, const Form
 
     if (format.hasProperty(FormatPrivate::P_Font_Color)) {
         Color color = format.property(FormatPrivate::P_Font_Color).value<Color>();
-        color.write(writer);
+        color.write(writer, QStringLiteral("color"));
     }
 
     if (!format.fontName().isEmpty()) {

@@ -46,29 +46,29 @@ int main(int argc, char *argv[])
 		}
 	}
 
-//    hello();
-//    readStyle();
-//    calendar();
-//    chart();
+    hello();
+    readStyle();
+    calendar();
+    chart();
     chartExtended();
-//    barChart();
-//    chartsheet();
-//    datavalidation();
-//    definename();
-//    demo();
-//    documentproperty();
-//    extractdata();
-//    formula();
-//    hyperlink();
-//    image();
-//    mergecells();
-//    numberformat();
-//    richtext();
-//    rowcolumn();
-//    style();
-//    worksheetoperations();
-//    pages();
-//    readextlist();
+    barChart();
+    chartsheet();
+    datavalidation();
+    definename();
+    demo();
+    documentproperty();
+    extractdata();
+    formula();
+    hyperlink();
+    image();
+    mergecells();
+    numberformat();
+    richtext();
+    rowcolumn();
+    style();
+    worksheetoperations();
+    pages();
+    readextlist();
 	
     qDebug() << "**** end of main() ****";
 

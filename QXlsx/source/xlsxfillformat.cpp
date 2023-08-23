@@ -94,84 +94,84 @@ void FillFormatPrivate::parse(const QBrush &brush)
         case Qt::NoBrush: type = FillFormat::FillType::NoFill; break;
         case Qt::SolidPattern: {
             type = FillFormat::FillType::SolidFill;
-            color = Color(Color::ColorType::RGBColor, brush.color()); break;
+            color = brush.color(); break;
         }
         case Qt::Dense1Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent80;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense2Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent75;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense3Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent60;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense4Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent50;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense5Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent30;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense6Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent20;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::Dense7Pattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Percent5;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::HorPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Horizontal;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::VerPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Vertical;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::CrossPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::Cross;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::BDiagPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::UpwardDiagonal;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::FDiagPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::DownwardDiagonal;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::DiagCrossPattern: {
             type = FillFormat::FillType::PatternFill;
             patternType = FillFormat::PatternType::OpenDiamond;
-            foregroundColor = Color(Color::ColorType::RGBColor, brush.color());
+            foregroundColor = brush.color();
             break;
         }
         case Qt::LinearGradientPattern: {
@@ -191,7 +191,7 @@ void FillFormatPrivate::parse(const QBrush &brush)
                 if (mode == QGradient::ObjectMode)
                     linearShadeScaled = true;
                 for (auto st: stops)
-                    gradientList.insert(st.first, Color(Color::ColorType::RGBColor, st.second));
+                    gradientList.insert(st.first, st.second);
                 switch (spread) {
                     case QGradient::PadSpread: tileFlipMode = FillFormat::TileFlipMode::None; break;
                     case QGradient::RepeatSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
@@ -296,7 +296,7 @@ void FillFormat::setColor(const QColor &color)
         d = new FillFormatPrivate;
         d->type = FillType::SolidFill;
     }
-    d->color = Color(Color::ColorType::RGBColor, color);
+    d->color = color;
 }
 
 QMap<double, Color> FillFormat::gradientList() const
@@ -672,8 +672,16 @@ void FillFormat::writePatternFill(QXmlStreamWriter &writer) const
         toString(d->patternType.value(), s);
         writer.writeAttribute(QLatin1String("prst"), s);
     }
-    if (d->backgroundColor.isValid()) d->backgroundColor.write(writer, QLatin1String("a:bgClr"));
-    if (d->foregroundColor.isValid()) d->foregroundColor.write(writer, QLatin1String("a:fgClr"));
+    if (d->backgroundColor.isValid()) {
+        writer.writeStartElement(QLatin1String("a:bgClr"));
+        d->backgroundColor.write(writer);
+        writer.writeEndElement();
+    }
+    if (d->foregroundColor.isValid()) {
+        writer.writeStartElement(QLatin1String("a:fgClr"));
+        d->foregroundColor.write(writer);
+        writer.writeEndElement();
+    }
     writer.writeEndElement();
 }
 

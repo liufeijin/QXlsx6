@@ -434,6 +434,8 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
  */
 bool CellFormula::operator ==(const CellFormula &formula) const
 {
+    if (d == formula.d) return true;
+    if (!d || !formula.d) return false;
     return d->formula == formula.d->formula && d->type == formula.d->type
             && d->si ==formula.d->si;
 }
@@ -443,8 +445,7 @@ bool CellFormula::operator ==(const CellFormula &formula) const
  */
 bool CellFormula::operator !=(const CellFormula &formula) const
 {
-    return d->formula != formula.d->formula || d->type != formula.d->type
-            || d->si !=formula.d->si;
+    return !operator==(formula);
 }
 
 }

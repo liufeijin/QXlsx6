@@ -300,7 +300,7 @@ bool ConditionalFormatting::addDataBarRule(const QColor &color, ValueObjectType 
     auto cfRule = std::make_shared<XlsxCfRuleData>();
 
     cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("dataBar");
-    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(Color::ColorType::SimpleColor, color);
+    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(color);
     if (stopIfTrue)
         cfRule->attrs[XlsxCfRuleData::A_stopIfTrue] = true;
     if (!showData)
@@ -338,8 +338,8 @@ bool ConditionalFormatting::add2ColorScaleRule(const QColor &minColor, const QCo
     auto cfRule = std::make_shared<XlsxCfRuleData>();
 
     cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("colorScale");
-    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(Color::ColorType::SimpleColor, minColor);
-    cfRule->attrs[XlsxCfRuleData::A_color2] = Color(Color::ColorType::SimpleColor, maxColor);
+    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(minColor);
+    cfRule->attrs[XlsxCfRuleData::A_color2] = Color(maxColor);
     if (stopIfTrue)
         cfRule->attrs[XlsxCfRuleData::A_stopIfTrue] = true;
 
@@ -368,9 +368,9 @@ bool ConditionalFormatting::add3ColorScaleRule(const QColor &minColor, const QCo
     auto cfRule = std::make_shared<XlsxCfRuleData>();
 
     cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("colorScale");
-    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(Color::ColorType::SimpleColor, minColor);
-    cfRule->attrs[XlsxCfRuleData::A_color2] = Color(Color::ColorType::SimpleColor, midColor);
-    cfRule->attrs[XlsxCfRuleData::A_color3] = Color(Color::ColorType::SimpleColor, maxColor);
+    cfRule->attrs[XlsxCfRuleData::A_color1] = Color(minColor);
+    cfRule->attrs[XlsxCfRuleData::A_color2] = Color(midColor);
+    cfRule->attrs[XlsxCfRuleData::A_color3] = Color(maxColor);
 
     if (stopIfTrue)
         cfRule->attrs[XlsxCfRuleData::A_stopIfTrue] = true;

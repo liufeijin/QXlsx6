@@ -361,7 +361,7 @@ QColor Format::fontColor() const
  */
 void Format::setFontColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Font_Color, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Font_Color, Color(color), Color());
 }
 
 /*!
@@ -738,7 +738,7 @@ QColor Format::leftBorderColor() const
 */
 void Format::setLeftBorderColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Border_LeftColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Border_LeftColor, Color(color), Color());
 }
 
 /*!
@@ -770,7 +770,7 @@ QColor Format::rightBorderColor() const
 */
 void Format::setRightBorderColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Border_RightColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Border_RightColor, Color(color), Color());
 }
 
 /*!
@@ -802,7 +802,7 @@ QColor Format::topBorderColor() const
 */
 void Format::setTopBorderColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Border_TopColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Border_TopColor, Color(color), Color());
 }
 
 /*!
@@ -834,7 +834,7 @@ QColor Format::bottomBorderColor() const
 */
 void Format::setBottomBorderColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Border_BottomColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Border_BottomColor, Color(color), Color());
 }
 
 /*!
@@ -882,7 +882,7 @@ QColor Format::diagonalBorderColor() const
 */
 void Format::setDiagonalBorderColor(const QColor &color)
 {
-    setProperty(FormatPrivate::P_Border_DiagonalColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Border_DiagonalColor, Color(color), Color());
 }
 
 /*!
@@ -986,7 +986,7 @@ void Format::setPatternForegroundColor(const QColor &color)
 {
 	if (color.isValid() && !hasProperty(FormatPrivate::P_Fill_Pattern))
 		setFillPattern(PatternSolid);
-    setProperty(FormatPrivate::P_Fill_FgColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Fill_FgColor, Color(color), Color());
 }
 
 /*!
@@ -1004,7 +1004,7 @@ void Format::setPatternBackgroundColor(const QColor &color)
 {
 	if (color.isValid() && !hasProperty(FormatPrivate::P_Fill_Pattern))
 		setFillPattern(PatternSolid);
-    setProperty(FormatPrivate::P_Fill_BgColor, Color(Color::ColorType::SimpleColor, color), Color());
+    setProperty(FormatPrivate::P_Fill_BgColor, Color(color), Color());
 }
 
 /*!
