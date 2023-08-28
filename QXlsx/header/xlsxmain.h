@@ -700,6 +700,7 @@ class QXLSX_EXPORT PresetTextShape
 public:
     PresetTextShape() {}
     PresetTextShape(TextShapeType textShapeType) : prst{textShapeType} {}
+
     QList<GeometryGuide> avLst; //element, optional
     TextShapeType prst; // attribute, required
 

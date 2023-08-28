@@ -575,13 +575,13 @@ QStringList Text::stringCashe() const
     return {};
 }
 
-bool Text::isRichString() const
+bool Text::isRichText() const
 {
     if (!d) return false;
     return d->type == Type::RichText;
 }
 
-bool Text::isPlainString() const
+bool Text::isPlainText() const
 {
     if (!d) return false;
     return d->type == Type::PlainText;

@@ -20,69 +20,186 @@ namespace QXlsx {
 class Text;
 
 /**
- * @brief The TextProperties class represents the text body layout
+ * @brief The TextProperties class represents the text body layout.
  */
 class QXLSX_EXPORT TextProperties
 {
-    //TODO: convert to shared data
 public:
+    /**
+     * @brief The OverflowType enum specifies the text overflow.
+     */
     enum class OverflowType
     {
-        Overflow,
-        Ellipsis,
-        Clip
+        Overflow, /**< allows overflow of text */
+        Ellipsis, /**< use an ellipsis to indicate there is text which is not visible */
+        Clip /**< do not indicate there is text which is not visible */
     };
+    /**
+     * @brief If there is vertical text, determines what kind of vertical text is going to be used.
+     */
     enum class VerticalType
     {
-        EastAsianVertical,
-        Horizontal,
-        MongolianVertical,
-        Vertical,
-        Vertical270,
-        WordArtVertical,
-        WordArtVerticalRtl,
+        EastAsianVertical, /**< A special version of vertical text, where some fonts are
+displayed as if rotated by 90 degrees while some fonts (mostly East Asian) are displayed vertical.*/
+        Horizontal, /**< Horizontal text. */
+        MongolianVertical, /**< A special version of vertical text, where some fonts are
+displayed as if rotated by 90 degrees while some fonts (mostly East Asian) are displayed vertical. The
+difference between this and the eastAsianVertical is the text flows top down then LEFT RIGHT, instead of
+RIGHT LEFT*/
+        Vertical, /**< All of the text is vertical orientation (each line is 90 degrees rotated clockwise,
+so it goes from top to bottom; each next line is to the left from the previous one).*/
+        Vertical270, /**< All of the text is vertical orientation (each line is 270 degrees rotated clockwise, so it goes
+from bottom to top; each next line is to the right from the previous one).*/
+        WordArtVertical, /**< All of the text is vertical ("one letter on top of another"). */
+        WordArtVerticalRtl, /**< Vertical WordArt should be shown from right to left rather than left to right.*/
     };
+    /**
+     * @brief The Anchor enum specifies a list of available vertical anchoring types for text
+     */
     enum class Anchor
     {
-        Bottom,
-        Center,
-        Distributed,
-        Justified,
-        Top
+        Bottom, /**< Anchor the text at the bottom of the bounding rectangle. */
+        Center, /**< Anchor the text at the middle of the bounding rectangle. */
+        Distributed, /**< Distribute the lines of text vertically. If there is only one line,
+                       anchor it at middle. */
+        Justified, /**< Justify the lines of text vertically. If there is only one line,
+                     anchor it at top.*/
+        Top /**< Anchor the text at the top of the bounding rectangle. */
     };
+    /**
+     * @brief The TextAutofit enum specifies the autofit (scaling) type of the text body
+     * in order to remain inside the text box.
+     */
     enum class TextAutofit
     {
-        NoAutofit,
-        NormalAutofit,
-        ShapeAutofit
+        NoAutofit, /**< The text within a text box is not scaled. This is the default value.*/
+        NormalAutofit, /**<  The text within the text body should be scaled to the bounding box.
+The scaling parameters are fontScale and lineSpaceReduction.*/
+        ShapeAutofit /**< The shape that contains the text box should be scaled in order to
+fully contain the text described within it.*/
     };
 
-    //Specifies whether the before and after paragraph spacing defined by the user is to be respected
+    /**
+     * Specifies whether the before and after paragraph spacing defined by the user is to be respected.
+     */
     std::optional<bool> spcFirstLastPara;
+    /**
+     * @brief Determines whether the text can flow out of the bounding box vertically.
+     * This is used to determine what happens in the event that the text within a
+     * shape is too large for the bounding box it is contained within. If this
+     * attribute is omitted, then a value of OverflowType::Overflow is implied.
+     */
     std::optional<OverflowType> verticalOverflow;
+    /**
+     * @brief Determines whether the text can flow out of the bounding box horizontally.
+     * This is used to determine what happens in the event that the text within a
+     * shape is too large for the bounding box it is contained within. If this
+     * attribute is omitted, then a value of OverflowType::Overflow is implied.
+     */
     std::optional<OverflowType> horizontalOverflow;
+    /**
+     * @brief Determines if the text within the given text body should be displayed vertically.
+     * If this attribute is omitted, then a value of VerticalType::Horizontal is implied.
+     */
     std::optional<VerticalType> verticalOrientation;
+    /**
+     * @brief  Specifies the rotation that is being applied to the text within the bounding box.
+     * If it not specified, the rotation of the accompanying shape is used. If it is specified,
+     * then this is applied independently from the shape.
+     */
     Angle rotation;
+    /**
+     * @brief Specifies the wrapping options to be used for this text body. If it is specified,
+     * then text is wrapped using the bounding text box.
+     */
     std::optional<bool> wrap;
+    /**
+     * @brief Specifies the left inset of the text bounding rectangle. Insets are used just as internal
+     * margins for text boxes within shapes. If leftInset is not valid, a value of 0.1 inches is implied.
+     */
     Coordinate leftInset;
+    /**
+     * @brief Specifies the right inset of the text bounding rectangle. Insets are used just as internal
+     * margins for text boxes within shapes. If rightInset is not valid, a value of 0.1 inches is implied.
+     */
     Coordinate rightInset;
+    /**
+     * @brief Specifies the top inset of the text bounding rectangle. Insets are used just as internal
+     * margins for text boxes within shapes. If topInset is not valid, a value of 0.05 inches is implied.
+     */
     Coordinate topInset;
+    /**
+     * @brief Specifies the bottom inset of the text bounding rectangle. Insets are used just as internal
+     * margins for text boxes within shapes. If bottomInset is not valid, a value of 0.05 inches is implied.
+     */
     Coordinate bottomInset;
+    /**
+     * @brief Specifies the number of columns of text in the bounding rectangle.
+     */
     std::optional<int> columnCount;
+    /**
+     * @brief Specifies the space between text columns in the text area when there
+     * is more than 1 column present.
+     */
     Coordinate columnSpace;
+    /**
+     * @brief Specifies whether columns are used in a right-to-left or left-to-right order.
+     */
     std::optional<bool> columnsRtl;
+    /**
+     * @brief Specifies that text within this textbox is converted text from a WordArt object.
+     */
     std::optional<bool> fromWordArt;
+    /**
+     * @brief  Specifies the anchoring position of the text within the shape.
+     * If this attribute is omitted, then top anchoring is implied.
+     */
     std::optional<Anchor> anchor;
+    /**
+     * @brief Specifies whether the smallest possible "bounds box" for the text
+     * should be determined to center this box accordingly. The default value is false.
+     */
     std::optional<bool> anchorCentering;
+    /**
+     * @brief Forces the text to be rendered anti-aliased regardless of the font size.
+     * The default value is false.
+     */
     std::optional<bool> forceAntiAlias;
+    /**
+     * @brief  Specifies whether text should remain upright, regardless of the transform applied to it
+     * and the accompanying shape transform.
+     */
     std::optional<bool> upright;
+    /**
+     * @brief Specifies that the line spacing for this text body is decided in a simplistic manner using
+     * the font scene. The default value is false.
+     */
     std::optional<bool> compatibleLineSpacing;
+    /**
+     * @brief  Specifies a preset geometric shape that should be used to transform (warp) a piece of text.
+     */
     std::optional<PresetTextShape> textShape;
 
-    // textScale and lineSpaceReduction are only valid if textAutofit == NormalAutofit
+    /**
+     * @brief specifies the text body scaling in order to remain inside the text box.
+     */
     std::optional<TextAutofit> textAutofit;
-    std::optional<double> fontScale; // in %
-    std::optional<double> lineSpaceReduction; // in %
+    /**
+     * @brief Specifies the percentage of the original font size to which each fragment of text
+     * is scaled.
+     * A value of 100.0 scales the text to 100%, while a value of 1.0 scales
+     * the text to 1%. If it is not set, then a value of 100% is implied.
+     * This member is ignored if textAutofit is not TextAutofit::NormalAutofit.
+     */
+    std::optional<double> fontScale;
+    /**
+     * @brief Specifies the percentage amount by which the line spacing of each paragraph
+     * in the text body is reduced.
+     * The reduction is applied by subtracting it from the original line spacing value.
+     * A value of 100.0 reduces the line spacing by 100%, while a value of 1.0
+     * reduces the line spacing by one percent. The default value is 0.0.
+     */
+    std::optional<double> lineSpaceReduction;
 
     std::optional<Scene3D> scene3D;
     // either text3D or z
@@ -99,8 +216,7 @@ public:
 };
 
 /**
- * @brief The CharacterProperties class
- * is used to set the text character properties
+ * @brief The CharacterProperties class represents the text character properties.
  */
 class QXLSX_EXPORT CharacterProperties
 {
@@ -156,21 +272,21 @@ public:
      * If this attribute is omitted, then language is used.
      */
     QString alternateLanguage; // f.e. "en-US"
-    std::optional<double> fontSize; /**<  @brief Specifies the size, in points, of text within a text run.*/
-    std::optional<bool> bold; /**< @brief Specifies whether a run of text is formatted as bold text. */
-    std::optional<bool> italic; /**< @brief Specifies whether a run of text is formatted as italic text. */
-    std::optional<UnderlineType> underline; /**< @brief  Specifies whether a run of text is formatted as underlined text. */
-    std::optional<StrikeType> strike; /**< @brief Specifies whether a run of text is formatted as strikethrough text. */
+    std::optional<double> fontSize; /**<  @brief Specifies the size, in points, of text within a text fragment.*/
+    std::optional<bool> bold; /**< @brief Specifies whether a fragment of text is formatted as bold text. */
+    std::optional<bool> italic; /**< @brief Specifies whether a fragment of text is formatted as italic text. */
+    std::optional<UnderlineType> underline; /**< @brief  Specifies whether a fragment of text is formatted as underlined text. */
+    std::optional<StrikeType> strike; /**< @brief Specifies whether a fragment of text is formatted as strikethrough text. */
     std::optional<double> kerningFontSize; /**< @brief  Specifies the minimum font point size at which
-                                                 character kerning occurs for this text run.
+                                                 character kerning occurs for this text fragment.
 
                                                  If this attribute is omitted, then kerning
                                                  occurs for all font sizes down to a 0 point
                                                  font. */
-    std::optional<CapitalizationType> capitalization; /**< @brief  Specifies the capitalization that is to be applied to the text run. */
-    std::optional<TextPoint> spacing; /**< @brief Specifies the spacing in points between characters within a text run. */
+    std::optional<CapitalizationType> capitalization; /**< @brief  Specifies the capitalization that is to be applied to the text fragment. */
+    std::optional<TextPoint> spacing; /**< @brief Specifies the spacing in points between characters within a text fragment. */
     std::optional<bool> normalizeHeights; /**< @brief Specifies the normalization of height that is
-                                               to be applied to the text run. */
+                                               to be applied to the text fragment. */
     std::optional<double> baseline;  /**< @brief Specifies the baseline for both the superscript
                                           and subscript fonts.
 
@@ -178,27 +294,27 @@ public:
                                           using a percentage where 1% is equal to
                                           1 percent of the font size and 100% is equal to
                                           100 percent font of the font size. */
-    std::optional<bool> noProofing; /**< @brief Specifies that a run of text has been selected
+    std::optional<bool> noProofing; /**< @brief Specifies that a fragment of text has been selected
                                          by the user to not be checked for mistakes.
 
                                          Therefore if there are spelling, grammar, etc
                                          mistakes within this text the generating
                                          application should ignore them. */
-    std::optional<bool> proofingNeeded; /**< @brief  Specifies that the content of a text run
+    std::optional<bool> proofingNeeded; /**< @brief  Specifies that the content of a text fragment
                                               has changed since the proofing tools have last
                                               been run.
 
                                               Effectively this flags text that
                                               is to be checked again by the generating
                                               application for mistakes such as spelling, grammar, etc. */
-    std::optional<bool> checkForSmartTagsNeeded; /**< @brief Specifies whether or not a text run has been
+    std::optional<bool> checkForSmartTagsNeeded; /**< @brief Specifies whether or not a text fragment has been
                                                       checked for smart tags.
 
                                                       A value of
                                                       true here indicates to the generating application
-                                                      that this text run should be checked for
+                                                      that this text fragment should be checked for
                                                       smart tags. */
-    std::optional<bool> spellingErrorFound; /**< @brief  Specifies that when this run of
+    std::optional<bool> spellingErrorFound; /**< @brief  Specifies that when this fragment of
                                                  text was checked for spelling, grammar, etc. that a
                                                  mistake was indeed found.
 
@@ -207,7 +323,7 @@ public:
                                                  state of the mistakes within the document instead
                                                  of having to perform a full pass check
                                                  upon opening the document. */
-    std::optional<int> smartTagId; /**< @brief Specifies a smart tag identifier for a run of text.
+    std::optional<int> smartTagId; /**< @brief Specifies a smart tag identifier for a fragment of text.
 
                                         This ID is unique throughout the file and is used
                                         to reference corresponding auxiliary information about
@@ -215,14 +331,14 @@ public:
     QString bookmarkLinkTarget; /**< @brief Specifies the link target name that is used
                                      to reference to the proper link properties in a
                                      custom XML part within the document */
-    LineFormat line; /**< @brief Specifies the line format to be applied to this text run. */
-    FillFormat fill; /**< @brief Specifies the fill format to be applied to this text run. */
-    Effect effect; /**< @brief Specifies the effects (blur, shadow etc.) to be applied to this text run. */
-    Color highlightColor; /**< @brief Specifies the color to highlight this text run */
+    LineFormat line; /**< @brief Specifies the line format to be applied to this text fragment. */
+    FillFormat fill; /**< @brief Specifies the fill format to be applied to this text fragment. */
+    Effect effect; /**< @brief Specifies the effects (blur, shadow etc.) to be applied to this text fragment. */
+    Color highlightColor; /**< @brief Specifies the color to highlight this text fragment */
 
     /**
-     * @brief Specifies that the stroke style of an underline for a run of text should be
-     * the same as of the text run within which it is contained (that is #line).
+     * @brief Specifies that the stroke style of an underline for a fragment of text should be
+     * the same as of the text fragment within which it is contained (that is #line).
      *
      * If this parameter is set, then #textUnderline is ignored.
      */
@@ -234,8 +350,8 @@ public:
      */
     LineFormat textUnderline;
     /**
-     * @brief Specifies that the fill style of an underline for a run of text should be
-     * the same as of the text run within which it is contained (that is #fill).
+     * @brief Specifies that the fill style of an underline for a fragment of text should be
+     * the same as of the text fragment within which it is contained (that is #fill).
      *
      * If this parameter is set, then #textUnderlineFill is ignored.
      */
@@ -247,23 +363,23 @@ public:
      */
     FillFormat textUnderlineFill;
     /**
-     * @brief Specifies a Latin Font to be used for a specific run of text.
+     * @brief Specifies a Latin Font to be used for a specific fragment of text.
      */
     Font latinFont;
     /**
-     * @brief Specifies an East Asian Font to be used for a specific run of text.
+     * @brief Specifies an East Asian Font to be used for a specific fragment of text.
      */
     Font eastAsianFont;
     /**
-     * @brief Specifies a complex script (Arabic, Tamil etc.) Font to be used for a specific run of text.
+     * @brief Specifies a complex script (Arabic, Tamil etc.) Font to be used for a specific fragment of text.
      */
     Font complexScriptFont;
     /**
-     * @brief Specifies a symbolic Font to be used for a specific run of text.
+     * @brief Specifies a symbolic Font to be used for a specific fragment of text.
      */
     Font symbolFont;
     /**
-     * @brief Specifies whether the contents of this run shall have right-to-left characteristics
+     * @brief Specifies whether the contents of this fragment shall have right-to-left characteristics
      */
     std::optional<bool> rightToLeft;
 
@@ -767,22 +883,22 @@ private:
 
 class TextPrivate;
 
+/**
+ * @brief The Text class represents text placed on charts, either as a part of Title (chart title, axis title),
+ * or as a standalone entity (series name).
+ * Text can be either plain string, string reference or rich-formatted string.
+ */
 class QXLSX_EXPORT Text
 {
-    //<xsd:complexType name="CT_Tx">
-    //  <xsd:sequence>
-    //    <xsd:choice minOccurs="1" maxOccurs="1">
-    //      <xsd:element name="strRef" type="CT_StrRef" minOccurs="1" maxOccurs="1"/>
-    //      <xsd:element name="rich" type="a:CT_TextBody" minOccurs="1" maxOccurs="1"/>
-    //    </xsd:choice>
-    //  </xsd:sequence>
-    //</xsd:complexType>
 public:
+    /**
+     * @brief Specifies the Text type
+     */
     enum class Type {
-        None,
-        StringRef,
-        RichText,
-        PlainText
+        None, /**< invalid Text */
+        StringRef, /**< String reference */
+        RichText, /**< Rich-formatted text */
+        PlainText /**< Plain text */
     };
 
     /**
@@ -807,10 +923,24 @@ public:
     void setType(Type type);
     Type type() const;
 
+    /**
+     * @brief sets the text as a plain string (and changes type to be PlainText)
+     * @param s
+     */
     void setPlainString(const QString &s);
     QString toPlainString() const;
-
+    /**
+     * @brief sets text as a rich-formatted string (and changes type to be RichText).
+     * @param text
+     * @param detectHtml if set to false, the Text type will be RichText, but no formatting
+     * will be set.
+     */
     void setHtml(const QString &text, bool detectHtml = true);
+    /**
+     * @brief returns the rich-formatted text as an html-formatted string.
+     * @warning not yet implemented. Returns an empty string.
+     * @return
+     */
     QString toHtml() const;
 
     void setStringReference(const QString &ref);
@@ -818,8 +948,12 @@ public:
     QString stringReference() const;
     QStringList stringCashe() const;
 
-    bool isRichString() const; //only checks type, ignores actual formatting
-    bool isPlainString() const;
+    /**
+     * @brief checks the Text type and returns whether the type is RichText
+     * @return
+     */
+    bool isRichText() const;
+    bool isPlainText() const;
     bool isStringReference() const;
     bool isEmpty() const;
     bool isValid() const;

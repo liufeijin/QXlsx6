@@ -1200,7 +1200,7 @@ void TrendLine::readTrendLineLabel(QXmlStreamReader &reader)
 
 void TrendLine::write(QXmlStreamWriter &writer, const QString &name) const
 {
-
+//TODO:
 }
 
 /// End of TrendLine

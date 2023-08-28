@@ -111,13 +111,13 @@ void Title::setStringReference(const CellRange &range, AbstractSheet *sheet)
 bool Title::isRichString() const
 {
     if (!d) return false;
-    return (d->text.isRichString() || d->textProperties.isValid());
+    return (d->text.isRichText() || d->textProperties.isValid());
 }
 
 bool Title::isPlainString() const
 {
     if (!d) return false;
-    return ((d->text.isPlainString() || d->text.isStringReference()) && !d->textProperties.isValid());
+    return ((d->text.isPlainText() || d->text.isStringReference()) && !d->textProperties.isValid());
 }
 
 bool Title::isStringReference() const
@@ -147,16 +147,16 @@ TextProperties Title::textProperties() const
 {
     if (!d) return {};
 
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         return d->textProperties.textProperties();
-    if (d->text.isRichString()) return d->text.textProperties();
+    if (d->text.isRichText()) return d->text.textProperties();
     return {};
 }
 
 TextProperties &Title::textProperties()
 {
     if (!d) d = new TitlePrivate;
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         return d->textProperties.textProperties();
     return d->text.textProperties();
 }
@@ -164,7 +164,7 @@ TextProperties &Title::textProperties()
 void Title::setTextProperties(const TextProperties &textProperties)
 {
     if (!d) d = new TitlePrivate;
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         d->textProperties.setTextProperties(textProperties);
     else d->text.setTextProperties(textProperties);
 }
@@ -190,16 +190,16 @@ ParagraphProperties Title::defaultParagraphProperties() const
 {
     if (!d) return {};
 
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         return d->textProperties.defaultParagraphProperties();
-    if (d->text.isRichString()) return d->text.defaultParagraphProperties();
+    if (d->text.isRichText()) return d->text.defaultParagraphProperties();
     return {};
 }
 
 ParagraphProperties &Title::defaultParagraphProperties()
 {
     if (!d) d = new TitlePrivate;
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         return d->textProperties.defaultParagraphProperties();
     return d->text.defaultParagraphProperties();
 }
@@ -207,7 +207,7 @@ ParagraphProperties &Title::defaultParagraphProperties()
 void Title::setDefaultParagraphProperties(const ParagraphProperties &defaultParagraphProperties)
 {
     if (!d) d = new TitlePrivate;
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         d->textProperties.setDefaultParagraphProperties(defaultParagraphProperties);
     else d->text.setDefaultParagraphProperties(defaultParagraphProperties);
 }
@@ -216,9 +216,9 @@ CharacterProperties Title::defaultCharacterProperties() const
 {
     if (!d) return {};
 
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         return d->textProperties.defaultCharacterProperties();
-    if (d->text.isRichString()) return d->text.defaultCharacterProperties();
+    if (d->text.isRichText()) return d->text.defaultCharacterProperties();
     return {};
 }
 
@@ -236,7 +236,7 @@ CharacterProperties &Title::defaultCharacterProperties()
 void Title::setDefaultCharacterProperties(const CharacterProperties &defaultCharacterProperties)
 {
     if (!d) d = new TitlePrivate;
-    if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
+    if (!d->text.isValid() || d->text.isPlainText() || d->text.isStringReference())
         d->textProperties.setDefaultCharacterProperties(defaultCharacterProperties);
     else d->text.setDefaultCharacterProperties(defaultCharacterProperties);
 }
