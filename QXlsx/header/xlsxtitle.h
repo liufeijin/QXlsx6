@@ -144,6 +144,8 @@ public:
 
     /**
      * @brief returns a reference to the title's text.
+     * This reference allows to use the low-level methods of the Text class to add, remove or modify
+     * text fragments with specific formatting.
      * @return
      */
     Text &text();
@@ -174,15 +176,38 @@ public:
      */
     void setTextProperties(const TextProperties &textProperties);
 
-    TextFormat textFormat() const;
+//    TextFormat textFormat() const;
     TextFormat &textFormat();
-    void setTextFormat(const TextFormat &textFormat);
+//    void setTextFormat(const TextFormat &textFormat);
 
+    /**
+     * @brief returns the default paragraph properties of the title.
+     * If you want to add several paragraphs with different properties, use the Text class methods.
+     * @return
+     */
     ParagraphProperties defaultParagraphProperties() const;
+    /**
+     * @brief returns the default paragraph properties of the title.
+     * If you want to add several paragraphs with different properties, use the Text class methods.
+     * @return
+     */
     ParagraphProperties &defaultParagraphProperties();
+    /**
+     * @brief sets the default paragraph properties of the title.
+     */
     void setDefaultParagraphProperties(const ParagraphProperties &defaultParagraphProperties);
 
+    /**
+     * @brief returns the default character properties of the title.
+     * If you want to add several fragments with different properties, use the Text class methods.
+     * @return
+     */
     CharacterProperties defaultCharacterProperties() const;
+    /**
+     * @brief returns the default character properties of the title.
+     * If you want to add several fragments with different properties, use the Text class methods.
+     * @return
+     */
     CharacterProperties &defaultCharacterProperties();
     void setDefaultCharacterProperties(const CharacterProperties &defaultCharacterProperties);
 
@@ -210,12 +235,12 @@ public:
     void moveTo(const QPointF &point);
 
     /**
-     * @brief specifies that other chart elements shall be allowed to overlap this chart element.
+     * @brief returns whether other chart elements shall be allowed to overlap this chart element.
      * @return true if this chart element can be overlapped by other chart elements, false otherwise.
      */
     std::optional<bool> overlay() const;
     /**
-     * @brief specifies that other chart elements shall be allowed to overlap this chart element.
+     * @brief specifies whether other chart elements shall be allowed to overlap this chart element.
      * @param overlay true if this chart element can be overlapped by other chart elements, false otherwise.
      */
     void setOverlay(bool overlay);
@@ -225,7 +250,7 @@ public:
      */
     ShapeFormat shape() const;
     /**
-     * @brief returns a reference to the title's shape.
+     * @brief returns a reference to the title's shape parameters.
      * @return
      */
     ShapeFormat &shape();
