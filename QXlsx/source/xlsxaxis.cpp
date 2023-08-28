@@ -26,7 +26,7 @@ public:
     ShapeFormat minorGridlines;
 
     Title title;
-    Text textProperties;
+    TextFormat textProperties;
     NumberFormat numberFormat;
 
     std::optional<Axis::TickMark> majorTickMark;
@@ -373,7 +373,7 @@ std::optional<Axis::TickMark> Axis::minorTickMark() const
 
 QString Axis::titleAsString() const
 {
-    if (d) return d->title.toPlainText();
+    if (d) return d->title.toPlainString();
     return QString();
 }
 
@@ -392,7 +392,7 @@ Title &Axis::title()
 void Axis::setTitle(const QString &title)
 {
     if (!d) d = new AxisPrivate;
-    d->title.setPlainText(title);
+    d->title.setPlainString(title);
 }
 
 void Axis::setTitle(const Title &title)
@@ -675,7 +675,7 @@ void Axis::write(QXmlStreamWriter &writer) const
     }
     d->shape.write(writer, QLatin1String("c:spPr"));
 
-    if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
+    if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
 
     if (d->type == Type::Category || d->type == Type::Date) {
         writeEmptyElement(writer, QLatin1String("c:auto"), d->axAuto);
@@ -773,7 +773,7 @@ void Axis::read(QXmlStreamReader &reader)
                 d->title.read(reader);
             }
             else if (reader.name() == QLatin1String("txPr")) {
-                d->textProperties.read(reader, false);
+                d->textProperties.read(reader);
             }
             else if (reader.name() == QLatin1String("crossAx")) {
                 d->crossAxis = a.value("val").toInt();
@@ -1145,19 +1145,19 @@ void Axis::setDisplayUnits(const DisplayUnits &displayUnits)
     d->displayUnits = displayUnits;
 }
 
-Text &Axis::textProperties()
+TextFormat &Axis::textProperties()
 {
     if (!d) d = new AxisPrivate;
     return d->textProperties;
 }
 
-Text Axis::textProperties() const
+TextFormat Axis::textProperties() const
 {
     if (d) return d->textProperties;
     return {};
 }
 
-void Axis::setTextProperties(const Text &textProperties)
+void Axis::setTextProperties(const TextFormat &textProperties)
 {
     if (!d) d = new AxisPrivate;
     d->textProperties = textProperties;

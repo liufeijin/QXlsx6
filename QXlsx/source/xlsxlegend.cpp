@@ -14,7 +14,7 @@ public:
     Layout layout;
     std::optional<bool> overlay;
     ShapeFormat shape;
-    Text text;
+    TextFormat text;
 
     bool operator==(const LegendPrivate &other) const;
 };
@@ -112,19 +112,19 @@ void Legend::setShape(const ShapeFormat &shape)
     d->shape = shape;
 }
 
-Text Legend::text() const
+TextFormat Legend::text() const
 {
     if (d) return d->text;
     return {};
 }
 
-Text &Legend::text()
+TextFormat &Legend::text()
 {
     if (!d) d = new LegendPrivate;
     return d->text;
 }
 
-void Legend::setText(const Text &text)
+void Legend::setText(const TextFormat &text)
 {
     if (!d) d = new LegendPrivate;
     d->text = text;
@@ -195,7 +195,7 @@ void Legend::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("spPr"))
                 d->shape.read(reader);
             else if (reader.name() == QLatin1String("txPr"))
-                d->text.read(reader, false);
+                d->text.read(reader);
             else if (reader.name() == QLatin1String("extLst")) {
                 //TODO:
                 reader.skipCurrentElement();
@@ -219,7 +219,7 @@ void Legend::write(QXmlStreamWriter &writer) const
     d->layout.write(writer, QLatin1String("c:layout"));
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
     if (d->shape.isValid()) d->shape.write(writer, QLatin1String("c:spPr"));
-    if (d->text.isValid()) d->text.write(writer, QLatin1String("c:txPr"), false);
+    if (d->text.isValid()) d->text.write(writer, QLatin1String("c:txPr"));
     writer.writeEndElement();
 }
 
@@ -273,7 +273,7 @@ LegendEntry::LegendEntry(int index)
 
 }
 
-LegendEntry::LegendEntry(int index, bool visible, const Text &text)
+LegendEntry::LegendEntry(int index, bool visible, const TextFormat &text)
     : idx{index}, visible{visible}, entry{text}
 {
 
@@ -320,7 +320,7 @@ void LegendEntry::write(QXmlStreamWriter &writer, const QString &name) const
     writer.writeStartElement(name);
     writeEmptyElement(writer, QLatin1String("c:idx"), idx);
     if (visible.has_value()) writeEmptyElement(writer, QLatin1String("c:delete"), !visible.value());
-    if (entry.isValid()) entry.write(writer, QLatin1String("c:txPr"), false);
+    if (entry.isValid()) entry.write(writer, QLatin1String("c:txPr"));
     writer.writeEndElement();
 }
 

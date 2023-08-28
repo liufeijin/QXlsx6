@@ -532,7 +532,7 @@ void SharedLabelProperties::read(QXmlStreamReader &reader)
         shape.read(reader);
     }
     else if (name == QLatin1String("txPr")) {
-        text.read(reader, false);
+        text.read(reader);
     }
     else if (name == QLatin1String("showLegendKey")) {
         showFlags.setFlag(Label::ShowLegendKey, fromST_Boolean(a.value(QLatin1String("val"))));
@@ -570,7 +570,7 @@ void SharedLabelProperties::write(QXmlStreamWriter &writer) const
         writer.writeAttribute(QLatin1String("sourceLinked"), toST_Boolean(formatSourceLinked));
     }
     if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
-    if (text.isValid()) text.write(writer, QLatin1String("c:txPr"), false);
+    if (text.isValid()) text.write(writer, QLatin1String("c:txPr"));
     if (pos.has_value()) {
         QString s; Label::toString(pos.value(), s);
         writeEmptyElement(writer, QLatin1String("c:dLblPos"), s);

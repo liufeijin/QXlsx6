@@ -585,7 +585,7 @@ public:
 };
 
 /**
- * @brief Represents a fragment of the text paragraph with its own character formatting.
+ * @brief Represents a fragment of a text paragraph with its own character formatting.
  */
 class QXLSX_EXPORT TextRun
 {
@@ -691,12 +691,78 @@ orderly list is maintained.
     std::optional<CharacterProperties> endParagraphDefaultCharacterProperties;
 
     bool isValid() const;
+    QString toPlainString() const;
 
     bool operator ==(const Paragraph &other) const;
     bool operator !=(const Paragraph &other) const;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
+};
+
+class TextFormatPrivate;
+
+/**
+ * @brief This is a helper class. Do not use it directly. Instead use Text and Title methods.
+ */
+class TextFormat
+{
+public:
+    TextFormat();
+    TextFormat(const TextFormat &other);
+    ~TextFormat();
+    TextFormat &operator=(const TextFormat &other);
+    bool operator==(const TextFormat &other) const;
+    bool operator!=(const TextFormat &other) const;
+
+    bool isValid() const;
+    bool isEmpty() const;
+    /**
+     * @brief returns this TextFormat as a plain string, keeping paragraphs and line breaks separated by "\n".
+     * @return
+     */
+    QString toPlainString() const;
+
+    void clear();
+    void addParagraph(const Paragraph &p);
+    void insertParagraph(int index, const Paragraph &p);
+    int paragraphsCount() const;
+    Paragraph paragraph(int index) const;
+    Paragraph &paragraph(int index);
+    Paragraph &lastParagraph();
+    void setParagraph(int index, const Paragraph &paragraph);
+    void removeParagraph(int index);
+    void addFragment(const QString &text, const CharacterProperties &format);
+    void addFragment(int paragraphIndex, const QString &text, const CharacterProperties &format);
+    void insertFragment(int paragraphIndex, int fragmentIndex, const QString &text, const CharacterProperties &format);
+    void addLineBreak(const CharacterProperties &format);
+    void addLineBreak(int paragraphIndex, const CharacterProperties &format);
+    void insertLineBreak(int paragraphIndex, int fragmentIndex, const CharacterProperties &format);
+    void addTextField(const QString &guid, const QString &text, const QString &type);
+    QString fragmentText(int paragraphIndex, int fragmentIndex) const;
+    CharacterProperties fragmentFormat(int index) const;
+    TextRun fragment(int paragraphIndex, int fragmentIndex) const;
+    TextRun &fragment(int paragraphIndex, int fragmentIndex);
+    TextRun &lastFragment();
+
+    TextProperties textProperties() const;
+    TextProperties &textProperties();
+    void setTextProperties(const TextProperties &textProperties);
+    ParagraphProperties defaultParagraphProperties() const;
+    ParagraphProperties &defaultParagraphProperties();
+    void setDefaultParagraphProperties(const ParagraphProperties &defaultParagraphProperties);
+    CharacterProperties defaultCharacterProperties() const;
+    CharacterProperties &defaultCharacterProperties();
+    void setDefaultCharacterProperties(const CharacterProperties &defaultCharacterProperties);
+
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer, const QString &name) const;
+private:
+    void readParagraph(QXmlStreamReader &reader);
+    void writeParagraphs(QXmlStreamWriter &writer) const;
+
+    QSharedDataPointer<TextFormatPrivate> d;
+    friend QDebug operator<<(QDebug dbg, const TextFormat &f);
 };
 
 class TextPrivate;
@@ -719,12 +785,24 @@ public:
         PlainText
     };
 
-    Text(); // null text of type None
-    explicit Text(const QString& text); // text of type PlainText with no formatting
+    /**
+     * @brief creates invalid Text
+     */
+    Text();
+    /**
+     * @brief creates a plain Text with no rich formatting
+     * @param text
+     */
+    explicit Text(const QString& text);
+    /**
+     * @brief creates empty Text of specified type
+     * @param type
+     */
     explicit Text(Type type); //null text of specific type
 
     Text(const Text &other);
     ~Text();
+    Text &operator=(const Text &other);
 
     void setType(Type type);
     Type type() const;
@@ -743,8 +821,7 @@ public:
     bool isRichString() const; //only checks type, ignores actual formatting
     bool isPlainString() const;
     bool isStringReference() const;
-//    bool isNull() const;
-//    bool isEmpty() const;
+    bool isEmpty() const;
     bool isValid() const;
 
     /**
@@ -885,12 +962,10 @@ public:
      */
     TextRun &lastFragment();
 
-    void read(QXmlStreamReader &reader, bool diveInto = true);
-    void write(QXmlStreamWriter &writer, const QString &name, bool diveInto = true) const;
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer, const QString &name) const;
 
     operator QVariant() const;
-
-    Text &operator=(const Text &other);
 
     bool operator ==(const Text &other) const;
     bool operator !=(const Text &other) const;
@@ -898,12 +973,9 @@ private:
     void readStringReference(QXmlStreamReader &reader);
     void readRichString(QXmlStreamReader &reader);
     void readPlainString(QXmlStreamReader &reader);
-    void readParagraph(QXmlStreamReader &reader);
 
     void writeStringReference(QXmlStreamWriter &writer, const QString &name) const;
-    void writeRichString(QXmlStreamWriter &writer, const QString &name) const;
     void writePlainString(QXmlStreamWriter &writer, const QString &name) const;
-    void writeParagraphs(QXmlStreamWriter &writer) const;
 
     //TODO: all comparison operators
 //    friend bool operator==(const Text &rs1, const Text &rs2);
@@ -926,9 +998,11 @@ QDebug operator<<(QDebug dbg, const ParagraphProperties &t);
 QDebug operator<<(QDebug dbg, const CharacterProperties &t);
 QDebug operator<<(QDebug dbg, const TextRun &t);
 QDebug operator<<(QDebug dbg, const ParagraphProperties::TabAlign &t);
+QDebug operator<<(QDebug dbg, const TextFormat &f);
 
 }
 
 Q_DECLARE_METATYPE(QXlsx::Text)
+Q_DECLARE_METATYPE(QXlsx::TextFormat)
 
 #endif // XLSXTEXT_H

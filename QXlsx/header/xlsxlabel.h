@@ -109,7 +109,7 @@ public:
     QString numberFormat;
     bool formatSourceLinked = false;
     ShapeFormat shape;
-    Text text;
+    TextFormat text;
     QString separator;
 
     void read(QXmlStreamReader &reader);

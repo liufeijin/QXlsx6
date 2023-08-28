@@ -286,9 +286,9 @@ public:
     void setTitle(const QString &title);
     void setTitle(const Title &title);
 
-    Text &textProperties();
-    Text textProperties() const;
-    void setTextProperties(const Text &textProperties);
+    TextFormat &textProperties();
+    TextFormat textProperties() const;
+    void setTextProperties(const TextFormat &textProperties);
 
     QString numberFormat() const;
     void setNumberFormat(const QString &formatCode);

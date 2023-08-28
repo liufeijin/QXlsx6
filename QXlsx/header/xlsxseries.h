@@ -21,23 +21,51 @@ namespace QXlsx {
 
 class SeriesPrivate;
 
+/**
+ * @brief The PictureOptions class specifies the picture options to be used on the data point, series, wall, or floor.
+ */
 class QXLSX_EXPORT PictureOptions
 {
 public:
+    /**
+     * @brief The PictureFormat enum specifies the possible ways to place a picture on a data point, series, wall, or floor.
+     */
     enum class PictureFormat
     {
-        Stretch,
-        Stack,
-        StackScale
+        Stretch, /**<  the picture shall be anisotropic stretched to fill the data point, series, wall or floor. */
+        Stack, /**< the picture shall be stacked. */
+        StackScale /**<  the picture shall be stacked after being scaled so that
+its height is one pictureStackUnit. Does not apply to walls or floor. */
     };
+    /**
+     * @brief  specifies whether the picture shall be applied to the front of the point or series.
+     * If not set, the default value is true.
+     */
     std::optional<bool> applyToFront;
+    /**
+     * @brief specifies whether the picture shall be applied to the sides of the point or series.
+     * If not set, the default value is true.
+     */
     std::optional<bool> applyToSides;
+    /**
+     * @brief  specifies whether the picture shall be applied to the end of the point or series.
+     * If not set, the default value is true.
+     */
     std::optional<bool> applyToEnd;
+    /**
+     * @brief specifies the stretching and stacking of the picture on the data point, series, wall, or floor.
+     */
     std::optional<PictureFormat> format;
+    /**
+     * @brief  specifies the unit for each picture on the chart. This element
+     * applies only if the picture format is StackScale.
+     */
     std::optional<double> pictureStackUnit;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
+    bool operator==(const PictureOptions &other) const;
+    bool operator!=(const PictureOptions &other) const;
 };
 
 class QXLSX_EXPORT DataPoint
@@ -53,6 +81,8 @@ public:
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
+    bool operator==(const DataPoint &other) const;
+    bool operator!=(const DataPoint &other) const;
 };
 
 
@@ -75,34 +105,34 @@ public:
      */
     enum class Type
     {
-        NumberReference,
-        StringReference,
-        NumberLiterals,
-        StringLiterals,
-        MultiLevel,
-        None
+        Invalid, /**< invalid data */
+        NumberReference, /**< reference to number data*/
+        StringReference, /**< reference to string data */
+        NumberLiterals, /**< number data specified as a vector of double */
+        StringLiterals, /**< string data specified as a string list */
+        MultiLevel, /**< multileveled (mixed) data */
     };
     /**
-     * @brief DataSource creates invalid DataSource
+     * @brief creates invalid DataSource
      */
     DataSource();
     /**
-     * @brief DataSource creates DataSource of specified type
+     * @brief creates DataSource of specified type
      * @param type
      */
     explicit DataSource(Type type);
     /**
-     * @brief DataSource creates DataSource of type NumberLiterals and sets numberData to it
-     * @param numberData non-empty vector of data
+     * @brief creates DataSource of type NumberLiterals and sets numberData to it
+     * @param numberData non-empty vector of data. If numberData is empty, DataSource is invalid.
      */
     explicit DataSource(const QVector<double> &numberData);
     /**
-     * @brief DataSource creates DataSource of type StringLiterals and sets stringData to it
-     * @param stringData non-empty list of data
+     * @brief creates DataSource of type StringLiterals and sets stringData to it
+     * @param stringData non-empty list of data. If stringData is empty, DataSource is invalid.
      */
     explicit DataSource(const QStringList &stringData);
     /**
-     * @brief DataSource creates DataSource of specified type and sets data reference
+     * @brief creates DataSource of specified type and sets data reference
      * @param type either NumberReference, StringReference, or MultiLevel
      * @param reference string like "Sheet1!$A$1:$A$10"
      */
@@ -184,27 +214,12 @@ private:
     });
 };
 
-//TODO:
-class QXLSX_EXPORT TrendLineLabel
-{
-public:
-    QString numberFormat;
-    Title title;
-
-    bool isValid() const;
-
-    bool operator==(const TrendLineLabel &other) const;
-    bool operator!=(const TrendLineLabel &other) const;
-
-    void read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer, const QString &name) const;
-};
-
 /**
  * @brief Represents a trend line for Line, Scatter, Bar, Area, Bubble series
  */
 class QXLSX_EXPORT TrendLine
 {
+    //TODO: convert to shared data
 public:
     /**
      * @brief The LineType enum specifies the trend line type
@@ -213,15 +228,33 @@ public:
     {
         Invalid, /**< invalid type */
         Exponential, /**< Exponential trend line*/
-        Linear, /**< Linear trend line*/
+        Linear, /**< Linear trend line (default)*/
         Logarithmic, /**< Logarithmic trend line*/
         MovingAverage, /**< MovingAverage trend line*/
         Polynomial, /**< Polynomial trend line*/
         Power, /**< Power trend line*/
     };
+
+    TrendLine();
+    TrendLine(Type type);
+    TrendLine(const TrendLine &other);
+    TrendLine &operator=(const TrendLine &other);
+    ~TrendLine();
+
+    bool operator==(const TrendLine &other) const;
+    bool operator!=(const TrendLine &other) const;
+
+    /**
+    * @brief trend line type. See TrendLine::Type enum.
+    */
+    Type type = Type::Invalid; //required
+
     /**
      * @brief trend line name to be shown in the chart legend.
+     *
      * Can be empty, it means the default-constructed trend line name will be shown in the legend.
+     * Can be overwritten in the label.
+     *
      */
     QString name; //optional
     /**
@@ -229,16 +262,17 @@ public:
      * If not valid, the trend line is solid black
      */
     ShapeFormat shape; //optional
+
     /**
-     * @brief trend line type. See TrendLine::Type enum.
-     */
-    Type type = Type::Invalid; //required
-    /**
-     * @brief order of the polynomial trend line
+     * @brief order of the polynomial trend line.
+     *
+     * If not set, the default value is 2.
      */
     std::optional<int> order; //2..6
     /**
      * @brief period of the moving average trend line.
+     *
+     * If not set, the default value is 2.
      */
     std::optional<int> period; //2..
     /**
@@ -262,19 +296,22 @@ public:
      */
     std::optional<bool> dispEq;
     /**
-     * @brief specifies the trend line label parameters.
+     * @brief specifies the number format of the trend line's label.
      */
-    std::optional<TrendLineLabel> label;
-
+    QString numberFormat;
+    /**
+     * @brief specifies the trend line's label parameters (rich text, layout, line and fill etc.)
+     */
+    Title label;
 
     bool isValid() const;
-
-    bool operator==(const ErrorBars &other) const;
-    bool operator!=(const ErrorBars &other) const;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
 private:
+    friend class QXlsx::Title;
+    void readTrendLineLabel(QXmlStreamReader &reader);
+    ExtensionList extLst;
     SERIALIZE_ENUM(Type,
     {
         {Type::Exponential, "exp"},
@@ -395,17 +432,20 @@ public:
      */
     void setNameReference(const QString &reference);
     /**
-     * @brief setName sets full-formatted Text as a series name
-     * @param name
-     */
-    void setName(const Text &name);
-    /**
      * @brief setName sets a plain-string name as a series name
      * @param name
      */
     void setName(const QString &name);
-    Text name() const;
-    Text &name();
+    /**
+     * @brief returns the series name
+     * @return
+     */
+    QString name() const;
+    /**
+     * @brief returns whether the series name is a reference.
+     * @return true if the series name is a string like "Sheet1!$A$1:$A$2".
+     */
+    bool nameIsReference() const;
 
     void setCategoryData(const DataSource &data);
     void setValueData(const DataSource &data);

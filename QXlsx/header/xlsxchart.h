@@ -47,7 +47,7 @@ public:
     std::optional<bool> showOutline; /**< table outline border visibility */
     std::optional<bool> showKeys; /**< legend keys visibility */
     ShapeFormat shape; /**< line and fill of the data table cells */
-    Text textProperties; /**< text, paragraph and character properties */
+    TextFormat textProperties; /**< text, paragraph and character properties */
     ExtensionList extension;
 
     void read(QXmlStreamReader &reader);

@@ -167,7 +167,7 @@ namespace QXlsx {
         //    std::optional<PivotSource> pivotSource;
         //    std::optional<Protection> protection;
         ShapeFormat chartSpaceShape;
-        Text textProperties;
+        TextFormat textProperties;
         //    std::optional<ExternalData> externalData;
         //    std::optional<PrintSettings> printSettings;
         //    std::optional<Reference> userShapes;
@@ -566,7 +566,7 @@ void Chart::setTitle(const QString &title)
 {
     Q_D(Chart);
 
-    d->title.setPlainText(title);
+    d->title.setPlainString(title);
 }
 
 void Chart::setTitle(const Title &title)
@@ -776,7 +776,7 @@ void Chart::saveToXmlFile(QIODevice *device) const
 
     d->saveXmlChart(writer);
     if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "c:spPr");
-    if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"), false);
+    if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
 
     writer.writeEndElement();// c:chartSpace
@@ -823,7 +823,7 @@ bool Chart::loadFromXmlFile(QIODevice *device)
             else if (reader.name() == QLatin1String("spPr"))
                 d->chartSpaceShape.read(reader);
             else if (reader.name() == QLatin1String("txPr"))
-                d->textProperties.read(reader, false);
+                d->textProperties.read(reader);
             else if (reader.name() == QLatin1String("externalData")) {
                 //TODO
             }
@@ -2224,7 +2224,7 @@ void DataTable::read(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("spPr"))
                 shape.read(reader);
             else if (reader.name() == QLatin1String("txPr"))
-                textProperties.read(reader, false);
+                textProperties.read(reader);
             else if (reader.name() == QLatin1String("extLst"))
                 extension.read(reader);
         }
@@ -2241,7 +2241,7 @@ void DataTable::write(QXmlStreamWriter &writer, const QString &name) const
     writeEmptyElement(writer, QLatin1String("c:showOutline"), showOutline);
     writeEmptyElement(writer, QLatin1String("c:showKeys"), showKeys);
     if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
-    if (textProperties.isValid()) textProperties.write(writer, QLatin1String("c:txPr"), false);
+    if (textProperties.isValid()) textProperties.write(writer, QLatin1String("c:txPr"));
     if (extension.isValid()) extension.write(writer, QLatin1String("c:extLst"));
     writer.writeEndElement();
 }

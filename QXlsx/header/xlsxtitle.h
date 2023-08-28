@@ -84,12 +84,12 @@ public:
      * @brief returns the title's text as plain string
      * @return
      */
-    QString toPlainText() const;
+    QString toPlainString() const;
     /**
      * @brief sets the title's text as plain string and _clears_ the formatting.
      * @param text a plain string.
      */
-    void setPlainText(const QString &text);
+    void setPlainString(const QString &text);
 
     /**
      * @brief returns the title's text as an html string (not implemented yet).
@@ -103,12 +103,12 @@ public:
     void setHtml(const QString &formattedText);
 
     /**
-     * @brief returns the title's text as a reference string.
+     * @brief returns the title's text as a string reference.
      * @return valid string if the title is reference text, empty string otherwise.
      */
     QString stringReference() const;
     /**
-     * @brief sets the title's text as a reference string.
+     * @brief sets the title's text as a string reference.
      * @note the method does not check reference for validity.
      * @param reference a string like "Sheet1!A1".
      */
@@ -173,6 +173,10 @@ public:
      * @param textProperties
      */
     void setTextProperties(const TextProperties &textProperties);
+
+    TextFormat textFormat() const;
+    TextFormat &textFormat();
+    void setTextFormat(const TextFormat &textFormat);
 
     ParagraphProperties defaultParagraphProperties() const;
     ParagraphProperties &defaultParagraphProperties();

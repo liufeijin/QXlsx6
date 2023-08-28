@@ -39,11 +39,11 @@ public:
      * @param visible visibility of the LegendEntry.
      * @param text text of the LegendEntry.
      */
-    LegendEntry(int index, bool visible, const Text &text);
+    LegendEntry(int index, bool visible, const TextFormat &text);
 
     int idx = -1;
     std::optional<bool> visible;
-    Text entry;
+    TextFormat entry;
 
     bool isValid() const;
     bool operator==(const LegendEntry &other) const;
@@ -88,9 +88,9 @@ public:
     ShapeFormat &shape();
     void setShape(const ShapeFormat &shape);
 
-    Text text() const;
-    Text &text();
-    void setText(const Text &text);
+    TextFormat text() const;
+    TextFormat &text();
+    void setText(const TextFormat &text);
 
     /**
      * @brief sets visibility to the specific legend entry.

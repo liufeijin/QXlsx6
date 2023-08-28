@@ -4,12 +4,15 @@
 
 namespace QXlsx {
 
+/// SeriesPrivate
+
 class SeriesPrivate : public QSharedData
 {
 public:
     SeriesPrivate();
     SeriesPrivate(const SeriesPrivate &other);
     ~SeriesPrivate();
+    bool operator==(const SeriesPrivate &other) const;
 
     //Properties common to all series types
     Series::Type type = Series::Type::None;
@@ -30,7 +33,8 @@ public:
 
 
     //Line, Scatter, Bar, Area, Bubble
-//    <xsd:element name="trendline" type="CT_Trendline" minOccurs="0" maxOccurs="unbounded"/>
+    QList<TrendLine> trendLines;
+
     //Line, Scatter, Bar, Area, Bubble
     std::optional<ErrorBars> errorBars; //TODO: due to some required properties errorBars is always valid, so rewrite it as QSharedData
 
@@ -61,8 +65,14 @@ SeriesPrivate::SeriesPrivate()
 
 }
 
-SeriesPrivate::SeriesPrivate(const SeriesPrivate &other) : QSharedData(other)
-  //, TODO: all the members
+SeriesPrivate::SeriesPrivate(const SeriesPrivate &other) : QSharedData(other),
+    type{other.type}, index{other.index}, order{other.order}, name{other.name},
+    shape{other.shape}, dataPoints{other.dataPoints}, labels{other.labels},
+    xVal{other.xVal}, yVal{other.yVal}, bubbleVal{other.bubbleVal},
+    trendLines{other.trendLines}, errorBars{other.errorBars}, marker{other.marker},
+    invertIfNegative{other.invertIfNegative}, pictureOptions{other.pictureOptions},
+    smooth{other.smooth}, barShape{other.barShape}, pieExplosion{other.pieExplosion},
+    bubble3D{other.bubble3D}
 {
 
 }
@@ -72,28 +82,33 @@ SeriesPrivate::~SeriesPrivate()
 
 }
 
-bool TrendLineLabel::isValid() const
+bool SeriesPrivate::operator==(const SeriesPrivate &other) const
 {
-    return !numberFormat.isEmpty() || title.isValid();
+    if (type != other.type) return false;
+    if (index != other.index) return false;
+    if (order != other.order) return false;
+    if (name != other.name) return false;
+    if (shape != other.shape) return false;
+    if (dataPoints != other.dataPoints) return false;
+    if (labels != other.labels) return false;
+    if (xVal != other.xVal) return false;
+    if (yVal != other.yVal) return false;
+    if (bubbleVal != other.bubbleVal) return false;
+    if (trendLines != other.trendLines) return false;
+    if (errorBars != other.errorBars) return false;
+    if (marker != other.marker) return false;
+    if (invertIfNegative != other.invertIfNegative) return false;
+    if (pictureOptions != other.pictureOptions) return false;
+    if (smooth != other.smooth) return false;
+    if (barShape != other.barShape) return false;
+    if (pieExplosion != other.pieExplosion) return false;
+    if (bubble3D != other.bubble3D) return false;
+    return true;
 }
 
-bool TrendLineLabel::operator==(const TrendLineLabel &other) const
-{
-    return numberFormat == other.numberFormat && title == other.title;
-}
-bool TrendLineLabel::operator!=(const TrendLineLabel &other) const
-{
-    return !(operator==(other));
-}
+/// End of SeriesPrivate
 
-void TrendLineLabel::read(QXmlStreamReader &reader)
-{
-    //TODO
-}
-void TrendLineLabel::write(QXmlStreamWriter &writer, const QString &name) const
-{
-    //TODO
-}
+/// Series
 
 Series::Series()
 {
@@ -129,6 +144,18 @@ Series &Series::operator=(const Series &other)
     if (*this != other)
         d = other.d;
     return *this;
+}
+
+bool Series::operator ==(const Series &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return (*this->d.constData() == *other.d.constData());
+}
+
+bool Series::operator !=(const Series &other) const
+{
+    return !operator==(other);
 }
 
 int Series::index() const
@@ -269,28 +296,22 @@ void Series::setNameReference(const QString &reference)
     d->name.setStringReference(reference);
 }
 
-void Series::setName(const Text &name)
-{
-    if (!d) d = new SeriesPrivate;
-    d->name = name;
-}
-
 void Series::setName(const QString &name)
 {
     if (!d) d = new SeriesPrivate;
     d->name.setPlainString(name);
 }
 
-Text Series::name() const
+QString Series::name() const
 {
-    if (d) return d->name;
+    if (d) return d->name.toPlainString();
     return {};
 }
 
-Text &Series::name()
+bool Series::nameIsReference() const
 {
-    if (!d) d = new SeriesPrivate;
-    return d->name;
+    if (d) return d->name.isStringReference();
+    return false;
 }
 
 DataSource Series::categoryData() const
@@ -606,6 +627,10 @@ void Series::write(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
+/// End of Series
+
+/// PictureOptions
+
 void PictureOptions::read(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
@@ -614,7 +639,6 @@ void PictureOptions::read(QXmlStreamReader &reader)
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("applyToFront"))
-                //parseAttributeInt(a, QLatin1String(""), );
                 parseAttributeBool(a, QLatin1String("val"), applyToFront);
             else if (reader.name() == QLatin1String("applyToSides"))
                 parseAttributeBool(a, QLatin1String("val"), applyToSides);
@@ -665,6 +689,25 @@ void PictureOptions::write(QXmlStreamWriter &writer, const QString &name) const
     writer.writeEndElement();
 }
 
+bool PictureOptions::operator==(const PictureOptions &other) const
+{
+    if (applyToFront != other.applyToFront) return false;
+    if (applyToSides != other.applyToSides) return false;
+    if (applyToEnd != other.applyToEnd) return false;
+    if (format != other.format) return false;
+    if (pictureStackUnit != other.pictureStackUnit) return false;
+    return true;
+}
+
+bool PictureOptions::operator!=(const PictureOptions &other) const
+{
+    return !operator==(other);
+}
+
+/// End of PictureOptions
+
+/// DataPoint
+
 void DataPoint::read(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
@@ -712,7 +755,29 @@ void DataPoint::write(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-DataSource::DataSource() : type{Type::None}
+bool DataPoint::operator==(const DataPoint &other) const
+{
+    if (index != other.index) return false;
+    if (invertIfNegative != other.invertIfNegative) return false;
+    if (bubble3D != other.bubble3D) return false;
+    if (marker != other.marker) return false;
+    if (explosion != other.explosion) return false;
+    if (shape != other.shape) return false;
+    if (pictureOptions != other.pictureOptions) return false;
+
+    return true;
+}
+
+bool DataPoint::operator!=(const DataPoint &other) const
+{
+    return !operator==(other);
+}
+
+/// End of DataPoint
+
+/// DataSource
+
+DataSource::DataSource() : type{Type::Invalid}
 {
 
 }
@@ -725,27 +790,27 @@ DataSource::DataSource(DataSource::Type type) : type{type}
 DataSource::DataSource(const QVector<double> &numberData)
     : type{Type::NumberLiterals}, numberData{numberData}
 {
-
+    if (numberData.isEmpty()) type = Type::Invalid;
 }
 
 DataSource::DataSource(const QStringList &stringData)
     : type{Type::StringLiterals}, stringData{stringData.toVector()}
 {
-
+    if (stringData.isEmpty()) type = Type::Invalid;
 }
 
 DataSource::DataSource(DataSource::Type type, const QString &reference)
     : type{type}, reference{reference}
 {
     // type checking
-    if (!reference.isEmpty() && (type == Type::NumberReference || type == Type::StringReference
+    if (!reference.isEmpty() && !(type == Type::NumberReference || type == Type::StringReference
                                  || type == Type::MultiLevel))
-        type = Type::None;
+        type = Type::Invalid;
 }
 
 bool DataSource::isValid() const
 {
-    if (type == Type::None) return false;
+    if (type == Type::Invalid) return false;
     if ((type == Type::NumberReference || type == Type::StringReference
         || type == Type::MultiLevel ) && reference.isEmpty()) return false;
     if (type == Type::NumberLiterals && numberData.isEmpty()) return false;
@@ -771,7 +836,7 @@ bool DataSource::operator!=(const DataSource &other) const
 void DataSource::read(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
-    if (type == Type::None) {
+    if (type == Type::Invalid) {
         if (name == QLatin1String("numRef")) type = Type::NumberReference;
         if (name == QLatin1String("numLit")) type = Type::NumberLiterals;
         if (name == QLatin1String("strRef")) type = Type::StringReference;
@@ -832,7 +897,7 @@ void DataSource::read(QXmlStreamReader &reader)
 
 void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
 {
-    if (type == Type::None) {
+    if (type == Type::Invalid) {
         return;
     }
 
@@ -886,6 +951,10 @@ void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
 
     writer.writeEndElement();
 }
+
+/// End of DataSource
+
+/// ErrorBars
 
 bool ErrorBars::isValid() const
 {
@@ -961,15 +1030,180 @@ void ErrorBars::write(QXmlStreamWriter &writer, const QString &name) const
     writer.writeEndElement();
 }
 
-bool Series::operator ==(const Series &other) const
+bool ErrorBars::operator==(const ErrorBars &other) const
 {
-    return d == other.d;
+    if (direction != other.direction) return false;
+    if (barType != other.barType) return false;
+    if (valueType != other.valueType) return false;
+    if (noEndCap != other.noEndCap) return false;
+    if (plus != other.plus) return false;
+    if (minus != other.minus) return false;
+    if (value != other.value) return false;
+    if (shape != other.shape) return false;
+    return true;
+}
+bool ErrorBars::operator!=(const ErrorBars &other) const
+{
+    return !operator==(other);
 }
 
-bool Series::operator !=(const Series &other) const
+/// End of ErrorBars
+
+/// TrendLine
+
+TrendLine::TrendLine() : type{TrendLine::Type::Invalid}
 {
-    return d != other.d;
+
 }
+TrendLine::TrendLine(Type type) : type{type}
+{
+
+}
+TrendLine::TrendLine(const TrendLine &other) :
+    type{other.type}, name{other.name}, shape{other.shape}, order{other.order},
+    period{other.period}, forward{other.forward}, backward{other.backward},
+    intercept{other.intercept}, dispRSqr{other.dispRSqr}, dispEq{other.dispEq},
+    numberFormat{other.numberFormat}, label{other.label}
+{
+
+}
+
+TrendLine &TrendLine::operator=(const TrendLine &other)
+{
+    if (*this != other) {
+        type = other.type;
+        name = other.name;
+        shape = other.shape;
+        order = other.order;
+        period = other.period;
+        forward = other.forward;
+        backward = other.backward;
+        intercept = other.intercept;
+        dispRSqr = other.dispRSqr;
+        dispEq = other.dispEq;
+        numberFormat = other.numberFormat;
+        label = other.label;
+    }
+    return *this;
+}
+
+TrendLine::~TrendLine()
+{
+
+}
+
+bool TrendLine::operator==(const TrendLine &other) const
+{
+    if (type != other.type) return false;
+    if (name != other.name) return false;
+    if (shape != other.shape) return false;
+    if (order != other.order) return false;
+    if (period != other.period) return false;
+    if (forward != other.forward) return false;
+    if (backward != other.backward) return false;
+    if (intercept != other.intercept) return false;
+    if (dispRSqr != other.dispRSqr) return false;
+    if (dispEq != other.dispEq) return false;
+    if (numberFormat != other.numberFormat) return false;
+    if (label != other.label) return false;
+    return true;
+}
+
+bool TrendLine::operator!=(const TrendLine &other) const
+{
+    return !operator==(other);
+}
+
+bool TrendLine::isValid() const
+{
+    if (type == Type::Invalid) return false;
+    if (!name.isEmpty()) return true;
+    if (shape.isValid()) return true;
+    if (order.has_value()) return true;
+    if (period.has_value()) return true;
+    if (forward.has_value()) return true;
+    if (backward.has_value()) return true;
+    if (intercept.has_value()) return true;
+    if (dispRSqr.has_value()) return true;
+    if (dispEq.has_value()) return true;
+    if (!numberFormat.isEmpty()) return true;
+    if (label.isValid()) return true;
+    return false;
+}
+
+void TrendLine::read(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
+            if (reader.name() == QLatin1String("name"))
+                this->name = reader.readElementText();
+            else if (reader.name() == QLatin1String("spPr"))
+                shape.read(reader);
+            else if (reader.name() == QLatin1String("trendlineType")) {
+                Type t; fromString(a.value(QLatin1String("val")).toString(), t);
+                type = t;
+            }
+            else if (reader.name() == QLatin1String("order"))
+                parseAttributeInt(a, QLatin1String("val"), order);
+            else if (reader.name() == QLatin1String("period"))
+                parseAttributeInt(a, QLatin1String("val"), period);
+            else if (reader.name() == QLatin1String("forward"))
+                parseAttributeDouble(a, QLatin1String("val"), forward);
+            else if (reader.name() == QLatin1String("backward"))
+                parseAttributeDouble(a, QLatin1String("val"), backward);
+            else if (reader.name() == QLatin1String("intercept"))
+                parseAttributeDouble(a, QLatin1String("val"), intercept);
+            else if (reader.name() == QLatin1String("dispRSqr"))
+                parseAttributeBool(a, QLatin1String("val"), dispRSqr);
+            else if (reader.name() == QLatin1String("dispEq"))
+                parseAttributeBool(a, QLatin1String("val"), dispEq);
+            else if (reader.name() == QLatin1String("trendlineLbl")) {
+                readTrendLineLabel(reader);
+            }
+            else if (reader.name() == QLatin1String("extLst"))
+                extLst.read(reader);
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void TrendLine::readTrendLineLabel(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    label.read(reader);
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
+            if (reader.name() == QLatin1String("layout"))
+                label.layout().read(reader);
+            else if (reader.name() == QLatin1String("tx"))
+                label.text().read(reader);
+            else if (reader.name() == QLatin1String("numFmt"))
+                numberFormat = a.value(QLatin1String("val")).toString();
+            else if (reader.name() == QLatin1String("spPr"))
+                label.shape().read(reader);
+            else if (reader.name() == QLatin1String("txPr")) {
+                label.textFormat().read(reader);
+            }
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void TrendLine::write(QXmlStreamWriter &writer, const QString &name) const
+{
+
+}
+
+/// End of TrendLine
 
 }
 

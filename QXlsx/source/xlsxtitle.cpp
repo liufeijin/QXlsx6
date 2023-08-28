@@ -24,7 +24,7 @@ public:
     std::optional<bool> overlay; //optional, c:overlay
     ShapeFormat shape;
 
-    Text textProperties;
+    TextFormat textProperties; //CT_TextBody
 
     bool operator==(const TitlePrivate &other) const;
 
@@ -60,13 +60,13 @@ Title::~Title()
 
 }
 
-QString Title::toPlainText() const
+QString Title::toPlainString() const
 {
     if (d) return d->text.toPlainString();
     return {};
 }
 
-void Title::setPlainText(const QString &text)
+void Title::setPlainString(const QString &text)
 {
     if (!d) d = new TitlePrivate;
     d->text.setHtml(text, false);
@@ -167,6 +167,23 @@ void Title::setTextProperties(const TextProperties &textProperties)
     if (!d->text.isValid() || d->text.isPlainString() || d->text.isStringReference())
         d->textProperties.setTextProperties(textProperties);
     else d->text.setTextProperties(textProperties);
+}
+
+TextFormat Title::textFormat() const
+{
+    if (!d) return {};
+    return d->textProperties;
+}
+
+TextFormat &Title::textFormat()
+{
+    if (!d) d = new TitlePrivate;
+    return d->textProperties;
+}
+void Title::setTextFormat(const TextFormat &textFormat)
+{
+    if (!d) d = new TitlePrivate;
+    d->textProperties = textFormat;
 }
 
 ParagraphProperties Title::defaultParagraphProperties() const
@@ -293,7 +310,7 @@ void Title::write(QXmlStreamWriter &writer, const QString &name) const
     if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
 
     if (d->textProperties.isValid())
-        d->textProperties.write(writer, QLatin1String("c:txPr"), false);
+        d->textProperties.write(writer, QLatin1String("c:txPr"));
 
     writer.writeEndElement();
 }
@@ -312,7 +329,7 @@ void Title::read(QXmlStreamReader &reader)
                 parseAttributeBool(a, QLatin1String("val"), d->overlay);
             else if (reader.name() == QLatin1String("spPr")) d->shape.read(reader);
             else if (reader.name() == QLatin1String("txPr")) {
-                d->textProperties.read(reader, false);
+                d->textProperties.read(reader);
             }
             else reader.skipCurrentElement();
         }
