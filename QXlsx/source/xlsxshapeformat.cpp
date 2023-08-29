@@ -110,6 +110,14 @@ void ShapeFormat::setPresetGeometry(PresetGeometry2D val)
     d->presetGeometry = val;
 }
 
+void ShapeFormat::setPresetGeometry(ShapeType shapeType)
+{
+    if (!d) d = new ShapePrivate;
+    PresetGeometry2D g;
+    g.presetShape = shapeType;
+    d->presetGeometry = g;
+}
+
 FillFormat &ShapeFormat::fill()
 {
     if (!d) d = new ShapePrivate;
@@ -294,11 +302,22 @@ bool ShapeFormat::operator !=(const ShapeFormat &other) const
 
 QDebug operator<<(QDebug dbg, const ShapeFormat &f)
 {
-    // TODO: write all members
     QDebugStateSaver saver(dbg);
+    dbg.setAutoInsertSpaces(false);
+    dbg << "QXlsx::ShapeFormat(";
+    if (f.d->blackWhiteMode.has_value()) {
+        QString s; ShapeFormat::toString(f.d->blackWhiteMode.value(), s);
+        dbg << "blackWhiteMode: "<<s<<",";
+    }
+    if (f.d->xfrm.has_value()) dbg << "transform2D: "<< f.d->xfrm.value() << ", ";
+    if (f.d->presetGeometry.has_value()) dbg << "presetGeometry: "<< f.d->presetGeometry.value() << ", ";
+    if (f.d->fill.isValid()) dbg << "fill: "<<f.d->fill<<", ";
+    if (f.d->line.isValid()) dbg << "line: "<<f.d->line<<", ";
+    if (f.d->effectList.isValid()) dbg << "effectList: "<<f.d->effectList<<", ";
+    if (f.d->scene3D.has_value()) dbg << "scene3D: "<< f.d->scene3D.value() << ", ";
+    if (f.d->shape3D.has_value()) dbg << "shape3D: "<< f.d->shape3D.value();
 
-    dbg.nospace() << "QXlsx::ShapeFormat()";
-
+    dbg << ")";
     return dbg;
 }
 

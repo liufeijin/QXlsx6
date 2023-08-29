@@ -74,6 +74,8 @@ int main(int argc, char *argv[])
     bottomAxis.setCrossAxis(&leftAxis);
     rightAxis.setCrossAxis(&bottom2Axis);
 
+    chart2->title().textProperties().textShape = TextShapeType::textChevron;
+
     //The first series - bar series
     chart2->setType(Chart::Type::Bar);
     chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false);

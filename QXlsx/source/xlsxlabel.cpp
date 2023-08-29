@@ -136,10 +136,90 @@ void Label::setText(const Text &text)
     d->text = text;
 }
 
+Label::ShowParameters Label::showParameters() const
+{
+    if (d) return d->properties.showFlags;
+    return {};
+}
+
+void Label::setShowParameters(ShowParameters showParameters)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags = showParameters;
+}
+
 void Label::setShowCategory(bool show)
 {
     if (!d) d = new LabelPrivate;
     d->properties.showFlags.setFlag(ShowCategory, show);
+}
+
+void Label::setShowLegendKey(bool show)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(ShowLegendKey, show);
+}
+void Label::setShowValue(bool show)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(ShowValue, show);
+}
+void Label::setShowSeries(bool show)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(ShowSeries, show);
+}
+void Label::setShowPercent(bool show)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(ShowPercent, show);
+}
+void Label::setShowBubbleSize(bool show)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(ShowBubbleSize, show);
+}
+void Label::setShowParameter(ShowParameter parameter, bool value)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.showFlags.setFlag(parameter, value);
+}
+
+bool Label::testShowParameter(ShowParameter parameter) const
+{
+    if (d) return d->properties.showFlags.testFlag(parameter);
+    return false;
+}
+
+bool Label::testShowCategory() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowCategory);
+    return false;
+}
+bool Label::testShowLegendKey() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowLegendKey);
+    return false;
+}
+bool Label::testShowValue() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowValue);
+    return false;
+}
+bool Label::testShowSeries() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowSeries);
+    return false;
+}
+bool Label::testShowPercent() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowPercent);
+    return false;
+}
+bool Label::testShowBubbleSize() const
+{
+    if (d) return d->properties.showFlags.testFlag(ShowParameter::ShowBubbleSize);
+    return false;
 }
 
 void Label::setPosition(Label::Position position)

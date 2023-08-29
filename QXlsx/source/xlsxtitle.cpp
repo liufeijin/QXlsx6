@@ -309,7 +309,7 @@ void Title::write(QXmlStreamWriter &writer, const QString &name) const
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
     if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
 
-    if (d->textProperties.isValid())
+    if (d->textProperties.isValid() && d->text.type() == Text::Type::StringRef)
         d->textProperties.write(writer, QLatin1String("c:txPr"));
 
     writer.writeEndElement();

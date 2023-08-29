@@ -38,7 +38,11 @@ public:
         Hidden, // "hidden
     };
 
+    /**
+     * @brief creates a rectangular shape with default line and fill
+     */
     ShapeFormat();
+    //TODO: add methods to create a shape with line, fill, shape
     ShapeFormat(const ShapeFormat &other);
     ~ShapeFormat();
     ShapeFormat &operator=(const ShapeFormat &other);
@@ -49,9 +53,9 @@ public:
     std::optional<Transform2D> transform2D() const;
     void setTransform2D(Transform2D val);
 
-    //TODO: add methods to set the shape directly.
     std::optional<PresetGeometry2D> presetGeometry() const;
     void setPresetGeometry(PresetGeometry2D val);
+    void setPresetGeometry(ShapeType shapeType);
 
     FillFormat &fill();
     FillFormat fill() const;

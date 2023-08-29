@@ -939,7 +939,6 @@ QXlsx::Text::operator QVariant() const
 
 bool TextProperties::isValid() const
 {
-    //TODO: переписать
     if (spcFirstLastPara.has_value()) return true;
     if (verticalOverflow.has_value()) return true;
     if (horizontalOverflow.has_value()) return true;
@@ -959,6 +958,13 @@ bool TextProperties::isValid() const
     if (forceAntiAlias.has_value()) return true;
     if (upright.has_value()) return true;
     if (compatibleLineSpacing.has_value()) return true;
+    if (textShape.has_value()) return true;
+    if (textAutofit.has_value()) return true;
+    if (fontScale.has_value()) return true;
+    if (lineSpaceReduction.has_value()) return true;
+    if (scene3D.has_value()) return true;
+    if (text3D.has_value()) return true;
+    if (z.isValid()) return true;
 
     return false;
 }

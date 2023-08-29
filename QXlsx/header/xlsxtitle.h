@@ -161,12 +161,14 @@ public:
     void setText(const Text &text);
 
     /**
-     * @brief returns a copy of the title's text properties. See TextProperties for more info.
+     * @brief returns a copy of the title's text properties.
+     * Text properties define the overall layout of the text box within its bounding rectangle.
      * @return
      */
     TextProperties textProperties() const;
     /**
-     * @brief returns a reference to the title's text properties. See TextProperties for more info.
+     * @brief returns a reference to the title's text properties.
+     * Text properties define the overall layout of the text box within its bounding rectangle.
      * @return
      */
     TextProperties &textProperties();

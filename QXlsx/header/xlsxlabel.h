@@ -17,6 +17,7 @@
 namespace QXlsx {
 
 class LabelPrivate;
+//TODO: get rid of SharedLabelProperties exposed
 class SharedLabelProperties;
 
 class QXLSX_EXPORT Label
@@ -67,8 +68,31 @@ public:
     Text text() const;
     void setText(const Text &text);
 
-    // TODO: the rest of
+    ShowParameters showParameters() const;
+    void setShowParameters(ShowParameters showParameters);
+
+    void setShowParameter(ShowParameter parameter, bool value);
+    /**
+     * @brief test if parameter is set.
+     * @param parameter parameter to test.
+     * @return true if parameter is set, false if the parameter is not set or label is not valid.
+     */
+    bool testShowParameter(ShowParameter parameter) const;
+
     void setShowCategory(bool show);
+    void setShowLegendKey(bool show);
+    void setShowValue(bool show);
+    void setShowSeries(bool show);
+    void setShowPercent(bool show);
+    void setShowBubbleSize(bool show);
+
+    bool testShowCategory() const;
+    bool testShowLegendKey() const;
+    bool testShowValue() const;
+    bool testShowSeries() const;
+    bool testShowPercent() const;
+    bool testShowBubbleSize() const;
+
 
     void setPosition(Position pos);
     Position position() const;

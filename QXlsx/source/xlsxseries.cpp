@@ -194,58 +194,70 @@ void Series::setOrder(int order)
     d->order = order;
 }
 
-DataSource Series::categoryDataSource() const
+DataSource Series::categorySource() const
 {
     if (d) return d->xVal;
     return {};
 }
 
-DataSource &Series::categoryDataSource()
+DataSource &Series::categorySource()
 {
     if (!d) d = new SeriesPrivate;
     return d->xVal;
 }
 
-DataSource Series::valueDataSource() const
+DataSource Series::valueSource() const
 {
     if (d) return d->yVal;
     return {};
 }
 
-DataSource &Series::valueDataSource()
+DataSource &Series::valueSource()
 {
     if (!d) d = new SeriesPrivate;
     return d->yVal;
 }
 
-DataSource Series::bubbleSizeDataSource() const
+DataSource Series::bubbleSizeSource() const
 {
     if (d) return d->bubbleVal;
     return {};
 }
 
-DataSource &Series::bubbleSizeDataSource()
+DataSource &Series::bubbleSizeSource()
 {
     if (!d) d = new SeriesPrivate;
     return d->bubbleVal;
 }
-
-void Series::setCategorySource(const QString &reference, DataSource::Type type)
+void Series::setCategoryData(const DataSource &data)
+{
+    if (!d) d = new SeriesPrivate;
+    d->xVal = data;
+}
+void Series::setCategoryData(const QString &reference, DataSource::Type type)
 {
     if (!d) d = new SeriesPrivate;
     d->xVal = DataSource(type, reference);
 }
-
-void Series::setValueSource(const QString &reference, DataSource::Type type)
+void Series::setValueData(const DataSource &data)
 {
     if (!d) d = new SeriesPrivate;
-    d->yVal = DataSource(type, reference);
+    d->yVal = data;
 }
-
-void Series::setBubbleSizeSource(const QString &reference, DataSource::Type type)
+void Series::setValueData(const QString &reference)
 {
     if (!d) d = new SeriesPrivate;
-    d->bubbleVal = DataSource(type, reference);
+    d->yVal = DataSource(DataSource::Type::NumberReference, reference);
+}
+void Series::setBubbleSizeData(const DataSource &data)
+{
+    if (!d) d = new SeriesPrivate;
+    d->bubbleVal = data;
+}
+void Series::setBubbleSizeData(const QString &reference)
+{
+    if (!d) d = new SeriesPrivate;
+    d->bubbleVal = DataSource(DataSource::Type::NumberReference, reference);
 }
 
 void Series::setCategoryData(const QVector<double> &data)
@@ -280,8 +292,8 @@ void Series::setData(const QStringList &category, const QVector<double> &value)
 
 void Series::setDataSource(const QString &categoryReference, const QString &valueReference)
 {
-    setCategorySource(categoryReference);
-    setValueSource(valueReference);
+    setCategoryData(categoryReference);
+    setValueData(valueReference);
 }
 
 void Series::setBubbleSizeData(const QVector<double> &data)
@@ -312,42 +324,6 @@ bool Series::nameIsReference() const
 {
     if (d) return d->name.isStringReference();
     return false;
-}
-
-DataSource Series::categoryData() const
-{
-    if (d) return d->xVal;
-    return {};
-}
-
-DataSource Series::valueData() const
-{
-    if (d) return d->yVal;
-    return {};
-}
-
-DataSource Series::bubbleSizeData() const
-{
-    if (d) return d->bubbleVal;
-    return {};
-}
-
-DataSource &Series::categoryData()
-{
-    if (!d) d = new SeriesPrivate;
-    return d->xVal;
-}
-
-DataSource &Series::valueData()
-{
-    if (!d) d = new SeriesPrivate;
-    return d->yVal;
-}
-
-DataSource &Series::bubbleSizeData()
-{
-    if (!d) d = new SeriesPrivate;
-    return d->bubbleVal;
 }
 
 void Series::setLine(const LineFormat &line)

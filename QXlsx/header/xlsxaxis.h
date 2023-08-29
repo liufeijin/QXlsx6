@@ -20,10 +20,11 @@ namespace QXlsx {
 
 class DisplayUnitsPrivate;
 /**
- * @brief The DisplayUnits struct specifies the units properties for the value axis
+ * @brief The DisplayUnits class specifies the units properties for the value axis
  */
-struct QXLSX_EXPORT DisplayUnits
+class QXLSX_EXPORT DisplayUnits
 {
+public:
     enum class BuiltInUnit
     {
         Hundreds,
@@ -92,18 +93,17 @@ class AxisPrivate;
 /**
  * @brief The Axis class represents an axis on a chart.
  *
- * The Axis class has a number of required parameters: #type(), #position(), #id(), #crossAxis()
+ * The Axis class has a number of required parameters: #type(), #position(), #crossAxis()
  * and various optional parameters that specify its look and behaviour.
  *
- * The class is _explicitly shareable_: unless you set a new id with #setId() the two
- * copies of Axis represent the same object. Thus each axis must have a unique ID.
+ * The class is _explicitly shareable_: unless you add a copy on the chart
+ * the two copies of Axis represent the same object.
  *
  * A chart can have as many axes as you need. But caution should be applied to properly
  * position axes on the chart. See [CombinedChart example](../../CombinedChart/main.cpp) of
  * three axes: bottom, left and right one.
  *
- * To add an axis on a chart use Chart::addDefaultAxes and Chart::addAxis methods. They make
- * sure that each axis on the chart has unique ID.
+ * To add an axis on a chart use Chart::addDefaultAxes and Chart::addAxis methods.
  */
 class QXLSX_EXPORT Axis
 {
@@ -206,20 +206,22 @@ public:
     };
 
     /**
-     * @brief creates an invalid axis. To make it valid set type and position and add this axis on the chart
-     * using Chart::addAxis(const Axis &axis) method.
+     * @brief creates an invalid axis. To make it valid set type and position
+     * and add this axis on the chart using Chart::addAxis(const Axis &axis)
+     * method.
      */
     Axis();
     /**
-     * @brief creates an axis with specified type and position. To add this axis on the chart
-     * use Chart::addAxis(const Axis &axis) method.
+     * @brief creates an axis with specified type and position. To add this axis
+     * on the chart use Chart::addAxis(const Axis &axis) method.
      * @param type
      * @param position
      */
     Axis(Type type, Position position);
     /**
-     * @brief creates a copy of the other axis. The copy will have the same id as the other axis, so use
-     * Chart::addAxis(const Axis &axis) method to add the copy on the chart and to set a new unique id.
+     * @brief creates a copy of the other axis. The copy will be the same axis as
+     * the other axis, until you invoke Chart::addAxis(const Axis &axis) method
+     * to add the copy on the chart.
      * @param other
      */
     Axis(const Axis &other);
@@ -228,80 +230,274 @@ public:
 
     bool isValid() const;
 
+    /**
+     * @brief returns the axis type.
+     * @return
+     */
     Type type() const;
+    /**
+     * @brief sets the axis type.
+     * @param type
+     */
     void setType(Type type);
+    /**
+     * @brief returns the axis position.
+     * @return
+     */
     Position position() const;
+    /**
+     * @brief sets the axis position.
+     * @param position
+     */
     void setPosition(Position position);
-
+    /**
+     * @brief returns whether the axis is visible on the chart.
+     * @return valid optional if the parameter was set, nullopt otherwise. By default
+     * the axis is visible.
+     */
     std::optional<bool> visible() const;
+    /**
+     * @brief sets whether the axis is visible on the chart.
+     * @param visible false if the axis should be hidden. By default
+     * the axis is visible.
+     * @note This method does not allow to hide the axis title. To do this, simply
+     * set the empty title.
+     */
     void setVisible(bool visible);
 
+    /**
+     * @brief returns the unique ID of the axis. This ID is used by processing apps
+     * (like Excel) to identify the axis on a chart.
+     * @return positive value if the axis was added to a chart, -1 otherwise.
+     */
     int id() const;
-    void setId(int id);
 
-    int crossAxis() const;
+    /**
+     * @brief returns the axis that should cross the current axis.
+     * @return pointer to the axis if cross axis was set, nullptr otherwise.
+     */
+    Axis *crossAxis() const;
+    /**
+     * @brief sets the axis that should cross the current axis.
+     * @param axis pointer to the axis.
+     */
     void setCrossAxis(Axis *axis);
-    void setCrossAxis(int axisId);
 
+    /**
+     * @brief returns the position on the cross axis in which this axis should cross.
+     * This parameter applies only if crossesType() is set to CrossesType::Position.
+     * @return double value if the parameter was set, nullopt otherwise. The default value
+     * is chosen by the processing app automatically.
+     */
     std::optional<double> crossesAt() const;
+    /**
+     * @brief sets the position on the cross axis in which this axis should cross.
+     * This parameter applies only if crossesType() is set to CrossesType::Position.
+     * @note This method does not change the crossesType.
+     * @param val
+     */
     void setCrossesAt(double val);
+    /**
+     * @brief returns the mode this axis should cross the crossAxis.
+     * @return
+     */
     std::optional<CrossesType> crossesType() const;
+    /**
+     * @brief sets the mode this axis should cross the crossAxis. If val is CrossesType::Position,
+     * #setCrossesAt should also be invoked.
+     * @param val
+     */
     void setCrossesType(CrossesType val);
 
     /**
-     * @brief setMajorGridLines sets the axis major grid lines as a ShapeFormat
+     * @brief sets the axis' major grid lines as a ShapeFormat
      * @param val
      */
     void setMajorGridLines(const ShapeFormat &val);
+    /**
+     * @brief returns the axis' major grid lines.
+     * @return reference to the ShapeFormat object.
+     */
     ShapeFormat &majorGridLines();
+    /**
+     * @brief returns the axis' major grid lines.
+     * @return shallow copy of the ShapeFormat object.
+     */
     ShapeFormat majorGridLines() const;
-
+    /**
+     * @brief sets the axis' minor grid lines as a ShapeFormat
+     * @param val
+     */
     void setMinorGridLines(const ShapeFormat &val);
+    /**
+     * @brief returns the axis' minor grid lines.
+     * @return reference to the ShapeFormat object.
+     */
     ShapeFormat &minorGridLines();
+    /**
+     * @brief returns the axis' minor grid lines.
+     * @return shallow copy of the ShapeFormat object.
+     */
     ShapeFormat minorGridLines() const;
 
     /**
-     * @brief setMajorGridLines sets the axis major grid lines properties
-     * @param color
-     * @param width
-     * @param strokeType
+     * @brief sets the axis' major grid lines properties in the more convenient way.
+     * This method can be used to set the basic parameters of the major grid lines.
+     * To fine-tune parameters, use #setMajorGridLines(const ShapeFormat &val)
+     * and #majorGridLines().
+     * @param color grid line color.
+     * @param width grid line width in points.
+     * @param strokeType grid line type.
      */
     void setMajorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
     /**
-     * @brief setMajorGridLines turns on/off the default major grid lines
+     * @brief turns on/off the default major grid lines.
      * @param on
      */
     void setMajorGridLines(bool on);
+    /**
+     * @brief sets the axis' minor grid lines properties in the more convenient way.
+     * This method can be used to set the basic parameters of the minor grid lines.
+     * To fine-tune parameters, use #setMinorGridLines(const ShapeFormat &val)
+     * and #minorGridLines().
+     * @param color grid line color.
+     * @param width grid line width in points.
+     * @param strokeType grid line type.
+     */
     void setMinorGridLines(const QColor &color, double width, LineFormat::StrokeType strokeType);
+    /**
+     * @brief turns on/off the default minor grid lines.
+     * @param on
+     */
     void setMinorGridLines(bool on);
-
+    /**
+     * @brief sets the position of the axis' major tick marks.
+     * @param tickMark
+     */
     void setMajorTickMark(TickMark tickMark);
+    /**
+     * @brief sets the position of the axis' minor tick marks.
+     *
+     * @param tickMark
+     */
     void setMinorTickMark(TickMark tickMark);
-    std::optional<Axis::TickMark> majorTickMark() const;
-    std::optional<Axis::TickMark> minorTickMark() const;
-
+    /**
+     * @brief returns the position of the axis' major tick marks.
+     * @return nullopt if the parameter was not set.
+     */
+    std::optional<TickMark> majorTickMark() const;
+    /**
+     * @brief returns the position of the axis' minor tick marks.
+     * @return nullopt if the parameter was not set.
+     */
+    std::optional<TickMark> minorTickMark() const;
+    /**
+     * @brief returns the axis title stripped of all formatting.
+     * @return non-empty string if title was set.
+     */
     QString titleAsString() const;
+    /**
+     * @brief returns the axis title.
+     * @return shallow copy of the Title object.
+     */
     Title title() const;
+    /**
+     * @brief returns the axis title.
+     * @return reference to the Title object.
+     */
     Title &title();
+    /**
+     * @brief sets the axis title as a plain string.
+     * @param title axis title.
+     * @note If you want to set the axis title as a string reference or as a
+     * formatted text, create new title and use the overloaded method.
+     * @code
+     * Title t;
+     * t.setStringReference("Sheet1!A2");
+     * axis->setTitle(t);
+     * @endcode
+     */
     void setTitle(const QString &title);
+    /**
+     * @brief sets the axis title.
+     * @param title
+     */
     void setTitle(const Title &title);
 
+    /**
+     * @brief returns the axis text formatting.
+     * @return reference to the TextFormat object.
+     * @note This object specifies formatting parameters for the axis text elements
+     * except the axis title.
+     */
     TextFormat &textProperties();
+    /**
+     * @brief returns the axis text formatting.
+     * @return shallow copy of the TextFormat object.
+     * @note This object specifies formatting parameters for the axis text elements
+     * except the axis title.
+     */
     TextFormat textProperties() const;
+    /**
+     * @brief sets the axis text formatting.
+     * @param textProperties
+     * @note This object specifies formatting parameters for the axis text elements
+     * except the axis title.
+     */
     void setTextProperties(const TextFormat &textProperties);
-
+    /**
+     * @brief returns the axis number format
+     * @return non-empty string if the parameter is set.
+     * By default numberFormat is "General".
+     */
+    //TODO: create a class NumberFormat with validation and use it everywhere.
     QString numberFormat() const;
+    /**
+     * @brief sets the axis number format.
+     * @param formatCode string representation of the number format.
+     */
     void setNumberFormat(const QString &formatCode);
-
+    /**
+     * @brief returns the axis range/scaling parameters.
+     * @return reference to the Scaling object.
+     */
     Scaling &scaling();
+    /**
+     * @brief returns the axis range/scaling parameters.
+     * @return copy of the Scaling object.
+     */
     Scaling scaling() const;
+    /**
+     * @brief sets the axis range/scaling parameters.
+     * @param scaling
+     */
     void setScaling(Scaling scaling);
-
+    /**
+     * @brief returns the axis range.
+     * @note This is a convenience method. It is equivalent to this code:
+     * @code
+     * const auto scale = axis->scaling();
+     * QPair<double, double> range = qMakePair<double, double>(scale.min.value_or(0.0),
+     *     scale.max.value_or(0.0));
+     * @endcode
+     * @return
+     */
     QPair<double, double> range() const;
+    /**
+     * @brief sets the axis range.
+     * @note This is a convenience method. It is equivalent to this code:
+     * @code
+     * auto &scale = axis->scaling();
+     * scale.min = min;
+     * scale.max = max;
+     * @endcode
+     * @param min
+     * @param max
+     */
     void setRange(double min, double max);
 
     /**
-     * @brief autoAxis specifies that this axis is a date or text axis based on
+     * @brief specifies that this axis is a date or text axis based on
      * the data that is used for the axis labels, not a specific choice.
      *
      * Applicable to: Category axis, Date axis.
@@ -310,7 +506,7 @@ public:
      */
     std::optional<bool> autoAxis() const;
     /**
-     * @brief setAutoAxis sets that this axis is a date or text axis based on
+     * @brief sets that this axis is a date or text axis based on
      * the data that is used for the axis labels, not a specific choice.
      *
      * Applicable to: Category axis, Date axis.
@@ -320,18 +516,18 @@ public:
     void setAutoAxis(bool autoAxis);
 
     /**
-     * @brief labelAlignment returns labels alignment for the category axis.
+     * @brief returns labels alignment for the category axis.
      * @return
      */
     std::optional<Axis::LabelAlignment> labelAlignment() const;
     /**
-     * @brief setLabelAlignment sets labels alignment for the category axis.
+     * @brief sets labels alignment for the category axis.
      * @param labelAlignment
      */
     void setLabelAlignment(Axis::LabelAlignment labelAlignment);
 
     /**
-     * @brief labelOffset returns the distance of labels, in percents, from the axis.
+     * @brief returns the distance of labels, in percents, from the axis.
      *
      * Applicable to: Category axis, Date axis.
      *
@@ -339,7 +535,7 @@ public:
      */
     std::optional<int> labelOffset() const;
     /**
-     * @brief setLabelOffset sets the distance of labels, in percents, from the axis.
+     * @brief sets the distance of labels, in percents, from the axis.
      *
      * If not set, the default value is 100.
      *
@@ -350,43 +546,67 @@ public:
     void setLabelOffset(int labelOffset);
 
     /**
-     * @brief majorTickDistance returns the distance between major axis ticks.
+     * @brief returns the distance between major axis ticks.
      *
      * Applicable to: Date axis, Value axis.
      *
      * @return positive value if the property is set, nullopt otherwise.
      */
     std::optional<double> majorTickDistance() const;
+    /**
+     * @brief sets the distance between major axis ticks.
+     * Applicable to: Date axis, Value axis.
+     * @param distance positive value.
+     */
     void setMajorTickDistance(double distance);
-
+    /**
+     * @brief returns the distance between minor axis ticks.
+     *
+     * Applicable to: Date axis, Value axis.
+     *
+     * @return positive value if the property is set, nullopt otherwise.
+     */
     std::optional<double> minorTickDistance() const;
+    /**
+     * @brief sets the distance between minor axis ticks.
+     * Applicable to: Date axis, Value axis.
+     * @param distance positive value.
+     */
     void setMinorTickDistance(double distance);
 
     /**
-     * @brief baseTimeUnit returns the smallest time unit that is represented on the date axis.
+     * @brief returns the smallest time unit that is represented on the date axis.
      * @return
      */
     std::optional<Axis::TimeUnit> baseTimeUnit() const;
     /**
-     * @brief setBaseTimeUnit sets the smallest time unit that is represented on the date axis.
+     * @brief sets the smallest time unit that is represented on the date axis.
      * @param baseTimeUnit
      */
     void setBaseTimeUnit(TimeUnit baseTimeUnit);
     /**
-     * @brief majorTimeUnit returns time unit for major tick marks of a date axis.
+     * @brief returns time unit for major tick marks of a date axis.
      * @return
      */
     std::optional<Axis::TimeUnit> majorTimeUnit() const;
+    /**
+     * @brief sets time unit for major tick marks of a date axis.
+     * @param majorTimeUnit
+     */
     void setMajorTimeUnit(TimeUnit majorTimeUnit);
     /**
-     * @brief minorTimeUnit returns time unit for minor tick marks of a date axis.
+     * @brief returns time unit for minor tick marks of a date axis.
      * @return
      */
     std::optional<Axis::TimeUnit> minorTimeUnit() const;
+    /**
+     * @brief sets time unit for minor tick marks of a date axis.
+     * @param minorTimeUnit
+     */
     void setMinorTimeUnit(TimeUnit minorTimeUnit);
 
     /**
-     * @brief tickLabelSkip returns how many tick labels is skipped between label that is drawn.
+     * @brief returns how many tick labels is skipped between label that is drawn.
      *
      * Applicable to: Category axis, Series axis.
      *
@@ -394,7 +614,7 @@ public:
      */
     std::optional<int> tickLabelSkip();
     /**
-     * @brief setTickLabelSkip sets how many tick labels shall be skipped between label that is drawn.
+     * @brief sets how many tick labels shall be skipped between label that is drawn.
      *
      * Applicable to: Category axis, Series axis.
      *
@@ -402,7 +622,7 @@ public:
      */
     void setTickLabelSkip(int skip);
     /**
-     * @brief tickMarkSkip returns how many tick marks shall be skipped before
+     * @brief returns how many tick marks shall be skipped before
      * the next one shall be drawn.
      *
      * Applicable to: Category axis, Series axis.
@@ -411,7 +631,7 @@ public:
      */
     std::optional<int> tickMarkSkip();
     /**
-     * @brief setTickMarkSkip sets  how many tick marks shall be skipped before
+     * @brief sets  how many tick marks shall be skipped before
      * the next one shall be drawn.
      *
      * Applicable to: Category axis, Series axis.
@@ -421,7 +641,7 @@ public:
     void setTickMarkSkip(int skip);
 
     /**
-     * @brief noMultiLevelLabels specifies the labels on the category axis shall
+     * @brief specifies the labels on the category axis shall
      * be shown as flat text.
      * If this element is not included or is set to false, then the labels shall
      * be drawn as a hierarchy.
@@ -429,7 +649,7 @@ public:
      */
     std::optional<bool> noMultiLevelLabels() const;
     /**
-     * @brief setNoMultiLevelLabels specifies the labels on the category axis shall
+     * @brief specifies the labels on the category axis shall
      * be shown as flat text.
      *
      * @param val true means that the labels shall be drawn as a flat text.
@@ -438,26 +658,33 @@ public:
     void setNoMultiLevelLabels(bool val);
 
     /**
-     * @brief crossesBetween specifies whether the value axis crosses the category
+     * @brief specifies whether the value axis crosses the category
      * axis between categories.
      * @return
      */
     std::optional<CrossesBetweenType> crossesBetween() const;
     /**
-     * @brief setCrossesBetween sets where the value axis crosses the category
-     * axis.
-     * @param crossesBetween Between means the value axis shall cross the category axis
-     * between categories. MidCat means the value axis shall cross the category
+     * @brief sets where the value axis crosses the category axis.
+     * @param crossesBetween CrossesBetweenType::Between means the value axis shall cross the category axis
+     * between categories. CrossesBetweenType::MidCat means the value axis shall cross the category
      * axis on categories.
      */
     void setCrossesBetween(CrossesBetweenType crossesBetween);
 
     /**
-     * @brief displayUnits  returns the properties of the display units for the value axis
-     * @return
+     * @brief returns the properties of the display units for the value axis.
+     * @return shallow copy of the DisplayUnits object.
      */
     DisplayUnits displayUnits() const;
+    /**
+     * @brief returns the properties of the display units for the value axis.
+     * @return reference to the DisplayUnits object.
+     */
     DisplayUnits &displayUnits();
+    /**
+     * @brief sets the properties of the display units for the value axis.
+     * @param displayUnits
+     */
     void setDisplayUnits(const DisplayUnits &displayUnits);
 
     void write(QXmlStreamWriter &writer) const;
@@ -467,6 +694,8 @@ public:
     bool operator != (const Axis &other) const;
 
 private:
+    friend class ChartPrivate;
+    void setId(int id);
     SERIALIZE_ENUM(Type, {
         {Type::None, "none"},
         {Type::Category, "cat"},

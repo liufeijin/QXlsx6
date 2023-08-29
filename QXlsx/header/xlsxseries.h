@@ -68,6 +68,7 @@ its height is one pictureStackUnit. Does not apply to walls or floor. */
     bool operator!=(const PictureOptions &other) const;
 };
 
+//TODO: docs
 class QXLSX_EXPORT DataPoint
 {
 public:
@@ -360,75 +361,100 @@ public:
     Type type() const;
     void setType(Type type);
 
+    /**
+     * @brief returns the series index in the chart.
+     * @return
+     */
     int index() const;
     void setIndex(int index);
 
     int order() const;
     void setOrder(int order);
 
-    DataSource categoryDataSource() const;
-    DataSource &categoryDataSource();
-    DataSource valueDataSource() const;
-    DataSource &valueDataSource();
-    DataSource bubbleSizeDataSource() const;
-    DataSource &bubbleSizeDataSource();
     /**
-     * @brief setCategorySource sets data source for the category or the X axis.
-     *
-     * @param reference data range in string form (f.e. "Sheet1!$A$1:$A$10")
+     * @brief sets data for the category or the X axis.
+     * @param data DataSource object.
      */
-    void setCategorySource(const QString &reference, DataSource::Type type = DataSource::Type::NumberReference);
+    void setCategoryData(const DataSource &data);
     /**
-     * @brief setValueSource sets data source for the value, or Y axis
-     * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10")
+     * @brief sets data reference for the category axis or the X axis.
+     * @param reference data range in string form (f.e. "Sheet1!$A$1:$A$10").
+     * @param type type of referenced data (StringReference or NumberReference).
      */
-    void setValueSource(const QString &reference, DataSource::Type type = DataSource::Type::NumberReference);
-    /**
-     * @brief setBubbleSizeSource sets data source for the bubble sizes in bubble charts
-     * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10")
-     */
-    void setBubbleSizeSource(const QString &reference, DataSource::Type type = DataSource::Type::NumberReference);
+    void setCategoryData(const QString &reference, DataSource::Type type = DataSource::Type::NumberReference);
     //TODO: setters that use CellRange
     /**
-     * @brief setCategoryData sets data for the category axis or the X axis
+     * @brief sets numerical data for the category axis or the X axis.
      * @param data vector of the same length as value data.
      */
     void setCategoryData(const QVector<double> &data);
     /**
-     * @brief setValueData sets data for the value, or Y axis
+     * @brief sets string data for the category axis or the X axis.
+     * @param data string list of the same length as value data.
+     */
+    void setCategoryData(const QStringList &data);
+    /**
+     * @brief sets data for the value axis or the Y axis.
+     * @param data DataSource object.
+     */
+    void setValueData(const DataSource &data);
+    /**
+     * @brief sets data reference for the value axis, or Y axis.
+     * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10").
+     * @warning reference should reference  the numerical data, otherwise the series is ill-formed.
+     */
+    void setValueData(const QString &reference);
+    /**
+     * @brief sets numerical data for the value, or Y axis
      * @param data vector of the same length as category data.
      */
     void setValueData(const QVector<double> &data);
     /**
-     * @brief setCategoryData sets data for the category axis or the X axis
-     * @param data vector of the same length as value data.
+     * @brief sets data for the bubble sizes in bubble charts.
+     * @param data
      */
-    void setCategoryData(const QStringList &data);
+    void setBubbleSizeData(const DataSource &data);
     /**
-     * @brief setData sets numerical data for both category and value axes.
+     * @brief sets data reference for the bubble sizes in bubble charts.
+     * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10").
+     * @warning reference should reference the numerical data, otherwise the series is ill-formed.
+     */
+    void setBubbleSizeData(const QString &reference);
+    /**
+     * @brief sets numerical data for the bubble sizes in bubble charts.
+     * @param data vector of the same length as category data.
+     */
+    void setBubbleSizeData(const QVector<double> &data);
+    /**
+     * @brief sets numerical data for both category and value axes.
      * @param category
      * @param value
      */
     void setData(const QVector<double> &category, const QVector<double> &value);
     /**
-     * @brief setData sets string data for the category axis and numerical data
+     * @brief sets string data for the category axis and numerical data
      * for the value axis.
      * @param category
      * @param value
      */
     void setData(const QStringList &category, const QVector<double> &value);
     /**
-     * @brief setDataSource sets numerical data references for both category and value axes.
+     * @brief sets numerical data references for both category and value axes.
      * @param categoryReference reference string (Sheet1!$A$1:$A$10) for numerical data
      * @param valueReference reference string (Sheet1!$B$1:$B$10) for numerical data
      */
     void setDataSource(const QString &categoryReference, const QString &valueReference);
 
-    void setBubbleSizeData(const QVector<double> &data);
+    DataSource categorySource() const;
+    DataSource &categorySource();
+    DataSource valueSource() const;
+    DataSource &valueSource();
+    DataSource bubbleSizeSource() const;
+    DataSource &bubbleSizeSource();
 
     /**
      * @brief setNameReference sets reference for the series name
-     * @param reference string like "Sheet1!$A$1:$A$2"
+     * @param reference string like "Sheet1!A1:A2"
      */
     void setNameReference(const QString &reference);
     /**
@@ -446,18 +472,6 @@ public:
      * @return true if the series name is a string like "Sheet1!$A$1:$A$2".
      */
     bool nameIsReference() const;
-
-    void setCategoryData(const DataSource &data);
-    void setValueData(const DataSource &data);
-    void setBubbleSizeData(const DataSource &data);
-
-    DataSource categoryData() const;
-    DataSource valueData() const;
-    DataSource bubbleSizeData() const;
-
-    DataSource &categoryData();
-    DataSource &valueData();
-    DataSource &bubbleSizeData();
 
     /**
      * @brief setLine sets line format for the series shape. If the series shape

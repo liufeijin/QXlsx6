@@ -16,7 +16,8 @@ public:
     Axis::Position position = Axis::Position::None;
     Axis::Type type = Axis::Type::None;
 
-    int crossAxis = -1;
+    int crossAxis = -1; //make sure this is synchronized with crossAxisPt
+    Axis* crossAxisPt = nullptr; //make sure this is synchronized with crossAxis
     std::optional<Axis::CrossesType> crossesType;
     std::optional<double> crossesPosition;
 
@@ -225,35 +226,27 @@ int Axis::id() const
 void Axis::setId(int id)
 {
     if (!d) d = new AxisPrivate;
-    else d.detach();
-
     d->id = id;
 }
 
-int Axis::crossAxis() const
+Axis * Axis::crossAxis() const
 {
-    if (d) return d->crossAxis;
-    return -1;
+    if (d) return d->crossAxisPt;
+    return nullptr;
 }
 
 void Axis::setCrossAxis(Axis *axis)
 {
     if (!d) d = new AxisPrivate;
-    int id = axis->id();
 
-    if (d->crossAxis != id) {
-        d->crossAxis = id;
-        if (axis) axis->setCrossAxis(this);
-    }
-}
+    if (d->crossAxisPt != axis) {
+        d->crossAxisPt = axis;
 
-void Axis::setCrossAxis(int axisId)
-{
-    if (!d) {
-        qDebug()<<"not valid d";
-        d = new AxisPrivate;
+        if (axis) {
+            d->crossAxis = axis->id();
+            axis->setCrossAxis(this);
+        }
     }
-    d->crossAxis = axisId;
 }
 
 std::optional<double> Axis::crossesAt() const
@@ -635,7 +628,9 @@ void Axis::write(QXmlStreamWriter &writer) const
     if (d->title.isValid()) d->title.write(writer, QLatin1String("c:title"));
 
     writer.writeEmptyElement("c:crossAx");
-    if (d->crossAxis != -1)
+    if (d->crossAxisPt != nullptr)
+        writer.writeAttribute("val", QString::number(d->crossAxisPt->id()));
+    else if (d->crossAxis != -1)
         writer.writeAttribute("val", QString::number(d->crossAxis));
 
     if (d->crossesType.has_value()) {
@@ -876,9 +871,10 @@ AxisPrivate::AxisPrivate() : position(Axis::Position::None), type(Axis::Type::No
 
 AxisPrivate::AxisPrivate(const AxisPrivate &other) : QSharedData(other),
     scaling{other.scaling}, visible{other.visible}, position{other.position},
-    type{other.type}, crossAxis{other.crossAxis}, crossesType{other.crossesType},
-    crossesPosition{other.crossesPosition}, majorGridlines{other.majorGridlines},
-    minorGridlines{other.minorGridlines}, title{other.title}, textProperties{other.textProperties},
+    type{other.type}, crossAxis{other.crossAxis}, crossAxisPt{other.crossAxisPt},
+    crossesType{other.crossesType}, crossesPosition{other.crossesPosition},
+    majorGridlines{other.majorGridlines}, minorGridlines{other.minorGridlines},
+    title{other.title}, textProperties{other.textProperties},
     numberFormat{other.numberFormat}, majorTickMark{other.majorTickMark},
     minorTickMark{other.minorTickMark}, tickLabelPosition{other.tickLabelPosition},
     shape{other.shape}, axAuto{other.axAuto}, labelOffset{other.labelOffset},
@@ -903,40 +899,29 @@ bool AxisPrivate::operator ==(const AxisPrivate &other) const
     if (visible != other.visible) return false;
     if (position != other.position) return false;
     if (type != other.type) return false;
-
     if (crossAxis != other.crossAxis) return false;
+    if (crossAxisPt != other.crossAxisPt) return false;
     if (crossesType != other.crossesType) return false;
     if (crossesPosition != other.crossesPosition) return false;
-
     if (majorGridlines != other.majorGridlines) return false;
     if (minorGridlines != other.minorGridlines) return false;
-
     if (majorTickMark != other.majorTickMark) return false;
     if (minorTickMark != other.minorTickMark) return false;
-
     if (numberFormat != other.numberFormat) return false;
-
     if (title != other.title) return false;
-
     if (majorTickMark != other.majorTickMark) return false;
     if (minorTickMark != other.minorTickMark) return false;
-
     if (axAuto != other.axAuto) return false;
     if (labelOffset != other.labelOffset) return false;
-
     if (labelAlignment != other.labelAlignment) return false;
     if (noMultiLevelLabels != other.noMultiLevelLabels) return false;
-
     if (majorUnit != other.majorUnit) return false;
     if (minorUnit != other.minorUnit) return false;
-
     if (baseTimeUnit != other.baseTimeUnit) return false;
     if (majorTimeUnit != other.majorTimeUnit) return false;
     if (minorTimeUnit != other.minorTimeUnit) return false;
-
     if (tickLabelSkip != other.tickLabelSkip) return false;
     if (tickMarkSkip != other.tickMarkSkip) return false;
-
     if (crossesBetween != other.crossesBetween) return false;
     if (displayUnits != other.displayUnits) return false;
 

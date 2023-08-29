@@ -48,42 +48,50 @@ public:
     std::optional<bool> showKeys; /**< legend keys visibility */
     ShapeFormat shape; /**< line and fill of the data table cells */
     TextFormat textProperties; /**< text, paragraph and character properties */
-    ExtensionList extension;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
     bool isValid() const;
+private:
+    ExtensionList extension;
 };
 
 class QXLSX_EXPORT Chart : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(Chart)
 public:
+    /**
+     * @brief The Type enum specifies the chart type
+     */
     enum class Type
-    { // 16 type of chart (ECMA 376)
-        None = 0, // Zero is internally used for unknown types
-        Area,
-        Area3D,
-        Line,
-        Line3D,
-        Stock,
-        Radar,
-        Scatter,
-        Pie,
-        Pie3D,
-        Doughnut,
-        Bar,
-        Bar3D,
+    {
+        None = 0, /**< Invalid chart type*/
+        Area, /**< Area chart */
+        Area3D, /**< Area3D chart*/
+        Line, /**< Line chart */
+        Line3D, /**< Line3D chart*/
+        Stock, /**< Stock chart */
+        Radar, /**< Radar chart*/
+        Scatter, /**< Scater chart */
+        Pie, /**< Pie chart */
+        Pie3D, /**< Pir3D chart */
+        Doughnut, /**< Doughnut chart */
+        Bar, /**< Bar chart */
+        Bar3D, /**< Bar3D chart*/
         OfPie, /**< @brief Pie of pie chart (or bar of pie based on the ofPieChart parameter.) */
-        Surface,
-        Surface3D,
-        Bubble,
+        Surface, /**< Surface chart */
+        Surface3D, /**< Surface3D chart*/
+        Bubble, /**< Bubble chart */
     };
+    /**
+     * @brief The DisplayBlanksAs enum specifies how blank cells are plotted on the chart.
+     */
     enum class DisplayBlanksAs
     {
-        Span,
-        Gap,
-        Zero
+        Span, /**< Blank cells are plotted as previous cells (previous cell value
+is spanned to fill the gap). */
+        Gap, /**< Blank cells create gaps in the chart (not plotted at all.) */
+        Zero /**< Blank cells are plotted as zeroes. */
     };
     /**
      * @brief The Grouping enum specifies the kind of grouping for an area or line chart.
@@ -106,11 +114,14 @@ other along the value axis and scaled to total 100% */
 other along the value axis and scaled to total 100%*/
         Clustered /**< Chart series are drawn next to each other along the category axis */
     };
-
+    /**
+     * @brief The BubbleSizeRepresents enum specifies how the bubble size values
+     * are represented on the chart.
+     */
     enum class BubbleSizeRepresents
     {
-        Area,
-        Width
+        Area, /**< Series::bubbleSizeDataSource values are used as the bubbles area. */
+        Width /**< Series::bubbleSizeDataSource values are used as the bubbles width (diameter).*/
     };
     /**
      * @brief The OfPieType enum specifies the second pie type on a OfPie chart.
@@ -134,20 +145,25 @@ other along the value axis and scaled to total 100%*/
                       of the sum of all values go to the second pie. */
         Value /**< @brief data points with value less than splitPos() go to the second pie. */
     };
+    //TODO: docs
     enum class BarDirection
     {
         Bar,
         Column
     };
+    /**
+     * @brief The ScatterStyle enum specifies the style of the scatter chart.
+     */
     enum class ScatterStyle
     {
-        None,
-        Line,
-        LineMarker,
-        Marker,
-        Smooth,
-        SmoothMarker,
+        None, /**< No lines or markers are drawn. */
+        Line, /**< Points are connected with straight lines, no markers shown. */
+        LineMarker, /**< Points are connected with straight lines, each point is marked with a marker. */
+        Marker, /**< Points are not connected with lines, each point is marked with a marker. */
+        Smooth, /**< Points are connected with smoothed lines, no markers shown. */
+        SmoothMarker, /**< Points are connected with smoothed lines, each point is marked with a marker. */
     };
+    //TODO: docs
     enum class RadarStyle
     {
         Standard,
@@ -231,14 +247,12 @@ public:
     /**
      * @brief setType sets type to the chart.
      *
-     * @note OOXML schema allows having as many subcharts of different types
-     * as you need.
-     *
      * @warning This method does not change the previous subcharts type nor the
-     * prevoius series type.
+     * previous series type.
      *
-     * If you need to add both bar series and line
-     * series to the chart, you can do it this way:
+     * @note OOXML schema allows having as many subcharts of different types
+     * as you need. Each subchart is used to group series of the same type.
+     * If you need to add both bar series and line series to the chart, you can do it this way:
      *
      * @code
      * //set Type::Bar to the chart
@@ -253,17 +267,29 @@ public:
      *     xlsx.sheet("Sheet1"), true);
      * @endcode
      *
+     * @note All parameters of the chart are applied only to the last subchart that was
+     * added with #setType() method. Right now there is no possibility to change
+     * parameters of previous subcharts.
+     *
      * @param type Chart type. If set to Type::None the chart is ill-formed.
      */
     void setType(Type type);
     /**
      * @brief type returns the chart type.
      *
-     * @return
+     * @return the type
      */
     Type type() const;
-
+    /**
+     * @brief sets line format to the chart space (the outer area of the chart).
+     * @param format
+     */
     void setChartLineFormat(const LineFormat &format);
+    /**
+     * @brief sets line format to the plot area (the inner area of the chart
+     * where actual plotting occurs).
+     * @param format
+     */
     void setPlotAreaLineFormat(const LineFormat &format);
 
     void setChartShape(const ShapeFormat &shape);
@@ -287,18 +313,23 @@ public:
      * (if firstColumnContainsCategoryData is set to true),
      * other columns are value data for new series. If columnBased is false, the
      * first row is category data, other rows are value data for new series.
+     * @note the series will have the type specifies by the most recently set chart type.
+     * So it is possible to have series of different types on the same chart.
      */
     void addSeries(const CellRange &range, AbstractSheet *sheet = NULL,
                    bool firstRowContainsHeaders = false,
                    bool firstColumnContainsCategoryData = false,
                    bool columnBased = true);
     /**
-     * @brief addSeries adds series
-     * @param keyRange category range or x axis range
-     * @param valRange value range or y axis range
-     * @param sheet data sheet reference
-     * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference
-     * @return pointer to the added series or nullptr if no series was added
+     * @brief addSeries adds series defined by keyRange and valRange.
+     * @param keyRange category range or x axis range.
+     * @param valRange value range or y axis range.
+     * @param sheet data sheet reference.
+     * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference.
+     * @return pointer to the added series or nullptr if no series was added.
+     * @note The series will have the type specifies by the most recently set chart type.
+     * So it is possible to have series of different types on the same chart.
+     * @note To set bubbleSizeDataSource to the BubbleChart series (the 3rd range)
      */
     Series* addSeries(const CellRange &keyRange, const CellRange &valRange,
                        AbstractSheet *sheet = NULL, bool keyRangeIncludesHeader = false);

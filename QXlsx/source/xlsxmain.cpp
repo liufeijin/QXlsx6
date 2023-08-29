@@ -1043,6 +1043,14 @@ QDebug operator<<(QDebug dbg, const Angle &f)
     return dbg.space();
 }
 
+QDebug operator<<(QDebug dbg, const PresetGeometry2D &f)
+{
+    dbg.nospace() << "QXlsx::PresetGeometry2D(";
+    //TODO:
+    dbg << ")";
+    return dbg.space();
+}
+
 RelativeRect::RelativeRect()
 {
 }

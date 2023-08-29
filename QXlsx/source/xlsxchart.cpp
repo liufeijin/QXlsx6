@@ -196,6 +196,8 @@ namespace QXlsx {
         ExtensionList plotAreaExtList;
 
         AbstractSheet* sheet;
+    private:
+        friend class Axis;
     };
 
 ChartPrivate::ChartPrivate(Chart *q, Chart::CreateFlag flag)
@@ -256,7 +258,7 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
 
     if (range.columnCount() == 1 || range.rowCount() == 1) {
         auto series = addSeries();
-        series->setValueSource(sheetName + QLatin1String("!") + range.toString(true, true));
+        series->setValueData(sheetName + QLatin1String("!") + range.toString(true, true));
     }
     else if (columnBased) {
         //Column based series, first column is category data, rest are value data
@@ -278,8 +280,8 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             CellRange subRange(firstDataRow, col, range.lastRow(), col);
             auto series = addSeries();
             if (firstColumnContainsCategoryData)
-                series->setCategorySource(categoryReference);
-            series->setValueSource(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                series->setCategoryData(categoryReference);
+            series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
             if (firstRowContainsHeaders) {
                 CellRange subRange(range.firstRow(), col, range.firstRow(), col);
@@ -303,8 +305,8 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             CellRange subRange(row, firstDataColumn, row, range.lastColumn());
             auto series = addSeries();
             if (firstColumnContainsCategoryData)
-                series->setCategorySource(categoryReference);
-            series->setValueSource(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                series->setCategoryData(categoryReference);
+            series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
             if (firstRowContainsHeaders) {
                 CellRange subRange(row, range.firstColumn(), row, range.firstColumn());
@@ -346,7 +348,7 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
         //Row based series
         if (keyRangeIncludesHeader) subRange.setFirstColumn(subRange.firstColumn()+1);
     }
-    series->setCategorySource(sheetName + QLatin1String("!") + subRange.toString(true, true));
+    series->setCategoryData(sheetName + QLatin1String("!") + subRange.toString(true, true));
     subRange = valRange;
     if (valRange.columnCount() == 1) {
         //Column based series
@@ -356,7 +358,7 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
         //Row based series
         if (keyRangeIncludesHeader) subRange.setFirstColumn(subRange.firstColumn()+1);
     }
-    series->setValueSource(sheetName + QLatin1String("!") + subRange.toString(true, true));
+    series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
     if(keyRangeIncludesHeader) {
         CellRange subRange(valRange.firstRow(), valRange.firstColumn(), valRange.firstRow(), valRange.firstColumn());
@@ -690,8 +692,8 @@ QList<int> Chart::addDefaultAxes()
             ids << ax1.id();
             auto &ax2 = axesCount() == 1 ? addAxis(Axis::Type::Value, Axis::Position::Left) : d->axisList[1];
             ids << ax2.id();
-            ax1.setCrossAxis(ids[1]);
-            ax2.setCrossAxis(ids[0]);
+            ax1.setCrossAxis(&ax2);
+            ax2.setCrossAxis(&ax1);
             break;
         }
         case Type::Scatter: {
@@ -699,8 +701,8 @@ QList<int> Chart::addDefaultAxes()
             ids << ax1.id();
             auto &ax2 = axesCount() == 1 ? addAxis(Axis::Type::Value, Axis::Position::Left) : d->axisList[1];
             ids << ax2.id();
-            ax1.setCrossAxis(ids[1]);
-            ax2.setCrossAxis(ids[0]);
+            ax1.setCrossAxis(&ax2);
+            ax2.setCrossAxis(&ax1);
             break;
         }
         case Type::Area3D:
@@ -714,9 +716,9 @@ QList<int> Chart::addDefaultAxes()
             ids << ax2.id();
             auto &ax3 = axesCount() <= 2 ? addAxis(Axis::Type::Series, Axis::Position::Bottom) : d->axisList[2];
             ids << ax3.id();
-            ax1.setCrossAxis(ids[1]);
-            ax2.setCrossAxis(ids[0]);
-            ax3.setCrossAxis(ids[1]);
+            ax1.setCrossAxis(&ax2);
+            ax2.setCrossAxis(&ax1);
+            ax3.setCrossAxis(&ax2);
             break;
         }
     }
