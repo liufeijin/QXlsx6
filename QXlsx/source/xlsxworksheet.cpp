@@ -539,28 +539,21 @@ QVariant Worksheet::read(int row, int column) const
 	if (!cell)
 		return QVariant();
 
-    if (cell->hasFormula())
-    {
+    if (cell->hasFormula()) {
         if (cell->formula().formulaType() == CellFormula::Type::Normal)
-        {
 			return QVariant(QLatin1String("=")+cell->formula().formulaText());
-        }
-        else if (cell->formula().formulaType() == CellFormula::Type::Shared)
-        {
+
+        if (cell->formula().formulaType() == CellFormula::Type::Shared) {
             if (!cell->formula().formulaText().isEmpty())
-            {
-				return QVariant(QLatin1String("=")+cell->formula().formulaText());
-            }
-            else
-            {
-                int si = cell->formula().sharedIndex();
-                const CellFormula &rootFormula = d->sharedFormulaMap[ si ];
-				CellReference rootCellRef = rootFormula.reference().topLeft();
-				QString rootFormulaText = rootFormula.formulaText();
-				QString newFormulaText = convertSharedFormula(rootFormulaText, rootCellRef, CellReference(row, column));
-				return QVariant(QLatin1String("=")+newFormulaText);
-			}
-		}
+                return QVariant(QLatin1String("=")+cell->formula().formulaText());
+
+            int si = cell->formula().sharedIndex();
+            const CellFormula &rootFormula = d->sharedFormulaMap[ si ];
+            CellReference rootCellRef = rootFormula.reference().topLeft();
+            QString rootFormulaText = rootFormula.formulaText();
+            QString newFormulaText = convertSharedFormula(rootFormulaText, rootCellRef, CellReference(row, column));
+            return QVariant(QLatin1String("=")+newFormulaText);
+        }
 	}
 
     if (cell->isDateTime())
@@ -2013,28 +2006,18 @@ double Worksheet::columnWidth(int column)
 {
 	Q_D(Worksheet);
 
-    QList< QSharedPointer<XlsxColumnInfo> > columnInfoList = d->getColumnInfoList(column, column);
+    QList<QSharedPointer<XlsxColumnInfo> > columnInfoList = d->getColumnInfoList(column, column);
 
-    // [dev54]
-    if ( columnInfoList.size() == 0 )
-    {
-        // column information is not found
-        // qDebug() << "[debug]" << __FUNCTION__ <<  "column (info) is not found. " << column;
-    }
-
-	if (columnInfoList.count() == 1)
-    {
+    if (columnInfoList.count() == 1) {
         // column information is found
         // qDebug() << "[debug]" << __FUNCTION__ <<  "column (info) is found. " << column << oneColWidth;
-        double oneColWidth = columnInfoList.at(0)->width;
-        bool isSetWidth = columnInfoList.at(0)->isSetWidth;
-        if ( isSetWidth )
-        {
-            return oneColWidth;
-        }
+        if (columnInfoList.at(0)->isSetWidth)
+            return columnInfoList.at(0)->width;
     }
 
     // use default width
+    // column information is not found
+    // qDebug() << "[debug]" << __FUNCTION__ <<  "column (info) is not found. " << column;
     double defaultColWidth = d->sheetFormatProps.defaultColWidth;
     return defaultColWidth;
 }
@@ -2325,218 +2308,141 @@ int WorksheetPrivate::colPixelsSize(int col) const
 
 void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 {
-	Q_Q(Worksheet);
-
 	Q_ASSERT(reader.name() == QLatin1String("sheetData"));
 
-	while (!reader.atEnd() && !(reader.name() == QLatin1String("sheetData") && reader.tokenType() == QXmlStreamReader::EndElement))
-	{
-		if (reader.readNextStartElement())
-		{
-			if (reader.name() == QLatin1String("row"))
-			{
-				QXmlStreamAttributes attributes = reader.attributes();
+    const auto &name = reader.name();
 
-				if (attributes.hasAttribute(QLatin1String("customFormat"))
-						|| attributes.hasAttribute(QLatin1String("customHeight"))
-						|| attributes.hasAttribute(QLatin1String("hidden"))
-						|| attributes.hasAttribute(QLatin1String("outlineLevel"))
-						|| attributes.hasAttribute(QLatin1String("collapsed")))
-				{
+    //since row numbers are optional, we need to track the current row
+    int currentRow = 0;
+    while (!reader.atEnd())	{
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
+
+            if (reader.name() == QLatin1String("row")) {
+                currentRow++;
+                if (a.hasAttribute(QLatin1String("customFormat"))
+                        || a.hasAttribute(QLatin1String("customHeight"))
+                        || a.hasAttribute(QLatin1String("hidden"))
+                        || a.hasAttribute(QLatin1String("outlineLevel"))
+                        || a.hasAttribute(QLatin1String("collapsed")))	{
 
 					QSharedPointer<XlsxRowInfo> info(new XlsxRowInfo);
-                    if (attributes.hasAttribute(QLatin1String("customFormat")) &&
-                            attributes.hasAttribute(QLatin1String("s")))
-                    {
-						int idx = attributes.value(QLatin1String("s")).toInt();
+                    if (a.hasAttribute(QLatin1String("customFormat")) &&
+                            a.hasAttribute(QLatin1String("s"))) {
+                        int idx = a.value(QLatin1String("s")).toInt();
 						info->format = workbook->styles()->xfFormat(idx);
 					}
-
-                    if (attributes.hasAttribute(QLatin1String("customHeight")))
-                    {
-						info->customHeight = attributes.value(QLatin1String("customHeight")) == QLatin1String("1");
-						//Row height is only specified when customHeight is set
-                        if(attributes.hasAttribute(QLatin1String("ht")))
-                        {
-							info->height = attributes.value(QLatin1String("ht")).toDouble();
-						}
-					}
-
-					//both "hidden" and "collapsed" default are false
-					info->hidden = attributes.value(QLatin1String("hidden")) == QLatin1String("1");
-					info->collapsed = attributes.value(QLatin1String("collapsed")) == QLatin1String("1");
-
-					if (attributes.hasAttribute(QLatin1String("outlineLevel")))
-						info->outlineLevel = attributes.value(QLatin1String("outlineLevel")).toInt();
+                    parseAttributeBool(a, QLatin1String("customHeight"), info->customHeight);
+                    parseAttributeDouble(a, QLatin1String("ht"), info->height);
+                    parseAttributeBool(a, QLatin1String("hidden"), info->hidden);
+                    parseAttributeBool(a, QLatin1String("collapsed"), info->collapsed);
+                    parseAttributeInt(a, QLatin1String("outlineLevel"), info->outlineLevel);
 
 					//"r" is optional too.
-                    if (attributes.hasAttribute(QLatin1String("r")))
-                    {
-						int row = attributes.value(QLatin1String("r")).toInt();
+                    if (a.hasAttribute(QLatin1String("r"))) {
+                        int row = a.value(QLatin1String("r")).toInt();
 						rowsInfo[row] = info;
 					}
+                    else rowsInfo[currentRow] = info;
 				}
-
 			}
-			else if (reader.name() == QLatin1String("c")) // Cell
-			{
-
-				//Cell
-				QXmlStreamAttributes attributes = reader.attributes();
-				QString r = attributes.value(QLatin1String("r")).toString();
-				CellReference pos(r);
-
-				//get format
-				Format format;
-				qint32 styleIndex = -1;
-				if (attributes.hasAttribute(QLatin1String("s"))) // Style (defined in the styles.xml file)
-				{
-					//"s" == style index
-					int idx = attributes.value(QLatin1String("s")).toInt();
-					format = workbook->styles()->xfFormat(idx);
-					styleIndex = idx;
-				}
-
-                // Cell::CellType cellType = Cell::NumberType;
-                auto cellType = Cell::Type::Custom;
-
-				if (attributes.hasAttribute(QLatin1String("t"))) // Type
-				{
-					const auto typeString = attributes.value(QLatin1String("t"));
-                    if (typeString == QLatin1String("s")) // Shared string
-					{
-                        cellType = Cell::Type::SharedString;
-					}
-                    else if (typeString == QLatin1String("inlineStr")) //  Inline String
-					{
-                        cellType = Cell::Type::InlineString;
-					}
-                    else if (typeString == QLatin1String("str")) // String
-					{
-                        cellType = Cell::Type::String;
-					}
-                    else if (typeString == QLatin1String("b")) // Boolean
-					{
-                        cellType = Cell::Type::Boolean;
-					}
-                    else if (typeString == QLatin1String("e")) // Error
-					{
-                        cellType = Cell::Type::Error;
-					}
-                    else if (typeString == QLatin1String("d")) // Date
-                    {
-                        cellType = Cell::Type::Date;
-                    }
-                    else if (typeString == QLatin1String("n")) // Number
-                    {
-                        cellType = Cell::Type::Number;
-                    }
-					else
-					{
-                        // custom type
-                        cellType = Cell::Type::Custom;
-					}
-				}
-
-				if (Cell::isDateType(cellType, format))
-				{
-                    cellType = Cell::Type::Date;
-				}
-
-				// create a heap of new cell
-                auto cell = std::make_shared<Cell>(QVariant{}, cellType, format, q, styleIndex);
-
-                while (!reader.atEnd() &&
-                       !(reader.name() == QLatin1String("c") &&
-                         reader.tokenType() == QXmlStreamReader::EndElement))
-				{
-					if (reader.readNextStartElement())
-					{
-                        if (reader.name() == QLatin1String("f")) // formula
-						{
-							CellFormula &formula = cell->d_func()->formula;
-							formula.loadFromXml(reader);
-                            if (formula.formulaType() == CellFormula::Type::Shared &&
-                                    !formula.formulaText().isEmpty())
-							{
-                                int si = formula.sharedIndex();
-                                sharedFormulaMap[ si ] = formula;
-							}
-						}
-						else if (reader.name() == QLatin1String("v")) // Value
-						{
-							QString value = reader.readElementText();
-                            if (cellType == Cell::Type::SharedString)
-							{
-								int sst_idx = value.toInt();
-								sharedStrings()->incRefByStringIndex(sst_idx);
-								RichString rs = sharedStrings()->getSharedString(sst_idx);
-								QString strPlainString = rs.toPlainString();
-								cell->d_func()->value = strPlainString;
-								if (rs.isRichString())
-									cell->d_func()->richString = rs;
-							}
-                            else if (cellType == Cell::Type::Number)
-							{
-								cell->d_func()->value = value.toDouble();
-							}
-                            else if (cellType == Cell::Type::Boolean)
-							{
-								cell->d_func()->value = value.toInt() ? true : false;
-							}
-                            else  if (cellType == Cell::Type::Date)
-                            {
-                                // [dev54] DateType
-
-                                double dValue = value.toDouble(); // days from 1900(or 1904)
-                                bool bIsDate1904 = q->workbook()->isDate1904();
-
-                                QVariant vDatetimeValue = datetimeFromNumber( dValue, bIsDate1904 );
-                                Q_UNUSED(vDatetimeValue);
-                                // cell->d_func()->value = vDatetimeValue;
-                                cell->d_func()->value = dValue; // dev67
-                            }
-							else
-                            {
-                                // ELSE type
-								cell->d_func()->value = value;
-							}
-
-                        }
-                        else if (reader.name() == QLatin1String("is"))
-                        {
-                            while (!reader.atEnd() &&
-                                   !(reader.name() == QLatin1String("is") &&
-                                   reader.tokenType() == QXmlStreamReader::EndElement))
-                            {
-                                if (reader.readNextStartElement())
-                                {
-                                    //Todo, add rich text read support
-                                    if (reader.name() == QLatin1String("t"))
-                                    {
-										cell->d_func()->value = reader.readElementText();
-									}
-								}
-							}
-                        }
-                        else if (reader.name() == QLatin1String("extLst"))
-                        {
-							//skip extLst element
-                            while ( !reader.atEnd() &&
-                                    !(reader.name() == QLatin1String("extLst") &&
-                                    reader.tokenType() == QXmlStreamReader::EndElement))
-                            {
-								reader.readNextStartElement();
-							}
-						}
-					}
-				}
-
-                cellTable[ pos.row() ][ pos.column() ] = cell;
-
-			}
+            else if (reader.name() == QLatin1String("c"))  //Cell
+                loadXmlCell(reader);
 		}
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
 	}
+}
+
+void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
+{
+    Q_Q(Worksheet);
+
+    const auto &name = reader.name();
+    const auto &a = reader.attributes();
+
+    QString r = a.value(QLatin1String("r")).toString();
+    CellReference pos(r);
+
+    //get format
+    Format format;
+    qint32 styleIndex = -1;
+    if (a.hasAttribute(QLatin1String("s"))) {// Style (defined in the styles.xml file)
+        //"s" == style index
+        int idx = a.value(QLatin1String("s")).toInt();
+        format = workbook->styles()->xfFormat(idx);
+        styleIndex = idx;
+    }
+
+    auto cellType = Cell::Type::Custom;
+
+    if (a.hasAttribute(QLatin1String("t"))) {// Type
+        auto typeString = a.value(QLatin1String("t")).toString();
+        Cell::fromString(typeString, cellType);
+    }
+
+    if (Cell::isDateType(cellType, format)) cellType = Cell::Type::Date;
+
+    // create a heap of new cell
+    auto cell = std::make_shared<Cell>(QVariant{}, cellType, format, q, styleIndex);
+
+    while (!reader.atEnd())	{
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("f")) {// formula
+                CellFormula &formula = cell->d_func()->formula;
+                formula.loadFromXml(reader);
+                if (formula.formulaType() == CellFormula::Type::Shared &&
+                    !formula.formulaText().isEmpty()) {
+                    int si = formula.sharedIndex();
+                    sharedFormulaMap[si] = formula;
+                }
+            }
+            else if (reader.name() == QLatin1String("v")) {// Value
+                QString value = reader.readElementText();
+                if (cellType == Cell::Type::SharedString) {
+                    int sst_idx = value.toInt();
+                    sharedStrings()->incRefByStringIndex(sst_idx);
+                    RichString rs = sharedStrings()->getSharedString(sst_idx);
+                    QString strPlainString = rs.toPlainString();
+                    cell->d_func()->value = strPlainString;
+                    if (rs.isRichString())
+                        cell->d_func()->richString = rs;
+                }
+                else if (cellType == Cell::Type::Number) {
+                    cell->d_func()->value = value.toDouble();
+                }
+                else if (cellType == Cell::Type::Boolean) {
+                    cell->d_func()->value = fromST_Boolean(value);
+                }
+                else  if (cellType == Cell::Type::Date) {
+                    // [dev54] DateType
+
+                    double dValue = value.toDouble(); // days from 1900(or 1904)
+                    bool bIsDate1904 = q->workbook()->isDate1904();
+
+                    QVariant vDatetimeValue = datetimeFromNumber( dValue, bIsDate1904 );
+                    Q_UNUSED(vDatetimeValue);
+                    // cell->d_func()->value = vDatetimeValue;
+                    cell->d_func()->value = dValue; // dev67
+                }
+                else {
+                    // ELSE type
+                    cell->d_func()->value = value;
+                }
+            }
+            else if (reader.name() == QLatin1String("is")) {
+                //TODO: add rich text read support
+                cell->d_func()->value = reader.readElementText();
+            }
+            else if (reader.name() == QLatin1String("extLst"))
+                reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+    cellTable[pos.row()][pos.column()] = cell;
 }
 
 void WorksheetPrivate::loadXmlColumnsInfo(QXmlStreamReader &reader)

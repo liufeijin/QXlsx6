@@ -74,25 +74,25 @@ int ReadExcel(bool isTest)
 	if (!isTest)
 		return (-1);
 
-	{
-		//Create a new .xlsx file.
-		QXlsx::Document xlsx;
+//	{
+//		//Create a new .xlsx file.
+//		QXlsx::Document xlsx;
 
-        xlsx.write("A1", "Hello Qt!");
-        xlsx.write("A2", 12345);
-        xlsx.write("A3", "=44+33");
-        xlsx.write("A4", true);
-        xlsx.write("A5", "http://qt-project.org");
-        xlsx.write("A6", QDate(2013, 12, 27));
-        xlsx.write("A7", QTime(6, 30));
-        xlsx.write("A8", QDateTime(QDate(2049,7,23), QTime(23,5,32), Qt::LocalTime));
+//        xlsx.write("A1", "Hello Qt!");
+//        xlsx.write("A2", 12345);
+//        xlsx.write("A3", "=44+33");
+//        xlsx.write("A4", true);
+//        xlsx.write("A5", "http://qt-project.org");
+//        xlsx.write("A6", QDate(2013, 12, 27));
+//        xlsx.write("A7", QTime(6, 30));
+//        xlsx.write("A8", QDateTime(QDate(2049,7,23), QTime(23,5,32), Qt::LocalTime));
 
-		if (!xlsx.saveAs("ReadExcel.xlsx"))
-		{
-			qDebug() << "[ReadExcel] failed to save excel file." ;
-			return (-2);
-		}
-	}
+//		if (!xlsx.saveAs("ReadExcel.xlsx"))
+//		{
+//			qDebug() << "[ReadExcel] failed to save excel file." ;
+//			return (-2);
+//		}
+//	}
 
 	//![0]
 	QXlsx::Document xlsx("ReadExcel.xlsx");

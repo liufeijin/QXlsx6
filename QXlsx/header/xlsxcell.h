@@ -15,6 +15,7 @@
 
 #include "xlsxglobal.h"
 #include "xlsxformat.h"
+#include "xlsxutility_p.h"
 
 namespace QXlsx {
 
@@ -80,7 +81,17 @@ public:
 	qint32 styleNumber() const;
 
     static bool isDateType(Type cellType, const Format &format);
-
+private:
+    SERIALIZE_ENUM(Type, {
+        {Type::Custom, "c"},
+        {Type::Date, "d"},
+        {Type::Error, "e"},
+        {Type::Number, "n"},
+        {Type::String, "str"},
+        {Type::Boolean, "b"},
+        {Type::InlineString, "inlineStr"},
+        {Type::SharedString, "s"},
+    });
 };
 
 }

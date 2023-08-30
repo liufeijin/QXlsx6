@@ -337,12 +337,8 @@ qint32 Cell::styleNumber() const
 
 bool Cell::isDateType(Type cellType, const Format &format)
 {
-    if ( cellType == Type::Number||
-         cellType == Type::Date||
-         cellType == Type::Custom)
-    {
+    if ( cellType == Type::Number || cellType == Type::Date || cellType == Type::Custom)
         return format.isValid() && format.isDateTimeFormat();
-    }
 	return false;
 }
 

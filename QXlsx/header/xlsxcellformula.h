@@ -20,9 +20,12 @@ class WorksheetPrivate;
 class QXLSX_EXPORT CellFormula
 {
 public:
+    /**
+     * @brief The Type enum specifies the formula type.
+     */
     enum class Type {
-        Normal,
-        Array,
+        Normal, /**< A single-cell formula */
+        Array, /**< An array formula */
         DataTable,
         Shared
     };
