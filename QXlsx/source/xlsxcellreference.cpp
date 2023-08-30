@@ -120,4 +120,26 @@ bool CellReference::isValid() const
     return _row > 0 && _column > 0;
 }
 
+bool CellReference::operator<(const CellReference &other) const
+{
+    if (!isValid()) return true;
+    if (_row < other.row()) return true;
+    if (_row == other.row()) {
+        if (_column < other.column()) return true;
+    }
+    return false;
+}
+bool CellReference::operator<=(const CellReference &other) const
+{
+    return (*this < other || *this == other);
+}
+bool CellReference::operator>(const CellReference &other) const
+{
+    return !operator<=(other);
+}
+bool CellReference::operator>=(const CellReference &other) const
+{
+    return !operator<(other);
+}
+
 }

@@ -1330,29 +1330,22 @@ QMap<int, int> Document::getMaximalColumnWidth(int firstRow, int lastRow)
     int maxCols = -1;
     QMap<int, int> colWidth;
     if (!currentWorksheet()) return colWidth;
-    QVector<CellLocation> cellLocation = currentWorksheet()->getFullCells(&maxRows, &maxCols);
+    auto cellLocation = currentWorksheet()->getFullCells(&maxRows, &maxCols);
     
-    for(int i=0; i < cellLocation.size(); i++)
+    for (auto i = cellLocation.constBegin(); i != cellLocation.constEnd(); i++)
     {
-        int col = cellLocation.at(i).col;
-        int row = cellLocation.at(i).row;
-        int fs = cellLocation.at(i).cell->format().fontSize();
-        if( fs <= 0)
-        {
-            fs = defaultPixelSize;
-        }
+        int col = i.key().column();
+        int row = i.key().row();
+        int fs = i.value().get()->format().fontSize();
+        if (fs <= 0) fs = defaultPixelSize;
 
-//        QString str = cellLocation.at(i).cell.data()->value().toString();
         QString str = read(row, col).toString();
 
         double w = str.length() * double(fs) / defaultPixelSize + 1; // width not perfect, but works reasonably well
 
-        if( (row >= firstRow) && (row <= lastRow))
-        {
-            if( w > colWidth.value(col))
-            {
+        if (row >= firstRow && row <= lastRow) {
+            if (w > colWidth.value(col))
                 colWidth.insert(col, int(w));
-            }
         }
     }
 
@@ -1361,7 +1354,7 @@ QMap<int, int> Document::getMaximalColumnWidth(int firstRow, int lastRow)
 
 
 /*!
-  Auto ets width in characters of columns with the given \a range.
+  Auto sets width in characters of columns with the given \a range.
   Returns true on success.
  */
 bool Document::autosizeColumnWidth(const CellRange &range)
@@ -1369,18 +1362,12 @@ bool Document::autosizeColumnWidth(const CellRange &range)
     bool erg = false;
 
     if( !range.isValid())
-    {
         return false;
-    }
 
     const QMap<int, int> colWidth = getMaximalColumnWidth(range.firstRow(), range.lastRow());
-    auto it = colWidth.constBegin();
-    while (it != colWidth.constEnd()) {
-        if( (it.key() >= range.firstColumn()) && (it.key() <= range.lastColumn()) )
-        {
+    for (auto it = colWidth.constBegin(); it != colWidth.constEnd(); ++it) {
+        if (it.key() >= range.firstColumn() && it.key() <= range.lastColumn())
             erg |= setColumnWidth(it.key(), it.value());
-        }
-        ++it;
     }
 
     return erg;

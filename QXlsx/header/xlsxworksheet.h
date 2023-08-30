@@ -3,6 +3,7 @@
 #ifndef XLSXWORKSHEET_H
 #define XLSXWORKSHEET_H
 
+#include <memory>
 #include <QtGlobal>
 #include <QObject>
 #include <QStringList>
@@ -18,7 +19,6 @@
 #include "xlsxcell.h"
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
-#include "xlsxcelllocation.h"
 
 class WorksheetTest;
 
@@ -160,7 +160,7 @@ public:
     void setWhiteSpaceVisible(bool visible);
  	bool setStartPage(int spagen); //add by liufeijin20181028
 
-    QVector<CellLocation> getFullCells(int* maxRow, int* maxCol);
+    QMap<CellReference, std::shared_ptr<Cell> > getFullCells(int* maxRow, int* maxCol);
 
 private:
     void saveToXmlFile(QIODevice *device) const override;

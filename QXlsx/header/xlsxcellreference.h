@@ -85,6 +85,10 @@ public:
     {
         return _row!=other._row || _column!=other._column;
     }
+    bool operator<(const CellReference &other) const;
+    bool operator<=(const CellReference &other) const;
+    bool operator>(const CellReference &other) const;
+    bool operator>=(const CellReference &other) const;
 private:
     void init(const QString &cell);
     int _row = 0, _column = 0;

@@ -75,7 +75,6 @@ $${QXLSX_HEADERPATH}xlsxabstractsheet_p.h \
 $${QXLSX_HEADERPATH}xlsxcell.h \
 $${QXLSX_HEADERPATH}xlsxcellformula.h \
 $${QXLSX_HEADERPATH}xlsxcellformula_p.h \
-$${QXLSX_HEADERPATH}xlsxcelllocation.h \
 $${QXLSX_HEADERPATH}xlsxcellrange.h \
 $${QXLSX_HEADERPATH}xlsxcellreference.h \
 $${QXLSX_HEADERPATH}xlsxcell_p.h \
@@ -134,7 +133,6 @@ $${QXLSX_SOURCEPATH}xlsxabstractooxmlfile.cpp \
 $${QXLSX_SOURCEPATH}xlsxabstractsheet.cpp \
 $${QXLSX_SOURCEPATH}xlsxcell.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellformula.cpp \
-$${QXLSX_SOURCEPATH}xlsxcelllocation.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellrange.cpp \
 $${QXLSX_SOURCEPATH}xlsxcellreference.cpp \
 $${QXLSX_SOURCEPATH}xlsxchart.cpp \

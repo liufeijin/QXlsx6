@@ -38,7 +38,6 @@
 #include "xlsxchart.h"
 #include "xlsxcellformula.h"
 #include "xlsxcellformula_p.h"
-#include "xlsxcelllocation.h"
 
 namespace QXlsx {
 
@@ -3008,66 +3007,42 @@ SharedStrings *WorksheetPrivate::sharedStrings() const
 	return workbook->sharedStrings();
 }
 
-QVector<CellLocation> Worksheet::getFullCells(int* maxRow, int* maxCol)
+QMap<CellReference, std::shared_ptr<Cell> > Worksheet::getFullCells(int* maxRow, int* maxCol)
 {
     Q_D(const Worksheet);
 
     // return values
     (*maxRow) = -1;
     (*maxCol) = -1;
-    QVector<CellLocation> ret;
+    QMap<CellReference, std::shared_ptr<Cell> > ret;
 
     // QString privateName = d->name; // name of sheet (not object type)
     // qDebug() << privateName ;
 
-    if ( d->type == AbstractSheet::ST_WorkSheet  )
-    {
-        // use current sheet
-    }
-    else if ( d->type == AbstractSheet::ST_ChartSheet )
-    {
-        return ret;
-    }
-    else
-    {
+    if (d->type != AbstractSheet::ST_WorkSheet) {
         qWarning("unsupported sheet type.");
-        Q_ASSERT(false);
         return ret;
     }
 
-    QMapIterator< int, QMap< int, std::shared_ptr<Cell> > > _it( d->cellTable );
-
-    while ( _it.hasNext() )
+    for (auto _it = d->cellTable.constBegin(); _it != d->cellTable.constEnd(); ++_it)
     {
-        _it.next();
-
         int keyI = _it.key(); // key (cell row)
-        QMapIterator<int, std::shared_ptr<Cell> > _iit( _it.value() ); // value
+        const auto &valI = _it.value();
 
-        while ( _iit.hasNext() )
+        for (auto _iit = valI.constBegin(); _iit != valI.constEnd(); ++_iit )
         {
-            _iit.next();
-
             int keyII = _iit.key(); // key (cell column)
             std::shared_ptr<Cell> ptrCell = _iit.value(); // value
 
-            CellLocation cl;
+            CellReference cl;
 
-            cl.row = keyI;
-            if ( keyI > (*maxRow) )
-            {
-                (*maxRow) = keyI;
-            }
+            cl.setRow(keyI);
+            if (keyI > (*maxRow) )  (*maxRow) = keyI;
 
-            cl.col = keyII;
-            if ( keyII > (*maxCol) )
-            {
-                (*maxCol) = keyII;
-            }
+            cl.setColumn(keyII);
+            if ( keyII > (*maxCol) ) (*maxCol) = keyII;
 
-            cl.cell = ptrCell;
-
-            ret.push_back( cl );
+            ret.insert(cl, ptrCell);
         }
     }
 
