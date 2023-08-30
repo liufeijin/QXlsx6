@@ -1321,7 +1321,7 @@ bool Document::changeimage(int filenoinmidea, QString newfile)
 
 
 /*!
-  Returns map of columns with there maximal width
+  Returns map of columns with their maximal width
  */
 QMap<int, int> Document::getMaximalColumnWidth(int firstRow, int lastRow)
 {

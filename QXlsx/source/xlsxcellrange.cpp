@@ -10,57 +10,42 @@
 
 namespace QXlsx {
 
-/*!
-    \class CellRange
-    \brief For a range "A1:B2" or single cell "A1"
-    \inmodule QtXlsx
-
-    The CellRange class stores the top left and bottom
-    right rows and columns of a range in a worksheet.
-*/
-
-/*!
-    Constructs an range, i.e. a range
-    whose rowCount() and columnCount() are 0.
-*/
 CellRange::CellRange()
     : top(-1), left(-1), bottom(-2), right(-2)
 {
 }
 
-/*!
-    Constructs the range from the given \a top, \a
-    left, \a bottom and \a right rows and columns.
-
-    \sa topRow(), leftColumn(), bottomRow(), rightColumn()
-*/
 CellRange::CellRange(int top, int left, int bottom, int right)
     : top(top), left(left), bottom(bottom), right(right)
 {
+    fixOrder();
 }
 
 CellRange::CellRange(const CellReference &topLeft, const CellReference &bottomRight)
     : top(topLeft.row()), left(topLeft.column())
     , bottom(bottomRight.row()), right(bottomRight.column())
 {
+    fixOrder();
 }
 
-/*!
-    \overload
-    Constructs the range form the given \a range string.
-*/
+CellRange::CellRange(const CellReference &cell, int rowOffset, int columnOffset)
+    : top{cell.row()}, left{cell.column()}
+{
+    bottom = top + rowOffset;
+    right = left + columnOffset;
+    fixOrder();
+}
+
 CellRange::CellRange(const QString &range)
 {
     init(range);
+    fixOrder();
 }
 
-/*!
-    \overload
-    Constructs the range form the given \a range string.
-*/
 CellRange::CellRange(const char *range)
 {
     init(QString::fromLatin1(range));
+    fixOrder();
 }
 
 void CellRange::init(const QString &range)
@@ -82,46 +67,40 @@ void CellRange::init(const QString &range)
     }
 }
 
-/*!
-    Constructs a the range by copying the given \a
-    other range.
-*/
+void CellRange::fixOrder()
+{
+    if (top > bottom) std::swap(top, bottom);
+    if (left > right) std::swap(left, right);
+}
+
 CellRange::CellRange(const CellRange &other)
     : top(other.top), left(other.left), bottom(other.bottom), right(other.right)
 {
+    fixOrder();
 }
 
-/*!
-    Destroys the range.
-*/
 CellRange::~CellRange()
 {
 }
 
-/*!
-     Convert the range to string notation, such as "A1:B5".
-*/
-QString CellRange::toString(bool row_abs, bool col_abs) const
+QString CellRange::toString(bool rowFixed, bool colFixed) const
 {
     if (!isValid())
         return QString();
 
     if (left == right && top == bottom) {
         //Single cell
-        return CellReference(top, left).toString(row_abs, col_abs);
+        return CellReference(top, left).toString(rowFixed, colFixed);
     }
 
-    QString cell_1 = CellReference(top, left).toString(row_abs, col_abs);
-    QString cell_2 = CellReference(bottom, right).toString(row_abs, col_abs);
+    QString cell_1 = CellReference(top, left).toString(rowFixed, colFixed);
+    QString cell_2 = CellReference(bottom, right).toString(rowFixed, colFixed);
     return cell_1 + QLatin1String(":") + cell_2;
 }
 
-/*!
- * Returns true if the Range is valid.
- */
 bool CellRange::isValid() const
 {
-    return left <= right && top <= bottom;
+    return left <= right && top <= bottom && left > 0 && top > 0;
 }
 
 }
