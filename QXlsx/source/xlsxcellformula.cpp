@@ -13,7 +13,7 @@
 
 namespace QXlsx {
 
-CellFormulaPrivate::CellFormulaPrivate(const QString &formula_, const CellRange &ref_, CellFormula::FormulaType type_)
+CellFormulaPrivate::CellFormulaPrivate(const QString &formula_, const CellRange &ref_, CellFormula::Type type_)
     :formula(formula_), type(type_), reference(ref_), ca(false), si(0)
 {
     //Remove the formula '=' sign if exists
@@ -42,13 +42,6 @@ CellFormulaPrivate::~CellFormulaPrivate()
 
 */
 
-/*!
-  \enum CellFormula::FormulaType
-  \value NormalType
-  \value ArrayType
-  \value DataTableType
-  \value SharedType
-*/
 
 /*!
  *  Creates a new formula.
@@ -61,7 +54,7 @@ CellFormula::CellFormula()
 /*!
  *  Creates a new formula with the given \a formula and \a type.
  */
-CellFormula::CellFormula(const char *formula, FormulaType type)
+CellFormula::CellFormula(const char *formula, Type type)
     :d(new CellFormulaPrivate(QString::fromLatin1(formula), CellRange(), type))
 {
 
@@ -70,7 +63,7 @@ CellFormula::CellFormula(const char *formula, FormulaType type)
 /*!
  *  Creates a new formula with the given \a formula and \a type.
  */
-CellFormula::CellFormula(const QString &formula, FormulaType type)
+CellFormula::CellFormula(const QString &formula, Type type)
     :d(new CellFormulaPrivate(formula, CellRange(), type))
 {
 
@@ -79,7 +72,7 @@ CellFormula::CellFormula(const QString &formula, FormulaType type)
 /*!
  *  Creates a new formula with the given \a formula, \a ref and \a type.
  */
-CellFormula::CellFormula(const QString &formula, const CellRange &ref, FormulaType type)
+CellFormula::CellFormula(const QString &formula, const CellRange &ref, Type type)
     :d(new CellFormulaPrivate(formula, ref, type))
 {
 
@@ -115,9 +108,9 @@ CellFormula::~CellFormula()
 /*!
  * Returns the type of the formula.
  */
-CellFormula::FormulaType CellFormula::formulaType() const
+CellFormula::Type CellFormula::formulaType() const
 {
-    return d ? d->type : NormalType;
+    return d ? d->type : Type::Normal;
 }
 
 /*!
@@ -150,7 +143,7 @@ bool CellFormula::isValid() const
  */
 int CellFormula::sharedIndex() const
 {
-    return d && d->type == SharedType ? d->si : (-1);
+    return d && d->type == Type::Shared ? d->si : (-1);
 }
 
 /* aca (Always Calculate Array) // not-implmented attribute
@@ -259,16 +252,16 @@ bool CellFormula::saveToXml(QXmlStreamWriter &writer) const
     QString t;
     switch (d->type)
     {
-    case CellFormula::ArrayType:
+    case CellFormula::Type::Array:
         t = QStringLiteral("array");
         break;
-    case CellFormula::SharedType:
+    case CellFormula::Type::Shared:
         t = QStringLiteral("shared");
         break;
-    case CellFormula::NormalType:
+    case CellFormula::Type::Normal:
         t = QStringLiteral("normal");
         break;
-    case CellFormula::DataTableType:
+    case CellFormula::Type::DataTable:
         t = QStringLiteral("dataTable");
         break;
     default: // undefined type
@@ -297,9 +290,9 @@ bool CellFormula::saveToXml(QXmlStreamWriter &writer) const
     // The possible values for this attribute are defined by the ST_Ref
     // simple type (§18.18.62).
 
-    if ( d->type == CellFormula::SharedType ||
-         d->type == CellFormula::ArrayType ||
-         d->type == CellFormula::DataTableType )
+    if ( d->type == CellFormula::Type::Shared ||
+         d->type == CellFormula::Type::Array ||
+         d->type == CellFormula::Type::DataTable )
     {
         if (d->reference.isValid())
         {
@@ -337,7 +330,7 @@ bool CellFormula::saveToXml(QXmlStreamWriter &writer) const
     // what the formula expression should be based on the cell's relative
     // location to the master formula cell.
 
-    if (d->type == CellFormula::SharedType)
+    if (d->type == CellFormula::Type::Shared)
     {
         int si = d->si;
         writer.writeAttribute(QStringLiteral("si"), QString::number(si));
@@ -362,7 +355,7 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("f"));
     if (!d)
-        d = new CellFormulaPrivate(QString(), CellRange(), NormalType);
+        d = new CellFormulaPrivate(QString(), CellRange(), Type::Normal);
 
     QXmlStreamAttributes attributes = reader.attributes();
     QString typeString = attributes.value(QLatin1String("t")).toString();
@@ -370,16 +363,16 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
     // branch: shared-formula
     //
     if (typeString == QLatin1String("array")) {
-        d->type = ArrayType;
+        d->type = Type::Array;
     }
     else if (typeString == QLatin1String("shared")) {
-        d->type = SharedType;
+        d->type = Type::Shared;
     }
     else if (typeString == QLatin1String("normal")) {
-        d->type = NormalType;
+        d->type = Type::Normal;
     }
     else if (typeString == QLatin1String("dataTable")) {
-        d->type = DataTableType;
+        d->type = Type::DataTable;
     }
     else {
         /*
@@ -390,7 +383,7 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
 
         // dev40 {{
         // https://github.com/QtExcel/QXlsx/issues/38
-        d->type = NormalType; // Change: normal Type is not mentioned in the xml file!!!!!
+        d->type = Type::Normal; // Change: normal Type is not mentioned in the xml file!!!!!
         // }}
     }
 
@@ -399,9 +392,9 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
     // ref (Range of Cells)
     // Range of cells which the formula applies to.
     // Only required for shared formula, array formula or data table.
-    if ( d->type == CellFormula::SharedType ||
-         d->type == CellFormula::ArrayType ||
-         d->type == CellFormula::DataTableType )
+    if ( d->type == CellFormula::Type::Shared ||
+         d->type == CellFormula::Type::Array ||
+         d->type == CellFormula::Type::DataTable )
     {
         if (attributes.hasAttribute(QLatin1String("ref")))
         {
@@ -416,7 +409,7 @@ bool CellFormula::loadFromXml(QXmlStreamReader &reader)
     // Optional attribute to optimize load performance by sharing formulas.
     // When a formula is a shared formula (t value is shared) then this value
     // indicates the group to which this particular cell's formula belongs.
-    if ( d->type == CellFormula::SharedType )
+    if ( d->type == CellFormula::Type::Shared )
     {
         QString ca = attributes.value(QLatin1String("si")).toString();
         d->ca = parseXsdBoolean(ca, false);

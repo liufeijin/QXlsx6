@@ -63,8 +63,8 @@ int formula()
         sheet->write(row, 2, row*2); //B2:B19
         sheet->write(row, 3, row*3); //C2:C19
     }
-    sheet->writeFormula("D2", CellFormula("B2:B19+C2:C19", "D2:D19", CellFormula::ArrayType));
-    sheet->writeFormula("E2", CellFormula("=CONCATENATE(\"The total is \",D2:D19,\" units\")", "E2:E19", CellFormula::ArrayType));
+    sheet->writeFormula("D2", CellFormula("B2:B19+C2:C19", "D2:D19", CellFormula::Type::Array));
+    sheet->writeFormula("E2", CellFormula("=CONCATENATE(\"The total is \",D2:D19,\" units\")", "E2:E19", CellFormula::Type::Array));
     //![2]
 
     //![21]
@@ -75,8 +75,8 @@ int formula()
         sheet->write(row, 2, row*2); //B2:B19
         sheet->write(row, 3, row*3); //C2:C19
     }
-    sheet->writeFormula("D2", CellFormula("=B2+C2", "D2:D19", CellFormula::SharedType));
-    sheet->writeFormula("E2", CellFormula("=CONCATENATE(\"The total is \",D2,\" units\")", "E2:E19", CellFormula::SharedType));
+    sheet->writeFormula("D2", CellFormula("=B2+C2", "D2:D19", CellFormula::Type::Shared));
+    sheet->writeFormula("E2", CellFormula("=CONCATENATE(\"The total is \",D2,\" units\")", "E2:E19", CellFormula::Type::Shared));
 
     //![21]
 

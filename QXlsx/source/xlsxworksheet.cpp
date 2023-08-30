@@ -541,11 +541,11 @@ QVariant Worksheet::read(int row, int column) const
 
     if (cell->hasFormula())
     {
-        if (cell->formula().formulaType() == CellFormula::NormalType)
+        if (cell->formula().formulaType() == CellFormula::Type::Normal)
         {
 			return QVariant(QLatin1String("=")+cell->formula().formulaText());
         }
-        else if (cell->formula().formulaType() == CellFormula::SharedType)
+        else if (cell->formula().formulaType() == CellFormula::Type::Shared)
         {
             if (!cell->formula().formulaText().isEmpty())
             {
@@ -778,7 +778,7 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
 
 	CellFormula formula = formula_;
 	formula.d->ca = true;
-    if (formula.formulaType() == CellFormula::SharedType)
+    if (formula.formulaType() == CellFormula::Type::Shared)
     {
 		//Assign proper shared index for shared formula
         int si = 0;
@@ -795,8 +795,8 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
 	d->cellTable[row][column] = data;
 
 	CellRange range = formula.reference();
-	if (formula.formulaType() == CellFormula::SharedType) {
-		CellFormula sf(QString(), CellFormula::SharedType);
+    if (formula.formulaType() == CellFormula::Type::Shared) {
+        CellFormula sf(QString(), CellFormula::Type::Shared);
 		sf.d->si = formula.sharedIndex();
 		for (int r=range.firstRow(); r<=range.lastRow(); ++r) {
 			for (int c=range.firstColumn(); c<=range.lastColumn(); ++c) {
@@ -2456,7 +2456,7 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 						{
 							CellFormula &formula = cell->d_func()->formula;
 							formula.loadFromXml(reader);
-                            if (formula.formulaType() == CellFormula::SharedType &&
+                            if (formula.formulaType() == CellFormula::Type::Shared &&
                                     !formula.formulaText().isEmpty())
 							{
                                 int si = formula.sharedIndex();

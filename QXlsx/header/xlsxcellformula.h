@@ -20,13 +20,18 @@ class WorksheetPrivate;
 class QXLSX_EXPORT CellFormula
 {
 public:
-    enum FormulaType { NormalType, ArrayType, DataTableType, SharedType };
+    enum class Type {
+        Normal,
+        Array,
+        DataTable,
+        Shared
+    };
 
 public:
     CellFormula();
-    CellFormula(const char *formula, FormulaType type=NormalType);
-    CellFormula(const QString &formula, FormulaType type=NormalType);
-    CellFormula(const QString &formula, const CellRange &ref, FormulaType type);
+    CellFormula(const char *formula, Type type=Type::Normal);
+    CellFormula(const QString &formula, Type type=Type::Normal);
+    CellFormula(const QString &formula, const CellRange &ref, Type type);
     CellFormula(const CellFormula &other);
     ~CellFormula();
 
@@ -34,7 +39,7 @@ public:
     CellFormula &operator =(const CellFormula &other);
     bool isValid() const;
 
-    FormulaType formulaType() const;
+    Type formulaType() const;
     QString formulaText() const;
     CellRange reference() const;
     int sharedIndex() const;

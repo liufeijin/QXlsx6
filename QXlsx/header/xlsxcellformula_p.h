@@ -15,12 +15,12 @@ namespace QXlsx {
 class CellFormulaPrivate : public QSharedData
 {
 public:
-    CellFormulaPrivate(const QString &formula, const CellRange &reference, CellFormula::FormulaType type);
+    CellFormulaPrivate(const QString &formula, const CellRange &reference, CellFormula::Type type);
     CellFormulaPrivate(const CellFormulaPrivate &other);
     ~CellFormulaPrivate();
 
     QString formula; //formula contents
-    CellFormula::FormulaType type;
+    CellFormula::Type type;
     CellRange reference;
     bool ca; //Calculate Cell
     int si;  //Shared group index
