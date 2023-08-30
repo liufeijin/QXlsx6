@@ -38,7 +38,6 @@ CellPrivate::CellPrivate(const CellPrivate * const cp)
 
 /*!
   \class Cell
-  \inmodule QtXlsx
   \brief The Cell class provides a API that is used to handle the worksheet cell.
 
 */

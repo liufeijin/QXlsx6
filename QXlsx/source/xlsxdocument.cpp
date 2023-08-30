@@ -334,7 +334,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
 	DocPropsCore docPropsCore(DocPropsCore::F_NewFromScratch);
 
 	// save worksheet xml files
-	QList<QSharedPointer<AbstractSheet> > worksheets = workbook->getSheetsByTypes(AbstractSheet::ST_WorkSheet);
+    QList<QSharedPointer<AbstractSheet> > worksheets = workbook->getSheetsByTypes(AbstractSheet::Type::Worksheet);
 	if (!worksheets.isEmpty())
 		docPropsApp.addHeadingPair(QStringLiteral("Worksheets"), worksheets.size());
 
@@ -342,7 +342,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     {
 		QSharedPointer<AbstractSheet> sheet = worksheets[i];
         contentTypes->addWorksheetName(QStringLiteral("sheet%1").arg(i+1));
-		docPropsApp.addPartTitle(sheet->sheetName());
+        docPropsApp.addPartTitle(sheet->name());
 
         zipWriter.addFile(QStringLiteral("xl/worksheets/sheet%1.xml").arg(i+1), sheet->saveToXmlData());
 
@@ -352,14 +352,14 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
 	}
 
 	//save chartsheet xml files
-	QList<QSharedPointer<AbstractSheet> > chartsheets = workbook->getSheetsByTypes(AbstractSheet::ST_ChartSheet);
+    QList<QSharedPointer<AbstractSheet> > chartsheets = workbook->getSheetsByTypes(AbstractSheet::Type::Chartsheet);
 	if (!chartsheets.isEmpty())
         docPropsApp.addHeadingPair(QStringLiteral("Chartsheets"), chartsheets.size());
     for (int i=0; i<chartsheets.size(); ++i)
     {
 		QSharedPointer<AbstractSheet> sheet = chartsheets[i];
         contentTypes->addWorksheetName(QStringLiteral("sheet%1").arg(i+1));
-		docPropsApp.addPartTitle(sheet->sheetName());
+        docPropsApp.addPartTitle(sheet->name());
 
         zipWriter.addFile(QStringLiteral("xl/chartsheets/sheet%1.xml").arg(i+1), sheet->saveToXmlData());
 		Relationships *rel = sheet->relationships();
@@ -531,7 +531,6 @@ bool DocumentPrivate::copyStyle(const QString &from, const QString &to)
 
 /*!
   \class Document
-  \inmodule QtXlsx
   \brief The Document class provides a API that is used to handle the contents of .xlsx files.
 
 */
@@ -1113,7 +1112,7 @@ AbstractSheet *Document::sheet(const QString &sheetName) const
  * Creates and append an sheet with the given \a name and \a type.
  * Return true if success.
  */
-bool Document::addSheet(const QString &name, AbstractSheet::SheetType type)
+bool Document::addSheet(const QString &name, AbstractSheet::Type type)
 {
 	Q_D(Document);
 	return d->workbook->addSheet(name, type);
@@ -1123,7 +1122,7 @@ bool Document::addSheet(const QString &name, AbstractSheet::SheetType type)
  * Creates and inserts an document with the given \a name and \a type at the \a index.
  * Returns false if the \a name already used.
  */
-bool Document::insertSheet(int index, const QString &name, AbstractSheet::SheetType type)
+bool Document::insertSheet(int index, const QString &name, AbstractSheet::Type type)
 {
 	Q_D(Document);
 	return d->workbook->insertSheet(index, name, type);
@@ -1185,12 +1184,12 @@ AbstractSheet *Document::currentSheet() const
 
 /*!
  * \brief Return pointer of current worksheet.
- * If the type of sheet is not AbstractSheet::ST_WorkSheet, then 0 will be returned.
+ * If the type of sheet is not AbstractSheet::Type::Worksheet, then 0 will be returned.
  */
 Worksheet *Document::currentWorksheet() const
 {
 	AbstractSheet *st = currentSheet();
-	if (st && st->sheetType() == AbstractSheet::ST_WorkSheet)
+    if (st && st->type() == AbstractSheet::Type::Worksheet)
 		return static_cast<Worksheet *>(st);
 	else
 		return 0;

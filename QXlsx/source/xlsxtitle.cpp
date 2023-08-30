@@ -101,9 +101,9 @@ void Title::setStringReference(const CellRange &range, AbstractSheet *sheet)
     if (!d) d = new TitlePrivate;
     if (!range.isValid())
         return;
-    if (sheet && sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+    if (sheet && sheet->type() != AbstractSheet::Type::Worksheet)
         return;
-    QString sheetName = escapeSheetName(sheet->sheetName());
+    QString sheetName = escapeSheetName(sheet->name());
     QString reference = sheetName + QLatin1String("!") + range.toString(true, true);
     setStringReference(reference);
 }

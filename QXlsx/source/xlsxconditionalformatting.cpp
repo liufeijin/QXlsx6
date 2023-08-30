@@ -51,7 +51,6 @@ void ConditionalFormattingPrivate::writeCfVo(QXmlStreamWriter &writer, const Xls
 /*!
  * \class ConditionalFormatting
  * \brief Conditional formatting for single cell or ranges
- * \inmodule QtXlsx
  *
  * The conditional formatting can be applied to a single cell or ranges of cells.
  */

@@ -32,7 +32,6 @@ RichStringPrivate::~RichStringPrivate()
 
 /*!
     \class RichString
-    \inmodule QtXlsx
     \brief This class add support for the rich text string of the cell.
 */
 

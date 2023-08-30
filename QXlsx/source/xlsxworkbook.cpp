@@ -44,8 +44,8 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag) :
     firstsheet = 0;
     table_count = 0;
 
-    last_worksheet_index = 0;
-    last_chartsheet_index = 0;
+    lastWorksheet_index = 0;
+    lastChartsheet_index = 0;
     last_sheet_id = 0;
 }
 
@@ -156,8 +156,8 @@ bool Workbook::defineName(const QString &name, const QString &formula, const QSt
     int id=-1;
     if (!scope.isEmpty()) {
         for (int i=0; i<d->sheets.size(); ++i) {
-            if (d->sheets[i]->sheetName() == scope) {
-                id = d->sheets[i]->sheetId();
+            if (d->sheets[i]->name() == scope) {
+                id = d->sheets[i]->id();
                 break;
             }
         }
@@ -167,7 +167,7 @@ bool Workbook::defineName(const QString &name, const QString &formula, const QSt
     return true;
 }
 
-AbstractSheet *Workbook::addSheet(const QString &name, AbstractSheet::SheetType type)
+AbstractSheet *Workbook::addSheet(const QString &name, AbstractSheet::Type type)
 {
     Q_D(Workbook);
     return insertSheet(d->sheets.size(), name, type);
@@ -186,19 +186,19 @@ QStringList Workbook::worksheetNames() const
  * \internal
  * Used only when load the xlsx file!!
  */
-AbstractSheet *Workbook::addSheet(const QString &name, int sheetId, AbstractSheet::SheetType type)
+AbstractSheet *Workbook::addSheet(const QString &name, int sheetId, AbstractSheet::Type type)
 {
     Q_D(Workbook);
     if (sheetId > d->last_sheet_id)
         d->last_sheet_id = sheetId;
 
     AbstractSheet *sheet = NULL;
-    if (type == AbstractSheet::ST_WorkSheet)
+    if (type == AbstractSheet::Type::Worksheet)
     {
         // create work sheet (value sheet)
         sheet = new Worksheet(name, sheetId, this, F_LoadFromExists);
     }
-    else if (type == AbstractSheet::ST_ChartSheet)
+    else if (type == AbstractSheet::Type::Chartsheet)
     {
         // create chart sheet
         sheet = new Chartsheet(name, sheetId, this, F_LoadFromExists);
@@ -215,7 +215,7 @@ AbstractSheet *Workbook::addSheet(const QString &name, int sheetId, AbstractShee
     return sheet;
 }
 
-AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractSheet::SheetType type)
+AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractSheet::Type type)
 {
     Q_D(Workbook);
     QString sheetName = createSafeSheetName(name);
@@ -228,15 +228,15 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
         if (d->sheetNames.contains(sheetName))
             return 0;
     } else {
-        if (type == AbstractSheet::ST_WorkSheet) {
+        if (type == AbstractSheet::Type::Worksheet) {
             do {
-                ++d->last_worksheet_index;
-                sheetName = QStringLiteral("Sheet%1").arg(d->last_worksheet_index);
+                ++d->lastWorksheet_index;
+                sheetName = QStringLiteral("Sheet%1").arg(d->lastWorksheet_index);
             } while (d->sheetNames.contains(sheetName));
-        } else if (type == AbstractSheet::ST_ChartSheet) {
+        } else if (type == AbstractSheet::Type::Chartsheet) {
             do {
-                ++d->last_chartsheet_index;
-                sheetName = QStringLiteral("Chart%1").arg(d->last_chartsheet_index);
+                ++d->lastChartsheet_index;
+                sheetName = QStringLiteral("Chart%1").arg(d->lastChartsheet_index);
             } while (d->sheetNames.contains(sheetName));
         } else {
             qWarning("unsupported sheet type.");
@@ -247,11 +247,11 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
     ++d->last_sheet_id;
 
     AbstractSheet *sheet = NULL;
-    if ( type == AbstractSheet::ST_WorkSheet )
+    if ( type == AbstractSheet::Type::Worksheet )
     {
         sheet = new Worksheet(sheetName, d->last_sheet_id, this, F_NewFromScratch);
     }
-    else if ( type == AbstractSheet::ST_ChartSheet )
+    else if ( type == AbstractSheet::Type::Chartsheet )
     {
         sheet = new Chartsheet(sheetName, d->last_sheet_id, this, F_NewFromScratch);
     }
@@ -302,11 +302,11 @@ bool Workbook::renameSheet(int index, const QString &newName)
 
     //If user given an already in-used name, return false
     for (int i=0; i<d->sheets.size(); ++i) {
-        if (d->sheets[i]->sheetName() == name)
+        if (d->sheets[i]->name() == name)
             return false;
     }
 
-    d->sheets[index]->setSheetName(name);
+    d->sheets[index]->setName(name);
     d->sheetNames[index] = name;
     return true;
 }
@@ -342,10 +342,10 @@ bool Workbook::moveSheet(int srcIndex, int distIndex)
     d->sheetNames.takeAt(srcIndex);
     if (distIndex >= 0 || distIndex <= d->sheets.size()) {
         d->sheets.insert(distIndex, sheet);
-        d->sheetNames.insert(distIndex, sheet->sheetName());
+        d->sheetNames.insert(distIndex, sheet->name());
     } else {
         d->sheets.append(sheet);
-        d->sheetNames.append(sheet->sheetName());
+        d->sheetNames.append(sheet->name());
     }
     return true;
 }
@@ -365,14 +365,14 @@ bool Workbook::copySheet(int index, const QString &newName)
         int copy_index = 1;
         do {
             ++copy_index;
-            worksheetName = QStringLiteral("%1(%2)").arg(d->sheets[index]->sheetName()).arg(copy_index);
+            worksheetName = QStringLiteral("%1(%2)").arg(d->sheets[index]->name()).arg(copy_index);
         } while (d->sheetNames.contains(worksheetName));
     }
 
     ++d->last_sheet_id;
     AbstractSheet *sheet = d->sheets[index]->copy(worksheetName, d->last_sheet_id);
     d->sheets.append(QSharedPointer<AbstractSheet> (sheet));
-    d->sheetNames.append(sheet->sheetName());
+    d->sheetNames.append(sheet->name());
 
     return true; // #162
 }
@@ -436,12 +436,12 @@ QList<Drawing *> Workbook::drawings()
 /*!
  * \internal
  */
-QList<QSharedPointer<AbstractSheet> > Workbook::getSheetsByTypes(AbstractSheet::SheetType type) const
+QList<QSharedPointer<AbstractSheet> > Workbook::getSheetsByTypes(AbstractSheet::Type type) const
 {
     Q_D(const Workbook);
     QList<QSharedPointer<AbstractSheet> > list;
     for (int i=0; i<d->sheets.size(); ++i) {
-        if (d->sheets[i]->sheetType() == type)
+        if (d->sheets[i]->type() == type)
             list.append(d->sheets[i]);
     }
     return list;
@@ -494,14 +494,14 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     for (int i=0; i<d->sheets.size(); ++i) {
         QSharedPointer<AbstractSheet> sheet = d->sheets[i];
         writer.writeEmptyElement(QStringLiteral("sheet"));
-        writer.writeAttribute(QStringLiteral("name"), sheet->sheetName());
-        writer.writeAttribute(QStringLiteral("sheetId"), QString::number(sheet->sheetId()));
-        if (sheet->sheetState() == AbstractSheet::SS_Hidden)
+        writer.writeAttribute(QStringLiteral("name"), sheet->name());
+        writer.writeAttribute(QStringLiteral("sheetId"), QString::number(sheet->id()));
+        if (sheet->visibility() == AbstractSheet::Visibility::Hidden)
             writer.writeAttribute(QStringLiteral("state"), QStringLiteral("hidden"));
-        else if (sheet->sheetState() == AbstractSheet::SS_VeryHidden)
+        else if (sheet->visibility() == AbstractSheet::Visibility::VeryHidden)
             writer.writeAttribute(QStringLiteral("state"), QStringLiteral("veryHidden"));
 
-        if (sheet->sheetType() == AbstractSheet::ST_WorkSheet)
+        if (sheet->type() == AbstractSheet::Type::Worksheet)
             d->relationships->addDocumentRelationship(QStringLiteral("/worksheet"), QStringLiteral("worksheets/sheet%1.xml").arg(++worksheetIndex));
         else
             d->relationships->addDocumentRelationship(QStringLiteral("/chartsheet"), QStringLiteral("chartsheets/sheet%1.xml").arg(++chartsheetIndex));
@@ -530,7 +530,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
             if (data.sheetId != -1) {
                 //find the local index of the sheet.
                 for (int i=0; i<d->sheets.size(); ++i) {
-                    if (d->sheets[i]->sheetId() == data.sheetId) {
+                    if (d->sheets[i]->id() == data.sheetId) {
                         writer.writeAttribute(QStringLiteral("localSheetId"), QString::number(i));
                         break;
                     }
@@ -577,30 +577,30 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                  const auto& stateString = attributes.value(QLatin1String("state"));
 
-                 AbstractSheet::SheetState state = AbstractSheet::SS_Visible;
+                 auto state = AbstractSheet::Visibility::Visible;
                  if (stateString == QLatin1String("hidden"))
-                     state = AbstractSheet::SS_Hidden;
+                     state = AbstractSheet::Visibility::Hidden;
                  else if (stateString == QLatin1String("veryHidden"))
-                     state = AbstractSheet::SS_VeryHidden;
+                     state = AbstractSheet::Visibility::VeryHidden;
 
                  XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
-                 AbstractSheet::SheetType type = AbstractSheet::ST_WorkSheet;
+                 auto type = AbstractSheet::Type::Worksheet;
                  if (relationship.type.endsWith(QLatin1String("/worksheet")))
                  {
-                     type = AbstractSheet::ST_WorkSheet;
+                     type = AbstractSheet::Type::Worksheet;
                  }
                  else if (relationship.type.endsWith(QLatin1String("/chartsheet")))
                  {
-                     type = AbstractSheet::ST_ChartSheet;
+                     type = AbstractSheet::Type::Chartsheet;
                  }
                  else if (relationship.type.endsWith(QLatin1String("/dialogsheet")))
                  {
-                     type = AbstractSheet::ST_DialogSheet;
+                     type = AbstractSheet::Type::Dialogsheet;
                  }
                  else if (relationship.type.endsWith(QLatin1String("/xlMacrosheet")))
                  {
-                     type = AbstractSheet::ST_MacroSheet;
+                     type = AbstractSheet::Type::Macrosheet;
                  }
                  else
                  {
@@ -608,7 +608,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                  }
 
                  AbstractSheet *sheet = addSheet(name, sheetId, type);
-                 sheet->setSheetState(state);
+                 sheet->setVisibility(state);
                  QString strFilePath = filePath();
 
                  // const QString fullPath = QDir::cleanPath(splitPath(strFilePath).constFirst() + QLatin1String("/") + relationship.target);
@@ -672,7 +672,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                      data.comment = attrs.value(QLatin1String("comment")).toString();
                  if (attrs.hasAttribute(QLatin1String("localSheetId"))) {
                      int localId = attrs.value(QLatin1String("localSheetId")).toInt();
-                     int sheetId = d->sheets.at(localId)->sheetId();
+                     int sheetId = d->sheets.at(localId)->id();
                      data.sheetId = sheetId;
                  }
                  data.formula = reader.readElementText();

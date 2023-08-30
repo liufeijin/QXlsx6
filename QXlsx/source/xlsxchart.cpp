@@ -247,12 +247,12 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
 
     if (!range.isValid())
         return;
-    if (sheet && sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+    if (sheet && sheet->type() != AbstractSheet::Type::Worksheet)
         return;
-    if (!sheet && d->sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+    if (!sheet && d->sheet->type() != AbstractSheet::Type::Worksheet)
         return;
 
-    QString sheetName = sheet ? sheet->sheetName() : d->sheet->sheetName();
+    QString sheetName = sheet ? sheet->name() : d->sheet->name();
     //In case sheetName contains space or '
     sheetName = escapeSheetName(sheetName);
 
@@ -323,12 +323,12 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
 
     if (!keyRange.isValid() || !valRange.isValid())
         return {};
-    if (sheet && sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+    if (sheet && sheet->type() != AbstractSheet::Type::Worksheet)
         return {};
-    if (!sheet && d->sheet->sheetType() != AbstractSheet::ST_WorkSheet)
+    if (!sheet && d->sheet->type() != AbstractSheet::Type::Worksheet)
         return {};
 
-    QString sheetName = sheet ? sheet->sheetName() : d->sheet->sheetName();
+    QString sheetName = sheet ? sheet->name() : d->sheet->name();
     //In case sheetName contains space or '
     sheetName = escapeSheetName(sheetName);
 

@@ -96,9 +96,9 @@ public:
 
 	QStringList sheetNames() const;
     bool addSheet(const QString &name = QString(),
-                  AbstractSheet::SheetType type = AbstractSheet::ST_WorkSheet);
+                  AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
     bool insertSheet(int index, const QString &name = QString(),
-                     AbstractSheet::SheetType type = AbstractSheet::ST_WorkSheet);
+                     AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
 	bool selectSheet(const QString &name);
 	bool selectSheet(int index);
 	bool renameSheet(const QString &oldName, const QString &newName);

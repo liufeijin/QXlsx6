@@ -162,7 +162,6 @@ int WorksheetPrivate::checkDimensions(int row, int col, bool ignore_row, bool ig
 
 /*!
   \class Worksheet
-  \inmodule QtXlsx
   \brief Represent one worksheet in the workbook.
 */
 
@@ -1275,17 +1274,17 @@ QList<CellRange> Worksheet::mergedCells() const
 
     QList<CellRange> emptyList;
 
-    if ( d->type == AbstractSheet::ST_WorkSheet )
+    if ( d->type == AbstractSheet::Type::Worksheet )
     {
         return d->merges;
     }
-    else if ( d->type == AbstractSheet::ST_ChartSheet )
+    else if ( d->type == AbstractSheet::Type::Chartsheet )
     {
     }
-    else if ( d->type == AbstractSheet::ST_DialogSheet )
+    else if ( d->type == AbstractSheet::Type::Dialogsheet )
     {
     }
-    else if ( d->type == AbstractSheet::ST_MacroSheet )
+    else if ( d->type == AbstractSheet::Type::Macrosheet )
     {
     }
     else
@@ -3019,7 +3018,7 @@ QMap<CellReference, std::shared_ptr<Cell> > Worksheet::getFullCells(int* maxRow,
     // QString privateName = d->name; // name of sheet (not object type)
     // qDebug() << privateName ;
 
-    if (d->type != AbstractSheet::ST_WorkSheet) {
+    if (d->type != AbstractSheet::Type::Worksheet) {
         qWarning("unsupported sheet type.");
         return ret;
     }

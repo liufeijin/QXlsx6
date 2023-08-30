@@ -27,7 +27,7 @@ int worksheetoperations()
     xlsx.write("A1", "This sheet is hidden.");
 
     xlsx.addSheet("VeryHiddenSheet");
-    xlsx.sheet("VeryHiddenSheet")->setSheetState(AbstractSheet::SS_VeryHidden);
+    xlsx.sheet("VeryHiddenSheet")->setVisibility(AbstractSheet::Visibility::VeryHidden);
     xlsx.write("A1", "This sheet is very hidden.");
 
     xlsx.saveAs("worksheetoperations1.xlsx");

@@ -27,8 +27,8 @@ public:
 
     QString name;
     int id;
-    AbstractSheet::SheetState sheetState;
-    AbstractSheet::SheetType type;
+    AbstractSheet::Visibility sheetState;
+    AbstractSheet::Type type;
 };
 
 }

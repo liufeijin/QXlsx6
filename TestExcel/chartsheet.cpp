@@ -20,7 +20,7 @@ int chartsheet()
     //![0]
 
     //![1]
-    xlsx.addSheet("Chart1", AbstractSheet::ST_ChartSheet);
+    xlsx.addSheet("Chart1", AbstractSheet::Type::Chartsheet);
     Chartsheet *sheet = static_cast<Chartsheet*>(xlsx.currentSheet());
     Chart *barChart = sheet->chart();
     barChart->setType(Chart::Type::Bar);

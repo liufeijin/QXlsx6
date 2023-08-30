@@ -176,7 +176,7 @@ public:
     void setDefaultProperties(SharedLabelProperties defaultProperties);
 
     /**
-     * @brief addLabel adds \label to the list of labels
+     * @brief addLabel adds @a label to the list of labels
      * @param label
      */
     void addLabel(const Label &label);

@@ -191,7 +191,7 @@ void UseSheet(bool isTest)
 		xlsx.write("A1", "This sheet is hidden.");
 
 		xlsx.addSheet("VeryHiddenSheet"); // current sheet is VeryHiddenSheet 
-		xlsx.sheet("VeryHiddenSheet")->setSheetState(AbstractSheet::SS_VeryHidden);
+        xlsx.sheet("VeryHiddenSheet")->setVisibility(AbstractSheet::Visibility::VeryHidden);
 		xlsx.write("A1", "This sheet is very hidden.");
 
 		if (!xlsx.save()) //Default name is "Book1.xlsx"
@@ -270,7 +270,7 @@ void DoChart(bool isTest)
 	*/
 
 	//![1]
-	xlsx.addSheet("Chart1", AbstractSheet::ST_ChartSheet);
+	xlsx.addSheet("Chart1", AbstractSheet::Type::Chartsheet);
 	Chartsheet *sheet = static_cast<Chartsheet*>(xlsx.currentSheet());
 	Chart *barChart = sheet->chart();
     barChart->setType(Chart::Type::Bar);

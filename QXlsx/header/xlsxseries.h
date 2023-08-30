@@ -525,13 +525,13 @@ public:
     Labels defaultLabels() const;
     Labels &defaultLabels();
     /**
-     * @brief label returns reference to a label with index \index
+     * @brief label returns reference to a label with @a index.
      * @param index index of a label (not the index of a series dataPoint!)
      * @return reference to a label, fails if series is not valid
      */
     std::optional<std::reference_wrapper<Label> > label(int index);
     /**
-     * @brief label returns label with index \index
+     * @brief label returns label with @a index
      * @param index index of a label (not the index of a series dataPoint!)
      * @return copy of a label or invalid label if series is not valid or there is no such label
      */

@@ -43,7 +43,6 @@ FormatPrivate::~FormatPrivate()
 
 /*!
  * \class Format
- * \inmodule QtXlsx
  * \brief Providing the methods and properties that are available for formatting cells in Excel.
  */
 

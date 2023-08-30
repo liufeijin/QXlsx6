@@ -38,7 +38,6 @@ CellFormulaPrivate::~CellFormulaPrivate()
 
 /*!
   \class CellFormula
-  \inmodule QtXlsx
   \brief The CellFormula class provides a API that is used to handle the cell formula.
 
 */

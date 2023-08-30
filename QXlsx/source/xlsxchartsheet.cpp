@@ -27,7 +27,6 @@ ChartsheetPrivate::~ChartsheetPrivate()
 
 /*!
   \class Chartsheet
-  \inmodule QtXlsx
   \brief Represent one chartsheet in the workbook.
 */
 
@@ -37,7 +36,7 @@ ChartsheetPrivate::~ChartsheetPrivate()
 Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFlag flag)
     : AbstractSheet( name, id, workbook, new ChartsheetPrivate(this, flag) )
 {
-    setSheetType(ST_ChartSheet);
+    setType(Type::Chartsheet);
 
     if (flag == Chartsheet::F_NewFromScratch)
     {
