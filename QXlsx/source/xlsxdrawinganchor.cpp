@@ -200,10 +200,10 @@ void DrawingAnchor::loadXmlObject(QXmlStreamReader &reader)
         // Shape
         m_objectType = Shape;
 
-		//{{ liufeijin
+        //{{ liufeijin
         sp_textlink = reader.attributes().value(QLatin1String("textlink")).toString();
         sp_macro = reader.attributes().value(QLatin1String("macro")).toString();
-		//}} 
+        //}} 
 
         // <xsd:attribute name="macro" type="xsd:string" use="optional"/>
         // <xsd:attribute name="textlink" type="xsd:string" use="optional"/>
@@ -229,9 +229,9 @@ void DrawingAnchor::loadXmlObject(QXmlStreamReader &reader)
         //Connection Shape
         m_objectType = ConnectionShape;
 
-		// {{ liufeijin
+        // {{ liufeijin
         cxnSp_macro = reader.attributes().value(QLatin1String("macro")).toString();
-		// }}
+        // }}
 
         loadXmlObjectConnectionShape(reader);
     }
@@ -969,7 +969,7 @@ void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
 
      writer.writeEndElement(); //xdr:sp
 
-	//}} liufeijin
+    //}} liufeijin
 }
 
 //absolute anchor
@@ -1125,10 +1125,10 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
     </xsd:complexType>
     */
 
-	//{{ liufeijin
-	QXmlStreamAttributes attrs = reader.attributes();  // for absolute twocell aadd by liufeijin 20181024
+    //{{ liufeijin
+    QXmlStreamAttributes attrs = reader.attributes();  // for absolute twocell aadd by liufeijin 20181024
     editASName = attrs.value(QLatin1String("editAs")).toString();
-	//}}
+    //}}
 
     while (!reader.atEnd())
     {
@@ -1182,12 +1182,12 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
 {
     writer.writeStartElement(QStringLiteral("xdr:twoCellAnchor"));
 
-	//{{ liufeijin
+    //{{ liufeijin
     // writer.writeAttribute(QStringLiteral("editAs"), QStringLiteral("oneCell"));
    if(!editASName.isNull()){
        writer.writeAttribute(QStringLiteral("editAs"), editASName ); //QStringLiteral("oneCell")
    }
-	// }}
+    // }}
 
     saveXmlMarker(writer, from, QStringLiteral("xdr:from"));
     saveXmlMarker(writer, to, QStringLiteral("xdr:to"));

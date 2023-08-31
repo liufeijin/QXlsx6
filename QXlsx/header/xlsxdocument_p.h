@@ -23,8 +23,8 @@ public:
     bool loadPackage(QIODevice *device);
     bool savePackage(QIODevice *device) const;
 
-	// copy style from one xlsx file to other
-	static bool copyStyle(const QString &from, const QString &to);
+    // copy style from one xlsx file to other
+    static bool copyStyle(const QString &from, const QString &to);
 
     Document *q_ptr;
     const QString defaultPackageName; //default name when package name not specified
@@ -33,7 +33,7 @@ public:
     QMap<QString, QString> documentProperties; //core, app and custom properties
     QSharedPointer<Workbook> workbook;
     std::shared_ptr<ContentTypes> contentTypes;
-	bool isLoad; 
+    bool isLoad; 
 };
 
 }

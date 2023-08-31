@@ -26,11 +26,6 @@ ChartsheetPrivate::~ChartsheetPrivate()
 }
 
 /*!
-  \class Chartsheet
-  \brief Represent one chartsheet in the workbook.
-*/
-
-/*!
  * \internal
  */
 Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFlag flag)
@@ -57,8 +52,6 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
 
 /*!
  * \internal
- *
- * Make a copy of this sheet.
  */
 
 Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
@@ -69,16 +62,10 @@ Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
     return 0;
 }
 
-/*!
- * Destroys this workssheet.
- */
 Chartsheet::~Chartsheet()
 {
 }
 
-/*!
- * Returns the chart object of the sheet.
- */
 Chart *Chartsheet::chart()
 {
     Q_D(Chartsheet);
@@ -103,6 +90,8 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeAttribute(QStringLiteral("workbookViewId"), QString::number(0));
     writer.writeAttribute(QStringLiteral("zoomToFit"), QStringLiteral("1"));
     writer.writeEndElement(); //sheetViews
+    d->pageMargins.write(writer);
+    d->headerFooter.write(writer);
 
     int idx = d->workbook->drawings().indexOf(d->drawing.get());
     d->relationships->addWorksheetRelationship(QStringLiteral("/drawing"), QStringLiteral("../drawings/drawing%1.xml").arg(idx+1));
@@ -118,6 +107,7 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
 {
     Q_D(Chartsheet);
 
+    //TODO: rewrite
     QXmlStreamReader reader(device);
     while (!reader.atEnd()) {
         reader.readNextStartElement();
@@ -132,6 +122,10 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
                 d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
                 d->drawing->setFilePath(path);
             }
+            else if (reader.name() == QLatin1String("pageMargins"))
+                d->pageMargins.read(reader);
+            else if (reader.name() == QLatin1String("headerFooter"))
+                d->headerFooter.read(reader);
         }
     }
 

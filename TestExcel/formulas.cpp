@@ -81,7 +81,7 @@ int formula()
     //![21]
 
     //![3]
-	xlsx.saveAs("formula1.xlsx");
+    xlsx.saveAs("formula1.xlsx");
     //![3]
 
     //Make sure that read/write works well.

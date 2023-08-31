@@ -258,7 +258,7 @@ LineFormat::LineFormat(const QPen &pen)
    Creates a new format with the same attributes as the \a other format.
  */
 LineFormat::LineFormat(const LineFormat &other)
-	:d(other.d)
+    :d(other.d)
 {
 
 }
@@ -270,7 +270,7 @@ LineFormat::LineFormat(const LineFormat &other)
 LineFormat &LineFormat::operator =(const LineFormat &other)
 {
     if (*this != other) d = other.d;
-	return *this;
+    return *this;
 }
 
 /*!
@@ -514,12 +514,12 @@ void LineFormat::setLineStartWidth(LineFormat::LineEndSize val)
 }
 
 /*!
-	Returns true if the format is valid; otherwise returns false.
+    Returns true if the format is valid; otherwise returns false.
  */
 bool LineFormat::isValid() const
 {
-	if (d)
-		return true;
+    if (d)
+        return true;
     return false;
 }
 

@@ -68,25 +68,25 @@ int calendar()
         weekendRightStyle.setBottomBorderStyle(Format::BorderThin);
         weekendRightStyle.setBottomBorderColor(borderColor);
 
-		Format holidayLeftStyle;
-		holidayLeftStyle.setFontSize(14);
-		holidayLeftStyle.setFontBold(true);
-		holidayLeftStyle.setHorizontalAlignment(Format::AlignLeft);
-		holidayLeftStyle.setVerticalAlignment(Format::AlignTop);
-		holidayLeftStyle.setPatternBackgroundColor(QColor("#EACC93"));
-		holidayLeftStyle.setLeftBorderStyle(Format::BorderThin);
-		holidayLeftStyle.setLeftBorderColor(borderColor);
-		holidayLeftStyle.setBottomBorderStyle(Format::BorderThin);
-		holidayLeftStyle.setBottomBorderColor(borderColor);
+        Format holidayLeftStyle;
+        holidayLeftStyle.setFontSize(14);
+        holidayLeftStyle.setFontBold(true);
+        holidayLeftStyle.setHorizontalAlignment(Format::AlignLeft);
+        holidayLeftStyle.setVerticalAlignment(Format::AlignTop);
+        holidayLeftStyle.setPatternBackgroundColor(QColor("#EACC93"));
+        holidayLeftStyle.setLeftBorderStyle(Format::BorderThin);
+        holidayLeftStyle.setLeftBorderColor(borderColor);
+        holidayLeftStyle.setBottomBorderStyle(Format::BorderThin);
+        holidayLeftStyle.setBottomBorderColor(borderColor);
 
-		Format holidayRightStyle;
-		holidayRightStyle.setHorizontalAlignment(Format::AlignHCenter);
-		holidayRightStyle.setVerticalAlignment(Format::AlignTop);
-		holidayRightStyle.setPatternBackgroundColor(QColor("#EACC93"));
-		holidayRightStyle.setRightBorderStyle(Format::BorderThin);
-		holidayRightStyle.setRightBorderColor(borderColor);
-		holidayRightStyle.setBottomBorderStyle(Format::BorderThin);
-		holidayRightStyle.setBottomBorderColor(borderColor);
+        Format holidayRightStyle;
+        holidayRightStyle.setHorizontalAlignment(Format::AlignHCenter);
+        holidayRightStyle.setVerticalAlignment(Format::AlignTop);
+        holidayRightStyle.setPatternBackgroundColor(QColor("#EACC93"));
+        holidayRightStyle.setRightBorderStyle(Format::BorderThin);
+        holidayRightStyle.setRightBorderColor(borderColor);
+        holidayRightStyle.setBottomBorderStyle(Format::BorderThin);
+        holidayRightStyle.setBottomBorderColor(borderColor);
 
         Format workdayLeftStyle;
         workdayLeftStyle.setHorizontalAlignment(Format::AlignLeft);
@@ -135,10 +135,10 @@ int calendar()
             } else if (dow == 6) {
                 xlsx.write(rownum, colnum, day, weekendLeftStyle);
                 xlsx.write(rownum, colnum+1, QVariant(), weekendRightStyle);
-			} else {
-				xlsx.write(rownum, colnum, day, holidayLeftStyle);
-				xlsx.write(rownum, colnum + 1, QVariant(), holidayRightStyle);
-			}
+            } else {
+                xlsx.write(rownum, colnum, day, holidayLeftStyle);
+                xlsx.write(rownum, colnum + 1, QVariant(), holidayRightStyle);
+            }
 
             if (day == 1 && dow != 1) {//First day
                 for (int i=1; i<dow; ++i) {

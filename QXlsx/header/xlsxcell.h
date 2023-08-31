@@ -27,7 +27,7 @@ class WorksheetPrivate;
 
 class QXLSX_EXPORT Cell
 {
-	Q_DECLARE_PRIVATE(Cell)
+    Q_DECLARE_PRIVATE(Cell)
 
 private:
     friend class Worksheet;
@@ -50,7 +50,7 @@ public:
         SharedString, /**< Cell contains a shared string */
         String, /**< Cell contains a formula string */
         Custom, /**< Custom cell type, not defined in the ECMA-376 */
-	};
+    };
 
 public:
     Cell(const QVariant &data = QVariant(),
@@ -66,19 +66,19 @@ public:
 
 public:
     Type cellType() const;
-	QVariant value() const;
-	QVariant readValue() const;
-	Format format() const;
-	
-	bool hasFormula() const;
-	CellFormula formula() const;
+    QVariant value() const;
+    QVariant readValue() const;
+    Format format() const;
+    
+    bool hasFormula() const;
+    CellFormula formula() const;
 
-	bool isDateTime() const;
+    bool isDateTime() const;
     QVariant dateTime() const; // QDateTime, QDate, QTime
 
-	bool isRichString() const;
+    bool isRichString() const;
 
-	qint32 styleNumber() const;
+    qint32 styleNumber() const;
 
     static bool isDateType(Type cellType, const Format &format);
 private:

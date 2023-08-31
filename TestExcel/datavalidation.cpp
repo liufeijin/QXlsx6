@@ -20,7 +20,7 @@ int datavalidation()
     xlsx.addDataValidation(validation);
     //![1]
 
-	xlsx.saveAs("datavalidation.xlsx"); 
+    xlsx.saveAs("datavalidation.xlsx"); 
 
     return 0;
 }

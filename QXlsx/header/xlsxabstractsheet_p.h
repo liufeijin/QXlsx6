@@ -29,6 +29,8 @@ public:
     int id;
     AbstractSheet::Visibility sheetState;
     AbstractSheet::Type type;
+    HeaderFooter headerFooter;
+    PageMargins pageMargins;
 };
 
 }

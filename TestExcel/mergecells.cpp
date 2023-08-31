@@ -36,7 +36,7 @@ int mergecells()
 
     //![2]
 
-	xlsx.saveAs("mergecells.xlsx"); 
+    xlsx.saveAs("mergecells.xlsx"); 
 
     return 0;
 }

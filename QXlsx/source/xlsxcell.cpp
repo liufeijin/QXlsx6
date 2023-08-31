@@ -19,7 +19,7 @@
 namespace QXlsx {
 
 CellPrivate::CellPrivate(Cell *p) :
-	q_ptr(p)
+    q_ptr(p)
 {
 
 }
@@ -49,25 +49,25 @@ CellPrivate::CellPrivate(const CellPrivate * const cp)
 // qint32 styleIndex = (-1)
 Cell::Cell(const QVariant &data, 
     Type type,
-	const Format &format, 
-	Worksheet *parent,
-	qint32 styleIndex ) :
-	d_ptr(new CellPrivate(this))
+    const Format &format,
+    Worksheet *parent,
+    qint32 styleIndex ) :
+    d_ptr(new CellPrivate(this))
 {
-	d_ptr->value = data;
-	d_ptr->cellType = type;
-	d_ptr->format = format;
-	d_ptr->parent = parent;
-	d_ptr->styleNumber = styleIndex; 
+    d_ptr->value = data;
+    d_ptr->cellType = type;
+    d_ptr->format = format;
+    d_ptr->parent = parent;
+    d_ptr->styleNumber = styleIndex;
 }
 
 /*!
  * \internal
  */
 Cell::Cell(const Cell * const cell):
-	d_ptr(new CellPrivate(cell->d_ptr))
+    d_ptr(new CellPrivate(cell->d_ptr))
 {
-	d_ptr->q_ptr = this;
+    d_ptr->q_ptr = this;
 }
 
 /*!
@@ -75,8 +75,8 @@ Cell::Cell(const Cell * const cell):
  */
 Cell::~Cell()
 {
-	if ( NULL != d_ptr )
-		delete d_ptr;
+    if ( NULL != d_ptr )
+        delete d_ptr;
 }
 
 /*!
@@ -84,9 +84,9 @@ Cell::~Cell()
  */
 Cell::Type Cell::cellType() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	return d->cellType;
+    return d->cellType;
 }
 
 /*!
@@ -94,9 +94,9 @@ Cell::Type Cell::cellType() const
  */
 QVariant Cell::value() const
 {
-	Q_D(const Cell); 
+    Q_D(const Cell);
 
-	return d->value; 
+    return d->value;
 }
 
 /*!
@@ -104,15 +104,15 @@ QVariant Cell::value() const
 */
 QVariant Cell::readValue() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	QVariant ret; // return value 
-	ret = d->value;
+    QVariant ret; // return value
+    ret = d->value;
 
-	Format fmt = this->format();
+    Format fmt = this->format();
 
-	if (isDateTime())
-	{
+    if (isDateTime())
+    {
         QVariant vDT = dateTime();
         if ( vDT.isNull() )
         {
@@ -159,11 +159,11 @@ QVariant Cell::readValue() const
 
         // QDateTime dt = dateTime();
         // ret = dt;
-		
+
         // QString strFormat = fmt.numberFormat();
         // if (!strFormat.isEmpty())
         // {
-        // 	// TODO: use number format
+        //     // TODO: use number format
         // }
 
         // qint32 styleNo = d->styleNumber;
@@ -174,9 +174,9 @@ QVariant Cell::readValue() const
 
         // if (styleNo == 11)
         // {
-			// QTime timeValue = dt.time(); // only time. (HH:mm:ss) 
-			// ret = timeValue;
-			// return ret;
+            // QTime timeValue = dt.time(); // only time. (HH:mm:ss)
+            // ret = timeValue;
+            // return ret;
         // }
 
         // if (styleNo == 12)
@@ -199,7 +199,7 @@ QVariant Cell::readValue() const
             // double deciamlPointValue3 = deciamlPointValue2 - (double(min) * (double(1.0) / double(60.0)));
             // double dSec = deciamlPointValue3 * (double(1.0) / double(60.0));
             // int sec = int(dSec);
-	
+
             // int totalHour = hour + (day * 24);
 
             // QString strTime;
@@ -211,12 +211,12 @@ QVariant Cell::readValue() const
 
         // return ret;
         // */
-	}
+    }
 
-	if (hasFormula())
+    if (hasFormula())
         ret = this->formula().formulaText();
 
-	return ret;
+    return ret;
 }
 
 /*!
@@ -224,9 +224,9 @@ QVariant Cell::readValue() const
  */
 Format Cell::format() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	return d->format;
+    return d->format;
 }
 
 /*!
@@ -234,9 +234,9 @@ Format Cell::format() const
  */
 bool Cell::hasFormula() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	return d->formula.isValid();
+    return d->formula.isValid();
 }
 
 /*!
@@ -244,9 +244,9 @@ bool Cell::hasFormula() const
  */
 CellFormula Cell::formula() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	return d->formula;
+    return d->formula;
 }
 
 /*!
@@ -254,12 +254,12 @@ CellFormula Cell::formula() const
  */
 bool Cell::isDateTime() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
     Type cellType = d->cellType;
     double dValue = d->value.toDouble(); // number
-//	QString strValue = d->value.toString().toUtf8();
-	bool isValidFormat = d->format.isValid();
+//    QString strValue = d->value.toString().toUtf8();
+    bool isValidFormat = d->format.isValid();
     bool isDateTimeFormat = d->format.isDateTimeFormat(); // datetime format
 
     // dev67
@@ -275,7 +275,7 @@ bool Cell::isDateTime() const
         }
     }
 
-	return false;
+    return false;
 }
 
 /*!
@@ -284,12 +284,12 @@ bool Cell::isDateTime() const
 /*
 QDateTime Cell::dateTime() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	if (!isDateTime())
-		return QDateTime();
+    if (!isDateTime())
+        return QDateTime();
 
-	return datetimeFromNumber(d->value.toDouble(), d->parent->workbook()->isDate1904());
+    return datetimeFromNumber(d->value.toDouble(), d->parent->workbook()->isDate1904());
 }
 */
 QVariant Cell::dateTime() const
@@ -315,31 +315,31 @@ QVariant Cell::dateTime() const
  */
 bool Cell::isRichString() const
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
     if ( d->cellType != Type::SharedString &&
             d->cellType != Type::InlineString &&
             d->cellType != Type::String )
     {
-		return false;
+        return false;
     }
 
-	return d->richString.isRichString();
+    return d->richString.isRichString();
 }
 
 qint32 Cell::styleNumber() const 
 {
-	Q_D(const Cell);
+    Q_D(const Cell);
 
-	qint32 ret = d->styleNumber;
-	return ret; 
+    qint32 ret = d->styleNumber;
+    return ret;
 }
 
 bool Cell::isDateType(Type cellType, const Format &format)
 {
     if ( cellType == Type::Number || cellType == Type::Date || cellType == Type::Custom)
         return format.isValid() && format.isDateTimeFormat();
-	return false;
+    return false;
 }
 
 }

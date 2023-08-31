@@ -503,7 +503,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
 
         if (sheet->type() == AbstractSheet::Type::Worksheet)
             d->relationships->addDocumentRelationship(QStringLiteral("/worksheet"), QStringLiteral("worksheets/sheet%1.xml").arg(++worksheetIndex));
-        else
+        else if (sheet->type() == AbstractSheet::Type::Chartsheet)
             d->relationships->addDocumentRelationship(QStringLiteral("/chartsheet"), QStringLiteral("chartsheets/sheet%1.xml").arg(++chartsheetIndex));
 
         writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));

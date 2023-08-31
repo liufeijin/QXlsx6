@@ -34,17 +34,17 @@ extern int readextlist();
 
 int main(int argc, char *argv[])
 {
-	QCoreApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
 
-	if ( argc == 2 )
-	{
-		QString strArg1 = argv[1];
-		if ( strArg1 == QString("hello") )
-		{
-			hello();
-			return 0;
-		}
-	}
+    if ( argc == 2 )
+    {
+        QString strArg1 = argv[1];
+        if ( strArg1 == QString("hello") )
+        {
+            hello();
+            return 0;
+        }
+    }
 
     hello();
     readStyle();
@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
     worksheetoperations();
     pages();
     readextlist();
-	
+    
     qDebug() << "**** end of main() ****";
 
-	return 0;
+    return 0;
 }

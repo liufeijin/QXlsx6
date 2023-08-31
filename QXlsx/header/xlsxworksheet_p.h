@@ -193,19 +193,20 @@ public:
     QMap<int, CellFormula> sharedFormulaMap; // shared formula map
 
     CellRange dimension;
-    int previous_row;
+//    int previous_row = 0;
 
-    mutable QMap<int, QString> row_spans;
-    QMap<int, double> row_sizes;
-    QMap<int, double> col_sizes;
+    mutable QMap<int, QString> rowSpans;
+    QMap<int, double> rowSizes;
+    QMap<int, double> colSizes;
 
-    int outline_row_level;
-    int outline_col_level;
+    int outlineRowLevel = 0;
+    int outlineColLevel = 0;
 
-    int default_row_height;
-    bool default_row_zeroed;
+    int defaultRowHeight = 15;
+    bool defaultRowZeroed = false;
 
     // pagesetup and print settings add by liufeijin 20181028, liufeijin
+    //TODO: replace these with a std::unique_ptr<PageSetup> pageSetup;
     QString PpaperSize;
     QString Pscale;
     QString PfirstPageNumber;
@@ -216,33 +217,20 @@ public:
     QString Prid;
     QString Pcopies;
 
-    // pageMargins, liufeijin
-    QString PMheader;
-    QString PMfooter;
-    QString PMtop;
-    QString PMbotton;
-    QString PMleft;
-    QString PMright;
-
-    // header footer, liufeijin
-    QString MoodFooter;
-    QString ModdHeader;
-    QString MoodalignWithMargins;  // add align 20190619
-
     XlsxSheetFormatProps sheetFormatProps;
 
-    bool windowProtection;
-    bool showFormulas;
-    bool showGridLines;
-    bool showRowColHeaders;
-    bool showZeros;
-    bool rightToLeft;
-    bool tabSelected;
-    bool showRuler;
-    bool showOutlineSymbols;
-    bool showWhiteSpace;
+    bool windowProtection = false;
+    bool showFormulas = false;
+    bool showGridLines = true;
+    bool showRowColHeaders = true;
+    bool showZeros = true;
+    bool rightToLeft = false;
+    bool tabSelected = false;
+    bool showRuler = false;
+    bool showOutlineSymbols = true;
+    bool showWhiteSpace = true;
 
-    QRegularExpression urlPattern;
+    QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
 
 private:
 

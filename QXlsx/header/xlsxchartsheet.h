@@ -15,6 +15,10 @@ class DocumentPrivate;
 class ChartsheetPrivate;
 class Chart;
 
+/**
+ * @brief The Chartsheet class represents a chartsheet in a workbook.
+ *
+ */
 class QXLSX_EXPORT Chartsheet : public AbstractSheet
 {
     Q_DECLARE_PRIVATE(Chartsheet)
