@@ -158,6 +158,24 @@ void AbstractSheet::setPageMargins(const PageMargins &margins)
     d->pageMargins = margins;
 }
 
+PageSetup AbstractSheet::pageSetup() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup;
+}
+
+PageSetup &AbstractSheet::pageSetup()
+{
+    Q_D(AbstractSheet);
+    return d->pageSetup;
+}
+
+void AbstractSheet::setPageSetup(const PageSetup &pageSetup)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup = pageSetup;
+}
+
 /*!
  * \internal
  */
@@ -433,6 +451,142 @@ void PageMargins::read(QXmlStreamReader &reader)
     if (a.hasAttribute(QLatin1String("bottom"))) mMargins.insert(Position::Bottom, a.value(QLatin1String("bottom")).toDouble());
     if (a.hasAttribute(QLatin1String("header"))) mMargins.insert(Position::Header, a.value(QLatin1String("header")).toDouble());
     if (a.hasAttribute(QLatin1String("footer"))) mMargins.insert(Position::Footer, a.value(QLatin1String("footer")).toDouble());
+}
+
+bool PageSetup::isValid() const
+{
+    if (paperSize.has_value()) return true;
+    if (!paperWidth.isEmpty()) return false;
+    if (!paperHeight.isEmpty()) return false;
+    if (scale.has_value()) return true;
+    if (firstPageNumber.has_value()) return true;
+    if (fitToWidth.has_value()) return true;
+    if (fitToHeight.has_value()) return true;
+    if (pageOrder.has_value()) return true;
+    if (orientation.has_value()) return true;
+    if (usePrinterDefaults.has_value()) return true;
+    if (blackAndWhite.has_value()) return true;
+    if (draft.has_value()) return true;
+    if (useFirstPageNumber.has_value()) return true;
+    if (horizontalDpi.has_value()) return true;
+    if (verticalDpi.has_value()) return true;
+    if (copies.has_value()) return true;
+    if (!printerId.isEmpty()) return true;
+    if (errors.has_value()) return true;
+    if (cellComments.has_value()) return true;
+
+    return false;
+}
+
+void PageSetup::write(QXmlStreamWriter &writer, bool chartsheet) const
+{
+    if (!isValid()) return;
+    writer.writeEmptyElement(QLatin1String("pageSetup"));
+    if (paperSize.has_value()) {
+        int val = static_cast<int>(paperSize.value());
+        writer.writeAttribute(QLatin1String("paperSize"), QString::number(val));
+    }
+    writeAttribute(writer, QLatin1String("paperHeight"), paperHeight);
+    writeAttribute(writer, QLatin1String("paperWidth"), paperWidth);
+    if (!chartsheet)
+        writeAttribute(writer, QLatin1String("scale"), scale);
+    writeAttribute(writer, QLatin1String("firstPageNumber"), firstPageNumber);
+    if (!chartsheet)
+    writeAttribute(writer, QLatin1String("fitToWidth"), fitToWidth);
+    if (!chartsheet)
+    writeAttribute(writer, QLatin1String("fitToHeight"), fitToHeight);
+    if (!chartsheet && pageOrder.has_value()) {
+        switch (pageOrder.value()) {
+            case PageOrder::DownThenOver: writeAttribute(writer, QLatin1String("pageOrder"), "downThenOver"); break;
+            case PageOrder::OverThenDown: writeAttribute(writer, QLatin1String("pageOrder"), "overThenDown"); break;
+        }
+    }
+    if (orientation.has_value()) {
+        switch (orientation.value()) {
+            case Orientation::Default: writeAttribute(writer, QLatin1String("orientation"), "default"); break;
+            case Orientation::Portrait: writeAttribute(writer, QLatin1String("orientation"), "portrait"); break;
+            case Orientation::Landscape: writeAttribute(writer, QLatin1String("orientation"), "landscape"); break;
+        }
+    }
+    writeAttribute(writer, QLatin1String("usePrinterDefaults"), usePrinterDefaults);
+    writeAttribute(writer, QLatin1String("blackAndWhite"), blackAndWhite);
+    writeAttribute(writer, QLatin1String("draft"), draft);
+    if (!chartsheet && cellComments.has_value()) {
+        switch (cellComments.value()) {
+            case CellComments::AtEnd: writeAttribute(writer, QLatin1String("cellComments"), "atEnd"); break;
+            case CellComments::AsDisplayed: writeAttribute(writer, QLatin1String("cellComments"), "asDisplayed"); break;
+            case CellComments::DoNotPrint: writeAttribute(writer, QLatin1String("cellComments"), "none"); break;
+        }
+    }
+    writeAttribute(writer, QLatin1String("useFirstPageNumber"), useFirstPageNumber);
+    if (!chartsheet && errors.has_value()) {
+        switch (errors.value()) {
+            case PrintError::Dash: writeAttribute(writer, QLatin1String("errors"), "dash"); break;
+            case PrintError::Displayed: writeAttribute(writer, QLatin1String("errors"), "displayed"); break;
+            case PrintError::Blank: writeAttribute(writer, QLatin1String("errors"), "blank"); break;
+            case PrintError::NotAvailable: writeAttribute(writer, QLatin1String("errors"), "NA"); break;
+        }
+    }
+    writeAttribute(writer, QLatin1String("horizontalDpi"), horizontalDpi);
+    writeAttribute(writer, QLatin1String("verticalDpi"), verticalDpi);
+    writeAttribute(writer, QLatin1String("copies"), copies);
+    writeAttribute(writer, QLatin1String("r:id"), printerId);
+}
+
+void PageSetup::read(QXmlStreamReader &reader)
+{
+    const auto &a = reader.attributes();
+
+    readPaperSize(reader);
+    parseAttributeString(a, QLatin1String("paperHeight"), paperHeight);
+    parseAttributeString(a, QLatin1String("paperWidth"), paperWidth);
+    parseAttributeInt(a, QLatin1String("scale"), scale);
+    parseAttributeInt(a, QLatin1String("firstPageNumber"), firstPageNumber);
+    parseAttributeInt(a, QLatin1String("fitToWidth"), fitToWidth);
+    parseAttributeInt(a, QLatin1String("fitToHeight"), fitToHeight);
+    if (a.hasAttribute(QLatin1String("pageOrder"))) {
+        auto s = a.value(QLatin1String("pageOrder"));
+        if (s == QLatin1String("downThenOver")) pageOrder = PageOrder::DownThenOver;
+        if (s == QLatin1String("overThenDown")) pageOrder = PageOrder::OverThenDown;
+    }
+    if (a.hasAttribute(QLatin1String("orientation"))) {
+        auto s = a.value(QLatin1String("orientation"));
+        if (s == QLatin1String("default")) orientation = Orientation::Default;
+        if (s == QLatin1String("portrait")) orientation = Orientation::Portrait;
+        if (s == QLatin1String("landscape")) orientation = Orientation::Landscape;
+    }
+    parseAttributeBool(a, QLatin1String("usePrinterDefaults"), usePrinterDefaults);
+    parseAttributeBool(a, QLatin1String("blackAndWhite"), blackAndWhite);
+    parseAttributeBool(a, QLatin1String("draft"), draft);
+    if (a.hasAttribute(QLatin1String("cellComments"))) {
+        auto s = a.value(QLatin1String("cellComments"));
+        if (s == QLatin1String("atEnd")) cellComments = CellComments::AtEnd;
+        if (s == QLatin1String("asDisplayed")) cellComments = CellComments::AsDisplayed;
+        if (s == QLatin1String("none")) cellComments = CellComments::DoNotPrint;
+    }
+    parseAttributeBool(a, QLatin1String("useFirstPageNumber"), useFirstPageNumber);
+    if (a.hasAttribute(QLatin1String("errors"))) {
+        auto s = a.value(QLatin1String("errors"));
+        if (s == QLatin1String("dash")) errors = PrintError::Dash;
+        if (s == QLatin1String("displayed")) errors = PrintError::Displayed;
+        if (s == QLatin1String("blank")) errors = PrintError::Blank;
+        if (s == QLatin1String("NA")) errors = PrintError::NotAvailable;
+    }
+    parseAttributeInt(a, QLatin1String("horizontalDpi"), horizontalDpi);
+    parseAttributeInt(a, QLatin1String("verticalDpi"), verticalDpi);
+    parseAttributeInt(a, QLatin1String("copies"), copies);
+    parseAttributeString(a, QLatin1String("r:id"), printerId);
+}
+
+void PageSetup::readPaperSize(QXmlStreamReader &reader)
+{
+    if (reader.attributes().hasAttribute(QLatin1String("paperSize"))) {
+        auto val = reader.attributes().value(QLatin1String("paperSize")).toInt();
+        if ((val >=1 && val <= 47) || (val >=50 && val <= 118))
+            paperSize = static_cast<PaperSize>(val);
+        else
+            paperSize = PaperSize::Unknown;
+    }
 }
 
 }

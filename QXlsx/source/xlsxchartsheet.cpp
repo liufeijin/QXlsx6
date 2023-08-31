@@ -91,6 +91,7 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeAttribute(QStringLiteral("zoomToFit"), QStringLiteral("1"));
     writer.writeEndElement(); //sheetViews
     d->pageMargins.write(writer);
+    d->pageSetup.write(writer, true);
     d->headerFooter.write(writer);
 
     int idx = d->workbook->drawings().indexOf(d->drawing.get());
@@ -124,6 +125,8 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
             }
             else if (reader.name() == QLatin1String("pageMargins"))
                 d->pageMargins.read(reader);
+            else if (reader.name() == QLatin1String("pageSetup"))
+                d->pageSetup.read(reader);
             else if (reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
         }

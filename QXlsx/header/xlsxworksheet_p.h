@@ -205,18 +205,6 @@ public:
     int defaultRowHeight = 15;
     bool defaultRowZeroed = false;
 
-    // pagesetup and print settings add by liufeijin 20181028, liufeijin
-    //TODO: replace these with a std::unique_ptr<PageSetup> pageSetup;
-    QString PpaperSize;
-    QString Pscale;
-    QString PfirstPageNumber;
-    QString Porientation;
-    QString PuseFirstPageNumber;
-    QString PhorizontalDpi;
-    QString PverticalDpi;
-    QString Prid;
-    QString Pcopies;
-
     XlsxSheetFormatProps sheetFormatProps;
 
     bool windowProtection = false;

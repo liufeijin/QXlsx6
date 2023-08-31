@@ -31,6 +31,7 @@ public:
     AbstractSheet::Type type;
     HeaderFooter headerFooter;
     PageMargins pageMargins;
+    PageSetup pageSetup;
 };
 
 }

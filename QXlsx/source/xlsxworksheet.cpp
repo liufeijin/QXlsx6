@@ -1372,66 +1372,8 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
         cf.saveToXml(writer);
     d->saveXmlDataValidations(writer);
 
-    //{{ liufeijin :  write  pagesettings  add by liufeijin 20181028
-
-    // fixed by j2doll [dev18]
-    // NOTE: empty element is not problem. but, empty structure of element is not parsed by Excel.
-
-    // pageMargins
     d->pageMargins.write(writer);
-
-    // dev57
-    if ( !d->Prid.isEmpty() )
-    {
-        writer.writeStartElement(QStringLiteral("pageSetup")); // pageSetup
-
-        writer.writeAttribute(QStringLiteral("r:id"), d->Prid);
-
-        if ( !d->PverticalDpi.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("verticalDpi"), d->PverticalDpi);
-        }
-
-        if ( !d->PhorizontalDpi.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("horizontalDpi"), d->PhorizontalDpi);
-        }
-
-        if ( !d->PuseFirstPageNumber.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("useFirstPageNumber"), d->PuseFirstPageNumber);
-        }
-
-        if ( !d->PfirstPageNumber.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("firstPageNumber"), d->PfirstPageNumber);
-        }
-
-        if ( !d->Pscale.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("scale"), d->Pscale);
-        }
-
-        if ( !d->PpaperSize.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("paperSize"), d->PpaperSize);
-        }
-
-        if ( !d->Porientation.isEmpty() )
-        {
-            writer.writeAttribute(QStringLiteral("orientation"), d->Porientation);
-        }
-
-        if(!d->Pcopies.isEmpty())
-        {
-            writer.writeAttribute(QStringLiteral("copies"), d->Pcopies);
-        }
-
-        writer.writeEndElement(); // pageSetup
-
-    } // if ( !d->Prid.isEmpty() )
-
-    // headerFooter
+    d->pageSetup.write(writer);
     d->headerFooter.write(writer);
 
     d->saveXmlHyperlinks(writer);
@@ -1440,17 +1382,6 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement(); // worksheet
     writer.writeEndDocument();
 }
-
-//{{ liufeijin
-bool Worksheet::setStartPage(int spagen)
-{
-    Q_D(Worksheet);
-
-    d->PfirstPageNumber=QString::number(spagen);
-
-    return true;
-}
-//}}
 
 void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 {
@@ -2745,19 +2676,7 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->loadXmlHyperlinks(reader);
             }
             else if(reader.name() == QLatin1String("pageSetup"))
-            {
-                QXmlStreamAttributes attributes = reader.attributes();
-
-                d->PpaperSize = attributes.value(QLatin1String("paperSize")).toString().trimmed();
-                d->Pscale = attributes.value(QLatin1String("scale")).toString().trimmed();
-                d->PfirstPageNumber = attributes.value(QLatin1String("firstPageNumber")).toString().trimmed();
-                d->Porientation = attributes.value(QLatin1String("orientation")).toString().trimmed();
-                d->PuseFirstPageNumber = attributes.value(QLatin1String("useFirstPageNumber")).toString().trimmed();
-                d->PhorizontalDpi = attributes.value(QLatin1String("horizontalDpi")).toString().trimmed();
-                d->PverticalDpi = attributes.value(QLatin1String("verticalDpi")).toString().trimmed();
-                d->Prid = attributes.value(QLatin1String("r:id")).toString().trimmed();
-                d->Pcopies = attributes.value(QLatin1String("copies")).toString().trimmed();
-            }
+                d->pageSetup.read(reader);
             else if(reader.name() == QLatin1String("pageMargins"))
                 d->pageMargins.read(reader);
             else if(reader.name() == QLatin1String("headerFooter"))

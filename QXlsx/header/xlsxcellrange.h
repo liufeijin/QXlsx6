@@ -9,7 +9,7 @@
 #include "xlsxglobal.h"
 #include "xlsxcellreference.h"
 
-QT_BEGIN_NAMESPACE_XLSX
+namespace QXlsx {
 
 /**
  * @brief The CellRange class represents a range of cells in a worksheet.
@@ -108,7 +108,7 @@ private:
     int right;
 };
 
-QT_END_NAMESPACE_XLSX
+}
 
 Q_DECLARE_TYPEINFO(QXlsx::CellRange, Q_MOVABLE_TYPE);
 
