@@ -1379,6 +1379,14 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->saveXmlHyperlinks(writer);
     d->saveXmlDrawings(writer);
 
+    if (d->pictureFile) {
+        d->relationships->addDocumentRelationship(QStringLiteral("/image"), QStringLiteral("../media/image%1.%2")
+                                                   .arg(d->pictureFile->index()+1)
+                                                   .arg(d->pictureFile->suffix()));
+        writer.writeEmptyElement(QStringLiteral("picture"));
+        writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
+    }
+
     writer.writeEndElement(); // worksheet
     writer.writeEndDocument();
 }
@@ -2692,9 +2700,31 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
                 d->drawing->setFilePath(path);
             }
+            else if (reader.name() == QLatin1String("picture")) {
+                QString rId = reader.attributes().value(QLatin1String("r:id")).toString();
+                QString name = d->relationships->getRelationshipById(rId).target;
+
+                const auto parts = splitPath(filePath());
+                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
+
+                bool exist = false;
+                const auto mfs = d->workbook->mediaFiles();
+                for (const auto &mf : mfs) {
+                    if (mf->fileName() == path) {
+                        //already exist
+                        exist = true;
+                        d->pictureFile = mf;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    d->pictureFile = std::make_shared<MediaFile>(path);
+                    d->workbook->addMediaFile(d->pictureFile, true);
+                }
+            }
             else if (reader.name() == QLatin1String("extLst"))
             {
-                //Todo: add extLst support
+                //TODO: add extLst support
                 while ( !reader.atEnd() &&
                         !(reader.name() == QLatin1String("extLst") &&
                           reader.tokenType() == QXmlStreamReader::EndElement))

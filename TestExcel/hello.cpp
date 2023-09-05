@@ -103,6 +103,7 @@ int ReadExcel(bool isTest)
     }
     //![0]
 
+
     //![1]
     qDebug() << " QXlsx::Document.read()";
     qDebug() << xlsx.read("A1");
@@ -114,6 +115,14 @@ int ReadExcel(bool isTest)
     qDebug() << xlsx.read("A7");
     qDebug() << xlsx.read("A8");
     //![1]
+
+
+    QImage backgroundPicture = xlsx.currentSheet()->backgroundImage();
+    if (backgroundPicture.isNull()) qDebug() << "Background picture is null";
+    else {
+        qDebug() << "Saving background picture to background.png";
+        backgroundPicture.save("background.png");
+    }
 
     /* debug output
      QXlsx::Document.read()

@@ -1,11 +1,14 @@
 // xlsxabstractsheet.cpp
 
 #include <QtGlobal>
+#include <QBuffer>
+#include <QFileInfo>
 
 #include "xlsxabstractsheet.h"
 #include "xlsxabstractsheet_p.h"
 #include "xlsxworkbook.h"
 #include "xlsxutility_p.h"
+#include <QDebug>
 
 namespace QXlsx {
 
@@ -174,6 +177,52 @@ void AbstractSheet::setPageSetup(const PageSetup &pageSetup)
 {
     Q_D(AbstractSheet);
     d->pageSetup = pageSetup;
+}
+
+void AbstractSheet::setBackgroundImage(const QImage &image)
+{
+    Q_D(AbstractSheet);
+
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+
+    d->pictureFile = std::make_shared<MediaFile>(ba, QStringLiteral("png"), QStringLiteral("image/png"));
+    d->workbook->addMediaFile(d->pictureFile);
+}
+
+void AbstractSheet::setBackgroundImage(const QString &fileName)
+{
+    Q_D(AbstractSheet);
+    QByteArray ba;
+    QString suffix = QFileInfo(fileName).suffix().toLower();
+    if (suffix.toLower() == QStringLiteral("png") ||
+        suffix.toLower() == QStringLiteral("jpg") ||
+        suffix.toLower() == QStringLiteral("jpeg")) {
+        QFile file(fileName);
+        if (file.open(QFile::ReadOnly))
+            ba = file.readAll();
+    }
+    else {
+        QImage image(fileName);
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG");
+        suffix = QStringLiteral("png");
+    }
+    if (!ba.isEmpty()) {
+        d->pictureFile = std::make_shared<MediaFile>(ba, suffix, QStringLiteral("image/")+suffix);
+        d->workbook->addMediaFile(d->pictureFile);
+    }
+}
+
+QImage AbstractSheet::backgroundImage() const
+{
+    Q_D(const AbstractSheet);
+    QImage pic;
+    pic.loadFromData(d->pictureFile->contents());
+    return pic;
 }
 
 /*!

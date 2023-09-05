@@ -45,6 +45,24 @@ public:
     bool getImage(int imageIndex, QImage& img);
     bool getImage(int row, int col, QImage& img);
     uint getImageCount();
+    /**
+     * @brief sets the current sheet's background image.
+     * @param image The image will be written as a PNG image.
+     */
+    void setBackgroundImage(const QImage &image);
+    /**
+     * @brief sets the current sheet's background image from a file.
+     * @overload
+     * @param fileName the file name.
+     * @note If the image is a PNG or JPG image, it will be written as a PNG or JPG respectively.
+     * All other pictures will be converted to PNG.
+     */
+    void setBackgroundImage(const QString &fileName);
+    /**
+     * @brief returns the current sheet's background image.
+     * @return Valid QImage if the background image was set, null QImage otherwise.
+     */
+    QImage backgroundImage() const;
     
     Chart *insertChart(int row, int col, const QSize &size);
     

@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
 Loads xlsx file that was created in Excel and writes it back.
 
-The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table etc.
+The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc.
 
 ## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/CombinedChart)
 
@@ -104,14 +104,14 @@ Demonstrates various line parameters.
 ![](markdown.data/android.jpg)
 
 ## [WebServer](https://github.com/QtExcel/QXlsx/tree/master/WebServer)
-- Load xlsx file and display on Web.
+- Loads xlsx file and displays on Web.
 	- Connect to `http://127.0.0.1:3001` 
-- C++ 14(17) is required. Old compilers is not supported.
+- C++ 14(17) is required. Old compilers are not supported.
 
 ![](markdown.data/webserver.png)
 
 ## [ShowConsole](https://github.com/QtExcel/QXlsx/tree/master/ShowConsole)
-- Load xlsx file and display in console.
+- Loads xlsx file and displays in console.
   - [Usage] ShowConsole *.xlsx
 - C++ 11 is required. Old compilers is not supported.
 

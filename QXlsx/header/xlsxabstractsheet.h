@@ -641,6 +641,16 @@ public:
     PageSetup &pageSetup();
     void setPageSetup(const PageSetup &pageSetup);
 
+    void setBackgroundImage(const QImage &image);
+    /**
+     * @brief setBackgroundImage
+     * @param fileName
+     * @note If the image is a PNG or JPG image, it will be written as a PNG or JPG respectively.
+     * All other pictures will be converted to PNG.
+     */
+    void setBackgroundImage(const QString &fileName);
+    QImage backgroundImage() const;
+
 protected:
     friend class Workbook;
     AbstractSheet(const QString &sheetName, int sheetId, Workbook *book, AbstractSheetPrivate *d);

@@ -46,6 +46,7 @@ int image()
             qDebug() << " [image index] " << index;
        }
     }
+    xlsx.setBackgroundImage("background1.jpg");
     xlsx.saveAs("image1.xlsx");
 
     QXlsx::Document xlsx2("image1.xlsx");

@@ -432,7 +432,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
         zipWriter.addFile(QStringLiteral("xl/charts/chart%1.xml").arg(i+1), cf->saveToXmlData());
     }
 
-    // save image files
+    // save media files
     const auto mfs = workbook->mediaFiles();
     for (int i=0; i < mfs.size(); ++i)
     {
@@ -672,6 +672,24 @@ uint Document::getImageCount()
         return sheet->getImageCount();
 
     return 0;
+}
+
+void Document::setBackgroundImage(const QImage &image)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        sheet->setBackgroundImage(image);
+}
+
+void Document::setBackgroundImage(const QString &fileName)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        sheet->setBackgroundImage(fileName);
+}
+
+QImage Document::backgroundImage() const
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->backgroundImage();
 }
 
 

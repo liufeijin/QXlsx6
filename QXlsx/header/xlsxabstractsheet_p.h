@@ -4,6 +4,7 @@
 #define XLSXABSTRACTSHEET_P_H
 
 #include <QString>
+#include <QImage>
 
 #include <memory>
 
@@ -12,6 +13,7 @@
 #include "xlsxabstractsheet.h"
 #include "xlsxabstractooxmlfile_p.h"
 #include "xlsxdrawing_p.h"
+#include "xlsxmediafile_p.h"
 
 namespace QXlsx {
 
@@ -32,6 +34,8 @@ public:
     HeaderFooter headerFooter;
     PageMargins pageMargins;
     PageSetup pageSetup;
+    //background picture
+    std::shared_ptr<MediaFile> pictureFile;
 };
 
 }

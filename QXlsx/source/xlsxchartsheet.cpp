@@ -129,6 +129,9 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
                 d->pageSetup.read(reader);
             else if (reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
+            else if (reader.name() == QLatin1String("picture")) {
+
+            }
         }
     }
 

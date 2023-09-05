@@ -46,7 +46,10 @@ QString MediaFile::suffix() const
 
 QString MediaFile::mimeType() const
 {
-    return m_mimeType;
+    if (m_suffix.toLower() == QStringLiteral("png")) return QStringLiteral("image/png");
+    if (m_suffix.toLower() == QStringLiteral("jpg")) return QStringLiteral("image/jpeg");
+    if (m_suffix.toLower() == QStringLiteral("jpeg")) return QStringLiteral("image/jpeg");
+    return {};
 }
 
 QByteArray MediaFile::contents() const
