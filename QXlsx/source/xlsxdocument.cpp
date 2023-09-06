@@ -690,6 +690,7 @@ QImage Document::backgroundImage() const
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->backgroundImage();
+    return {};
 }
 
 

@@ -171,6 +171,13 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
 
     sheet_d->dimension = d->dimension;
 
+    sheet_d->sheetState = d->sheetState;
+    sheet_d->type = d->type;
+    sheet_d->headerFooter = d->headerFooter;
+    sheet_d->pageMargins = d->pageMargins;
+    sheet_d->pageSetup = d->pageSetup;
+    sheet_d->pictureFile = d->pictureFile;
+
     QMapIterator<int, QMap<int, std::shared_ptr<Cell> > > it(d->cellTable);
     while (it.hasNext())
     {

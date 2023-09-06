@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     */
 
     Chart *chart1 = xlsx.insertChart(4, 3, QSize(600, 600));
-    chart1->setLegend(Legend::Position::Right);
+    chart1->setLegend(Legend::Position::Bottom);
     chart1->setTitle("Combined chart");
 
     //The first series - bar series
@@ -59,8 +59,9 @@ int main(int argc, char *argv[])
     */
 
     Chart *chart2 = xlsx.insertChart(4, 15, QSize(600, 600));
-    chart2->setLegend(Legend::Position::Right);
+    chart2->setDefaultLegend(); //default legend is positioned on the right outside the chart
     chart2->setTitle("Combined chart with three axes");
+    chart2->setAutoTitleDeleted(true);
 
     // add axes
     auto &bottomAxis = chart2->addAxis(Axis::Type::Category, Axis::Position::Bottom, "bottom axis");

@@ -86,6 +86,26 @@ struct XlsxSheetFormatProps
     bool zeroHeight;
 };
 
+struct SheetProperties
+{
+    Color tabColor;
+    std::optional<bool> applyStyles;
+    std::optional<bool> summaryBelow;
+    std::optional<bool> summaryRight;
+    std::optional<bool> showOutlineSymbols;
+    std::optional<bool> autoPageBreaks;
+    std::optional<bool> fitToPage;
+    std::optional<bool> syncHorizontal;
+    std::optional<bool> syncVertical;
+    QString syncRef;
+    std::optional<bool> transitionEvaluation;
+    std::optional<bool> transitionEntry;
+    std::optional<bool> published;
+    QString codeName;
+    std::optional<bool> filterMode;
+    std::optional<bool> enableFormatConditionsCalculation;
+};
+
 struct XlsxRowInfo
 {
     XlsxRowInfo(double height=0, const Format &format=Format(), bool hidden=false) :

@@ -145,11 +145,14 @@ other along the value axis and scaled to total 100%*/
                       of the sum of all values go to the second pie. */
         Value /**< @brief data points with value less than splitPos() go to the second pie. */
     };
-    //TODO: docs
+    /**
+     * @brief The BarDirection enum specifies whether the series form a Bar (horizontal)
+     * chart or a Column (vertical) chart
+     */
     enum class BarDirection
     {
-        Bar,
-        Column
+        Bar, /**< Bars of a bar chart are horizontal.*/
+        Column /**< Bars of a bar chart are vertical. This is the default value. */
     };
     /**
      * @brief The ScatterStyle enum specifies the style of the scatter chart.
@@ -163,12 +166,14 @@ other along the value axis and scaled to total 100%*/
         Smooth, /**< Points are connected with smoothed lines, no markers shown. */
         SmoothMarker, /**< Points are connected with smoothed lines, each point is marked with a marker. */
     };
-    //TODO: docs
+    /**
+     * @brief The RadarStyle enum  specifies what type of radar chart shall be drawn.
+     */
     enum class RadarStyle
     {
-        Standard,
-        Marker,
-        Filled
+        Standard, /**< Points are connected with straight lines, no markers shown. */
+        Marker, /**< Points are connected with straight lines, each point is marked with a marker. */
+        Filled /**< Points are connected with straight lines, areas under lines are filled. */
     };
 
 private:
@@ -242,18 +247,18 @@ private:
 private:
     Chart(AbstractSheet *parent, CreateFlag flag);
 public:
+    /*!
+     * Destroys the chart.
+     */
     ~Chart();
 public:
     /**
-     * @brief setType sets type to the chart.
-     *
+     * @brief sets type to the chart.
      * @warning This method does not change the previous subcharts type nor the
      * previous series type.
-     *
      * @note OOXML schema allows having as many subcharts of different types
      * as you need. Each subchart is used to group series of the same type.
      * If you need to add both bar series and line series to the chart, you can do it this way:
-     *
      * @code
      * //set Type::Bar to the chart
      * chart->setType(Chart::Type::Bar);
@@ -266,40 +271,84 @@ public:
      * chart->addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("C1:C10"),
      *     xlsx.sheet("Sheet1"), true);
      * @endcode
-     *
      * @note All parameters of the chart are applied only to the last subchart that was
      * added with #setType() method. Right now there is no possibility to change
      * parameters of previous subcharts.
-     *
      * @param type Chart type. If set to Type::None the chart is ill-formed.
      */
     void setType(Type type);
     /**
-     * @brief type returns the chart type.
-     *
+     * @brief returns the chart type.
      * @return the type
      */
     Type type() const;
     /**
      * @brief sets line format to the chart space (the outer area of the chart).
+     *
+     * This is a convevience method, equivalent to ```chartShape()->setLineFormat(format)```
      * @param format
      */
     void setChartLineFormat(const LineFormat &format);
     /**
      * @brief sets line format to the plot area (the inner area of the chart
      * where actual plotting occurs).
+     *
+     * This is a convevience method, equivalent to ```plotAreaShape()->setLineFormat(format)```
      * @param format
      */
     void setPlotAreaLineFormat(const LineFormat &format);
-
+    /**
+     * @brief sets shape format to the chart space (the outer area of the chart).
+     * @param shape
+     */
     void setChartShape(const ShapeFormat &shape);
+    /**
+     * @brief returns shape format of the chart space (the outer area of the chart).
+     * @return reference to the ShapeFormat object.
+     * @note You can use this method to set the default chartShape, as the method will create
+     * a valid ShapeFormat object with its parameters not set.
+     */
     ShapeFormat &chartShape();
-
+    /**
+     * @brief sets shape format to the plot area (the inner area of the chart
+     * where actual plotting occurs).
+     * @param shape
+     */
     void setPlotAreaShape(const ShapeFormat &shape);
+    /**
+     * @brief returns shape format of the plot area (the inner area of the chart
+     * where actual plotting occurs).
+     * @return reference to the ShapeFormat object.
+     * @note You can use this method to set the default plotAreaShape, as the method will create
+     * a valid ShapeFormat object with its parameters not set.
+     */
     ShapeFormat &plotAreaShape();
 
     /**
-     * @brief addSeries adds one or more series defined by range.
+     * @brief returns text format of the chart.
+     * @return copy of a TextFormat object.
+     */
+    TextFormat textProperties() const;
+    /**
+     * @brief returns text format of the chart.
+     * @return reference to the TextFormat object.
+     */
+    TextFormat &textProperties();
+    /**
+     * @brief sets text format of the chart.
+     * @param textProperties
+     */
+    void setTextProperties(const TextFormat &textProperties);
+
+    /**
+     * @brief adds an empty series.
+     * @return pointer to the added series
+     */
+    Series *addSeries();
+
+    /**
+     * @overload
+     * @brief adds one or more series with data defined by #range.
      * @param range valid CellRange
      * @param sheet data source for range
      * @param firstRowContainsHeaders specifies that the 1st row (the 1st column
@@ -313,7 +362,7 @@ public:
      * (if firstColumnContainsCategoryData is set to true),
      * other columns are value data for new series. If columnBased is false, the
      * first row is category data, other rows are value data for new series.
-     * @note the series will have the type specifies by the most recently set chart type.
+     * @note the series will have the type specified by the most recently set chart type.
      * So it is possible to have series of different types on the same chart.
      */
     void addSeries(const CellRange &range, AbstractSheet *sheet = NULL,
@@ -321,7 +370,8 @@ public:
                    bool firstColumnContainsCategoryData = false,
                    bool columnBased = true);
     /**
-     * @brief addSeries adds series defined by keyRange and valRange.
+     * @overload
+     * @brief adds series defined by keyRange and valRange.
      * @param keyRange category range or x axis range.
      * @param valRange value range or y axis range.
      * @param sheet data sheet reference.
@@ -329,40 +379,58 @@ public:
      * @return pointer to the added series or nullptr if no series was added.
      * @note The series will have the type specifies by the most recently set chart type.
      * So it is possible to have series of different types on the same chart.
+     *
      * @note To set bubbleSizeDataSource to the BubbleChart series (the 3rd range)
+     * use #addSeries() method and manually set all three ranges.
      */
     Series* addSeries(const CellRange &keyRange, const CellRange &valRange,
                        AbstractSheet *sheet = NULL, bool keyRangeIncludesHeader = false);
     /**
-     * @brief addSeries adds an empty series
-     * @return reference to the added series
-     */
-    Series *addSeries();
-    /**
-     * @brief series
-     * @param index
-     * @return
+     * @brief returns the chart series by its index.
+     * @param index the series index starting from 0.
+     * @return pointer to the series if such series exists, nullptr otherwise.
      */
     Series *series(int index);
 
     /**
-     * @brief seriesCount
+     * @brief returns the chart's series count.
      * @return
      */
     int seriesCount() const;
+
+    /**
+     * @brief removes series with #index from the chart.
+     * @param index series index starting from 0.
+     * @return true if such a series was found and successfully deleted, false otherwise.
+     */
+    bool removeSeries(int index);
+    /**
+     * @overload
+     * @brief removes #series from the chart.
+     * @param series
+     * @return true if such a series was found and successfully deleted, false otherwise.
+     */
+    bool removeSeries(const Series &series);
+    /**
+     * @brief removes all series from the chart.
+     * @note This method will also remove all subcharts and create a new subchart of type
+     * equal to the last set chart type. This method does not remove chart axes.
+     */
+    void removeAllSeries();
 
     /**
      * @brief sets axes for all series on the chart.
      *
      * The method doesn't check for the axes availability and sets axesIds for all series
      * added to the chart. To set specific axes for some series (f.e. to move the series to the
-     * right axis) use Series::setAxesIDs(Series *series, const QList<int> &axesIds) method.
+     * right axis) use setSeriesAxesIDs(Series *series, const QList<int> &axesIds) method.
      *
      * @param axesIds a list of 0, 2 or 3 items.
      * @note axesIds are ids, not indexes. \see Axis::id()
      */
     void setSeriesAxesIDs(const QList<int> &axesIds);
     /**
+     * @overload
      * @brief sets axes for the specific series
      * @param series pointer to the series
      * @param axesIds a list of 0, 2 or 3 items.
@@ -392,16 +460,16 @@ public:
     void setSeriesAxesIDs(Series *series, const QList<int> &axesIds);
 
     /**
-     * @brief sets all available axes for all series
-     * added to the chart.
+     * @brief sets all available axes for all series added to the chart.
      *
-     * The method doesn't check for the axes availability and sets all available
-     * axes for all series added to the chart. To set specific axes for some
+     * The method doesn't check for the axes availability and sets _all_ available
+     * axes for _all_ series added to the chart. To set specific axes for some
      * series (f.e. to move the series to the right axis) use
-     * Series::setAxesIDs() method.
+     * setSeriesAxesIDs() method.
      *
      * @note invoke this method after you have added all the series and all the
      * axes if all the series share the same axes.
+     * @sa setSeriesAxesIDs
      */
     void setSeriesDefaultAxes();
     /**
@@ -434,41 +502,64 @@ public:
      */
     QList<int> addDefaultAxes();
     /**
-     * @brief adds a new axis with specified parameters.
+     * @brief adds new axis with specified parameters.
      * @param type axis type: Cat, Val, Date or Ser.
      * @param pos Axis position: Bottom, Left, Top or Right.
      * @param title optional axis title.
      * @return reference to the newly added axis.
      */
     Axis &addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
+    /**
+     * @brief adds new axis created elsewhere.
+     *
+     * The method can be used to duplicate existing axis, change the type and position of the copy
+     * and add the result to the chart. The method makes sure new axis will have a unique ID.
+     * @param axis
+     */
     void addAxis(const Axis &axis);
     /**
      * @brief returns axis that has index idx
-     * @param idx valid index (0 <= idx < axesCount())
-     * @return pointer to the axis if such axis exists, nullptr otherwise
+     * @param idx valid index (0 <= idx < axesCount()).
+     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     *
+     * This is the same as ```&axes().at(idx)```
      */
-    Axis *axis(int idx);
+    Axis *axis(int idx); //TODO: replace with std::optional<std::reference_wrapper<Axis>> axis(int idx);
     /**
-     * @brief returns axis that has position pos.
+     * @overload
+     * @brief returns axis that has position #pos.
      * @param pos Axis::Position.
-     *
-     * @note A chart can have several axes positioned at pos. This method returns
-     * _the first added_ axis that has position pos.
-     *
+     * @note A chart can have several axes positioned at #pos. This method returns
+     * _the first added_ axis that has position #pos.
      * @return pointer to the axis if such axis exists, nullptr otherwise.
      */
     Axis *axis(Axis::Position pos);
     /**
-     * @brief returns an axis that has type type.
+     * @overload
+     * @brief returns an axis that has type #type.
      * @param type Axis::Type.
-     *
      * @note A chart can have several axes of the same type (f.e. scatter chart
      * usually has 2 value axes). This method returns _the first added_ axis of the
      * type.
-     *
      * @return pointer to the axis if such axis exists, nullptr otherwise.
      */
     Axis *axis(Axis::Type type);
+    /**
+     * @overload
+     * @brief returns an axis that has position #pos and type #type.
+     * @param pos Axis::Position.
+     * @param type Axis::Type.
+     * @note A chart can have several axes of the same position and type. This
+     * method returns _the first added_ axis of these position and type.
+     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     */
+    Axis *axis(Axis::Type type, Axis::Position pos);
+    /**
+     * @brief returns the list of axes defined in the chart.
+     * @return a list of axes. As Axis is an explicitly shareable class, no actual copying
+     * of axes occurs. @see Axis.
+     */
+    QList<QXlsx::Axis> axes() const;
 
     /**
      * @brief tries to remove axis and returns true if axis has been removed.
@@ -478,12 +569,26 @@ public:
      */
     bool removeAxis(int axisID);
     /**
+     * @overload
      * @brief tries to remove axis and returns true if axis has been removed.
      * @param axis the pointer to the axis to be removed.
      * @return true if axis has been removed, false otherwise (no such axis or axis is used
      * in some series).
      */
     bool removeAxis(Axis *axis);
+    /**
+     * @brief returns the list of series that use axis with #axisID.
+     * @param axisID axis ID (_not axis index!_). @see Axis::id().
+     * @return
+     */
+    QList<Series> seriesThatUseAxis(int axisID) const;
+    /**
+     * @overload
+     * @brief returns the list of series that use #axis.
+     * @param axis pointer to the axis.
+     * @return
+     */
+    QList<Series> seriesThatUseAxis(Axis *axis) const;
     /**
      * @brief returns the axes count
      * @return
@@ -496,6 +601,7 @@ public:
      */
     void setTitle(const Title &title);
     /**
+     * @overload
      * @brief sets plain text title to the chart.
      * @param title
      */
@@ -507,10 +613,74 @@ public:
     Title &title();
     /**
      * @brief returns a copy of the chart's title
-     * @return
+     * @return shallow copy of the Title object.
      */
     Title title() const;
+    /**
+     * @brief returns whether to show the automatically generated title of the chart.
+     * @return
+     */
+    std::optional<bool> autoTitleDeleted() const;
+    /**
+     * @brief sets whether to show the automatically generated title of the chart.
+     * @param value if true then the automatically generated title is not shown.
+     * @note If the chart has only one series and autoTitleDeleted is set to false,
+     * then the chart will have the title that contains the series name. Set
+     * autoTitleDeleted to true to hide this title.
+     */
+    void setAutoTitleDeleted(bool value);
 
+    /**
+     * @brief return whether only visible cells should be plotted on the chart.
+     * @return
+     *
+     * If not set, the default value is true.
+     */
+    std::optional<bool> plotOnlyVisibleCells() const;
+    /**
+     * @brief sets whether only visible cells should be plotted on the chart.
+     * @param plot
+     *
+     * If not set, the default value is true.
+     */
+    void setPlotOnlyVisibleCells(bool value);
+
+    /**
+     * @brief returns  how blank cells shall be plotted on a chart.
+     * @return
+     *
+     * If not set, the default value is DisplayBlanksAs::Zero
+     */
+    std::optional<DisplayBlanksAs> displayBlanksAs() const;
+    /**
+     * @brief sets how blank cells shall be plotted on a chart.
+     * @param value DisplayBlanksAs value.
+     *
+     * If not set, the default value is DisplayBlanksAs::Zero.
+     */
+    void setDisplayBlanksAs(DisplayBlanksAs value);
+
+    /**
+     * @brief returns whether data labels over the maximum of the chart shall be shown.
+     *
+     * If not set, the default value is true.
+     *
+     * @return
+     */
+    std::optional<bool> showDataLabelsOverMaximum() const;
+    /**
+     * @brief sets whether data labels over the maximum of the chart shall be shown.
+     * @param value
+     *
+     * If not set, the default value is true.
+     */
+    void setShowDataLabelsOverMaximum(bool value);
+
+    /**
+     * @brief adds default legend to the chart. Legend parameters will be set to
+     * their default values.
+     */
+    void setDefaultLegend();
     /**
      * @brief moves the chart legend to position pos with chart overlay
      * @param position
@@ -519,14 +689,36 @@ public:
     void setLegend(Legend::Position position, bool overlay = false);
     /**
      * @brief returns reference to the chart legend.
-     * @return reference to the default legend.
+     * @return reference to the chart legend.
      */
     Legend &legend();
+    /**
+     * @brief removes the chart legend.
+     */
+    void removeLegend();
+
+
+    /**
+     * @brief returns the chart's plot area layout.
+     * @return a copy of the Layout object.
+     */
+    Layout layout() const;
+    /**
+     * @brief returns the chart's plot area layout.
+     * @return reference to the Layout object.
+     */
+    Layout &layout();
+    /**
+     * @brief sets the chart's plot area layout.
+     * @param layout
+     */
+    void setLayout(const Layout &layout);
+
 
     /**
      * @brief returns the kind of grouping for a line or area chart.
      *
-     * ApplicableTo: Area, Area3D, Line, Line3D.
+     * Applicable to: Area, Area3D, Line, Line3D.
      *
      * @return valid Chart::Grouping if property is set, nullopt otherwise.
      */
@@ -534,7 +726,7 @@ public:
     /**
      * @brief sets the kind of grouping for a line or area chart.
      *
-     * ApplicableTo: Area, Area3D, Line, Line3D.
+     * Applicable to: Area, Area3D, Line, Line3D.
      *
      * @param grouping Chart::Grouping
      */
@@ -543,7 +735,7 @@ public:
     /**
      * @brief returns the kind of grouping for a bar chart.
      *
-     * ApplicableTo: Bar, Bar3D.
+     * Applicable to: Bar, Bar3D.
      *
      * @return valid Chart::BarGrouping if property is set, nullopt otherwise.
      */
@@ -969,6 +1161,7 @@ public:
     /**
      * @brief returns a value used to determine which data points are in the
      * second pie on an OfPie chart.
+     *
      * If splitType() is Position, splitPos equals to the number of last data points.
      * If Percent, splitPos is the percentage of the data points sum, and data points
      * with value less than splitPos go to the second pie.
@@ -982,6 +1175,8 @@ public:
      * If Percent, value is the percentage of the data points sum, and data points
      * with value less than that go to the second pie.
      * If Value, value is the value below which data points go to the second pie.
+     *
+     * Applicable to chart types: OfPie.
      */
     void setSplitPos(double value);
     /**
@@ -1013,19 +1208,105 @@ public:
      */
     void setSecondPieSize(int size);
 
-    //TODO: the rest of
-    //+bubble
-    std::optional<bool> bubble3D;
-    std::optional<bool> showNegBubbles;
-    std::optional<int> bubbleScale; // in % [0..300]
-    std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
-    //TODO: the rest of
-    //+surface, +surface3d
-    std::optional<bool> wireframe;
-    QMap<int, ShapeFormat> bandFormats;
+    /**
+     * @brief returns whether the Bubble chart has a 3-D effect applied to series.
+     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<bool> bubble3D() const;
+    /**
+     * @brief sets whether the Bubble chart has a 3-D effect applied to series.
+     * @param bubble3D
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubble3D(bool bubble3D);
+    /**
+     * @brief returns whether negative sized bubbles shall be shown on a bubble chart.
+     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     *
+     * If the parameter is not set, the default value is true.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<bool> showNegativeBubbles() const;
+    /**
+     * @brief sets whether negative sized bubbles shall be shown on a bubble chart.
+     * @param show
+     *
+     * The default value is true.
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setShowNegativeBubbles(bool show);
 
     /**
-     * @brief setDataTableVisible sets the visibility of the chart data table
+     * @brief returns the scale factor for a bubble chart.
+     * @return a percentage value from 0 to 300, corresponding to a percentage of the default size.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<int> bubbleScale() const;
+    /**
+     * @brief sets the scale factor for a bubble chart.
+     * @param scale a percentage value from 0 to 300, corresponding to a percentage of the default size.
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubbleScale(int scale);
+
+    /**
+     * @brief returns how the bubble size values are represented on the chart.
+     * @return valid optional value if parameter is set, nullopt otherwise.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<BubbleSizeRepresents> bubbleSizeRepresents() const;
+    /**
+     * @brief sets how the bubble size values are represented on the bubble chart.
+     * @param value
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubbleSizeRepresents(BubbleSizeRepresents value);
+
+    /**
+     * @brief returns whether the surface chart is drawn as a wireframe.
+     * @return valid optional value if the parameter is set, nullopt otherwise.
+     *
+     * The default value is true.
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    std::optional<bool> wireframe() const;
+    /**
+     * @brief sets whether the surface chart is drawn as a wireframe.
+     * @param wireframe
+     *
+     * The default value is true.
+     *
+     * Applicable to chart types: Surface, Surface3D
+     */
+    void setWireframe(bool wireframe);
+
+    /**
+     * @brief returns a map of formatting bands for a surface chart indexed from low to high.
+     * @return
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    QMap<int, ShapeFormat> bandFormats() const;
+    /**
+     * @brief sets a map of formatting bands for a surface chart.
+     * @param bandFormats
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    void setBandFormats(QMap<int, ShapeFormat> bandFormats);
+
+    /**
+     * @brief sets the visibility of the chart data table
      * @param visible if true, the chart data table is shown below the chart. If false,
      * the chart data table is hidden.
      *
@@ -1034,7 +1315,7 @@ public:
      */
     void setDataTableVisible(bool visible);
     /**
-     * @brief dataTable returns the chart data table.
+     * @brief returns the chart data table.
      *
      * Changing the data table properties also makes it visible.
      *
@@ -1042,13 +1323,13 @@ public:
      */
     DataTable &dataTable();
     /**
-     * @brief dataTable returns the chart data table.
+     * @brief returns the chart data table.
      *
      * @return copy of the chart data table.
      */
     DataTable dataTable() const;
     /**
-     * @brief setDataTable sets the chart data table.
+     * @brief sets the chart data table.
      *
      * This method also makes dataTable visible.
      *
@@ -1064,10 +1345,9 @@ public:
     void setStyleID(int id);
 
     /**
-     * @brief date1904 returns that the chart uses the 1904 date system.
+     * @brief returns whether the chart uses the 1904 date system.
      *
-     * This method returns that the chart uses the 1904 date system. If the 1904
-     * date system is used, then all dates and times shall be specified as a
+     * If the 1904 date system is used, then all dates and times shall be specified as a
      * decimal number of days since Dec. 31, 1903. If the 1904 date system is
      * not used, then all dates and times shall be specified as a decimal number
      * of days since Dec. 31, 1899.
@@ -1076,7 +1356,7 @@ public:
      */
     std::optional<bool> date1904() const;
     /**
-     * @brief setDate1904 sets that the chart uses the 1904 date system.
+     * @brief sets that the chart uses the 1904 date system.
      *
      * This method sets that the chart uses the 1904 date system. If the 1904
      * date system is used, then all dates and times shall be specified as a
@@ -1089,14 +1369,14 @@ public:
     void setDate1904(bool isDate1904);
 
     /**
-     * @brief lastUsedLanguage returns the primary editing language (f.e. "en-US")
+     * @brief returns the primary editing language (f.e. "en-US")
      * which was used when this chart was last modified.
      *
      * @return language id or empty string if no last used language was set.
      */
     QString lastUsedLanguage() const;
     /**
-     * @brief setLastUsedLanguage sets the primary editing language (f.e. "en-US")
+     * @brief sets the primary editing language (f.e. "en-US")
      * which was used when this chart was last modified.
      *
      * @param lang language id
@@ -1104,12 +1384,12 @@ public:
     void setLastUsedLanguage(QString lang);
 
     /**
-     * @brief roundedCorners returns whether the chart area has rounded corners.
+     * @brief returns whether the chart area has rounded corners.
      * @return valid bool if the property is set, nullopt otherwise.
      */
     std::optional<bool> roundedCorners() const;
     /**
-     * @brief setRoundedCorners sets whether the chart area shall have rounded corners.
+     * @brief sets whether the chart area shall have rounded corners.
      * @param rounded
      */
     void setRoundedCorners(bool rounded);

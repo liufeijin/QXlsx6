@@ -52,6 +52,13 @@ bool Legend::isValid() const
     return false;
 }
 
+Legend Legend::defaultLegend()
+{
+    Legend l;
+    l.d = new LegendPrivate;
+    return l;
+}
+
 std::optional<Legend::Position> Legend::position() const
 {
     if (d) return d->pos;

@@ -325,7 +325,9 @@ private:
 };
 
 /**
- * @brief manages chart series
+ * @brief manages chart series.
+ *
+ * The class is _implicitly shareable_.
  */
 class QXLSX_EXPORT Series
 {
@@ -604,12 +606,12 @@ public:
     void setPieExplosion(int val);
 
     /**
-     * @brief bubble3D returns that the bubbles have a 3-D effect applied to them.
+     * @brief returns that the bubbles have a 3-D effect applied to them.
      * @return valid optional value if bubble3D property is set, invalid otherwise
      */
     std::optional<bool> bubble3D() const;
     /**
-     * @brief setBubble3D sets that the bubbles have a 3-D effect applied to them.
+     * @brief sets that the bubbles have a 3-D effect applied to them.
      * @param val
      */
     void setBubble3D(bool val);

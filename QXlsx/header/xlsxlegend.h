@@ -65,14 +65,26 @@ public:
         TopRight,
         Right
     };
-
+    /**
+     * @brief creates an invalid Legend.
+     */
     Legend();
+    /**
+     * @brief creates Legend positioned at #position.
+     * @param position legend position.
+     */
     Legend(Position position);
     Legend(const Legend &other);
     ~Legend();
     Legend &operator=(const Legend &other);
 
     bool isValid() const;
+    /**
+     * @brief creates Legend with default parameters.
+     * The legend created will be valid, but all its parameters will not be set.
+     * @return new Legend.
+     */
+    static Legend defaultLegend();
 
     std::optional<Position> position() const;
     void setPosition(Position position);

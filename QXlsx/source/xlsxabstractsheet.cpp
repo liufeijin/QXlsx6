@@ -36,7 +36,6 @@ AbstractSheet::AbstractSheet(const QString &name, int id, Workbook *workbook, Ab
     d_func()->workbook = workbook;
 }
 
-
 QString AbstractSheet::name() const
 {
     Q_D(const AbstractSheet);
