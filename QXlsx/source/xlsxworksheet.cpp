@@ -143,11 +143,6 @@ int WorksheetPrivate::checkDimensions(int row, int col, bool ignore_row, bool ig
 }
 
 /*!
-  \class Worksheet
-  \brief Represent one worksheet in the workbook.
-*/
-
-/*!
  * \internal
  */
 Worksheet::Worksheet(const QString &name, int id, Workbook *workbook, CreateFlag flag)
@@ -215,143 +210,94 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
     return sheet;
 }
 
-/*!
- * Destroys this workssheet.
- */
 Worksheet::~Worksheet()
 {
 }
 
-/*!
- * Returns whether sheet is protected.
- */
 bool Worksheet::isWindowProtected() const
 {
     Q_D(const Worksheet);
     return d->windowProtection;
 }
 
-/*!
- * Protects/unprotects the sheet based on \a protect.
- */
 void Worksheet::setWindowProtected(bool protect)
 {
     Q_D(Worksheet);
     d->windowProtection = protect;
 }
 
-/*!
- * Return whether formulas instead of their calculated results shown in cells
- */
 bool Worksheet::isFormulasVisible() const
 {
     Q_D(const Worksheet);
     return d->showFormulas;
 }
 
-/*!
- * Show formulas in cells instead of their calculated results when \a visible is true.
- */
 void Worksheet::setFormulasVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showFormulas = visible;
 }
 
-/*!
- * Return whether gridlines is shown or not.
- */
 bool Worksheet::isGridLinesVisible() const
 {
     Q_D(const Worksheet);
     return d->showGridLines;
 }
 
-/*!
- * Show or hide the gridline based on \a visible
- */
 void Worksheet::setGridLinesVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showGridLines = visible;
 }
 
-/*!
- * Return whether is row and column headers is vislbe.
- */
 bool Worksheet::isRowColumnHeadersVisible() const
 {
     Q_D(const Worksheet);
     return d->showRowColHeaders;
 }
 
-/*!
- * Show or hide the row column headers based on \a visible
- */
 void Worksheet::setRowColumnHeadersVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showRowColHeaders = visible;
 }
 
-
-/*!
- * Return whether the sheet is shown right-to-left or not.
- */
 bool Worksheet::isRightToLeft() const
 {
     Q_D(const Worksheet);
     return d->rightToLeft;
 }
 
-/*!
- * Enable or disable the right-to-left based on \a enable.
- */
 void Worksheet::setRightToLeft(bool enable)
 {
     Q_D(Worksheet);
     d->rightToLeft = enable;
 }
 
-/*!
- * Return whether is cells that have zero value show a zero.
- */
 bool Worksheet::isZerosVisible() const
 {
     Q_D(const Worksheet);
     return d->showZeros;
 }
 
-/*!
- * Show a zero in cells that have zero value if \a visible is true.
- */
 void Worksheet::setZerosVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showZeros = visible;
 }
 
-/*!
- * Return whether this tab is selected.
- */
 bool Worksheet::isSelected() const
 {
     Q_D(const Worksheet);
     return d->tabSelected;
 }
 
-/*!
- * Select this sheet if \a select is true.
- */
 void Worksheet::setSelected(bool select)
 {
     Q_D(Worksheet);
     d->tabSelected = select;
 }
 
-/*!
- * Return whether is ruler is shown.
- */
 bool Worksheet::isRulerVisible() const
 {
     Q_D(const Worksheet);
@@ -359,9 +305,6 @@ bool Worksheet::isRulerVisible() const
 
 }
 
-/*!
- * Show or hide the ruler based on \a visible.
- */
 void Worksheet::setRulerVisible(bool visible)
 {
     Q_D(Worksheet);
@@ -369,48 +312,30 @@ void Worksheet::setRulerVisible(bool visible)
 
 }
 
-/*!
- * Return whether is outline symbols is shown.
- */
 bool Worksheet::isOutlineSymbolsVisible() const
 {
     Q_D(const Worksheet);
     return d->showOutlineSymbols;
 }
 
-/*!
- * Show or hide the outline symbols based ib \a visible.
- */
 void Worksheet::setOutlineSymbolsVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showOutlineSymbols = visible;
 }
 
-/*!
- * Return whether is white space is shown.
- */
 bool Worksheet::isWhiteSpaceVisible() const
 {
     Q_D(const Worksheet);
     return d->showWhiteSpace;
 }
 
-/*!
- * Show or hide the white space based on \a visible.
- */
 void Worksheet::setWhiteSpaceVisible(bool visible)
 {
     Q_D(Worksheet);
     d->showWhiteSpace = visible;
 }
 
-/*!
- * Write \a value to cell (\a row, \a column) with the \a format.
- * Both \a row and \a column are all 1-indexed value.
- *
- * Returns true on success.
- */
 bool Worksheet::write(int row, int column, const QVariant &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -497,12 +422,6 @@ bool Worksheet::write(int row, int column, const QVariant &value, const Format &
     return ret;
 }
 
-/*!
- * \overload
- * Write \a value to cell \a row_column with the \a format.
- * Both row and column are all 1-indexed value.
- * Returns true on success.
- */
 bool Worksheet::write(const CellReference &row_column, const QVariant &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -511,10 +430,6 @@ bool Worksheet::write(const CellReference &row_column, const QVariant &value, co
     return write(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-    \overload
-    Return the contents of the cell \a row_column.
- */
 QVariant Worksheet::read(const CellReference &row_column) const
 {
     if (!row_column.isValid())
@@ -523,26 +438,23 @@ QVariant Worksheet::read(const CellReference &row_column) const
     return read(row_column.row(), row_column.column());
 }
 
-/*!
-    Return the contents of the cell (\a row, \a column).
- */
 QVariant Worksheet::read(int row, int column) const
 {
     Q_D(const Worksheet);
 
-    Cell *cell = cellAt(row, column);
-    if (!cell)
+    Cell *c = cell(row, column);
+    if (!c)
         return QVariant();
 
-    if (cell->hasFormula()) {
-        if (cell->formula().formulaType() == CellFormula::Type::Normal)
-            return QVariant(QLatin1String("=")+cell->formula().formulaText());
+    if (c->hasFormula()) {
+        if (c->formula().formulaType() == CellFormula::Type::Normal)
+            return QVariant(QLatin1String("=")+c->formula().formulaText());
 
-        if (cell->formula().formulaType() == CellFormula::Type::Shared) {
-            if (!cell->formula().formulaText().isEmpty())
-                return QVariant(QLatin1String("=")+cell->formula().formulaText());
+        if (c->formula().formulaType() == CellFormula::Type::Shared) {
+            if (!c->formula().formulaText().isEmpty())
+                return QVariant(QLatin1String("=")+c->formula().formulaText());
 
-            int si = cell->formula().sharedIndex();
+            int si = c->formula().sharedIndex();
             const CellFormula &rootFormula = d->sharedFormulaMap[ si ];
             CellReference rootCellRef = rootFormula.reference().topLeft();
             QString rootFormulaText = rootFormula.formulaText();
@@ -551,32 +463,24 @@ QVariant Worksheet::read(int row, int column) const
         }
     }
 
-    if (cell->isDateTime())
+    if (c->isDateTime())
     {
-        QVariant vDateTime = cell->dateTime();
+        QVariant vDateTime = c->dateTime();
         return vDateTime;
     }
 
-    return cell->value();
+    return c->value();
 }
 
-/*!
- * Returns the cell at the given \a row_column. If there
- * is no cell at the specified position, the function returns 0.
- */
-Cell *Worksheet::cellAt(const CellReference &row_column) const
+Cell *Worksheet::cell(const CellReference &row_column) const
 {
     if (!row_column.isValid())
         return 0;
 
-    return cellAt(row_column.row(), row_column.column());
+    return cell(row_column.row(), row_column.column());
 }
 
-/*!
- * Returns the cell at the given \a row and \a column. If there
- * is no cell at the specified position, the function returns 0.
- */
-Cell *Worksheet::cellAt(int row, int col) const
+Cell *Worksheet::cell(int row, int col) const
 {
     Q_D(const Worksheet);
     auto it = d->cellTable.constFind(row);
@@ -598,12 +502,6 @@ Format WorksheetPrivate::cellFormat(int row, int col) const
     return (*it)[col]->format();
 }
 
-/*!
-  \overload
-  Write string \a value to the cell \a row_column with the \a format.
-
-  Returns true on success.
- */
 bool Worksheet::writeString(const CellReference &row_column, const RichString &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -612,10 +510,6 @@ bool Worksheet::writeString(const CellReference &row_column, const RichString &v
     return writeString(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-  Write string \a value to the cell (\a row, \a column) with the \a format.
-  Returns true on success.
-*/
 bool Worksheet::writeString(int row, int column, const RichString &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -639,10 +533,6 @@ bool Worksheet::writeString(int row, int column, const RichString &value, const 
     return true;
 }
 
-/*!
-    \overload
-    Write string \a value to the cell \a row_column with the \a format.
- */
 bool Worksheet::writeString(const CellReference &row_column, const QString &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -651,12 +541,6 @@ bool Worksheet::writeString(const CellReference &row_column, const QString &valu
     return writeString(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-    \overload
-
-    Write string \a value to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
-*/
 bool Worksheet::writeString(int row, int column, const QString &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -672,10 +556,6 @@ bool Worksheet::writeString(int row, int column, const QString &value, const For
     return writeString(row, column, rs, format);
 }
 
-/*!
-    \overload
-    Write string \a value to the cell \a row_column with the \a format
- */
 bool Worksheet::writeInlineString(const CellReference &row_column, const QString &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -684,10 +564,6 @@ bool Worksheet::writeInlineString(const CellReference &row_column, const QString
     return writeInlineString(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-    Write string \a value to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
-*/
 bool Worksheet::writeInlineString(int row, int column, const QString &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -707,11 +583,6 @@ bool Worksheet::writeInlineString(int row, int column, const QString &value, con
     return true;
 }
 
-/*!
-    \overload
-    Write numeric \a value to the cell \a row_column with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeNumeric(const CellReference &row_column, double value, const Format &format)
 {
     if (!row_column.isValid())
@@ -720,10 +591,6 @@ bool Worksheet::writeNumeric(const CellReference &row_column, double value, cons
     return writeNumeric(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-    Write numeric \a value to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
-*/
 bool Worksheet::writeNumeric(int row, int column, double value, const Format &format)
 {
     Q_D(Worksheet);
@@ -737,11 +604,6 @@ bool Worksheet::writeNumeric(int row, int column, double value, const Format &fo
 }
 
 
-/*!
-    \overload
-    Write \a formula to the cell \a row_column with the \a format and \a result.
-    Returns true on success.
- */
 bool Worksheet::writeFormula(const CellReference &row_column, const CellFormula &formula, const Format &format, double result)
 {
     if (!row_column.isValid())
@@ -750,10 +612,6 @@ bool Worksheet::writeFormula(const CellReference &row_column, const CellFormula 
     return writeFormula(row_column.row(), row_column.column(), formula, format, result);
 }
 
-/*!
-    Write \a formula_ to the cell (\a row, \a column) with the \a format and \a result.
-    Returns true on success.
-*/
 bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, const Format &format, double result)
 {
     Q_D(Worksheet);
@@ -789,8 +647,8 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
         for (int r=range.firstRow(); r<=range.lastRow(); ++r) {
             for (int c=range.firstColumn(); c<=range.lastColumn(); ++c) {
                 if (!(r==row && c==column)) {
-                    if(Cell *cell = cellAt(r, c)) {
-                        cell->d_ptr->formula = sf;
+                    if (Cell *ce = cell(r, c)) {
+                        ce->d_ptr->formula = sf;
                     } else {
                         auto newCell = std::make_shared<Cell>(result, Cell::Type::Number, fmt, this);
                         newCell->d_ptr->formula = sf;
@@ -804,11 +662,6 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
     return true;
 }
 
-/*!
-    \overload
-    Write a empty cell \a row_column with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeBlank(const CellReference &row_column, const Format &format)
 {
     if (!row_column.isValid())
@@ -817,10 +670,6 @@ bool Worksheet::writeBlank(const CellReference &row_column, const Format &format
     return writeBlank(row_column.row(), row_column.column(), format);
 }
 
-/*!
-    Write a empty cell (\a row, \a column) with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeBlank(int row, int column, const Format &format)
 {
     Q_D(Worksheet);
@@ -835,11 +684,7 @@ bool Worksheet::writeBlank(int row, int column, const Format &format)
 
     return true;
 }
-/*!
-    \overload
-    Write a bool \a value to the cell \a row_column with the \a format.
-    Returns true on success.
- */
+
 bool Worksheet::writeBool(const CellReference &row_column, bool value, const Format &format)
 {
     if (!row_column.isValid())
@@ -848,10 +693,6 @@ bool Worksheet::writeBool(const CellReference &row_column, bool value, const For
     return writeBool(row_column.row(), row_column.column(), value, format);
 }
 
-/*!
-    Write a bool \a value to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeBool(int row, int column, bool value, const Format &format)
 {
     Q_D(Worksheet);
@@ -864,11 +705,7 @@ bool Worksheet::writeBool(int row, int column, bool value, const Format &format)
 
     return true;
 }
-/*!
-    \overload
-    Write a QDateTime \a dt to the cell \a row_column with the \a format.
-    Returns true on success.
- */
+
 bool Worksheet::writeDateTime(const CellReference &row_column, const QDateTime &dt, const Format &format)
 {
     if (!row_column.isValid())
@@ -877,10 +714,6 @@ bool Worksheet::writeDateTime(const CellReference &row_column, const QDateTime &
     return writeDateTime(row_column.row(), row_column.column(), dt, format);
 }
 
-/*!
-    Write a QDateTime \a dt to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeDateTime(int row, int column, const QDateTime &dt, const Format &format)
 {
     Q_D(Worksheet);
@@ -929,11 +762,6 @@ bool Worksheet::writeDate(int row, int column, const QDate &dt, const Format &fo
     return true;
 }
 
-/*!
-    \overload
-    Write a QTime \a t to the cell \a row_column with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeTime(const CellReference &row_column, const QTime &t, const Format &format)
 {
     if (!row_column.isValid())
@@ -942,10 +770,6 @@ bool Worksheet::writeTime(const CellReference &row_column, const QTime &t, const
     return writeTime(row_column.row(), row_column.column(), t, format);
 }
 
-/*!
-    Write a QTime \a t to the cell (\a row, \a column) with the \a format.
-    Returns true on success.
- */
 bool Worksheet::writeTime(int row, int column, const QTime &t, const Format &format)
 {
     Q_D(Worksheet);
@@ -962,11 +786,6 @@ bool Worksheet::writeTime(int row, int column, const QTime &t, const Format &for
     return true;
 }
 
-/*!
-    \overload
-    Write a QUrl \a url to the cell \a row_column with the given \a format \a display and \a tip.
-    Returns true on success.
- */
 bool Worksheet::writeHyperlink(const CellReference &row_column, const QUrl &url, const Format &format, const QString &display, const QString &tip)
 {
     if (!row_column.isValid())
@@ -975,10 +794,6 @@ bool Worksheet::writeHyperlink(const CellReference &row_column, const QUrl &url,
     return writeHyperlink(row_column.row(), row_column.column(), url, format, display, tip);
 }
 
-/*!
-    Write a QUrl \a url to the cell (\a row, \a column) with the given \a format \a display and \a tip.
-    Returns true on success.
- */
 bool Worksheet::writeHyperlink(int row, int column, const QUrl &url, const Format &format, const QString &display, const QString &tip)
 {
     Q_D(Worksheet);
@@ -1031,10 +846,6 @@ bool Worksheet::writeHyperlink(int row, int column, const QUrl &url, const Forma
     return true;
 }
 
-/*!
- * Add one DataValidation \a validation to the sheet.
- * Returns true on success.
- */
 bool Worksheet::addDataValidation(const DataValidation &validation)
 {
     Q_D(Worksheet);
@@ -1045,10 +856,6 @@ bool Worksheet::addDataValidation(const DataValidation &validation)
     return true;
 }
 
-/*!
- * Add one ConditionalFormatting \a cf to the sheet.
- * Returns true on success.
- */
 bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
 {
     Q_D(Worksheet);
@@ -1065,107 +872,73 @@ bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
     return true;
 }
 
-/*!
- * Insert an \a image  at the position \a row, \a column
- * Returns true on success.
- */
 int Worksheet::insertImage(int row, int column, const QImage &image)
 {
     Q_D(Worksheet);
 
-    int imageIndex = 0;
+    if (!image.isNull()) {
+        if (!d->drawing)
+            d->drawing = std::make_shared<Drawing>(this, F_NewFromScratch);
 
-    if (image.isNull())
-        return imageIndex;
+        DrawingOneCellAnchor* anchor = new DrawingOneCellAnchor(d->drawing.get(), DrawingAnchor::Picture);
 
-    if (!d->drawing)
-    {
-        d->drawing = std::make_shared<Drawing>(this, F_NewFromScratch);
-    }
-
-    DrawingOneCellAnchor* anchor = new DrawingOneCellAnchor(d->drawing.get(), DrawingAnchor::Picture);
-
-    /*
+        /*
         The size are expressed as English Metric Units (EMUs).
         EMU is 1/360 000 of centimiter.
-    */
-    anchor->from = XlsxMarker(row, column, 0, 0);
-    float scaleX = 36e6f / std::max(1,image.dotsPerMeterX());
-    float scaleY = 36e6f / std::max(1,image.dotsPerMeterY());
-    anchor->ext = QSize( int(image.width() * scaleX), int(image.height() * scaleY) );
+        */
+        anchor->from = XlsxMarker(row, column, 0, 0);
+        float scaleX = 36e6f / std::max(1,image.dotsPerMeterX());
+        float scaleY = 36e6f / std::max(1,image.dotsPerMeterY());
+        anchor->ext = QSize( int(image.width() * scaleX), int(image.height() * scaleY) );
 
-    anchor->setObjectPicture(image);
-
-    imageIndex = anchor->getm_id();
-
-    return imageIndex;
+        anchor->setObjectPicture(image);
+        return d->drawing->anchors.size()-1;
+    }
+    return -1;
 }
 
-bool Worksheet::getImage(int imageIndex, QImage& img)
+QImage Worksheet::image(int imageIndex)
 {
     Q_D(Worksheet);
 
-    if( imageIndex <= (-1) )
-    {
-        return false;
-    }
+    if (imageIndex < 0 || !d->drawing)
+        return {};
 
-    if ( d->drawing == nullptr )
-    {
-        return false;
-    }
-
-    int realImageIndex = imageIndex - 1; // minus one
-
-   DrawingAnchor* danchor = d->drawing->anchors.at( realImageIndex );
+   DrawingAnchor* danchor = d->drawing->anchors.value(imageIndex);
    // QSharedPointer<Drawing> // for multithread
-   if ( danchor == nullptr )
-   {
-       return false;
+   if (danchor) {
+       QImage img;
+       danchor->getObjectPicture(img);
+       return img;
    }
 
-   bool ret= danchor->getObjectPicture(img);
-   return ret;
+   return {};
 }
 
-bool Worksheet::getImage(int row, int column, QImage &img)
+QImage Worksheet::image(int row, int column)
 {
     Q_D(Worksheet);
 
-    if ( d->drawing == nullptr )
-    {
-        return false;
-    }
-
-    for(int i = 0; i < d->drawing->anchors.size(); i++)
-    {
-        if(d->drawing->anchors[i]->row() == row && d->drawing->anchors[i]->col() == column)
-        {
-            DrawingAnchor* danchor = d->drawing->anchors.at( i );
-
-            if ( danchor == nullptr )
-            {
-                return false;
+    if (d->drawing) {
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->row() == row && anchor->col() == column) {
+                QImage img;
+                anchor->getObjectPicture(img);
+                return img;
             }
-
-            bool ret= danchor->getObjectPicture(img);
-            return ret;
         }
     }
-    return false;
+    return {};
 }
 
-uint Worksheet::getImageCount()
+int Worksheet::imageCount()
 {
     Q_D(Worksheet);
 
-    if ( d->drawing == nullptr )
-    {
-        return false;
-    }
+    if (d->drawing)
+        return d->drawing->anchors.size();
 
-    int size = d->drawing->anchors.size();
-    return uint(size);
+    return 0;
 }
 
 
@@ -1213,27 +986,18 @@ bool Worksheet::mergeCells(const CellRange &range, const Format &format)
         d->workbook->styles()->addXfFormat(format);
     }
 
-    for (int row = range.firstRow(); row <= range.lastRow(); ++row)
-    {
-        for (int col = range.firstColumn(); col <= range.lastColumn(); ++col)
-        {
-            if (row == range.firstRow() && col == range.firstColumn())
-            {
-                Cell *cell = cellAt(row, col);
-                if (cell)
-                {
+    for (int row = range.firstRow(); row <= range.lastRow(); ++row) {
+        for (int col = range.firstColumn(); col <= range.lastColumn(); ++col) {
+            if (row == range.firstRow() && col == range.firstColumn()) {
+                if (Cell *c = cell(row, col)) {
                     if (format.isValid())
-                        cell->d_ptr->format = format;
+                        c->d_ptr->format = format;
                 }
                 else
-                {
                     writeBlank(row, col, format);
-                }
             }
             else
-            {
                 writeBlank(row, col, format);
-            }
         }
     }
 

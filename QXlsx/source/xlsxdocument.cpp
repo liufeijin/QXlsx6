@@ -638,38 +638,34 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
-/*!
- * Insert an \a image to current active worksheet at the position \a row, \a column
- * Returns ture if success.
- */
 int Document::insertImage(int row, int column, const QImage &image)
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->insertImage(row, column, image);
 
-    return 0;
+    return -1;
 }
 
-bool Document::getImage(int imageIndex, QImage& img)
+QImage Document::image(int imageIndex)
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->getImage(imageIndex, img);
+        return sheet->image(imageIndex);
 
-    return  false;
+    return {};
 }
 
-bool Document::getImage(int row, int col, QImage &img)
+QImage Document::image(int row, int col)
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->getImage(row, col, img);
+        return sheet->image(row, col);
 
-    return  false;
+    return  {};
 }
 
-uint Document::getImageCount()
+int Document::imageCount()
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->getImageCount();
+        return sheet->imageCount();
 
     return 0;
 }
@@ -1016,7 +1012,7 @@ bool Document::addConditionalFormatting(const ConditionalFormatting &cf)
 Cell *Document::cellAt(const CellReference &pos) const
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->cellAt(pos);
+        return sheet->cell(pos);
     return 0;
 }
 
@@ -1029,7 +1025,7 @@ Cell *Document::cellAt(const CellReference &pos) const
 Cell *Document::cellAt(int row, int col) const
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->cellAt(row, col);
+        return sheet->cell(row, col);
     return 0;
 }
 

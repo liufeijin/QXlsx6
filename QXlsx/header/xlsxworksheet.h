@@ -93,13 +93,32 @@ public:
     bool addDataValidation(const DataValidation &validation);
     bool addConditionalFormatting(const ConditionalFormatting &cf);
 
-    Cell *cellAt(const CellReference &row_column) const;
-    Cell *cellAt(int row, int column) const;
+    Cell *cell(const CellReference &row_column) const;
+    Cell *cell(int row, int column) const;
 
+    /*!
+     * @brief Inserts an \a image at the position \a row, \a column.
+     * @return image index (zero-based) on success, -1 otherwise.
+     */
     int insertImage(int row, int column, const QImage &image);
-    bool getImage(int imageIndex, QImage& img);
-    bool getImage(int row, int column, QImage& img);
-    uint getImageCount();
+    /**
+     * @brief returns an image.
+     * @param imageIndex zero-based image index (0 to #getImageCount()-1).
+     * @return non-null QImage if image was found and read.
+     */
+    QImage image(int imageIndex);
+    /**
+     * @brief returns image.
+     * @param row worksheet row number (starting from 1) where the image is anchored.
+     * @param col worksheet column number (starting from 1) where the image is anchored.
+     * @return non-null QImage if image was found and read.
+     */
+    QImage image(int row, int column);
+    /**
+     * @brief returns the count of images on this worksheet.
+     */
+    int imageCount();
+    //TODO: removeImage(int row, int column), removeImage(int index)
 
     /**
      * @brief creates a new chart and places it inside the current worksheet.
@@ -109,6 +128,8 @@ public:
      * @return pointer to the new chart or nullptr if no chart was created.
      */
     Chart *insertChart(int row, int column, const QSize &size);
+    //TODO: removeChart(int row, int column), chart(int row, int column)
+    //TODO: removeChart(int index), chart(int index)
 
     bool mergeCells(const CellRange &range, const Format &format=Format());
     bool unmergeCells(const CellRange &range);

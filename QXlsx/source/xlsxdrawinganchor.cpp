@@ -53,7 +53,7 @@ DrawingAnchor::DrawingAnchor(Drawing *drawing, ObjectType objectType)
     :m_drawing(drawing), m_objectType(objectType)
 {
     m_drawing->anchors.append(this);
-    m_id = m_drawing->anchors.size();//must be unique in one drawing{x}.xml file.
+    m_id = m_drawing->anchors.size()-1;//must be unique in one drawing{x}.xml file.
 }
 
 DrawingAnchor::~DrawingAnchor()
@@ -809,7 +809,7 @@ void DrawingAnchor::saveXmlObjectGraphicFrame(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("xdr:nvGraphicFramePr"));
     writer.writeEmptyElement(QStringLiteral("xdr:cNvPr"));
     writer.writeAttribute(QStringLiteral("id"), QString::number(m_id));
-    writer.writeAttribute(QStringLiteral("name"), QStringLiteral("Chart %1").arg(m_id));
+    writer.writeAttribute(QStringLiteral("name"), QStringLiteral("Chart %1").arg(m_id+1));
     writer.writeEmptyElement(QStringLiteral("xdr:cNvGraphicFramePr"));
     writer.writeEndElement();//xdr:nvGraphicFramePr
 
@@ -846,8 +846,8 @@ void DrawingAnchor::saveXmlObjectPicture(QXmlStreamWriter &writer) const
 
     writer.writeStartElement(QStringLiteral("xdr:nvPicPr"));
     writer.writeEmptyElement(QStringLiteral("xdr:cNvPr"));
-    writer.writeAttribute(QStringLiteral("id"), QString::number(m_id+1)); // liufeijin
-    writer.writeAttribute(QStringLiteral("name"), QStringLiteral("Picture %1").arg(m_id));
+    writer.writeAttribute(QStringLiteral("id"), QString::number(m_id)); // liufeijin
+    writer.writeAttribute(QStringLiteral("name"), QStringLiteral("Picture %1").arg(m_id+1));
 
     writer.writeStartElement(QStringLiteral("xdr:cNvPicPr"));
     writer.writeEmptyElement(QStringLiteral("a:picLocks"));
@@ -881,9 +881,9 @@ void DrawingAnchor::saveXmlObjectPicture(QXmlStreamWriter &writer) const
     writer.writeEndElement(); //xdr:pic
 }
 
-int DrawingAnchor::getm_id()
+int DrawingAnchor::id()
 {
-    return (this->m_id);
+    return m_id;
 }
 
 void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const

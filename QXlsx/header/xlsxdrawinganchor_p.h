@@ -96,7 +96,7 @@ protected:
 
     int m_id;
 public:
-    int getm_id();
+    int id();
 
 protected:
 

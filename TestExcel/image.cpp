@@ -36,11 +36,10 @@ int image()
 #endif
         int index = xlsx.insertImage( 10*i, 5, image );
 
-       QImage img;
-       if ( xlsx.getImage( index, img ) )
-       {
+       QImage img = xlsx.image( index);
+       if (!img.isNull()) {
            QString filename;
-           filename = QString("image %1.png").arg( index );
+           filename = QString("image %1.png").arg( index+1 );
            img.save( filename );
 
             qDebug() << " [image index] " << index;

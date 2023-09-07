@@ -41,10 +41,26 @@ public:
     QVariant read(const CellReference &cell) const;
     QVariant read(int row, int col) const;
     
+    /*!
+     * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
+     * @return image index (zero-based) on success, -1 otherwise.
+     */
     int insertImage(int row, int col, const QImage &image);
-    bool getImage(int imageIndex, QImage& img);
-    bool getImage(int row, int col, QImage& img);
-    uint getImageCount();
+    /**
+     * @brief returns image from the current active worksheet.
+     * @param imageIndex zero-based image index (0 to #getImageCount()-1).
+     */
+    QImage image(int imageIndex);
+    /**
+     * @brief returns image from the current active worksheet.
+     * @param row worksheet row number (starting from 1) where the image is anchored.
+     * @param col worksheet column number (starting from 1) where the image is anchored.
+     */
+    QImage image(int row, int col);
+    /**
+     * @brief returns the count of images on the current active worksheet.
+     */
+    int imageCount();
     /**
      * @brief sets the current sheet's background image.
      * @param image The image will be written as a PNG image.
