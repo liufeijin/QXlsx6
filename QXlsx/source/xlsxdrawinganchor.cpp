@@ -61,6 +61,52 @@ DrawingAnchor::~DrawingAnchor()
 
 }
 
+DrawingAnchor *DrawingAnchor::copyTo(Drawing *drawing)
+{
+    DrawingAnchor *a = copy(drawing);
+    a->m_objectType = m_objectType;
+    a->m_pictureFile = m_pictureFile;
+    if (m_chartFile) {
+        QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(drawing->sheet, AbstractOOXmlFile::F_NewFromScratch));
+        a->setObjectGraphicFrame(chart);
+        *chart = *m_chartFile;
+    }
+    a->editASName = editASName;
+    a->posTA = posTA;
+    a->extTA = extTA;
+    a->rotWithShapeTA = rotWithShapeTA;
+    a->dpiTA = dpiTA;
+    a->sp_textlink = sp_textlink;
+    a->sp_macro = sp_macro;
+    a->sp_blip_cstate = sp_blip_cstate;
+    a->sp_blip_rembed = sp_blip_rembed;
+    a->cxnSp_filpV = cxnSp_filpV;
+    a->cxnSp_macro = cxnSp_macro;
+    a->xsp_cNvPR_name = xsp_cNvPR_name;
+    a->xsp_cNvPR_id = xsp_cNvPR_id;
+    a->xbwMode = xbwMode;
+    a->xIn_algn = xIn_algn;
+    a->xIn_cmpd = xIn_cmpd;
+    a->xIn_cap = xIn_cap;
+    a->xIn_w = xIn_w;
+    a->xprstGeom_prst = xprstGeom_prst;
+    a->x_headEnd_w = x_headEnd_w;
+    a->x_headEnd_len = x_headEnd_len;
+    a->x_headEnd_tyep = x_headEnd_tyep;
+    a->x_tailEnd_w = x_tailEnd_w;
+    a->x_tailEnd_len = x_tailEnd_len;
+    a->x_tailEnd_tyep = x_tailEnd_tyep;
+    a->Style_inref_idx = Style_inref_idx;
+    a->style_fillref_idx = style_fillref_idx;
+    a->style_effectref_idx = style_effectref_idx;
+    a->style_forntref_idx = style_forntref_idx;
+    a->Style_inref_val = Style_inref_val;
+    a->style_fillref_val = style_fillref_val;
+    a->style_effectref_val = style_effectref_val;
+    a->style_forntref_val = style_forntref_val;
+    return a;
+}
+
 void DrawingAnchor::setObjectPicture(const QImage &img)
 {
     QByteArray ba;
@@ -1022,6 +1068,14 @@ void DrawingAbsoluteAnchor::saveToXml(QXmlStreamWriter &writer) const
     writer.writeEndElement(); //xdr:absoluteAnchor
 }
 
+DrawingAnchor *DrawingAbsoluteAnchor::copy(Drawing *drawing) const
+{
+    auto a = new DrawingAbsoluteAnchor(drawing, this->m_objectType);
+    a->pos = pos;
+    a->ext = ext;
+    return a;
+}
+
 //one cell anchor
 
 DrawingOneCellAnchor::DrawingOneCellAnchor(Drawing *drawing, ObjectType objectType)
@@ -1083,6 +1137,14 @@ void DrawingOneCellAnchor::saveToXml(QXmlStreamWriter &writer) const
 
     writer.writeEmptyElement(QStringLiteral("xdr:clientData"));
     writer.writeEndElement(); //xdr:oneCellAnchor
+}
+
+DrawingAnchor *DrawingOneCellAnchor::copy(Drawing *drawing) const
+{
+    auto a = new DrawingOneCellAnchor(drawing, this->m_objectType);
+    a->from = from;
+    a->ext = ext;
+    return a;
 }
 
 /*
@@ -1178,15 +1240,15 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
 }
 
 
-   void DrawingTwoCellAnchor::saveToXml(QXmlStreamWriter &writer) const
+void DrawingTwoCellAnchor::saveToXml(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("xdr:twoCellAnchor"));
 
     //{{ liufeijin
     // writer.writeAttribute(QStringLiteral("editAs"), QStringLiteral("oneCell"));
-   if(!editASName.isNull()){
-       writer.writeAttribute(QStringLiteral("editAs"), editASName ); //QStringLiteral("oneCell")
-   }
+    if(!editASName.isNull()){
+        writer.writeAttribute(QStringLiteral("editAs"), editASName ); //QStringLiteral("oneCell")
+    }
     // }}
 
     saveXmlMarker(writer, from, QStringLiteral("xdr:from"));
@@ -1197,6 +1259,14 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
     writer.writeEmptyElement(QStringLiteral("xdr:clientData"));
     writer.writeEndElement(); //xdr:twoCellAnchor
 
+}
+
+DrawingAnchor *DrawingTwoCellAnchor::copy(Drawing *drawing) const
+{
+    auto a = new DrawingTwoCellAnchor(drawing, this->m_objectType);
+    a->from = from;
+    a->to = to;
+    return a;
 }
 
 

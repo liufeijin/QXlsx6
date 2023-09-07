@@ -53,6 +53,7 @@ public:
 
     DrawingAnchor(Drawing *drawing, ObjectType objectType);
     virtual ~DrawingAnchor();
+    DrawingAnchor *copyTo(Drawing *drawing);
 
     void setObjectPicture(const QImage &img);
     bool getObjectPicture(QImage &img);
@@ -85,6 +86,8 @@ protected:
     void saveXmlObjectGraphicFrame(QXmlStreamWriter &writer) const;
     void saveXmlObjectConnectionShape(QXmlStreamWriter &writer) const;
     void saveXmlObjectPicture(QXmlStreamWriter &writer) const;
+
+    virtual DrawingAnchor *copy(Drawing *drawing) const = 0;
 
     Drawing *m_drawing;
     ObjectType m_objectType;
@@ -132,6 +135,8 @@ public:
 
     bool loadFromXml(QXmlStreamReader &reader) override;
     void saveToXml(QXmlStreamWriter &writer) const override;
+protected:
+    virtual DrawingAnchor *copy(Drawing *drawing) const override;
 };
 
 class DrawingOneCellAnchor : public DrawingAnchor
@@ -147,6 +152,8 @@ public:
 
     bool loadFromXml(QXmlStreamReader &reader) override;
     void saveToXml(QXmlStreamWriter &writer) const override;
+protected:
+    virtual DrawingAnchor *copy(Drawing *drawing) const override;
 };
 
 class DrawingTwoCellAnchor : public DrawingAnchor
@@ -162,6 +169,8 @@ public:
 
     bool loadFromXml(QXmlStreamReader &reader) override;
     void saveToXml(QXmlStreamWriter &writer) const override;
+protected:
+    virtual DrawingAnchor *copy(Drawing *drawing) const override;
 };
 
 }

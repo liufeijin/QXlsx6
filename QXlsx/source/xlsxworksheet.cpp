@@ -170,8 +170,12 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
     WorksheetPrivate *sheet_d = sheet->d_func();
 
     sheet_d->dimension = d->dimension;
-    //TODO: copy of drawing
-//    sheet_d->drawing = d->drawing;
+    if (d->drawing) {
+        sheet_d->drawing = std::make_shared<Drawing>(sheet, F_NewFromScratch);
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            anchor->copyTo(sheet_d->drawing.get());
+        }
+    }
     sheet_d->sheetState = d->sheetState;
     sheet_d->type = d->type;
     sheet_d->headerFooter = d->headerFooter;

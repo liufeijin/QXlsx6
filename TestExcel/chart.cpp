@@ -75,11 +75,11 @@ int chart()
     Chart *doughnutChart = xlsx.insertChart(103, 3, QSize(300, 300));
     doughnutChart->setType(Chart::Type::Doughnut);
     doughnutChart->addSeries(CellRange("A1:C9"));
-    //![1]
 
-    //![2]
+    //Testing copying of worksheets with charts
+    xlsx.copySheet("Sheet1", "Sheet2");
+
     xlsx.saveAs("chart1.xlsx");
-    //![2]
 
     Document xlsx2("chart1.xlsx");
     if ( xlsx2.load() )

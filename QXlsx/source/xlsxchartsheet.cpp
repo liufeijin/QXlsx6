@@ -53,7 +53,6 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
 /*!
  * \internal
  */
-
 Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
 {
     Q_D(const Chartsheet);
