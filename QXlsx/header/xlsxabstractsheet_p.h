@@ -37,6 +37,8 @@ public:
     //background picture
     std::shared_ptr<MediaFile> pictureFile;
     std::optional<SheetProtection> sheetProtection; //using optional allows adding default protection
+
+    ExtensionList extLst;
 };
 
 }

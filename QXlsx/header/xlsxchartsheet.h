@@ -18,6 +18,9 @@ class Chart;
 /**
  * @brief The Chartsheet class represents a chartsheet in a workbook.
  *
+ * Each chartsheet has a pointer to #chart() that can be used to edit the chart series,
+ * axes, title etc.
+ *
  */
 class QXLSX_EXPORT Chartsheet : public AbstractSheet
 {

@@ -1397,6 +1397,8 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
         writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
     }
 
+    if (d->extLst.isValid()) d->extLst.write(writer, "extLst");
+
     writer.writeEndElement(); // worksheet
     writer.writeEndDocument();
 }
@@ -2646,65 +2648,46 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
     Q_D(Worksheet);
 
     QXmlStreamReader reader(device);
-    while (!reader.atEnd())
-    {
-        reader.readNextStartElement();
-        if (reader.tokenType() == QXmlStreamReader::StartElement)
-        {
-            if (reader.name() == QLatin1String("dimension"))
-            {
-                QXmlStreamAttributes attributes = reader.attributes();
-                QString range = attributes.value(QLatin1String("ref")).toString();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
+            if (reader.name() == QLatin1String("dimension")) {
+                QString range = a.value(QLatin1String("ref")).toString();
                 d->dimension = CellRange(range);
             }
             else if (reader.name() == QLatin1String("sheetViews"))
-            {
                 d->loadXmlSheetViews(reader);
-            }
             else if (reader.name() == QLatin1String("sheetFormatPr"))
-            {
                 d->loadXmlSheetFormatProps(reader);
-            }
             else if (reader.name() == QLatin1String("cols"))
-            {
                 d->loadXmlColumnsInfo(reader);
-            }
             else if (reader.name() == QLatin1String("sheetData"))
-            {
                 d->loadXmlSheetData(reader);
-            }
             else if (reader.name() == QLatin1String("sheetProtection")) {
                 SheetProtection s;
                 s.read(reader);
                 d->sheetProtection = s;
             }
             else if (reader.name() == QLatin1String("mergeCells"))
-            {
                 d->loadXmlMergeCells(reader);
-            }
             else if (reader.name() == QLatin1String("dataValidations"))
-            {
                 d->loadXmlDataValidations(reader);
-            }
-            else if (reader.name() == QLatin1String("conditionalFormatting"))
-            {
+            else if (reader.name() == QLatin1String("conditionalFormatting")) {
                 ConditionalFormatting cf;
                 cf.loadFromXml(reader, workbook()->styles());
                 d->conditionalFormattingList.append(cf);
             }
             else if (reader.name() == QLatin1String("hyperlinks"))
-            {
                 d->loadXmlHyperlinks(reader);
-            }
             else if(reader.name() == QLatin1String("pageSetup"))
                 d->pageSetup.read(reader);
             else if(reader.name() == QLatin1String("pageMargins"))
                 d->pageMargins.read(reader);
             else if(reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
-            else if (reader.name() == QLatin1String("drawing"))
-            {
-                QString rId = reader.attributes().value(QStringLiteral("r:id")).toString();
+            else if (reader.name() == QLatin1String("drawing")) {
+                QString rId = a.value(QStringLiteral("r:id")).toString();
                 QString name = d->relationships->getRelationshipById(rId).target;
 
                 const auto parts = splitPath(filePath());
@@ -2714,7 +2697,7 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->drawing->setFilePath(path);
             }
             else if (reader.name() == QLatin1String("picture")) {
-                QString rId = reader.attributes().value(QLatin1String("r:id")).toString();
+                QString rId = a.value(QLatin1String("r:id")).toString();
                 QString name = d->relationships->getRelationshipById(rId).target;
 
                 const auto parts = splitPath(filePath());
@@ -2736,15 +2719,7 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 }
             }
             else if (reader.name() == QLatin1String("extLst"))
-            {
-                //TODO: add extLst support
-                while ( !reader.atEnd() &&
-                        !(reader.name() == QLatin1String("extLst") &&
-                          reader.tokenType() == QXmlStreamReader::EndElement))
-                {
-                    reader.readNextStartElement();
-                }
-            }
+                d->extLst.read(reader);
         }
     }
 

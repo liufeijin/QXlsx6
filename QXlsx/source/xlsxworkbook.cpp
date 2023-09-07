@@ -219,7 +219,7 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
 {
     Q_D(Workbook);
     QString sheetName = createSafeSheetName(name);
-    if(index > d->last_sheet_id){
+    if (index > d->last_sheet_id){
         //User tries to insert, where no sheet has gone before.
         return 0;
     }
@@ -560,13 +560,10 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
     Q_D(Workbook);
 
     QXmlStreamReader reader(device);
-    while (!reader.atEnd())
-    {
+    while (!reader.atEnd()) {
          QXmlStreamReader::TokenType token = reader.readNext();
-         if (token == QXmlStreamReader::StartElement)
-         {
-             if (reader.name() == QLatin1String("sheet"))
-             {
+         if (token == QXmlStreamReader::StartElement) {
+             if (reader.name() == QLatin1String("sheet")) {
                  QXmlStreamAttributes attributes = reader.attributes();
 
                  const auto& name = attributes.value(QLatin1String("name")).toString();

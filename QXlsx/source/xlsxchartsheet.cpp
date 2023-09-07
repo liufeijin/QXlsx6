@@ -104,6 +104,15 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeEmptyElement(QStringLiteral("drawing"));
     writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
 
+    if (d->pictureFile) {
+        d->relationships->addDocumentRelationship(QStringLiteral("/image"), QStringLiteral("../media/image%1.%2")
+                                                   .arg(d->pictureFile->index()+1)
+                                                   .arg(d->pictureFile->suffix()));
+        writer.writeEmptyElement(QStringLiteral("picture"));
+        writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
+    }
+    if (d->extLst.isValid()) d->extLst.write(writer, "extLst");
+
     writer.writeEndElement();//chartsheet
     writer.writeEndDocument();
 }
@@ -117,8 +126,9 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
     while (!reader.atEnd()) {
         reader.readNextStartElement();
         if (reader.tokenType() == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("drawing")) {
-                QString rId = reader.attributes().value(QStringLiteral("r:id")).toString();
+                QString rId = a.value(QStringLiteral("r:id")).toString();
                 QString name = d->relationships->getRelationshipById(rId).target;
 
                 const auto parts = splitPath(filePath());
@@ -139,8 +149,29 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
             else if (reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
             else if (reader.name() == QLatin1String("picture")) {
+                QString rId = a.value(QLatin1String("r:id")).toString();
+                QString name = d->relationships->getRelationshipById(rId).target;
 
+                const auto parts = splitPath(filePath());
+                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
+
+                bool exist = false;
+                const auto mfs = d->workbook->mediaFiles();
+                for (const auto &mf : mfs) {
+                    if (mf->fileName() == path) {
+                        //already exist
+                        exist = true;
+                        d->pictureFile = mf;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    d->pictureFile = std::make_shared<MediaFile>(path);
+                    d->workbook->addMediaFile(d->pictureFile, true);
+                }
             }
+            else if (reader.name() == QLatin1String("extLst"))
+                d->extLst.read(reader);
         }
     }
 
