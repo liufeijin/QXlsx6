@@ -427,7 +427,7 @@ std::optional<std::reference_wrapper<Label> > Labels::labelForPoint(int index)
 Label Labels::labelForPoint(int index) const
 {
     if (!d) return {};
-    for (auto &l: d->labels) {
+    for (auto &l: qAsConst(d->labels)) {
         if (l.index() == index) return l;
     }
     return {};
@@ -517,7 +517,7 @@ void Labels::read(QXmlStreamReader &reader)
 void Labels::write(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:dLbls"));
-    for (const auto &l: d->labels) l.write(writer);
+    for (const auto &l: qAsConst(d->labels)) l.write(writer);
 
     if (d->visible.has_value()) {
         writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());

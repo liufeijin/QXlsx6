@@ -105,7 +105,7 @@ void PresetGeometry2D::write(QXmlStreamWriter &writer, const QString &name) cons
     if (avLst.isEmpty()) writer.writeEmptyElement(QLatin1String("avLst"));
     else {
         writer.writeStartElement(QLatin1String("a:avLst"));
-        for (const auto &gd: avLst) {
+        for (const auto &gd: qAsConst(avLst)) {
             writer.writeEmptyElement(QLatin1String("a:gd"));
             writer.writeAttribute(QLatin1String("name"), gd.name);
             writer.writeAttribute(QLatin1String("fmla"), gd.formula);
@@ -172,7 +172,7 @@ void PresetTextShape::write(QXmlStreamWriter &writer, const QString &name) const
     if (avLst.isEmpty()) writer.writeEmptyElement(QLatin1String("a:avLst"));
     else {
         writer.writeStartElement(QLatin1String("a:avLst"));
-        for (const auto &gd: avLst) {
+        for (const auto &gd: qAsConst(avLst)) {
             writer.writeEmptyElement(QLatin1String("a:gd"));
             writer.writeAttribute(QLatin1String("name"), gd.name);
             writer.writeAttribute(QLatin1String("fmla"), gd.formula);

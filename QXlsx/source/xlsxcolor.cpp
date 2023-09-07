@@ -1087,7 +1087,7 @@ QDataStream &operator<<(QDataStream &s, const ColorTransform &tr)
     using st = decltype(tr.vals)::size_type;
     st t = keys.size();
     s << t;
-    for (auto key: keys) s << static_cast<int>(key) << tr.vals.value(key);
+    for (auto key: qAsConst(keys)) s << static_cast<int>(key) << tr.vals.value(key);
     return s;
 }
 

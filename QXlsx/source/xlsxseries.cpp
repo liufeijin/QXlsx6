@@ -383,7 +383,7 @@ MarkerFormat &Series::marker()
 void Series::setLabels(QVector<int> labels, Label::ShowParameters showFlags, Label::Position pos)
 {
     if (!d) d = new SeriesPrivate;
-    for (int label: labels)
+    for (int label: qAsConst(labels))
         d->labels.addLabel(label, showFlags, pos);
     d->labels.setVisible(false);
 }
@@ -571,7 +571,7 @@ void Series::write(QXmlStreamWriter &writer) const
     if (d->type == Type::Bubble || d->type == Type::Bar)
         writeEmptyElement(writer, QLatin1String("c:invertIfNegative"), d->invertIfNegative);
     if (!d->dataPoints.isEmpty() && d->type != Type::Surface) {
-        for (auto &dPt: d->dataPoints) dPt.write(writer);
+        for (auto &dPt: qAsConst(d->dataPoints)) dPt.write(writer);
     }
     if (d->labels.isValid() && d->type != Type::Surface) d->labels.write(writer);
     QString xVal = (d->type == Type::Scatter || d->type == Type::Bubble) ? QLatin1String("c:xVal") : QLatin1String("c:cat");

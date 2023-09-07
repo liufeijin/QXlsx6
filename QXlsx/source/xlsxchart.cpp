@@ -398,7 +398,7 @@ bool Chart::hasAxis(int id) const
 {
     Q_D(const Chart);
 
-    for (auto &ax: d->axisList) {
+    for (const auto &ax: qAsConst(d->axisList)) {
         if (ax.id() == id) return true;
     }
     return false;
@@ -410,7 +410,7 @@ int Chart::seriesCount() const
 
     int count = 0;
 
-    for (const auto &sub: d->subcharts)
+    for (const auto &sub: qAsConst(d->subcharts))
         count += sub.seriesList.size();
 
     return count;
@@ -619,12 +619,21 @@ bool Chart::removeAxis(Axis *axis)
     return removeAxis(axis->id());
 }
 
+void Chart::removeAxes()
+{
+    Q_D(Chart);
+    d->axisList.clear();
+    for (auto &sub: d->subcharts) {
+        sub.axesIds.clear();
+    }
+}
+
 QList<Series> Chart::seriesThatUseAxis(int axisID) const
 {
     Q_D(const Chart);
     QList<Series> result;
 
-    for (const auto &sub: d->subcharts) {
+    for (const auto &sub: qAsConst(d->subcharts)) {
         if (sub.axesIds.contains(axisID)) {
             result.append(sub.seriesList);
         }
@@ -777,7 +786,7 @@ void Chart::setSeriesDefaultAxes()
     Q_D(Chart);
 
     QList<int> axesIds;
-    for (auto &ax: d->axisList) axesIds << ax.id();
+    for (const auto &ax: qAsConst(d->axisList)) axesIds << ax.id();
     setSeriesAxesIDs(axesIds);
 }
 
@@ -1109,7 +1118,7 @@ void ChartPrivate::addAxis(Axis::Type type, Axis::Position pos, QString title)
     int axisId = 1;
 
     auto hasAxis = [this](int id) -> bool {
-        for (auto &ax: axisList) if (ax.id() == id) return true;
+        for (const auto &ax: qAsConst(axisList)) if (ax.id() == id) return true;
         return false;
     };
 
@@ -1127,7 +1136,7 @@ void ChartPrivate::addAxis(const Axis &axis)
     int axisId = 1;
 
     auto hasAxis = [this](int id) -> bool {
-        for (auto &ax: axisList) if (ax.id() == id) return true;
+        for (const auto &ax: qAsConst(axisList)) if (ax.id() == id) return true;
         return false;
     };
 
@@ -1406,11 +1415,11 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
 
     layout.write(writer, QLatin1String("c:layout"));
 
-    for (const auto &sub: subcharts) {
+    for (const auto &sub: qAsConst(subcharts)) {
         sub.write(writer);
     }
 
-    for (const auto &axis: axisList) {
+    for (const auto &axis: qAsConst(axisList)) {
         axis.write(writer);
     }
 
@@ -1480,14 +1489,14 @@ void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:grouping"), s);
     }
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
         dropLines.write(writer, QLatin1String("c:spPr"));
         writer.writeEndElement();
     }
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
     if (gapDepth.has_value() && type == Chart::Type::Area3D)
         writeEmptyElement(writer, QLatin1String("c:gapDepth"), toST_PercentInt(gapDepth.value()));
     writer.writeEndElement();
@@ -1497,9 +1506,9 @@ void CT_XXXChart::saveSurfaceChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Surface3D ? QLatin1String("c:surface3DChart") : QLatin1String("c:surfaceChart"));
     writeEmptyElement(writer, QLatin1String("c:wireframe"), wireframe);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     saveBandFormats(writer);
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
     writer.writeEndElement();
 }
 
@@ -1507,7 +1516,7 @@ void CT_XXXChart::saveBubbleChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:bubbleChart"));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
     writeEmptyElement(writer, QLatin1String("c:bubble3D"), bubble3D);
     if (bubbleScale.has_value())
@@ -1519,7 +1528,7 @@ void CT_XXXChart::saveBubbleChart(QXmlStreamWriter &writer) const
         if (bubbleSizeRepresents.value() == Chart::BubbleSizeRepresents::Width)
             writeEmptyElement(writer, QLatin1String("c:sizeRepresents"), QLatin1String("w"));
     }
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }
@@ -1541,7 +1550,7 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
             writeEmptyElement(writer, QLatin1String("c:ofPieType"), QLatin1String("pie"));
     }
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
     if (type == Chart::Type::Pie || type == Chart::Type::Doughnut) {
         if (firstSliceAng.has_value())
@@ -1560,13 +1569,13 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
             writeEmptyElement(writer, QLatin1String("c:splitPos"), QString::number(splitPos.value()));
         if (!customSplit.isEmpty()) {
             writer.writeStartElement(QLatin1String("c:custSplit"));
-            for (int i: customSplit) writeEmptyElement(writer, QLatin1String("c:secondPiePt"), i);
+            for (int i: qAsConst(customSplit)) writeEmptyElement(writer, QLatin1String("c:secondPiePt"), i);
             writer.writeEndElement();
         }
         if (secondPieSize.has_value())
             writeEmptyElement(writer, QLatin1String("c:secondPieSize"), toST_PercentInt(secondPieSize.value()));
         if (!serLines.isEmpty()) {
-            for (const auto &ser: serLines) {
+            for (const auto &ser: qAsConst(serLines)) {
                 writer.writeStartElement(QLatin1String("c:serLines"));
                 ser.write(writer, QLatin1String("c:spPr"));
                 writer.writeEndElement();
@@ -1585,7 +1594,7 @@ void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:grouping"), s);
     }
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
@@ -1604,7 +1613,7 @@ void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
     }
     if (gapDepth.has_value() && type == Chart::Type::Line3D)
         writeEmptyElement(writer, QLatin1String("c:gapDepth"), toST_PercentInt(gapDepth.value()));
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }
@@ -1626,7 +1635,7 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:grouping"), s);
     }
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
 
     if (gapWidth.has_value())
@@ -1638,7 +1647,7 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         if (overlap.has_value())
             writeEmptyElement(writer, QLatin1String("c:overlap"), toST_PercentInt(overlap.value()));
         if (!serLines.isEmpty()) {
-            for (const auto &ser: serLines) {
+            for (const auto &ser: qAsConst(serLines)) {
                 writer.writeStartElement(QLatin1String("c:serLines"));
                 ser.write(writer, QLatin1String("c:spPr"));
                 writer.writeEndElement();
@@ -1649,7 +1658,7 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         QString s; Series::toString(barShape.value(), s);
         writeEmptyElement(writer, QLatin1String("c:shape"), s);
     }
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }
@@ -1661,9 +1670,9 @@ void CT_XXXChart::saveScatterChart(QXmlStreamWriter &writer) const
     QString s; Chart::toString(scatterStyle, s);
     writeEmptyElement(writer, QLatin1String("c:scatterStyle"), s);
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }
@@ -1672,7 +1681,7 @@ void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:stockChart"));
 
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
     if (dropLines.isValid()) {
         writer.writeStartElement(QLatin1String("c:dropLines"));
@@ -1685,7 +1694,7 @@ void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
         writer.writeEndElement();
     }
     if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }
@@ -1697,9 +1706,9 @@ void CT_XXXChart::saveRadarChart(QXmlStreamWriter &writer) const
     QString s; Chart::toString(radarStyle, s);
     writeEmptyElement(writer, QLatin1String("c:radarStyle"), s);
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
-    for (const auto &ser: seriesList) ser.write(writer);
+    for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
-    for (const auto id: axesIds) writeEmptyElement(writer, QLatin1String("c:axId"), id);
+    for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
 }

@@ -308,7 +308,7 @@ QString convertSharedFormula(const QString &rootFormula, const CellReference &ro
 
     //Replace "A1", "$A1", "A$1" segment with proper one.
     QStringList result;
-    for (const auto &p : segments) {
+    for (const auto &p : qAsConst(segments)) {
         //qDebug()<<p.first<<p.second;
         if (p.second != -1 && p.second != 3) {
             CellReference oldRef(p.first);

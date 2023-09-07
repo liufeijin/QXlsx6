@@ -1375,7 +1375,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement();//sheetData
 
     d->saveXmlMergeCells(writer);
-    for (const ConditionalFormatting &cf : d->conditionalFormattingList)
+    for (const ConditionalFormatting &cf : qAsConst(d->conditionalFormattingList))
         cf.saveToXml(writer);
     d->saveXmlDataValidations(writer);
 
@@ -1622,7 +1622,7 @@ void WorksheetPrivate::saveXmlMergeCells(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("mergeCells"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(merges.size()));
 
-    for (const CellRange &range : merges)
+    for (const CellRange &range : qAsConst(merges))
     {
         writer.writeEmptyElement(QStringLiteral("mergeCell"));
         writer.writeAttribute(QStringLiteral("ref"), range.toString());
@@ -1639,7 +1639,7 @@ void WorksheetPrivate::saveXmlDataValidations(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("dataValidations"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(dataValidationsList.size()));
 
-    for (const DataValidation &validation : dataValidationsList)
+    for (const DataValidation &validation : qAsConst(dataValidationsList))
         validation.saveToXml(writer);
 
     writer.writeEndElement(); //dataValidations
@@ -1842,11 +1842,9 @@ bool Worksheet::setColumnWidth(int colFirst, int colLast, double width)
 {
     Q_D(Worksheet);
 
-    const QList <QSharedPointer<XlsxColumnInfo> > columnInfoList = d->getColumnInfoList(colFirst, colLast);
-    for (const QSharedPointer<XlsxColumnInfo> &columnInfo : columnInfoList)
-    {
+    const auto columnInfoList = d->getColumnInfoList(colFirst, colLast);
+    for (const auto &columnInfo : columnInfoList)
        columnInfo->width = width;
-    }
 
     return (columnInfoList.count() > 0);
 }

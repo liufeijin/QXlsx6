@@ -62,7 +62,7 @@ void Relationships::addWorksheetRelationship(const QString &relativeType, const 
 QList<XlsxRelationship> Relationships::relationships(const QString &type) const
 {
     QList<XlsxRelationship> res;
-    for (const XlsxRelationship &ship : m_relationships) {
+    for (const XlsxRelationship &ship : qAsConst(m_relationships)) {
         if (ship.type == type)
             res.append(ship);
     }
@@ -87,7 +87,7 @@ void Relationships::saveToXmlFile(QIODevice *device) const
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("Relationships"));
     writer.writeAttribute(QStringLiteral("xmlns"), QStringLiteral("http://schemas.openxmlformats.org/package/2006/relationships"));
-    for (const XlsxRelationship &relation : m_relationships) {
+    for (const XlsxRelationship &relation : qAsConst(m_relationships)) {
         writer.writeStartElement(QStringLiteral("Relationship"));
         writer.writeAttribute(QStringLiteral("Id"), relation.id);
         writer.writeAttribute(QStringLiteral("Type"), relation.type);
@@ -144,7 +144,7 @@ bool Relationships::loadFromXmlData(const QByteArray &data)
 
 XlsxRelationship Relationships::getRelationshipById(const QString &id) const
 {
-    for (const XlsxRelationship &ship : m_relationships) {
+    for (const XlsxRelationship &ship : qAsConst(m_relationships)) {
         if (ship.id == id)
             return ship;
     }

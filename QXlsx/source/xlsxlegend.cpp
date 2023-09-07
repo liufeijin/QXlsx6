@@ -222,7 +222,7 @@ void Legend::write(QXmlStreamWriter &writer) const
         QString s; toString(d->pos.value(), s);
         writeEmptyElement(writer, QLatin1String("c:legendPos"), s);
     }
-    for (const auto &e: d->entries) e.write(writer, QLatin1String("c:legendEntry"));
+    for (const auto &e: qAsConst(d->entries)) e.write(writer, QLatin1String("c:legendEntry"));
     d->layout.write(writer, QLatin1String("c:layout"));
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
     if (d->shape.isValid()) d->shape.write(writer, QLatin1String("c:spPr"));

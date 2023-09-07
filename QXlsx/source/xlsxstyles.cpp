@@ -395,7 +395,7 @@ void Styles::writeFonts(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("fonts"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(m_fontsList.count()));
-    for (const auto &font : m_fontsList) {
+    for (const auto &font : qAsConst(m_fontsList)) {
         writeFont(writer, font, false);
     }
     writer.writeEndElement();//fonts
@@ -487,7 +487,7 @@ void Styles::writeFills(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("fills"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(m_fillsList.size()));
 
-    for (const auto &fill : m_fillsList) {
+    for (const auto &fill : qAsConst(m_fillsList)) {
         writeFill(writer, fill);
     }
 
@@ -547,7 +547,7 @@ void Styles::writeBorders(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("borders"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(m_bordersList.count()));
 
-    for (const auto &border : m_bordersList) {
+    for (const auto &border : qAsConst(m_bordersList)) {
         writeBorder(writer, border);
     }
 
@@ -621,7 +621,7 @@ void Styles::writeCellXfs(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("cellXfs"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(m_xf_formatsList.size()));
-    for (const Format &format : m_xf_formatsList) {
+    for (const Format &format : qAsConst(m_xf_formatsList)) {
         int xf_id = 0;
         writer.writeStartElement(QStringLiteral("xf"));
         writer.writeAttribute(QStringLiteral("numFmtId"), QString::number(format.numberFormatIndex()));
@@ -707,7 +707,7 @@ void Styles::writeDxfs(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("dxfs"));
     writer.writeAttribute(QStringLiteral("count"), QString::number(m_dxf_formatsList.size()));
-    for (const Format &format : m_dxf_formatsList)
+    for (const Format &format : qAsConst(m_dxf_formatsList))
         writeDxf(writer, format);
     writer.writeEndElement(); //dxfs
 }
@@ -742,7 +742,7 @@ void Styles::writeColors(QXmlStreamWriter &writer) const
     writer.writeStartElement(QStringLiteral("colors"));
 
     writer.writeStartElement(QStringLiteral("indexedColors"));
-    for (const QColor &color : m_indexedColors) {
+    for (const QColor &color : qAsConst(m_indexedColors)) {
         writer.writeEmptyElement(QStringLiteral("rgbColor"));
         writer.writeAttribute(QStringLiteral("rgb"), Color::toARGBString(color));
     }

@@ -178,7 +178,7 @@ void FillFormatPrivate::parse(const QBrush &brush)
             const auto gradient = brush.gradient();
             if (gradient->type() == QGradient::LinearGradient) {
                 auto mode = gradient->coordinateMode();
-                auto stops = gradient->stops();
+                const auto stops = gradient->stops();
                 auto spread = gradient->spread();
                 auto start = static_cast<const QLinearGradient*>(gradient)->start();
                 auto end = static_cast<const QLinearGradient*>(gradient)->finalStop();

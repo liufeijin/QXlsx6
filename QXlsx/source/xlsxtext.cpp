@@ -122,7 +122,7 @@ void TextFormat::readParagraph(QXmlStreamReader &reader)
 
 void TextFormat::writeParagraphs(QXmlStreamWriter &writer) const
 {
-    for (const auto &p: d->paragraphs)
+    for (const auto &p: qAsConst(d->paragraphs))
         p.write(writer, QLatin1String("a:p"));
 }
 
@@ -141,7 +141,7 @@ QString TextFormat::toPlainString() const
 {
     QStringList result;
     if (d) {
-        for (const auto &p: d->paragraphs) result << p.toPlainString();
+        for (const auto &p: qAsConst(d->paragraphs)) result << p.toPlainString();
     }
     return result.join("\n");
 }
@@ -910,7 +910,7 @@ void Text::writeStringReference(QXmlStreamWriter &writer, const QString &name) c
         writer.writeStartElement(QLatin1String("c:strCashe"));
         writer.writeEmptyElement(QLatin1String("c:ptCount"));
         writer.writeAttribute(QLatin1String("val"), QString::number(d->cashe.size()));
-        for (const QString &s: d->cashe) {
+        for (const QString &s: qAsConst(d->cashe)) {
             writer.writeStartElement(QLatin1String("c:pt"));
             writer.writeTextElement(QLatin1String("c:v"), s);
             writer.writeEndElement(); //c:pt
@@ -1670,7 +1670,7 @@ void ParagraphProperties::writeTabStops(QXmlStreamWriter &writer, const QString 
 {
     if (tabStops.isEmpty()) return;
     writer.writeStartElement(name); //
-    for (const auto &p: tabStops) {
+    for (const auto &p: qAsConst(tabStops)) {
         writer.writeEmptyElement(QLatin1String("a:tab"));
         writer.writeAttribute(QLatin1String("pos"), p.first.toString());
         QString s;
@@ -1721,7 +1721,7 @@ ParagraphProperties ParagraphProperties::from(const QTextBlock &block)
         //    std::optional<TextCharacterProperties> defaultTextCharacterProperties;
 
         if (paragraphFormat.hasProperty(QTextFormat::TabPositions)) {
-            auto tabPositions = paragraphFormat.tabPositions();
+            const auto tabPositions = paragraphFormat.tabPositions();
             for (auto &tab : tabPositions) {
                 TabAlign alg = TabAlign::Left;
                 if (tab.type == QTextOption::RightTab) alg = TabAlign::Right;
@@ -1858,7 +1858,7 @@ void Paragraph::write(QXmlStreamWriter &writer, const QString &name) const
 
     writer.writeStartElement(name);
     if (paragraphProperties.has_value()) paragraphProperties->write(writer, QLatin1String("a:pPr"));
-    for (const auto &p: textRuns) p.write(writer);
+    for (const auto &p: qAsConst(textRuns)) p.write(writer);
     if (endParagraphDefaultCharacterProperties.has_value())
         endParagraphDefaultCharacterProperties->write(writer, QLatin1String("a:endParaRPr"));
     writer.writeEndElement(); //name
@@ -1873,7 +1873,7 @@ bool Paragraph::isValid() const
 QString Paragraph::toPlainString() const
 {
     QString result;
-    for (const auto &r: textRuns) {
+    for (const auto &r: qAsConst(textRuns)) {
         switch (r.type) {
             case TextRun::Type::Regular: result.append(r.text); break;
             case TextRun::Type::LineBreak: result.append("\n"); break;

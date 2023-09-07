@@ -125,7 +125,7 @@ bool RichString::isNull() const
  */
 bool RichString::isEmtpy() const
 {
-    for (const auto& str : d->fragmentTexts) {
+    for (const auto& str : qAsConst(d->fragmentTexts)) {
         if (!str.isEmpty())
             return false;
     }

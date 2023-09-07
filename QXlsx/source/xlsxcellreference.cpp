@@ -45,7 +45,7 @@ int col_from_name(const QString &col_str)
 {
     int col = 0;
     int expn = 0;
-    for (int i=col_str.size()-1; i>-1; --i) {
+    for (int i=col_str.size()-1; i>=0; --i) {
         col += (col_str[i].unicode() - 'A' + 1) * intPow(26, expn);
         expn++;
     }

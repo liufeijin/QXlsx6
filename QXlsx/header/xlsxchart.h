@@ -285,7 +285,7 @@ public:
     /**
      * @brief sets line format to the chart space (the outer area of the chart).
      *
-     * This is a convevience method, equivalent to ```chartShape()->setLineFormat(format)```
+     * This is a convenience method, equivalent to ```chartShape()->setLineFormat(format)```
      * @param format
      */
     void setChartLineFormat(const LineFormat &format);
@@ -293,7 +293,7 @@ public:
      * @brief sets line format to the plot area (the inner area of the chart
      * where actual plotting occurs).
      *
-     * This is a convevience method, equivalent to ```plotAreaShape()->setLineFormat(format)```
+     * This is a convenience method, equivalent to ```plotAreaShape()->setLineFormat(format)```
      * @param format
      */
     void setPlotAreaLineFormat(const LineFormat &format);
@@ -576,6 +576,13 @@ public:
      * in some series).
      */
     bool removeAxis(Axis *axis);
+    /**
+     * @brief removes all axes defined in the chart.
+     * This method removes all axes defined in the chart and clears the series references to the axes.
+     * After that until you add the required axes and set these axes for the chart series
+     * the chart is ill-formed.
+     */
+    void removeAxes();
     /**
      * @brief returns the list of series that use axis with #axisID.
      * @param axisID axis ID (_not axis index!_). @see Axis::id().

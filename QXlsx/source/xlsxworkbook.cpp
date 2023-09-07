@@ -522,7 +522,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
 
     if (!d->definedNamesList.isEmpty()) {
         writer.writeStartElement(QStringLiteral("definedNames"));
-        for (const XlsxDefineNameData &data : d->definedNamesList) {
+        for (const XlsxDefineNameData &data : qAsConst(d->definedNamesList)) {
             writer.writeStartElement(QStringLiteral("definedName"));
             writer.writeAttribute(QStringLiteral("name"), data.name);
             if (!data.comment.isEmpty())
