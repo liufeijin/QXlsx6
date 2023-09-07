@@ -64,9 +64,9 @@ public:
     int table_count;
 
     //Used to generate new sheet name and id
-    int lastWorksheet_index;
-    int lastChartsheet_index;
-    int last_sheet_id;
+    int lastWorksheetIndex = 0;
+    int lastChartsheetIndex = 0;
+    int lastSheetId = 0;
 };
 
 }

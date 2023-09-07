@@ -56,10 +56,21 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
 
 Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
 {
-    //Todo
-    Q_UNUSED(distName)
-    Q_UNUSED(distId)
-    return 0;
+    Q_D(const Chartsheet);
+    Chartsheet *sheet = new Chartsheet(distName, distId, d->workbook, F_NewFromScratch);
+    ChartsheetPrivate *sheet_d = sheet->d_func();
+
+    *sheet_d->chart = *d->chart;
+    sheet_d->sheetState = d->sheetState;
+    sheet_d->type = d->type;
+    sheet_d->headerFooter = d->headerFooter;
+    sheet_d->pageMargins = d->pageMargins;
+    sheet_d->pageSetup = d->pageSetup;
+    sheet_d->pictureFile = d->pictureFile;
+    sheet_d->sheetProtection = d->sheetProtection;
+    sheet_d->extLst = d->extLst;
+
+    return sheet;
 }
 
 Chartsheet::~Chartsheet()

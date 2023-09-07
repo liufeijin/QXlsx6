@@ -11,31 +11,32 @@ QXLSX_USE_NAMESPACE
 
 int chartsheet()
 {
-    //![0]
     Document xlsx;
     for (int i=1; i<10; ++i)
-    {
         xlsx.write(i, 1, i*i);
-    }
-    //![0]
 
-    //![1]
+
+    //Add the first chartsheet
     xlsx.addSheet("Chart1", AbstractSheet::Type::Chartsheet);
     Chartsheet *sheet = static_cast<Chartsheet*>(xlsx.currentSheet());
     Chart *barChart = sheet->chart();
     barChart->setType(Chart::Type::Bar);
     barChart->addSeries(CellRange("A1:A9"), xlsx.sheet("Sheet1"));
-    //![1]
+    barChart->setTitle("Chart #1");
 
-    //![2]
+    //Testing the copy of the 1st chartsheet
+    xlsx.copySheet("Chart1","Chart2");
+    sheet = static_cast<Chartsheet*>(xlsx.sheet("Chart2"));
+    barChart = sheet->chart();
+    barChart->setTitle("Chart #2");
+
+    //Saving result
     xlsx.saveAs("chartsheet1.xlsx");
-    //![2]
 
+    //Testing load result
     Document xlsx2("chartsheet1.xlsx");
-    if ( xlsx2.load() )
-    {
+    if (xlsx2.load())
         xlsx2.saveAs("chartsheet2.xlsx");
-    }
 
     return 0;
 }

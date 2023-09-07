@@ -358,7 +358,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     for (int i=0; i<chartsheets.size(); ++i)
     {
         QSharedPointer<AbstractSheet> sheet = chartsheets[i];
-        contentTypes->addWorksheetName(QStringLiteral("sheet%1").arg(i+1));
+        contentTypes->addChartsheetName(QStringLiteral("sheet%1").arg(i+1));
         docPropsApp.addPartTitle(sheet->name());
 
         zipWriter.addFile(QStringLiteral("xl/chartsheets/sheet%1.xml").arg(i+1), sheet->saveToXmlData());

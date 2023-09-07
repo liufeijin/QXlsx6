@@ -146,6 +146,7 @@ namespace QXlsx {
     public:
         ChartPrivate(Chart *q, Chart::CreateFlag flag);
         ~ChartPrivate();
+        ChartPrivate &operator=(const ChartPrivate &other);
 
     public:
         bool loadXmlChart(QXmlStreamReader &reader);
@@ -210,6 +211,45 @@ ChartPrivate::~ChartPrivate()
 {
 }
 
+ChartPrivate &ChartPrivate::operator=(const ChartPrivate &other)
+{
+    chartType = other.chartType;
+    date1904 = other.date1904;
+    language = other.language;
+    roundedCorners = other.roundedCorners;
+    styleID = other.styleID; //1..48
+    //colorMappingOverwrite = other.colorMappingOverwrite;
+    //pivotSource = other.pivotSource;
+    //protection = other.protection;
+    chartSpaceShape = other.chartSpaceShape;
+    textProperties = other.textProperties;
+    //externalData = other.externalData;
+    //printSettings = other.printSettings;
+    //userShapes = other.userShapes;
+    chartSpaceExtList = other.chartSpaceExtList;
+
+    title = other.title;
+    autoTitleDeleted = other.autoTitleDeleted;
+    //pivotFormats = other.pivotFormats;
+    //view3D = other.view3D;
+    //floor = other.floor;
+    //sideWall = other.sideWall;
+    //backWall = other.backWall;
+    legend = other.legend;
+    plotVisOnly = other.plotVisOnly;
+    dispBlanksAs = other.dispBlanksAs;
+    showDLblsOverMax = other.showDLblsOverMax;
+    chartExtList = other.chartExtList;
+
+    layout = other.layout;
+    subcharts = other.subcharts;
+    axisList = other.axisList;
+    dTable = other.dTable;
+    plotAreaShape = other.plotAreaShape;
+    plotAreaExtList = other.plotAreaExtList;
+    return *this;
+}
+
 /*!
  * \internal
  */
@@ -219,6 +259,13 @@ Chart::Chart(AbstractSheet *parent, CreateFlag flag)
     Q_D(Chart);
 
     d->sheet = parent;
+}
+
+Chart &Chart::operator=(const Chart &other)
+{
+    Q_D(Chart);
+    *d = *other.d_func();
+    return *this;
 }
 
 Chart::~Chart()
@@ -968,8 +1015,8 @@ bool Chart::loadFromXmlFile(QIODevice *device)
 
     QXmlStreamReader reader(device);
     while (!reader.atEnd()) {
-        reader.readNextStartElement();
-        if (reader.tokenType() == QXmlStreamReader::StartElement) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("chart")) {
                 if (!d->loadXmlChart(reader))
@@ -1011,7 +1058,6 @@ bool Chart::loadFromXmlFile(QIODevice *device)
             }
             else if (reader.name() == QLatin1String("extLst"))
                 d->chartSpaceExtList.read(reader);
-            else reader.skipCurrentElement();
         }
     }
 
@@ -2529,3 +2575,4 @@ bool DataTable::isValid() const
 
 
 }
+

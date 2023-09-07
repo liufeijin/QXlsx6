@@ -43,10 +43,6 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag) :
     activesheetIndex = 0;
     firstsheet = 0;
     table_count = 0;
-
-    lastWorksheet_index = 0;
-    lastChartsheet_index = 0;
-    last_sheet_id = 0;
 }
 
 Workbook::Workbook(CreateFlag flag)
@@ -189,40 +185,37 @@ QStringList Workbook::worksheetNames() const
 AbstractSheet *Workbook::addSheet(const QString &name, int sheetId, AbstractSheet::Type type)
 {
     Q_D(Workbook);
-    if (sheetId > d->last_sheet_id)
-        d->last_sheet_id = sheetId;
+    if (sheetId > d->lastSheetId)
+        d->lastSheetId = sheetId;
 
-    AbstractSheet *sheet = NULL;
-    if (type == AbstractSheet::Type::Worksheet)
-    {
-        // create work sheet (value sheet)
-        sheet = new Worksheet(name, sheetId, this, F_LoadFromExists);
-    }
-    else if (type == AbstractSheet::Type::Chartsheet)
-    {
-        // create chart sheet
-        sheet = new Chartsheet(name, sheetId, this, F_LoadFromExists);
-    }
-    else
-    {
-        qWarning("unsupported sheet type.");
-        Q_ASSERT(false);
+    AbstractSheet *sheet = nullptr;
+    switch (type) {
+        case AbstractSheet::Type::Worksheet:
+           sheet = new Worksheet(name, sheetId, this, F_LoadFromExists); break;
+        case AbstractSheet::Type::Chartsheet:
+           sheet = new Chartsheet(name, sheetId, this, F_LoadFromExists); break;
+        default: {
+            qWarning("unsupported sheet type.");
+            break;
+        }
     }
 
-    d->sheets.append(QSharedPointer<AbstractSheet>(sheet));
-    d->sheetNames.append(name);
-
+    if (sheet) {
+        d->sheets.append(QSharedPointer<AbstractSheet>(sheet));
+        d->sheetNames.append(name);
+    }
     return sheet;
 }
 
 AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractSheet::Type type)
 {
     Q_D(Workbook);
-    QString sheetName = createSafeSheetName(name);
-    if (index > d->last_sheet_id){
+    if (index > d->lastSheetId){
         //User tries to insert, where no sheet has gone before.
-        return 0;
+        return nullptr;
     }
+    QString sheetName = createSafeSheetName(name);
+
     if (!sheetName.isEmpty()) {
         //If user given an already in-used name, we should not continue any more!
         if (d->sheetNames.contains(sheetName))
@@ -230,13 +223,13 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
     } else {
         if (type == AbstractSheet::Type::Worksheet) {
             do {
-                ++d->lastWorksheet_index;
-                sheetName = QStringLiteral("Sheet%1").arg(d->lastWorksheet_index);
+                ++d->lastWorksheetIndex;
+                sheetName = QStringLiteral("Sheet%1").arg(d->lastWorksheetIndex);
             } while (d->sheetNames.contains(sheetName));
         } else if (type == AbstractSheet::Type::Chartsheet) {
             do {
-                ++d->lastChartsheet_index;
-                sheetName = QStringLiteral("Chart%1").arg(d->lastChartsheet_index);
+                ++d->lastChartsheetIndex;
+                sheetName = QStringLiteral("Chart%1").arg(d->lastChartsheetIndex);
             } while (d->sheetNames.contains(sheetName));
         } else {
             qWarning("unsupported sheet type.");
@@ -244,16 +237,16 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
         }
     }
 
-    ++d->last_sheet_id;
+    ++d->lastSheetId;
 
     AbstractSheet *sheet = NULL;
     if ( type == AbstractSheet::Type::Worksheet )
     {
-        sheet = new Worksheet(sheetName, d->last_sheet_id, this, F_NewFromScratch);
+        sheet = new Worksheet(sheetName, d->lastSheetId, this, F_NewFromScratch);
     }
     else if ( type == AbstractSheet::Type::Chartsheet )
     {
-        sheet = new Chartsheet(sheetName, d->last_sheet_id, this, F_NewFromScratch);
+        sheet = new Chartsheet(sheetName, d->lastSheetId, this, F_NewFromScratch);
     }
     else
     {
@@ -369,8 +362,8 @@ bool Workbook::copySheet(int index, const QString &newName)
         } while (d->sheetNames.contains(worksheetName));
     }
 
-    ++d->last_sheet_id;
-    AbstractSheet *sheet = d->sheets[index]->copy(worksheetName, d->last_sheet_id);
+    ++d->lastSheetId;
+    AbstractSheet *sheet = d->sheets[index]->copy(worksheetName, d->lastSheetId);
     d->sheets.append(QSharedPointer<AbstractSheet> (sheet));
     d->sheetNames.append(sheet->name());
 

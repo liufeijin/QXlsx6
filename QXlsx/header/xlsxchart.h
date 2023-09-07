@@ -246,6 +246,7 @@ private:
     });
 private:
     Chart(AbstractSheet *parent, CreateFlag flag);
+    Chart &operator=(const Chart &other);
 public:
     /*!
      * Destroys the chart.
