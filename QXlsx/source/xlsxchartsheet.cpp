@@ -90,6 +90,10 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeAttribute(QStringLiteral("workbookViewId"), QString::number(0));
     writer.writeAttribute(QStringLiteral("zoomToFit"), QStringLiteral("1"));
     writer.writeEndElement(); //sheetViews
+
+    //sheet protection
+    if (d->sheetProtection.has_value()) d->sheetProtection->write(writer, true);
+
     d->pageMargins.write(writer);
     d->pageSetup.write(writer, true);
     d->headerFooter.write(writer);
@@ -122,6 +126,11 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
 
                 d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
                 d->drawing->setFilePath(path);
+            }
+            else if (reader.name() == QLatin1String("sheetProtection")) {
+                SheetProtection s;
+                s.read(reader);
+                d->sheetProtection = s;
             }
             else if (reader.name() == QLatin1String("pageMargins"))
                 d->pageMargins.read(reader);

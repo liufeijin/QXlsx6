@@ -224,6 +224,66 @@ QImage AbstractSheet::backgroundImage() const
     return pic;
 }
 
+SheetProtection AbstractSheet::sheetProtection() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetProtection.value_or(SheetProtection());
+}
+
+SheetProtection &AbstractSheet::sheetProtection()
+{
+    Q_D(AbstractSheet);
+    if (!d->sheetProtection.has_value()) d->sheetProtection = SheetProtection();
+    return d->sheetProtection.value();
+}
+
+void AbstractSheet::setSheetProtection(const SheetProtection &sheetProtection)
+{
+    Q_D(AbstractSheet);
+    d->sheetProtection = sheetProtection;
+    d->sheetProtection->protectSheet = true;
+}
+
+bool AbstractSheet::isSheetProtected() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetProtection.has_value() && d->sheetProtection.value().isValid();
+}
+
+bool AbstractSheet::isPasswordProtectionSet() const
+{
+    Q_D(const AbstractSheet);
+    if (d->sheetProtection.has_value()) {
+        const auto &s = d->sheetProtection.value();
+        return !s.algorithmName.isEmpty() and !s.hashValue.isEmpty();
+    }
+    return false;
+}
+
+void AbstractSheet::setPassword(const QString &algorithm, const QString &hash, const QString &salt, int spinCount)
+{
+    Q_D(AbstractSheet);
+    if (!d->sheetProtection.has_value()) d->sheetProtection = SheetProtection();
+    d->sheetProtection->algorithmName = algorithm;
+    d->sheetProtection->hashValue = hash;
+    d->sheetProtection->protectSheet = true;
+    d->sheetProtection->saltValue = salt;
+    d->sheetProtection->spinCount = spinCount;
+}
+
+void AbstractSheet::setDefaultSheetProtection()
+{
+    Q_D(AbstractSheet);
+    d->sheetProtection = SheetProtection();
+    d->sheetProtection->protectSheet = true;
+}
+
+void AbstractSheet::removeSheetProtection()
+{
+    Q_D(AbstractSheet);
+    d->sheetProtection.reset();
+}
+
 /*!
  * \internal
  */
@@ -635,6 +695,84 @@ void PageSetup::readPaperSize(QXmlStreamReader &reader)
         else
             paperSize = PaperSize::Unknown;
     }
+}
+
+bool SheetProtection::isValid() const
+{
+    if (!algorithmName.isEmpty()) return true;
+    if (!hashValue.isEmpty()) return true;
+    if (!saltValue.isEmpty()) return true;
+    if (spinCount.has_value()) return true;
+    if (protectContent.has_value()) return true;
+    if (protectObjects.has_value()) return true;
+    if (protectSheet.has_value()) return true;
+    if (protectScenarios.has_value()) return true;
+    if (protectFormatCells.has_value()) return true;
+    if (protectFormatColumns.has_value()) return true;
+    if (protectFormatRows.has_value()) return true;
+    if (protectInsertColumns.has_value()) return true;
+    if (protectInsertRows.has_value()) return true;
+    if (protectInsertHyperlinks.has_value()) return true;
+    if (protectDeleteColumns.has_value()) return true;
+    if (protectDeleteRows.has_value()) return true;
+    if (protectSelectLockedCells.has_value()) return true;
+    if (protectSort.has_value()) return true;
+    if (protectAutoFilter.has_value()) return true;
+    if (protectPivotTables.has_value()) return true;
+    if (protectSelectUnlockedCells.has_value()) return true;
+    return false;
+}
+
+void SheetProtection::write(QXmlStreamWriter &writer, bool chartsheet) const
+{
+    writer.writeEmptyElement(QLatin1String("sheetProtection"));
+    writeAttribute(writer, QLatin1String("algorithmName"), algorithmName);
+    writeAttribute(writer, QLatin1String("hashValue"), hashValue);
+    writeAttribute(writer, QLatin1String("saltValue"), saltValue);
+    writeAttribute(writer, QLatin1String("spinCount"), spinCount);
+    if (chartsheet) writeAttribute(writer, QLatin1String("content"), protectContent);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("sheet"), protectSheet);
+    writeAttribute(writer, QLatin1String("objects"), protectObjects);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("scenarios"), protectScenarios);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("formatCells"), protectFormatCells);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("formatColumns"), protectFormatColumns);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("formatRows"), protectFormatRows);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("insertColumns"), protectInsertColumns);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("insertRows"), protectInsertRows);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("insertHyperlinks"), protectInsertHyperlinks);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("deleteColumns"), protectDeleteColumns);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("deleteRows"), protectDeleteRows);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("selectLockedCells"), protectSelectLockedCells);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("sort"), protectSort);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("autoFilter"), protectAutoFilter);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("pivotTables"), protectPivotTables);
+    if (!chartsheet) writeAttribute(writer, QLatin1String("selectUnlockedCells"), protectSelectUnlockedCells);
+}
+
+void SheetProtection::read(QXmlStreamReader &reader)
+{
+    const auto &a = reader.attributes();
+    parseAttributeString(a, QLatin1String("algorithmName"), algorithmName);
+    parseAttributeString(a, QLatin1String("hashValue"), hashValue);
+    parseAttributeString(a, QLatin1String("saltValue"), saltValue);
+    parseAttributeInt(a, QLatin1String("spinCount"), spinCount);
+    parseAttributeBool(a, QLatin1String("content"), protectContent);
+    parseAttributeBool(a, QLatin1String("sheet"), protectSheet);
+    parseAttributeBool(a, QLatin1String("objects"), protectObjects);
+    parseAttributeBool(a, QLatin1String("scenarios"), protectScenarios);
+    parseAttributeBool(a, QLatin1String("formatCells"), protectFormatCells);
+    parseAttributeBool(a, QLatin1String("formatColumns"), protectFormatColumns);
+    parseAttributeBool(a, QLatin1String("formatRows"), protectFormatRows);
+    parseAttributeBool(a, QLatin1String("insertColumns"), protectInsertColumns);
+    parseAttributeBool(a, QLatin1String("insertRows"), protectInsertRows);
+    parseAttributeBool(a, QLatin1String("insertHyperlinks"), protectInsertHyperlinks);
+    parseAttributeBool(a, QLatin1String("deleteColumns"), protectDeleteColumns);
+    parseAttributeBool(a, QLatin1String("deleteRows"), protectDeleteRows);
+    parseAttributeBool(a, QLatin1String("selectLockedCells"), protectSelectLockedCells);
+    parseAttributeBool(a, QLatin1String("sort"), protectSort);
+    parseAttributeBool(a, QLatin1String("autoFilter"), protectAutoFilter);
+    parseAttributeBool(a, QLatin1String("pivotTables"), protectPivotTables);
+    parseAttributeBool(a, QLatin1String("selectUnlockedCells"), protectSelectUnlockedCells);
 }
 
 }

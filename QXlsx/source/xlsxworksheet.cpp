@@ -1374,6 +1374,9 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
         d->saveXmlSheetData(writer);
     writer.writeEndElement();//sheetData
 
+    //sheet protection
+    if (d->sheetProtection.has_value()) d->sheetProtection->write(writer);
+
     d->saveXmlMergeCells(writer);
     for (const ConditionalFormatting &cf : qAsConst(d->conditionalFormattingList))
         cf.saveToXml(writer);
@@ -2669,6 +2672,11 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
             else if (reader.name() == QLatin1String("sheetData"))
             {
                 d->loadXmlSheetData(reader);
+            }
+            else if (reader.name() == QLatin1String("sheetProtection")) {
+                SheetProtection s;
+                s.read(reader);
+                d->sheetProtection = s;
             }
             else if (reader.name() == QLatin1String("mergeCells"))
             {

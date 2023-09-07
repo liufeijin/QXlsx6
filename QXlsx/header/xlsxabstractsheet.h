@@ -193,6 +193,10 @@ private:
 
 /**
  * @brief The PageSetup class represents paper parameters when printing the sheet.
+ *
+ * Not all parameters are applicable to chartsheets. See the description of parameters.
+ * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
+ * when saving the document.
  */
 //TODO: setCustomPrinter via relations (printerId)
 class QXLSX_EXPORT PageSetup
@@ -515,6 +519,223 @@ private:
     void readPaperSize(QXmlStreamReader &reader);
 };
 
+/**
+ * @brief The SheetProtection class specifies the sheet protection parameters for worksheets
+ * and chartsheets.
+ *
+ * Not all parameters are applicable to chartsheets. See the description of parameters.
+ * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
+ * when saving the document.
+ */
+class SheetProtection
+{
+public:
+    /**
+     * @brief Specifies the specific cryptographic hashing algorithm which shall
+     * be used along with the salt attribute and input password in order to
+     * compute the hash value.
+     *
+     * This is an optional parameter. If algorithmName is empty, it will not be stored in the doc.
+     *
+     * The following names are reserved:
+     *
+     * Algorithm | Description
+     * ----|----
+     * MD2   |Specifies that the MD2 algorithm, as defined by RFC 1319, shall be used.
+     * MD4 |  Specifies that the MD4 algorithm, as defined by RFC 1320, shall be used.
+     * MD5 | Specifies that the MD5 algorithm, as defined by RFC 1321, shall be used.
+     * RIPEMD-128 | Specifies that the RIPEMD-128 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * RIPEMD-160 | Specifies that the RIPEMD-160 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-1 | Specifies that the SHA-1 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-256 | Specifies that the SHA-256 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-384 | Specifies that the SHA-384 algorithm, as defined by ISO/IEC 10118-3:2004  shall be used.
+     * SHA-512 | Specifies that the SHA-512 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * WHIRLPOOL | Specifies that the WHIRLPOOL algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     */
+    QString algorithmName;
+    /**
+     * @brief Specifies the hash value for the password required to edit this
+     * worksheet.
+     *
+     * This value shall be compared with the resulting hash value after hashing
+     * the user-supplied password using the #algorithmName, and if the two values
+     * match, the protection shall no longer be enforced.
+     *
+     * hashValue is specified as a base64 string.
+     *
+     * This is an optional parameter. If hashValue is empty, it will not be stored in the doc.
+     */
+    QString hashValue;
+    /**
+     * @brief Specifies the salt which was prepended to the user-supplied
+     * password before it was hashed using #algorithmName to generate #hashValue,
+     * and which shall also be prepended to the user-supplied password before
+     * attempting to generate a hash value for comparison.
+     *
+     * A salt is a random string which is added to a user-supplied password
+     * before it is hashed in order to prevent a malicious party from
+     * pre-calculating all possible password/hash combinations and simply using
+     * those pre-calculated values (often referred to as a "dictionary attack").
+     *
+     * saltValue is specified as a base64 string.
+     *
+     * This is an optional parameter. If saltValue is empty, it will not be stored in the doc.
+     */
+    QString saltValue;
+    /**
+     * @brief Specifies the number of times the hashing function shall be
+     * iteratively run (runs using each iteration's result plus a 4 byte value
+     * (0-based, little endian) containing the number of the iteration as the
+     * input for the next iteration) when attempting to compare a user-supplied
+     * password with the value stored in #hashValue.
+     */
+    std::optional<int> spinCount;
+    /**
+     * @brief Specifies whether editing of sheet content should not be allowed when the chartsheet is protected.
+     *
+     * If not set, the default value is false.
+     * @note This parameter is only applicable to chartsheets.
+     */
+    std::optional<bool> protectContent;
+    /**
+     * @brief Specifies whether editing of objects should not be allowed when the sheet is protected.
+     *
+     * If not set, the default value is false.
+     */
+    std::optional<bool> protectObjects;
+    /**
+     * @brief This parameter dictates whether the other attributes of
+     * SheetProtection should be applied.
+     *
+     * If true then the other parameters of SheetProtection should be applied.
+     * If false then the other parameters of SheetProtection should not be applied.
+     *
+     * If not set, the default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     *
+     */
+    std::optional<bool> protectSheet;
+    /**
+     * @brief Specifies whether editing of scenarios should not be allowed when
+     * the sheet is protected.
+     *
+     * If not set, the default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectScenarios;
+    /**
+     * @brief Specifies whether editing of cells formattins should not be
+     * allowed when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectFormatCells;
+    /**
+     * @brief Specifies whether editing of columns formatting should not be
+     * allowed when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectFormatColumns;
+    /**
+     * @brief Specifies whether editing of rows formatting should not be allowed
+     * when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectFormatRows;
+    /**
+     * @brief Specifies whether inserting of columns should not be allowed when
+     * the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectInsertColumns;
+    /**
+     * @brief Specifies whether inserting of rows should not be allowed when the
+     * sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectInsertRows;
+    /**
+     * @brief Specifies whether inserting of hyperlinks should not be allowed
+     * when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectInsertHyperlinks;
+    /**
+     * @brief Specifies whether deleting of columns should not be allowed when
+     * the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectDeleteColumns;
+    /**
+     * @brief Specifies whether deleting of rows should not be allowed when the
+     * sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectDeleteRows;
+    /**
+     * @brief Specifies whether selection of locked cells should not be allowed
+     * when the sheet is protected.
+     *
+     * If not set, the default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectSelectLockedCells;
+    /**
+     * @brief Specifies whether sorting should not be allowed when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectSort;
+    /**
+     * @brief Specifies whether applying autofilters should not be allowed when
+     * the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectAutoFilter;
+    /**
+     * @brief Specifies whether operating pivot tables should not be allowed
+     * when the sheet is protected.
+     *
+     * If not set, the default value is true.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectPivotTables;
+    /**
+     * @brief Specifies whether selection of unlocked cells should not be
+     * allowed when the sheet is protected.
+     *
+     * If not set, the default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> protectSelectUnlockedCells;
+
+    /**
+     * @brief returns whether any of protection parameters are set.
+     * @return
+     */
+    bool isValid() const;
+    void write(QXmlStreamWriter &writer, bool chartsheet = false) const;
+    void read(QXmlStreamReader &reader);
+};
+
 class Workbook;
 class Drawing;
 class AbstractSheetPrivate;
@@ -650,6 +871,59 @@ public:
      */
     void setBackgroundImage(const QString &fileName);
     QImage backgroundImage() const;
+
+
+    /**
+     * @brief returns the sheet protection parameters
+     * @return
+     */
+    SheetProtection sheetProtection() const;
+    /**
+     * @brief returns the sheet protection parameters.
+     * @return
+     */
+    SheetProtection &sheetProtection();
+    /**
+     * @brief sets the sheet protection parameters.
+     * @param sheetProtection
+     */
+    void setSheetProtection(const SheetProtection &sheetProtection);
+    /**
+     * @brief returns whether the sheet is protected.
+     * @return
+     */
+    bool isSheetProtected() const;
+    /**
+     * @brief returns whether the sheet is protected with password.
+     * @return true if both SheetProtection::algorithmName and SheetProtection::hashValue
+     * parameters are set in #sheetProtection(), false otherwise.
+     */
+    bool isPasswordProtectionSet() const;
+    /**
+     * @brief sets the password protection to the sheet.
+     * @param algorithm a string that describes the hashing algorithm used.
+     * See #SheetProtection::algorithmName for some reserved values.
+     * @param hash a string that contains the hashed password in a base64 form.
+     * @param salt a string that contains the salt in a base64 form.
+     * @param spinCount count of iterations to compute the password hash.
+     *
+     * The actual hashing should be done outside this library.
+     * See QCryptographicHash and QPasswordDigestor.
+     */
+    void setPassword(const QString &algorithm, const QString &hash, const QString &salt = QString(), int spinCount = 1);
+    /**
+     * @brief sets the default sheet protection parameters.
+     *
+     * This method sets the default protection parameters to the sheet.
+     * @see SheetProtection class description for the default values.
+     * @note This method deletes the previous sheet protection parameters.
+     */
+    void setDefaultSheetProtection();
+    /**
+     * @brief deletes any sheet protection parameters that has been set, including the
+     * default ones.
+     */
+    void removeSheetProtection();
 
 protected:
     friend class Workbook;
