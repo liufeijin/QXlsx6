@@ -19,7 +19,7 @@
 namespace QXlsx {
 
 class FillFormatPrivate;
-
+class Workbook;
 /**
  * @brief Sets fill properties for lines, shapes etc.
  */
@@ -38,12 +38,14 @@ public:
         PatternFill, /**< @brief line or shape is filled with a predefined pattern */
         GroupFill  /**< @brief shape inherits the fill properties of a group (not applicable to lines)*/
     };
+    //TODO: doc
     enum class PathShadeType
     {
         Shape,
         Circle,
         Rectangle
     };
+    //TODO: doc
     enum class TileFlipMode
     {
         None,
@@ -51,6 +53,7 @@ public:
         Y,
         XY
     };
+    //TODO: doc
     enum class PatternType
     {
         Percent5,
@@ -109,6 +112,20 @@ public:
         ZigZag,
     };
 
+    /**
+     * @brief The BlipCompression enum specifies the amount of compression that
+     * has been used for a fill image or picture.
+     */
+    enum class BlipCompression
+    {
+        None, /**< No compression was used (default) */
+        Email, /**< Compression size suitable for inclusion with email */
+        Screen, /**< Compression size suitable for viewing on screen */
+        Print, /**< Compression size suitable for printing */
+        HqPrint /**< Compression size suitable for high quality printing */
+    };
+
+    //TODO: doc
     FillFormat();
     explicit FillFormat(FillType type);
     FillFormat(const QBrush &brush);
@@ -189,9 +206,12 @@ public:
 
     /**
      * @brief returns the type of the path gradient.
-     * @return
      */
     std::optional<PathShadeType> pathShadeType() const;
+    /**
+     * @brief sets the type of the path gradient.
+     * @param pathShadeType type of the path gradient.
+     */
     void setPathShadeType(PathShadeType pathShadeType);
 
     /**
@@ -240,15 +260,49 @@ public:
     void setRotateWithShape(bool val);
 
     /* Pattern fill properties */
-
+    /**
+     * @brief returns the foreground color of the pattern fill.
+     * @return Valid Color if foregroundColor was set.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     Color foregroundColor() const;
+    /**
+     * @brief sets the foreground color of the pattern fill.
+     * @param color the foreground color of the pattern fill.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     void setForegroundColor(const Color &color);
-
+    /**
+     * @brief returns the background color of the pattern fill.
+     * @return Valid Color if backgroundColor was set.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     Color backgroundColor() const;
+    /**
+     * @brief sets the background color of the pattern fill.
+     * @param color the background color of the pattern fill.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     void setBackgroundColor(const Color &color);
-
+    /**
+     * @brief returns the type of the pattern fill.
+     * @return pattern type if it was set, nullopt otherwise.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     std::optional<PatternType> patternType();
+    /**
+     * @brief sets the type of the pattern fill.
+     * @param patternType pattern type.
+     * @note This method does not check the fill type to be FillType::PatternFill.
+     */
     void setPatternType(PatternType patternType);
+
+    /* Blip fill properties */
+    void setPicture(const QImage &picture);
+    QImage picture() const;
+    void setPictureID(int id);
+    int registerBlip(Workbook *workbook);
+
 
     bool isValid() const;
 
@@ -336,6 +390,13 @@ private:
         {PatternType::Trellis, "trellis"},
         {PatternType::ZigZag, "zigZag"},
     });
+    SERIALIZE_ENUM(BlipCompression, {
+        {BlipCompression::None, "none"},
+        {BlipCompression::Email, "email"},
+        {BlipCompression::Screen, "screen"},
+        {BlipCompression::Print, "print"},
+        {BlipCompression::HqPrint, "hqprint"},
+    });
     friend QDebug operator<<(QDebug, const FillFormat &f);
     QSharedDataPointer<FillFormatPrivate> d;
     void readNoFill(QXmlStreamReader &reader);
@@ -349,6 +410,7 @@ private:
     void writeGradientFill(QXmlStreamWriter &writer) const;
     void writePatternFill(QXmlStreamWriter &writer) const;
     void writeGroupFill(QXmlStreamWriter &writer) const;
+    void writeBlipFill(QXmlStreamWriter &writer) const;
 
     void readGradientList(QXmlStreamReader &reader);
     void writeGradientList(QXmlStreamWriter &writer) const;

@@ -19,6 +19,9 @@
 #include "xlsxutility_p.h"
 #include "xlsxabstractooxmlfile_p.h"
 #include "xlsxseries.h"
+#include "xlsxworkbook.h"
+#include "xlsxmediafile_p.h"
+#include "QBuffer"
 
 namespace QXlsx {
 
@@ -2573,6 +2576,55 @@ bool DataTable::isValid() const
     return false;
 }
 
+void Chart::registerBlips(Workbook *workbook)
+{
+    Q_D(Chart);
+
+    //In all the FillFormat objects we need to check whether they are blip fill
+    //and register the fill picture in the document mediaFiles
+    d->relationships->clear();
+
+    QList<std::reference_wrapper<FillFormat>> fills;
+
+    if (d->chartSpaceShape.isValid())
+        fills << d->chartSpaceShape.fills();
+    if (d->plotAreaShape.isValid())
+        fills << d->plotAreaShape.fills();
+
+    for (auto &fill: fills) {
+        if (fill.get().type() == FillFormat::FillType::BlipFill) {
+            int id = fill.get().registerBlip(workbook); //after that blip has unique id
+            if (id != -1) {
+                d->relationships->addDocumentRelationship(QStringLiteral("/image"),
+                                                          QStringLiteral("../media/image%1.%2")
+                                                          .arg(id+1)
+                                                          .arg("png")); //TODO: check
+                fill.get().setPictureID(d->relationships->count());
+            }
+        }
+    }
+
+    //writer.writeEmptyElement(QStringLiteral("picture"));
+    //writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
+}
+
+int Chart::registerBlip(Workbook *workbook, const QImage &image)
+{
+    Q_D(Chart);
+
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+
+    auto pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
+    workbook->addMediaFile(pictureFile);
+
+
+    return d->relationships->count();
+}
 
 }
+
+
 

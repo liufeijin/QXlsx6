@@ -1,7 +1,10 @@
 #include "xlsxfillformat.h"
 #include "xlsxutility_p.h"
+#include "xlsxmediafile_p.h"
+#include "xlsxworkbook.h"
 #include <QDebug>
 #include <QtMath>
+#include <QBuffer>
 
 namespace QXlsx {
 
@@ -35,8 +38,12 @@ public:
     Color backgroundColor;
     std::optional<FillFormat::PatternType> patternType;
 
-    //Blip fill has not been yet implemented.
-
+    //Blip fill - limited support
+    std::optional<int> dpi;
+    QSharedPointer<MediaFile> blipImage;
+    QString blipID; // internal
+    double alpha;
+    std::optional<FillFormat::BlipCompression> compression;
 
     bool operator==(const FillFormatPrivate &other) const;
 };
@@ -437,10 +444,46 @@ void FillFormat::setPatternType(FillFormat::PatternType patternType)
     d->patternType = patternType;
 }
 
+void FillFormat::setPicture(const QImage &picture)
+{
+    if (!d) d = new FillFormatPrivate;
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    picture.save(&buffer, "PNG");
+
+    d->blipImage = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
+}
+
+QImage FillFormat::picture() const
+{
+    if (d && d->blipImage) {
+        QImage pic;
+        pic.loadFromData(d->blipImage->contents());
+        return pic;
+    }
+    return {};
+}
+
 bool FillFormat::isValid() const
 {
     if (d) return true;
     return false;
+}
+
+void FillFormat::setPictureID(int id)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->blipID = QString("rId%1").arg(id);
+}
+
+int FillFormat::registerBlip(Workbook *workbook)
+{
+    if (!d || !d->blipImage) return -1;
+    if (d->blipImage->contents().isEmpty()) return -1;
+
+    workbook->addMediaFile(d->blipImage);
+    return d->blipImage->index();
 }
 
 void FillFormat::write(QXmlStreamWriter &writer) const
@@ -448,10 +491,8 @@ void FillFormat::write(QXmlStreamWriter &writer) const
     switch (d->type) {
         case FillType::NoFill : writeNoFill(writer); break;
         case FillType::SolidFill : writeSolidFill(writer); break;
-
         case FillType::GradientFill : writeGradientFill(writer); break;
-        //TODO: blip fill type
-        case FillType::BlipFill :  break;
+        case FillType::BlipFill : writeBlipFill(writer); break;
         case FillType::PatternFill : writePatternFill(writer); break;
         case FillType::GroupFill : writeGroupFill(writer); break;
     }
@@ -694,6 +735,23 @@ void FillFormat::readGroupFill(QXmlStreamReader &reader)
 void FillFormat::writeGroupFill(QXmlStreamWriter &writer) const
 {
     writer.writeEmptyElement(QLatin1String("a:grpFill"));
+}
+
+void FillFormat::writeBlipFill(QXmlStreamWriter &writer) const
+{
+    if (!d->blipImage || d->blipID.isEmpty()) return;
+    writer.writeStartElement(QLatin1String("a:blipFill"));
+    writeAttribute(writer, QLatin1String("rotWithShape"), d->rotWithShape);
+    writeAttribute(writer, QLatin1String("dpi"), d->dpi);
+    writer.writeStartElement(QLatin1String("a:blip"));
+    writer.writeAttribute(QLatin1String("xmlns:r"), QLatin1String("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
+    writer.writeAttribute(QLatin1String("r:embed"), d->blipID);
+    writer.writeEndElement(); //a:blip
+    writer.writeEmptyElement(QLatin1String("a:srcRect"));
+    writer.writeStartElement(QLatin1String("a:stretch"));
+    writer.writeEmptyElement(QLatin1String("a:fillRect"));
+    writer.writeEndElement(); //a:stretch
+    writer.writeEndElement(); //a:blipFill
 }
 
 void FillFormat::readGradientList(QXmlStreamReader &reader)

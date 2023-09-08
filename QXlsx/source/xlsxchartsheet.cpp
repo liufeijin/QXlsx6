@@ -80,7 +80,9 @@ Chart *Chartsheet::chart()
 {
     Q_D(Chartsheet);
 
-    return d->chart;
+    if (d->drawing && !d->drawing->anchors.isEmpty())
+        return d->drawing->anchors.first()->chart().get();
+    return nullptr;
 }
 
 void Chartsheet::saveToXmlFile(QIODevice *device) const

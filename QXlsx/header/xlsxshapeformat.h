@@ -78,6 +78,7 @@ public:
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);
+    QList<std::reference_wrapper<FillFormat>> fills();
 
     bool operator == (const ShapeFormat &other) const;
     bool operator != (const ShapeFormat &other) const;

@@ -14,6 +14,7 @@
 #include "xlsxdocument_p.h"
 #include "xlsxworkbook.h"
 #include "xlsxworksheet.h"
+#include "xlsxchartsheet.h"
 #include "xlsxcontenttypes_p.h"
 #include "xlsxrelationships_p.h"
 #include "xlsxstyles_p.h"
@@ -306,6 +307,13 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     for (int i=0; i<chartFileToLoad.size(); ++i) {
         QSharedPointer<Chart> cf = chartFileToLoad[i].lock();
         cf->loadFromXmlData(zipReader.fileData(cf->filePath()));
+
+//        //relations
+//        for (int i=0; i<workbook->sheetCount(); ++i) {
+//            if (auto sheet = dynamic_cast<Chartsheet*>(workbook->sheet(i))) {
+//                if (sheet->drawing()->)
+//            }
+//        }
     }
 
     //load media files
@@ -425,11 +433,17 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     zipWriter.addFile(QStringLiteral("xl/theme/theme1.xml"), workbook->theme()->saveToXmlData());
 
     // save chart xml files
-    for (int i=0; i<workbook->chartFiles().size(); ++i)
+    auto chartFiles = workbook->chartFiles();
+    for (int i=0; i<chartFiles.size(); ++i)
     {
         contentTypes->addChartName(QStringLiteral("chart%1").arg(i+1));
-        QSharedPointer<Chart> cf = workbook->chartFiles()[i];
+        QSharedPointer<Chart> cf = chartFiles[i];
+        cf->registerBlips(workbook.get());
         zipWriter.addFile(QStringLiteral("xl/charts/chart%1.xml").arg(i+1), cf->saveToXmlData());
+
+        Relationships *rel = cf->relationships();
+        if (!rel->isEmpty())
+            zipWriter.addFile(QStringLiteral("xl/charts/_rels/chart%1.xml.rels").arg(i+1), rel->saveToXmlData());
     }
 
     // save media files

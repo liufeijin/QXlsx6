@@ -22,6 +22,7 @@ class Worksheet;
 class ChartPrivate;
 class CellRange;
 class DrawingAnchor;
+class Workbook;
 
 class QXLSX_EXPORT UpDownBar
 {
@@ -1404,11 +1405,13 @@ public:
 
     bool loadFromXmlFile(QIODevice *device) override;
     void saveToXmlFile(QIODevice *device) const override;
+    void registerBlips(Workbook *workbook);
+
 private:
     friend class CT_XXXChart;
     Series* seriesByOrder(int order);
     bool hasAxis(int id) const;
-
+    int registerBlip(Workbook *workbook, const QImage &image);
 
 };
 

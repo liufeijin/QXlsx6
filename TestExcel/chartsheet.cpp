@@ -30,11 +30,20 @@ int chartsheet()
     barChart = sheet->chart();
     barChart->setTitle("Chart #2");
 
+    //Testing set blip fill
+    QImage img;
+    if (img.load(":/background1.jpg")) {
+        barChart->chartShape().fill().setType(FillFormat::FillType::BlipFill);
+        barChart->chartShape().fill().setPicture(img);
+    }
+
     //Saving result
     xlsx.saveAs("chartsheet1.xlsx");
 
     //Testing load result
     Document xlsx2("chartsheet1.xlsx");
+    //TODO: fix loading blip fills
+
     if (xlsx2.load())
         xlsx2.saveAs("chartsheet2.xlsx");
 

@@ -477,6 +477,12 @@ void Effect::setBlurGrow(bool newBlurGrow)
     d->blurGrow = newBlurGrow;
 }
 
+FillFormat &Effect::fillOverlay()
+{
+    if (!d) d = new EffectPrivate;
+    return d->fillOverlay;
+}
+
 FillFormat Effect::fillOverlay() const
 {
     if (d)

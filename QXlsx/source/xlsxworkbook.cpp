@@ -686,7 +686,7 @@ QList<QSharedPointer<MediaFile> > Workbook::mediaFiles() const
 /*!
  * \internal
  */
-void Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
+bool Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
 {
     Q_D(Workbook);
 
@@ -697,13 +697,14 @@ void Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
             if (d->mediaFiles[i]->hashKey() == media->hashKey())
             {
                 media->setIndex(i);
-                return;
+                return false;
             }
         }
     }
 
     media->setIndex(d->mediaFiles.size());
     d->mediaFiles.append(media);
+    return true;
 }
 
 void Workbook::removeMediaFile(QSharedPointer<MediaFile> media)
@@ -743,8 +744,7 @@ void Workbook::removeChartFile(const QSharedPointer<Chart> &chart)
 {
     Q_D(Workbook);
 
-    if (!d->chartFiles.contains(chart))
-        d->chartFiles.append(chart);
+    d->chartFiles.removeOne(chart);
 }
 
 }

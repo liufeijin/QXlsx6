@@ -288,6 +288,17 @@ void ShapeFormat::read(QXmlStreamReader &reader)
     }
 }
 
+QList<std::reference_wrapper<FillFormat> > ShapeFormat::fills()
+{
+    QList<std::reference_wrapper<FillFormat> > f;
+    if (d) {
+        if (d->fill.isValid()) f << d->fill;
+        if (d->line.isValid() && d->line.fill().isValid()) f << d->line.fill();
+        if (d->effectList.isValid()) f << d->effectList.fillOverlay();
+    }
+    return f;
+}
+
 bool ShapeFormat::operator ==(const ShapeFormat &other) const
 {
     if (d == other.d) return true;

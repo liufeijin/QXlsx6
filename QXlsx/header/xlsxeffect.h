@@ -96,6 +96,7 @@ public:
      * @brief fillOverlay returns the additional fill to the object
      * @return
      */
+    FillFormat &fillOverlay();
     FillFormat fillOverlay() const;
     /**
      * @brief setFillOverlay specifies an additional fill to the object
