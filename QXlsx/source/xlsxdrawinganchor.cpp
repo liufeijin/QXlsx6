@@ -12,6 +12,7 @@
 #include "xlsxmediafile_p.h"
 #include "xlsxchart.h"
 #include "xlsxworkbook.h"
+#include "xlsxworksheet.h"
 #include "xlsxutility_p.h"
 
 namespace QXlsx {
@@ -114,7 +115,7 @@ void DrawingAnchor::setObjectPicture(const QImage &img)
     buffer.open(QIODevice::WriteOnly);
     img.save(&buffer, "PNG");
 
-    m_pictureFile = std::make_shared<MediaFile>(ba, QStringLiteral("png"), QStringLiteral("image/png"));
+    m_pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
     m_drawing->workbook->addMediaFile(m_pictureFile);
 
     m_objectType = Picture;
@@ -129,6 +130,21 @@ bool DrawingAnchor::getObjectPicture(QImage &img)
     return ret;
 }
 
+QSharedPointer<Chart> DrawingAnchor::chart() const
+{
+    return m_chartFile;
+}
+
+bool DrawingAnchor::isPicture() const
+{
+    return m_pictureFile != nullptr;
+}
+
+bool DrawingAnchor::isChart() const
+{
+    return m_chartFile != nullptr;
+}
+
 //{{ liufeijin
 void DrawingAnchor::setObjectShape(const QImage &img)
 {
@@ -137,7 +153,7 @@ void DrawingAnchor::setObjectShape(const QImage &img)
     buffer.open(QIODevice::WriteOnly);
     img.save(&buffer, "PNG");
 
-    m_pictureFile = std::make_shared<MediaFile>(ba, QStringLiteral("png"), QStringLiteral("image/png"));
+    m_pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
     m_drawing->workbook->addMediaFile(m_pictureFile);
 
     m_objectType = Shape;
@@ -150,6 +166,15 @@ void DrawingAnchor::setObjectGraphicFrame(QSharedPointer<Chart> chart)
     m_drawing->workbook->addChartFile(chart);
 
     m_objectType = GraphicFrame;
+}
+
+bool DrawingAnchor::removeObjectGraphicFrame()
+{
+    if (m_chartFile) {
+        m_drawing->workbook->removeChartFile(m_chartFile);
+        return true;
+    }
+    return false;
 }
 
 int DrawingAnchor::row() const
@@ -388,12 +413,13 @@ void DrawingAnchor::loadXmlObjectGraphicFrame(QXmlStreamReader &reader)
                 QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
 
                 bool exist = false;
-                QList<QSharedPointer<Chart> > cfs = m_drawing->workbook->chartFiles();
+                auto cfs = m_drawing->workbook->chartFiles();
                 for (int i=0; i<cfs.size(); ++i) {
-                    if (cfs[i]->filePath() == path) {
+                    auto chart = cfs[i].lock();
+                    if (chart->filePath() == path) {
                         //already exist
                         exist = true;
-                        m_chartFile = cfs[i];
+                        m_chartFile = chart;
                     }
                 }
                 if (!exist) {
@@ -440,7 +466,7 @@ void DrawingAnchor::loadXmlObjectPicture(QXmlStreamReader &reader)
                     }
                 }
                 if (!exist) {
-                    m_pictureFile = std::make_shared<MediaFile>(path);
+                    m_pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
                     m_drawing->workbook->addMediaFile(m_pictureFile, true);
                 }
             }
@@ -1212,21 +1238,6 @@ bool DrawingTwoCellAnchor::loadFromXml(QXmlStreamReader &reader)
             }
             else
             {
-                /*
-                <xsd:group name="EG_ObjectChoices">
-                    <xsd:sequence>
-                        <xsd:choice minOccurs="1" maxOccurs="1">
-                            <xsd:element name="sp" type="CT_Shape"/>
-                            <xsd:element name="grpSp" type="CT_GroupShape"/>
-                            <xsd:element name="graphicFrame" type="CT_GraphicalObjectFrame"/>
-                            <xsd:element name="cxnSp" type="CT_Connector"/>
-                            <xsd:element name="pic" type="CT_Picture"/>
-                            <xsd:element name="contentPart" type="CT_Rel"/>
-                        </xsd:choice>
-                    </xsd:sequence>
-                </xsd:group>
-                */
-
                 loadXmlObject(reader);
             }
         }

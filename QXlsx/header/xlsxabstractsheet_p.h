@@ -34,7 +34,7 @@ public:
     HeaderFooter headerFooter;
     PageMargins pageMargins;
     PageSetup pageSetup;
-    std::shared_ptr<MediaFile> pictureFile;
+    QSharedPointer<MediaFile> pictureFile;
     std::optional<SheetProtection> sheetProtection; //using optional allows adding default protection
 
     ExtensionList extLst;

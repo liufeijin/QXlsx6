@@ -187,7 +187,7 @@ void AbstractSheet::setBackgroundImage(const QImage &image)
     buffer.open(QIODevice::WriteOnly);
     image.save(&buffer, "PNG");
 
-    d->pictureFile = std::make_shared<MediaFile>(ba, QStringLiteral("png"), QStringLiteral("image/png"));
+    d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
     d->workbook->addMediaFile(d->pictureFile);
 }
 
@@ -211,7 +211,7 @@ void AbstractSheet::setBackgroundImage(const QString &fileName)
         suffix = QStringLiteral("png");
     }
     if (!ba.isEmpty()) {
-        d->pictureFile = std::make_shared<MediaFile>(ba, suffix, QStringLiteral("image/")+suffix);
+        d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, suffix, QStringLiteral("image/")+suffix));
         d->workbook->addMediaFile(d->pictureFile);
     }
 }

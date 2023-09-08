@@ -63,10 +63,11 @@ public:
     void setDefaultDateFormat(const QString &format);
 
     //internal used member
-    void addMediaFile(std::shared_ptr<MediaFile> media, bool force=false);
-    QList<std::shared_ptr<MediaFile> > mediaFiles() const;
-    void addChartFile(QSharedPointer<Chart> chartFile);
-    QList<QSharedPointer<Chart> > chartFiles() const;
+    void addMediaFile(QSharedPointer<MediaFile> media, bool force=false);
+    QList<QSharedPointer<MediaFile> > mediaFiles() const;
+    void addChartFile(const QSharedPointer<Chart> &chartFile);
+    void removeChartFile(const QSharedPointer<Chart> &chart);
+    QList<QWeakPointer<Chart> > chartFiles() const;
 
 private:
     friend class Worksheet;

@@ -92,8 +92,19 @@ public:
 
     bool addDataValidation(const DataValidation &validation);
     bool addConditionalFormatting(const ConditionalFormatting &cf);
-
+    /**
+     * @brief returns cell by its reference.
+     * @param row_column reference to the cell.
+     * @return valid pointer to the cell if the cell was found, nullptr otherwise.
+     */
     Cell *cell(const CellReference &row_column) const;
+    /**
+     * @overload
+     * @brief returns cell by its row and column number (1-based).
+     * @param row cell row number starting from 1.
+     * @param column cell column number starting from 1.
+     * @return valid pointer to the cell if the cell was found, nullptr otherwise.
+     */
     Cell *cell(int row, int column) const;
 
     /*!
@@ -103,21 +114,22 @@ public:
     int insertImage(int row, int column, const QImage &image);
     /**
      * @brief returns an image.
-     * @param imageIndex zero-based image index (0 to #getImageCount()-1).
+     * @param imageIndex zero-based image index (0 to #imageCount()-1).
      * @return non-null QImage if image was found and read.
      */
-    QImage image(int imageIndex);
+    QImage image(int imageIndex) const;
     /**
+     * @overload
      * @brief returns image.
-     * @param row worksheet row number (starting from 1) where the image is anchored.
-     * @param col worksheet column number (starting from 1) where the image is anchored.
+     * @param row row number (starting from 1) where the image is anchored.
+     * @param col column number (starting from 1) where the image is anchored.
      * @return non-null QImage if image was found and read.
      */
-    QImage image(int row, int column);
+    QImage image(int row, int column) const;
     /**
      * @brief returns the count of images on this worksheet.
      */
-    int imageCount();
+    int imageCount() const;
     //TODO: removeImage(int row, int column), removeImage(int index)
 
     /**
@@ -128,8 +140,39 @@ public:
      * @return pointer to the new chart or nullptr if no chart was created.
      */
     Chart *insertChart(int row, int column, const QSize &size);
-    //TODO: removeChart(int row, int column), chart(int row, int column)
-    //TODO: removeChart(int index), chart(int index)
+    //TODO: add insertImage(int row, int column, const Size &size); to specify size in mm, pt etc.
+    /**
+     * @brief returns chart
+     * @param index zero-based index of the chart (0 to #chartCount()-1)
+     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     */
+    Chart *chart(int index) const;
+    /**
+     * @overload
+     * @brief returns chart.
+     * @param row the row index of the chart top left corner.
+     * @param column the column index of the chart top left corner.
+     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     */
+    Chart *chart(int row, int column);
+    /**
+     * @brief removes chart from the worksheet.
+     * @param row the row index of the chart top left corner.
+     * @param column the column index of the chart top left corner.
+     * @return true if the chart was found and successfully removed, false otherwise.
+     */
+    bool removeChart(int row, int column);
+    /**
+     * @overload
+     * @brief removes chart from the worksheet.
+     * @param index zero-based index of the chart.
+     * @return true if the chart was found and successfully removed, false otherwise.
+     */
+    bool removeChart(int index);
+    /**
+     * @brief returns count of charts on the worksheet.
+     */
+    int chartCount() const;
 
     bool mergeCells(const CellRange &range, const Format &format=Format());
     bool unmergeCells(const CellRange &range);

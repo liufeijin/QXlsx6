@@ -676,7 +676,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 /*!
  * \internal
  */
-QList<std::shared_ptr<MediaFile> > Workbook::mediaFiles() const
+QList<QSharedPointer<MediaFile> > Workbook::mediaFiles() const
 {
     Q_D(const Workbook);
 
@@ -686,7 +686,7 @@ QList<std::shared_ptr<MediaFile> > Workbook::mediaFiles() const
 /*!
  * \internal
  */
-void Workbook::addMediaFile(std::shared_ptr<MediaFile> media, bool force)
+void Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
 {
     Q_D(Workbook);
 
@@ -709,7 +709,7 @@ void Workbook::addMediaFile(std::shared_ptr<MediaFile> media, bool force)
 /*!
  * \internal
  */
-QList<QSharedPointer<Chart> > Workbook::chartFiles() const
+QList<QWeakPointer<Chart> > Workbook::chartFiles() const
 {
     Q_D(const Workbook);
 
@@ -719,7 +719,18 @@ QList<QSharedPointer<Chart> > Workbook::chartFiles() const
 /*!
  * \internal
  */
-void Workbook::addChartFile(QSharedPointer<Chart> chart)
+void Workbook::addChartFile(const QSharedPointer<Chart> &chart)
+{
+    Q_D(Workbook);
+
+    if (!d->chartFiles.contains(chart))
+        d->chartFiles.append(chart);
+}
+
+/*!
+ * \internal
+ */
+void Workbook::removeChartFile(const QSharedPointer<Chart> &chart)
 {
     Q_D(Workbook);
 

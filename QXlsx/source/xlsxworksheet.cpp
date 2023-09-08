@@ -897,9 +897,9 @@ int Worksheet::insertImage(int row, int column, const QImage &image)
     return -1;
 }
 
-QImage Worksheet::image(int imageIndex)
+QImage Worksheet::image(int imageIndex) const
 {
-    Q_D(Worksheet);
+    Q_D(const Worksheet);
 
     if (imageIndex < 0 || !d->drawing)
         return {};
@@ -915,9 +915,9 @@ QImage Worksheet::image(int imageIndex)
    return {};
 }
 
-QImage Worksheet::image(int row, int column)
+QImage Worksheet::image(int row, int column) const
 {
-    Q_D(Worksheet);
+    Q_D(const Worksheet);
 
     if (d->drawing) {
         for (auto anchor: qAsConst(d->drawing->anchors)) {
@@ -931,14 +931,17 @@ QImage Worksheet::image(int row, int column)
     return {};
 }
 
-int Worksheet::imageCount()
+int Worksheet::imageCount() const
 {
-    Q_D(Worksheet);
-
-    if (d->drawing)
-        return d->drawing->anchors.size();
-
-    return 0;
+    Q_D(const Worksheet);
+    int count = 0;
+    if (d->drawing) {
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->isPicture())
+                count++;
+        }
+    }
+    return count;
 }
 
 
@@ -949,7 +952,7 @@ Chart *Worksheet::insertChart(int row, int column, const QSize &size)
     if (!d->drawing)
         d->drawing = std::make_shared<Drawing>(this, F_NewFromScratch);
 
-    DrawingOneCellAnchor *anchor = new DrawingOneCellAnchor(d->drawing.get(), DrawingAnchor::Picture);
+    DrawingOneCellAnchor *anchor = new DrawingOneCellAnchor(d->drawing.get());
 
     /*
         The size are expressed as English Metric Units (EMUs). There are
@@ -963,6 +966,95 @@ Chart *Worksheet::insertChart(int row, int column, const QSize &size)
     anchor->setObjectGraphicFrame(chart);
 
     return chart.data();
+}
+
+Chart *Worksheet::chart(int index) const
+{
+    Q_D(const Worksheet);
+
+    if (index < 0) return nullptr;
+
+    if (d->drawing) {
+        int currentIndex = -1;
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->chart()) {
+                currentIndex++;
+                if (currentIndex == index)
+                    return anchor->chart().get();
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Chart *Worksheet::chart(int row, int column)
+{
+    Q_D(const Worksheet);
+    if (d->drawing) {
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->row() == row && anchor->col() == column) {
+                return anchor->chart().get();
+            }
+        }
+    }
+    return nullptr;
+}
+
+bool Worksheet::removeChart(int row, int column)
+{
+    Q_D(Worksheet);
+    if (d->drawing) {
+        auto anchor = std::find_if(std::begin(d->drawing->anchors),
+                                   std::end(d->drawing->anchors),
+                                   [row, column](auto anchor)
+        {return anchor && anchor->row() == row && anchor->col() == column;});
+        if (anchor != std::end(d->drawing->anchors)) {
+            bool result = (*anchor)->removeObjectGraphicFrame();
+            delete *anchor;
+            d->drawing->anchors.erase(anchor);
+
+            return result;
+        }
+    }
+    return false;
+}
+
+bool Worksheet::removeChart(int index)
+{
+    Q_D(Worksheet);
+
+    if (index < 0) return false;
+    if (d->drawing) {
+        int currentIndex = -1;
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->chart()) {
+                currentIndex++;
+                if (currentIndex == index) {
+                    bool result = anchor->removeObjectGraphicFrame();
+                    delete anchor;
+                    d->drawing->anchors.removeOne(anchor);
+                    return result;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+int Worksheet::chartCount() const
+{
+    Q_D(const Worksheet);
+    int count = 0;
+
+    if (d->drawing) {
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->isChart())
+                count++;
+        }
+    }
+    return count;
 }
 
 /*!
@@ -2484,7 +2576,7 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                     }
                 }
                 if (!exist) {
-                    d->pictureFile = std::make_shared<MediaFile>(path);
+                    d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
                     d->workbook->addMediaFile(d->pictureFile, true);
                 }
             }

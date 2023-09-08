@@ -302,9 +302,9 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     }
 
     //load charts
-    QList<QSharedPointer<Chart> > chartFileToLoad = workbook->chartFiles();
+    auto chartFileToLoad = workbook->chartFiles();
     for (int i=0; i<chartFileToLoad.size(); ++i) {
-        QSharedPointer<Chart> cf = chartFileToLoad[i];
+        QSharedPointer<Chart> cf = chartFileToLoad[i].lock();
         cf->loadFromXmlData(zipReader.fileData(cf->filePath()));
     }
 

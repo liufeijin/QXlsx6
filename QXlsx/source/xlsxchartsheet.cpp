@@ -176,7 +176,7 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
                     }
                 }
                 if (!exist) {
-                    d->pictureFile = std::make_shared<MediaFile>(path);
+                    d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
                     d->workbook->addMediaFile(d->pictureFile, true);
                 }
             }

@@ -44,8 +44,8 @@ public:
     QStringList sheetNames;
     QSharedPointer<Styles> styles;
     QSharedPointer<Theme> theme;
-    QList<std::shared_ptr<MediaFile> > mediaFiles;
-    QList<QSharedPointer<Chart> > chartFiles;
+    QList<QSharedPointer<MediaFile> > mediaFiles;
+    QList<QWeakPointer<Chart> > chartFiles;
     QList<XlsxDefineNameData> definedNamesList;
 
     bool strings_to_numbers_enabled;

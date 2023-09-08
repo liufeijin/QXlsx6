@@ -57,8 +57,14 @@ public:
 
     void setObjectPicture(const QImage &img);
     bool getObjectPicture(QImage &img);
+
+    QSharedPointer<Chart> chart() const;
+
+    bool isPicture() const;
+    bool isChart() const;
     
     void setObjectGraphicFrame(QSharedPointer<Chart> chart);
+    bool removeObjectGraphicFrame();
 
     virtual bool loadFromXml(QXmlStreamReader &reader) = 0;
     virtual void saveToXml(QXmlStreamWriter &writer) const = 0;
@@ -91,7 +97,7 @@ protected:
 
     Drawing *m_drawing;
     ObjectType m_objectType;
-    std::shared_ptr<MediaFile> m_pictureFile;
+    QSharedPointer<MediaFile> m_pictureFile;
     QSharedPointer<Chart> m_chartFile;
 
     int m_id;
