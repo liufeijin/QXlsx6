@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
         if ( NULL == wsheet )
             continue;
 
-        QString strSheetName = wsheet->sheetName(); // sheet name
+        QString strSheetName = wsheet->name(); // sheet name
 
         // display sheet name
         std::cout
                 << std::string( strSheetName.toLocal8Bit() )
                 << std::endl;
 
-        QVector<CellLocation> clList = wsheet->getFullCells( &maxRow, &maxCol );
+        auto clList = wsheet->getFullCells( &maxRow, &maxCol );
 
         QVector< QVector<QString> > cellValues;
         for (int rc = 0; rc < maxRow; rc++)
@@ -85,18 +85,17 @@ int main(int argc, char *argv[])
             cellValues.push_back(tempValue);
         }
 
-        for ( int ic = 0; ic < clList.size(); ++ic )
-         {
+        for (auto ic = clList.constBegin(); ic != clList.constEnd(); ++ic) {
             // cell location
-            CellLocation cl = clList.at(ic);
+            auto cl = ic.key();
 
-            int row = cl.row - 1;
-            int col = cl.col - 1;
+            int row = cl.row() - 1;
+            int col = cl.column() - 1;
 
             // https://github.com/QtExcel/QXlsx/commit/9ab612ff5c9defc35333799c55b01be31aa66fc2
             // {{
             // QSharedPointer<Cell> ptrCell = cl.cell; // cell pointer
-            std::shared_ptr<Cell> ptrCell = cl.cell; // cell pointer
+            auto ptrCell = ic.value(); // cell pointer
 
             // value of cell
             // QVariant var = cl.cell.data()->value();

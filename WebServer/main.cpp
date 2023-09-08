@@ -16,7 +16,6 @@
 #include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 #include "xlsxabstractsheet.h"
-#include "xlsxcelllocation.h"
 #include "xlsxcell.h"
 using namespace QXlsx;
 
@@ -107,12 +106,12 @@ bool loadXlsx(QString fileName, QString& strHtml)
         if ( NULL == wsheet )
             continue;
 
-        QString strSheetName = wsheet->sheetName(); // sheet name
+        QString strSheetName = wsheet->name(); // sheet name
         strHtml = strHtml + QString("<b>") + strSheetName + QString("</b><br>\n"); // UTF-8
 
         strHtml = strHtml + QString("<table>");
 
-        QVector<CellLocation> clList = wsheet->getFullCells( &maxRow, &maxCol );
+        auto clList = wsheet->getFullCells( &maxRow, &maxCol );
 
         QVector< QVector<QString> > cellValues;
         for (int rc = 0; rc < maxRow; rc++)
@@ -125,18 +124,17 @@ bool loadXlsx(QString fileName, QString& strHtml)
             cellValues.push_back(tempValue);
         }
 
-        for ( int ic = 0; ic < clList.size(); ++ic )
-         {
+        for (auto ic = clList.constBegin(); ic != clList.constEnd(); ++ic) {
             // cell location
-            CellLocation cl = clList.at(ic);
+            auto cl = ic.key();
 
-            int row = cl.row - 1;
-            int col = cl.col - 1;
+            int row = cl.row() - 1;
+            int col = cl.column() - 1;
 
             //  Update ShowConsole example for 9ab612f
             // {{
             // QSharedPointer<Cell> ptrCell = cl.cell; // cell pointer
-            std::shared_ptr<Cell> ptrCell = cl.cell; // cell pointer
+            auto ptrCell = ic.value(); // cell pointer
 
             // value of cell
             // QVariant var = cl.cell.data()->value();

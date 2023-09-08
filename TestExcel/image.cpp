@@ -46,7 +46,7 @@ int image()
        }
     }
     //testing background images
-    xlsx.setBackgroundImage("background1.jpg");
+    xlsx.setBackgroundImage(":/background1.jpg");
     xlsx.saveAs("image1.xlsx");
 
 

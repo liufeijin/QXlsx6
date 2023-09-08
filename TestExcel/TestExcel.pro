@@ -59,3 +59,6 @@ worksheetoperations.cpp \
 readStyle.cpp \
 pageMargins.cpp
 
+RESOURCES += \
+    resource.qrc
+

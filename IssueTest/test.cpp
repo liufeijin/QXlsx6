@@ -32,7 +32,7 @@ int test162( QVector<QVariant> params )
 
     Document xlsx2("image1.xlsx");
     qDebug() << "xlsx2" ;
-    qDebug() << " image count : " << xlsx.getImageCount();
+    qDebug() << " image count : " << xlsx.imageCount();
     xlsx2.saveAs("image2.xlsx");
 
     return 0;

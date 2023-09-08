@@ -160,5 +160,7 @@ int main(int argc, char *argv[])
         xlsx2.saveAs("LineAndFill2.xlsx");
     }
 
+    qDebug() << "**** end of main() ****";
+
     return 0;
 }
