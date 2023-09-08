@@ -861,16 +861,28 @@ public:
     PageSetup pageSetup() const;
     PageSetup &pageSetup();
     void setPageSetup(const PageSetup &pageSetup);
-
+    /**
+     * @brief sets the sheet's background image
+     * @param image
+     */
     void setBackgroundImage(const QImage &image);
     /**
-     * @brief setBackgroundImage
-     * @param fileName
+     * @brief sets the sheet's background image
+     * @param fileName the name of the file where to load image from.
      * @note If the image is a PNG or JPG image, it will be written as a PNG or JPG respectively.
      * All other pictures will be converted to PNG.
      */
     void setBackgroundImage(const QString &fileName);
+    /**
+     * @brief returns the sheet's background image
+     * @return non-null QImage if the background image was set, null QImage otherwise.
+     */
     QImage backgroundImage() const;
+    /**
+     * @brief removes the sheet's background image
+     * @return true if the background image was removed, false otherwise.
+     */
+    bool removeBackgroundImage();
 
 
     /**

@@ -224,6 +224,17 @@ QImage AbstractSheet::backgroundImage() const
     return pic;
 }
 
+bool AbstractSheet::removeBackgroundImage()
+{
+    Q_D(AbstractSheet);
+    if (d->pictureFile) {
+        d->workbook->removeMediaFile(d->pictureFile);
+        d->pictureFile.clear();
+        return true;
+    }
+    return false;
+}
+
 SheetProtection AbstractSheet::sheetProtection() const
 {
     Q_D(const AbstractSheet);
