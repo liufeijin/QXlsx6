@@ -880,7 +880,7 @@ int Worksheet::insertImage(int row, int column, const QImage &image)
         if (!d->drawing)
             d->drawing = std::make_shared<Drawing>(this, F_NewFromScratch);
 
-        DrawingOneCellAnchor* anchor = new DrawingOneCellAnchor(d->drawing.get(), DrawingAnchor::Picture);
+        DrawingOneCellAnchor* anchor = new DrawingOneCellAnchor(d->drawing.get());
 
         /*
         The size are expressed as English Metric Units (EMUs).
@@ -897,20 +897,25 @@ int Worksheet::insertImage(int row, int column, const QImage &image)
     return -1;
 }
 
-QImage Worksheet::image(int imageIndex) const
+QImage Worksheet::image(int index) const
 {
     Q_D(const Worksheet);
 
-    if (imageIndex < 0 || !d->drawing)
-        return {};
+    if (index < 0) return {};
 
-   DrawingAnchor* danchor = d->drawing->anchors.value(imageIndex);
-   // QSharedPointer<Drawing> // for multithread
-   if (danchor) {
-       QImage img;
-       danchor->getObjectPicture(img);
-       return img;
-   }
+    if (d->drawing) {
+        int currentIndex = -1;
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->isPicture()) {
+                currentIndex++;
+                if (currentIndex == index) {
+                    QImage img;
+                    anchor->getObjectPicture(img);
+                    return img;
+                }
+            }
+        }
+    }
 
    return {};
 }
@@ -944,6 +949,47 @@ int Worksheet::imageCount() const
     return count;
 }
 
+bool Worksheet::removeImage(int row, int column)
+{
+    Q_D(Worksheet);
+    if (d->drawing) {
+        auto anchor = std::find_if(std::begin(d->drawing->anchors),
+                                   std::end(d->drawing->anchors),
+                                   [row, column](auto anchor)
+        {return anchor && anchor->row() == row && anchor->col() == column;});
+        if (anchor != std::end(d->drawing->anchors)) {
+            bool result = (*anchor)->removeObjectPicture();
+            delete *anchor;
+            d->drawing->anchors.erase(anchor);
+
+            return result;
+        }
+    }
+    return false;
+}
+
+bool Worksheet::removeImage(int index)
+{
+    Q_D(Worksheet);
+
+    if (index < 0) return false;
+    if (d->drawing) {
+        int currentIndex = -1;
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->isPicture()) {
+                currentIndex++;
+                if (currentIndex == index) {
+                    bool result = anchor->removeObjectPicture();
+                    delete anchor;
+                    d->drawing->anchors.removeOne(anchor);
+                    return result;
+                }
+            }
+        }
+    }
+
+    return false;
+}
 
 Chart *Worksheet::insertChart(int row, int column, const QSize &size)
 {

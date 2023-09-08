@@ -100,29 +100,31 @@ public:
     Cell *cell(const CellReference &row_column) const;
     /**
      * @overload
-     * @brief returns cell by its row and column number (1-based).
-     * @param row cell row number starting from 1.
-     * @param column cell column number starting from 1.
+     * @brief returns cell by its row and column number.
+     * @param row zero-based cell row number.
+     * @param column zero-based cell column number.
      * @return valid pointer to the cell if the cell was found, nullptr otherwise.
      */
     Cell *cell(int row, int column) const;
 
     /*!
      * @brief Inserts an \a image at the position \a row, \a column.
+     * @param row the zero-based row index of the image top left corner.
+     * @param column the zero-based column index of the image top left corner.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int column, const QImage &image);
     /**
      * @brief returns an image.
-     * @param imageIndex zero-based image index (0 to #imageCount()-1).
+     * @param index zero-based image index (0 to #imageCount()-1).
      * @return non-null QImage if image was found and read.
      */
-    QImage image(int imageIndex) const;
+    QImage image(int index) const;
     /**
      * @overload
      * @brief returns image.
-     * @param row row number (starting from 1) where the image is anchored.
-     * @param col column number (starting from 1) where the image is anchored.
+     * @param row the zero-based row index of the image top left corner.
+     * @param column the zero-based column index of the image top left corner.
      * @return non-null QImage if image was found and read.
      */
     QImage image(int row, int column) const;
@@ -130,12 +132,24 @@ public:
      * @brief returns the count of images on this worksheet.
      */
     int imageCount() const;
-    //TODO: removeImage(int row, int column), removeImage(int index)
+    /**
+     * @brief removes image from the worksheet
+     * @param row the zero-based row index of the image top left corner.
+     * @param column the zero-based column index of the image top left corner.
+     * @return true if image was found and removed, false otherwise.
+     */
+    bool removeImage(int row, int column);
+    /**
+     * @brief removes image from the worksheet
+     * @param index zero-based index of the image (0 to #imageCount()-1).
+     * @return true if image was found and removed, false otherwise.
+     */
+    bool removeImage(int index);
 
     /**
      * @brief creates a new chart and places it inside the current worksheet.
-     * @param row the row index of the chart top left corner.
-     * @param column the column index of the chart top left corner.
+     * @param row the zero-based row index of the chart top left corner.
+     * @param column the zero-based column index of the chart top left corner.
      * @param size the chart size in pixels.
      * @return pointer to the new chart or nullptr if no chart was created.
      */
@@ -150,15 +164,15 @@ public:
     /**
      * @overload
      * @brief returns chart.
-     * @param row the row index of the chart top left corner.
-     * @param column the column index of the chart top left corner.
+     * @param row the zero-based row index of the chart top left corner.
+     * @param column the zero-based column index of the chart top left corner.
      * @return valid pointer to the chart if the chart was found, nullptr otherwise.
      */
     Chart *chart(int row, int column);
     /**
      * @brief removes chart from the worksheet.
-     * @param row the row index of the chart top left corner.
-     * @param column the column index of the chart top left corner.
+     * @param row the zero-based row index of the chart top left corner.
+     * @param column the zero-based column index of the chart top left corner.
      * @return true if the chart was found and successfully removed, false otherwise.
      */
     bool removeChart(int row, int column);

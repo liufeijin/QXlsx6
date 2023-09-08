@@ -670,23 +670,46 @@ int Document::imageCount()
     return 0;
 }
 
-void Document::setBackgroundImage(const QImage &image)
+bool Document::removeImage(int row, int column)
 {
     if (Worksheet *sheet = currentWorksheet())
+        return sheet->removeImage(row, column);
+
+    return false;
+}
+
+bool Document::removeImage(int index)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->removeImage(index);
+
+    return false;
+}
+
+void Document::setBackgroundImage(const QImage &image)
+{
+    if (auto sheet = currentSheet())
         sheet->setBackgroundImage(image);
 }
 
 void Document::setBackgroundImage(const QString &fileName)
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (auto sheet = currentSheet())
         sheet->setBackgroundImage(fileName);
 }
 
 QImage Document::backgroundImage() const
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (auto sheet = currentSheet())
         return sheet->backgroundImage();
     return {};
+}
+
+bool Document::removeBackgroundImage()
+{
+    if (auto sheet = currentSheet())
+        return sheet->removeBackgroundImage();
+    return false;
 }
 
 
@@ -1300,16 +1323,16 @@ Document::~Document()
 }
 
 //  add by liufeijin 20181025 {{
-bool Document::changeimage(int filenoinmidea, QString newfile)
+bool Document::changeImage(int index, const QString &fileName)
 {
     Q_D(const Document);
 
-    QImage newpic(newfile);
+    QImage newpic(fileName);
     
     auto mediaFileToLoad = d->workbook->mediaFiles();
-    const auto mf = mediaFileToLoad[filenoinmidea];
+    const auto mf = mediaFileToLoad[index];
     
-    const QString suffix = newfile.mid(newfile.lastIndexOf(QLatin1Char('.'))+1);
+    const QString suffix = fileName.mid(fileName.lastIndexOf(QLatin1Char('.'))+1);
     QString mimetypemy;
     if(QString::compare(QLatin1String("jpg"), suffix, Qt::CaseInsensitive)==0)
        mimetypemy=QStringLiteral("image/jpeg");
@@ -1327,7 +1350,7 @@ bool Document::changeimage(int filenoinmidea, QString newfile)
     newpic.save(&buffer,suffix.toLocal8Bit().data());
     
     mf->set(ba,suffix,mimetypemy);
-    mediaFileToLoad[filenoinmidea]=mf;
+    mediaFileToLoad[index]=mf;
     
     return true;
 }

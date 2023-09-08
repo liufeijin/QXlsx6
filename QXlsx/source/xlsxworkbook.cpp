@@ -706,6 +706,15 @@ void Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
     d->mediaFiles.append(media);
 }
 
+void Workbook::removeMediaFile(QSharedPointer<MediaFile> media)
+{
+    Q_D(Workbook);
+    d->mediaFiles.removeOne(media);
+    //reindex
+    int index = 0;
+    for (auto &media: d->mediaFiles) media->setIndex(index++);
+}
+
 /*!
  * \internal
  */

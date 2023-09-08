@@ -57,6 +57,7 @@ public:
 
     void setObjectPicture(const QImage &img);
     bool getObjectPicture(QImage &img);
+    bool removeObjectPicture();
 
     QSharedPointer<Chart> chart() const;
 

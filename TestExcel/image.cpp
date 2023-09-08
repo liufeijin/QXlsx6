@@ -45,10 +45,21 @@ int image()
             qDebug() << " [image index] " << index;
        }
     }
+    //testing background images
     xlsx.setBackgroundImage("background1.jpg");
     xlsx.saveAs("image1.xlsx");
 
+
+
     QXlsx::Document xlsx2("image1.xlsx");
+
+    //testing remove images by index and by coords
+    //remove 2nd image
+    Q_ASSERT_X(xlsx2.removeImage(1), "image()", "couldn't remove image 2");
+    Q_ASSERT_X(xlsx2.removeImage(30,5), "image()", "couldn't remove image at (30,5)");
+    Q_ASSERT_X(xlsx2.removeBackgroundImage(), "image()", "couldn't remove background image");
+
+
     xlsx2.saveAs("image2.xlsx");
 
     return 0;

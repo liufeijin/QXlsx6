@@ -43,6 +43,8 @@ public:
     
     /*!
      * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
+     * @param row zero-based row number where the image is anchored.
+     * @param col zero-based column number where the image is anchored.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int col, const QImage &image);
@@ -52,15 +54,39 @@ public:
      */
     QImage image(int imageIndex);
     /**
+     * @overload
      * @brief returns image from the current active worksheet.
-     * @param row worksheet row number (starting from 1) where the image is anchored.
-     * @param col worksheet column number (starting from 1) where the image is anchored.
+     * @param row zero-based row number where the image is anchored.
+     * @param col zero-based column number where the image is anchored.
      */
     QImage image(int row, int col);
     /**
      * @brief returns the count of images on the current active worksheet.
      */
     int imageCount();
+    /**
+     * @brief sets new content to the image with (zero-based) #index
+     * @param index zero-base index of image in the list of all images in the workbook.
+     * @param newfile the name of the file from which new content will be loaded.
+     * @return true if the image was found and new content was loaded, false otherwise.
+     */
+    bool changeImage(int index, const QString &fileName); // TODO: remove, as this method uses index differently
+
+    /**
+     * @brief removes image from the current active worksheet
+     * @param row zero-based row number where the image is anchored.
+     * @param column zero-based column number where the image is anchored.
+     * @return true if image was found and removed, false otherwise.
+     */
+    bool removeImage(int row, int column);
+    /**
+     * @overload
+     * @brief removes image from the current active worksheet
+     * @param index zero-based index of the image (0 to #imageCount()-1).
+     * @return true if image was found and removed, false otherwise.
+     */
+    bool removeImage(int index);
+
     /**
      * @brief sets the current sheet's background image.
      * @param image The image will be written as a PNG image.
@@ -79,6 +105,11 @@ public:
      * @return Valid QImage if the background image was set, null QImage otherwise.
      */
     QImage backgroundImage() const;
+    /**
+     * @brief removes the current active sheet background image.
+     * @return true if the background image was removed.
+     */
+    bool removeBackgroundImage();
     
     Chart *insertChart(int row, int col, const QSize &size);
     
@@ -154,8 +185,6 @@ public:
 
     bool isLoadPackage() const; 
     bool load() const; // equals to isLoadPackage()
-
-    bool changeimage(int filenoinmidea,QString newfile); // add by liufeijin20181025
 
     bool autosizeColumnWidth(const CellRange &range);
     bool autosizeColumnWidth(int column);

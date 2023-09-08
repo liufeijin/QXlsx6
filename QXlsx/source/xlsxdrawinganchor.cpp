@@ -130,6 +130,15 @@ bool DrawingAnchor::getObjectPicture(QImage &img)
     return ret;
 }
 
+bool DrawingAnchor::removeObjectPicture()
+{
+    if (m_pictureFile) {
+        m_drawing->workbook->removeMediaFile(m_pictureFile);
+        return true;
+    }
+    return false;
+}
+
 QSharedPointer<Chart> DrawingAnchor::chart() const
 {
     return m_chartFile;
