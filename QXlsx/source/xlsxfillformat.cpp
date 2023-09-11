@@ -5,6 +5,9 @@
 #include <QDebug>
 #include <QtMath>
 #include <QBuffer>
+#include <QDir>
+#include "xlsxrelationships_p.h"
+#include "xlsxchart.h"
 
 namespace QXlsx {
 
@@ -486,6 +489,40 @@ int FillFormat::registerBlip(Workbook *workbook)
     return d->blipImage->index();
 }
 
+void FillFormat::loadBlip(Workbook *workbook, Relationships *relationships)
+{
+    //After reading blip fill each blip has blipId that is somewhere registered in relationships.
+    //We need to find this relation and fild the corresponding MediaFile in
+    //worksbooks mediaFiles.
+
+    if (!d || d->blipID.isEmpty()) return;
+
+    if (!d->blipImage) {
+        auto r = relationships->getRelationshipById(d->blipID);
+        auto mediaFiles = workbook->mediaFiles();
+
+        QString name = r.target;
+
+        const auto parts = splitPath(workbook->chartFiles().first().lock()->filePath());
+        QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
+
+        bool exist = false;
+        for (const auto &mf : mediaFiles) {
+            if (mf->fileName() == path) {
+                //already exist
+                exist = true;
+                d->blipImage = mf;
+                break;
+            }
+        }
+        if (!exist) {
+            d->blipImage = QSharedPointer<MediaFile>(new MediaFile(path));
+            workbook->addMediaFile(d->blipImage, true);
+        }
+    }
+    else qDebug() << "Warning: blip image is already loaded.";
+}
+
 void FillFormat::write(QXmlStreamWriter &writer) const
 {
     switch (d->type) {
@@ -515,7 +552,7 @@ void FillFormat::read(QXmlStreamReader &reader)
 
         case FillType::GradientFill : readGradientFill(reader); break;
         //TODO: blip fill type
-//        case FillType::BlipFill : readBlipFill(reader); break;
+        case FillType::BlipFill : readBlipFill(reader); break;
         case FillType::PatternFill : readPatternFill(reader); break;
         case FillType::GroupFill : readGroupFill(reader); break;
         default: break;
@@ -625,6 +662,34 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == QLatin1String("gradFill"))
             break;
+    }
+}
+
+void FillFormat::readBlipFill(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    parseAttributeInt(reader.attributes(), QLatin1String("dpi"), d->dpi);
+    parseAttributeBool(reader.attributes(), QLatin1String("rotWithShape"), d->rotWithShape);
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("blip")) {
+                const auto &a = reader.attributes();
+                parseAttributeString(a, QLatin1String("r:embed"), d->blipID);
+                //TODO: rest of blip parameters
+            }
+            else if (reader.name() == QLatin1String("srcRect")) {
+
+            }
+            else if (reader.name() == QLatin1String("tile")) {
+
+            }
+            if (reader.name() == QLatin1String("stretch")) {
+
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name) break;
     }
 }
 

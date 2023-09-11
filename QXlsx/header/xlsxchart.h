@@ -1405,14 +1405,13 @@ public:
 
     bool loadFromXmlFile(QIODevice *device) override;
     void saveToXmlFile(QIODevice *device) const override;
-    void registerBlips(Workbook *workbook);
+    void saveMediaFiles(Workbook *workbook);
+    void loadMediaFiles(Workbook *workbook);
 
 private:
     friend class CT_XXXChart;
     Series* seriesByOrder(int order);
     bool hasAxis(int id) const;
-    int registerBlip(Workbook *workbook, const QImage &image);
-
 };
 
 }

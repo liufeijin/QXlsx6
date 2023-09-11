@@ -306,14 +306,13 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     auto chartFileToLoad = workbook->chartFiles();
     for (int i=0; i<chartFileToLoad.size(); ++i) {
         QSharedPointer<Chart> cf = chartFileToLoad[i].lock();
+        QString rel_path = getRelFilePath(cf->filePath());
+        if (zipReader.filePaths().contains(rel_path))
+            cf->relationships()->loadFromXmlData(zipReader.fileData(rel_path));
         cf->loadFromXmlData(zipReader.fileData(cf->filePath()));
 
-//        //relations
-//        for (int i=0; i<workbook->sheetCount(); ++i) {
-//            if (auto sheet = dynamic_cast<Chartsheet*>(workbook->sheet(i))) {
-//                if (sheet->drawing()->)
-//            }
-//        }
+        //relations
+        cf->loadMediaFiles(workbook.get());
     }
 
     //load media files
@@ -438,7 +437,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     {
         contentTypes->addChartName(QStringLiteral("chart%1").arg(i+1));
         QSharedPointer<Chart> cf = chartFiles[i];
-        cf->registerBlips(workbook.get());
+        cf->saveMediaFiles(workbook.get());
         zipWriter.addFile(QStringLiteral("xl/charts/chart%1.xml").arg(i+1), cf->saveToXmlData());
 
         Relationships *rel = cf->relationships();

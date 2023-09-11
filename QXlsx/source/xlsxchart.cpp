@@ -1064,6 +1064,9 @@ bool Chart::loadFromXmlFile(QIODevice *device)
         }
     }
 
+    //relate mediafiles
+
+
     return true;
 }
 
@@ -2576,7 +2579,27 @@ bool DataTable::isValid() const
     return false;
 }
 
-void Chart::registerBlips(Workbook *workbook)
+void Chart::loadMediaFiles(Workbook *workbook)
+{
+    Q_D(Chart);
+
+    if (d->relationships->isEmpty()) return;
+
+    QList<std::reference_wrapper<FillFormat>> fills;
+
+    if (d->chartSpaceShape.isValid())
+        fills << d->chartSpaceShape.fills();
+    if (d->plotAreaShape.isValid())
+        fills << d->plotAreaShape.fills();
+
+    for (auto &fill: fills) {
+        if (fill.get().type() == FillFormat::FillType::BlipFill) {
+            fill.get().loadBlip(workbook, d->relationships);
+        }
+    }
+}
+
+void Chart::saveMediaFiles(Workbook *workbook)
 {
     Q_D(Chart);
 
@@ -2603,28 +2626,6 @@ void Chart::registerBlips(Workbook *workbook)
             }
         }
     }
-
-    //writer.writeEmptyElement(QStringLiteral("picture"));
-    //writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
-}
-
-int Chart::registerBlip(Workbook *workbook, const QImage &image)
-{
-    Q_D(Chart);
-
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "PNG");
-
-    auto pictureFile = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
-    workbook->addMediaFile(pictureFile);
-
-
-    return d->relationships->count();
 }
 
 }
-
-
-

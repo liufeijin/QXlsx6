@@ -20,6 +20,7 @@ namespace QXlsx {
 
 class FillFormatPrivate;
 class Workbook;
+class Relationships;
 /**
  * @brief Sets fill properties for lines, shapes etc.
  */
@@ -302,6 +303,7 @@ public:
     QImage picture() const;
     void setPictureID(int id);
     int registerBlip(Workbook *workbook);
+    void loadBlip(Workbook *workbook, Relationships *relationships);
 
 
     bool isValid() const;
@@ -404,6 +406,7 @@ private:
     void readGradientFill(QXmlStreamReader &reader);
     void readPatternFill(QXmlStreamReader &reader);
     void readGroupFill(QXmlStreamReader &reader);
+    void readBlipFill(QXmlStreamReader &reader);
 
     void writeNoFill(QXmlStreamWriter &writer) const;
     void writeSolidFill(QXmlStreamWriter &writer) const;
