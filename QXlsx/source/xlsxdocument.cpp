@@ -318,9 +318,11 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     //load media files
     const auto mediaFileToLoad = workbook->mediaFiles();
     for (const auto &mf : mediaFileToLoad) {
-        const QString path = mf->fileName();
-        const QString suffix = path.mid(path.lastIndexOf(QLatin1Char('.'))+1);
-        mf->set(zipReader.fileData(path), suffix);
+        if (auto media = mf.lock()) {
+            const QString path = media->fileName();
+            const QString suffix = path.mid(path.lastIndexOf(QLatin1Char('.'))+1);
+            media->set(zipReader.fileData(path), suffix);
+        }
     }
 
     isLoad = true; 
@@ -447,13 +449,13 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
 
     // save media files
     const auto mfs = workbook->mediaFiles();
-    for (int i=0; i < mfs.size(); ++i)
-    {
-        auto mf = mfs[i];
-        if (!mf->mimeType().isEmpty())
-            contentTypes->addDefault(mf->suffix(), mf->mimeType());
+    for (int i=0; i < mfs.size(); ++i) {
+        if (auto mf = mfs[i].lock()) {
+            if (!mf->mimeType().isEmpty())
+                contentTypes->addDefault(mf->suffix(), mf->mimeType());
 
-        zipWriter.addFile(QStringLiteral("xl/media/image%1.%2").arg(i+1).arg(mf->suffix()), mf->contents());
+            zipWriter.addFile(QStringLiteral("xl/media/image%1.%2").arg(i+1).arg(mf->suffix()), mf->contents());
+        }
     }
 
     // save root .rels xml file
@@ -1343,7 +1345,7 @@ bool Document::changeImage(int index, const QString &fileName)
     QImage newpic(fileName);
     
     auto mediaFileToLoad = d->workbook->mediaFiles();
-    const auto mf = mediaFileToLoad[index];
+    const auto mf = mediaFileToLoad[index].lock();
     
     const QString suffix = fileName.mid(fileName.lastIndexOf(QLatin1Char('.'))+1);
     QString mimetypemy;
@@ -1362,8 +1364,10 @@ bool Document::changeImage(int index, const QString &fileName)
     buffer.open(QIODevice::WriteOnly);
     newpic.save(&buffer,suffix.toLocal8Bit().data());
     
-    mf->set(ba,suffix,mimetypemy);
-    mediaFileToLoad[index]=mf;
+    if (mf) {
+        mf->set(ba,suffix,mimetypemy);
+        mediaFileToLoad[index]=mf;
+    }
     
     return true;
 }

@@ -15,14 +15,22 @@
 #include "xlsxcolor.h"
 #include "xlsxmain.h"
 #include "xlsxutility_p.h"
+//#include "xlsxeffect.h"
 
 namespace QXlsx {
 
 class FillFormatPrivate;
 class Workbook;
 class Relationships;
+class Effect;
+
+
+//TODO: add help on available parameters for each fill type.
 /**
- * @brief Sets fill properties for lines, shapes etc.
+ * @brief Specifies fill properties for lines, shapes etc.
+ *
+ *
+ *
  */
 class QXLSX_EXPORT FillFormat
 {
@@ -35,7 +43,7 @@ public:
         NoFill, /**< @brief line or shape is not filled (not drawn) */
         SolidFill, /**< @brief line or shape has one color */
         GradientFill, /**< @brief line or shape is drawn with gradient */
-        BlipFill, /**< @brief shape is filled with a picture (not applicable to lines) */
+        PictureFill, /**< @brief shape is filled with a picture (not applicable to lines) */
         PatternFill, /**< @brief line or shape is filled with a predefined pattern */
         GroupFill  /**< @brief shape inherits the fill properties of a group (not applicable to lines)*/
     };
@@ -112,6 +120,19 @@ public:
         Trellis,
         ZigZag,
     };
+    //TODO: docs
+    enum class Alignment
+    {
+        AlignTopLeft,
+        AlignTop,
+        AlignTopRight,
+        AlignRight,
+        AlignCenter,
+        AlignLeft,
+        AlignBottomLeft,
+        AlignBottom,
+        AlignBottomRight,
+    };
 
     /**
      * @brief The BlipCompression enum specifies the amount of compression that
@@ -125,10 +146,30 @@ public:
         Print, /**< Compression size suitable for printing */
         HqPrint /**< Compression size suitable for high quality printing */
     };
+    /**
+     * @brief The PictureFillMode enum specifies the mode of applying picture fill.
+     */
+    enum class PictureFillMode
+    {
+        Stretch, /**< The picture will be stretched to fill the shape. */
+        Tile /**< The picture will be tiled to fill the shape */
+    };
 
     //TODO: doc
+    //TODO: methods to create simple fills
+    /**
+     * @brief creates an invalid fill. @see isValid().
+     */
     FillFormat();
+    /**
+     * @brief creates a fill of specified type.
+     * @param type
+     */
     explicit FillFormat(FillType type);
+    /**
+     * @brief creates a fill from a QBrush object.
+     * @param brush
+     */
     FillFormat(const QBrush &brush);
     FillFormat(const FillFormat &other);
     FillFormat &operator=(const FillFormat &rhs);
@@ -165,8 +206,11 @@ public:
      */
     QMap<double, Color> gradientList() const;
     /**
-     * @brief setGradientList sets the gradient list for the gradient fill
+     * @brief sets the gradient list for the gradient fill.
      * @param list a map with keys being the color stops (in percents), values being the colors.
+     *
+     * The simplest gradient list:
+     * ```setGradientList({{0, "red"}, {100, "blue"}});```
      */
     void setGradientList(const QMap<double, Color> &list);
     /**
@@ -231,23 +275,26 @@ public:
     void setPathShadeRect(RelativeRect rect);
 
     /**
-     * @brief returns a rectangular region of the shape to which the gradient
-     * is applied.  This region is then tiled across the remaining area of the
-     * shape to complete the fill.  The tile rectangle is defined by percentage
-     * offsets from the sides of the shape's bounding box.
-
+     * @brief returns a rectangular region of the shape to which a gradient fill
+     * is applied. This region is then tiled across the remaining
+     * area of the shape to complete the fill. The tile rectangle is defined by
+     * percentage offsets from the sides of the shape's bounding box.
      * @return valid RelativeRect if the parameter is set, nullopt otherwise.
+     *
+     * Applicable to fill types: GradientFill.
      */
     std::optional<RelativeRect> tileRect() const;
     /**
-     * @brief sets a rectangular region of the shape to which the gradient
-     * is applied. This region is then tiled across the remaining area of the
+     * @brief sets a rectangular region of the shape to which a gradient fill is applied.
+     * This region is then tiled across the remaining area of the
      * shape to complete the fill. The tile rectangle is defined by percentage
      * offsets from the sides of the shape's bounding box.
      *
      * This parameter is applicable to both linear and path gradients.
+     * @param rect tile rectangle defined by percentage offsets from the sides
+     * of the shape's bounding box.
      *
-     * @param rect
+     * Applicable to fill types: GradientFill.
      */
     void setTileRect(RelativeRect rect);
     /**
@@ -256,8 +303,26 @@ public:
      */
     std::optional<FillFormat::TileFlipMode> tileFlipMode() const;
     void setTileFlipMode(TileFlipMode tileFlipMode);
-
+    /**
+     * @brief returns whether the gradient or picture should be rotated with the
+     * shape rotation.
+     *
+     * Value of true means that when the shape that has been filled with a picture
+     * or a gradient is transformed with a rotation then the fill is transformed
+     * with the same rotation.
+     *
+     * @return valid optional value if the parameter is set, nullopt otherwise.
+     */
     std::optional<bool> rotateWithShape() const;
+    /**
+     * @brief sets whether the gradient or picture should be rotated with the
+     * shape rotation.
+     * @param val Value of true means that when the shape that has been filled
+     * with a picture or a gradient is transformed with a rotation then the fill
+     * is transformed with the same rotation.
+     *
+     * If not set, the default value is false.
+     */
     void setRotateWithShape(bool val);
 
     /* Pattern fill properties */
@@ -299,12 +364,137 @@ public:
     void setPatternType(PatternType patternType);
 
     /* Blip fill properties */
+    /**
+     * @brief sets the picture to be used for the fill.
+     *
+     * This method can be used to set the picture for the fill. The picture will
+     * be written in xlsx file as PNG.
+     *
+     * You can also specify additional parameters of the picture fill: #setDpi(),
+     * #setRotateWithShape(), #setPictureSourceRect(). The picture can either be stretched
+     * or tiled. The stretch rectangle is set via #setPictureStretchRect(),
+     * the tile parameters via #setPictureHorizontalOffset(), #setPictureVerticalOffset(),
+     * #setPictureHorizontalScale(), #setPictureVerticalScale(), #setPictureAlignment(),
+     * #setTileFlipMode().
+     *
+     * @param picture If null, the previous picture will be removed.
+     * @note This method does not check the fill type to be FillType::PictureFill.
+     */
     void setPicture(const QImage &picture);
+    /**
+     * @brief returns the picture that is used for filling.
+     * @return Not-null QImage if the picture was set, null QImage otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     QImage picture() const;
-    void setPictureID(int id);
-    int registerBlip(Workbook *workbook);
-    void loadBlip(Workbook *workbook, Relationships *relationships);
+    /**
+     * @brief returns the mode of using the picture to fill the shape.
+     * @return Valid optional value if the parameter is set, nullopt otherwise.
+     * @note If this parameter is not set, the picture will simply be truncated to
+     * the shape's bounding box.
+     *
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<PictureFillMode> pictureFillMode() const;
+    /**
+     * @brief sets the mode of using the picture to fill the shape.
+     * @param mode If set to Stretch, the picture will be stretched to fill the
+     * pictureStretchRect(). If set to Tile, the picture will be tiled.
+     * @note If pictureFillMode() is not set, the picture will simply be truncated to
+     * the shape's bounding box.
+     *
+     * You can use this method to clear the picture fill mode: ```setPictureFillMode(std::nullopt);```
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureFillMode(std::optional<PictureFillMode> mode);
+    /**
+     * @brief returns the rectangle portion of the picture used for the fill.
+     *
+     * Each edge of the source rectangle is defined by a percentage offset from
+     * the corresponding edge of the bounding box. A positive percentage specifies
+     * an inset, while a negative percentage specifies an outset. For example, a
+     * left offset of 25% specifies that the left edge of the source rectangle is
+     * located to the right of the bounding box's left edge by an amount equal
+     * to 25% of the bounding box's width.
+     *
+     * @return valid optional if the parameter is set, nullopt otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<RelativeRect> pictureSourceRect() const;
+    /**
+     * @brief sets the rectangle portion of the picture that will be used for the fill.
+     * @param rect RelativeRect that defines percentage offsets from the edges of
+     * the shape's bounding box. A positive percentage specifies
+     * an inset, while a negative percentage specifies an outset. For example, a
+     * left offset of 25% specifies that the left edge of the source rectangle is
+     * located to the right of the bounding box's left edge by an amount equal
+     * to 25% of the bounding box's width.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureSourceRect(const RelativeRect &rect);
+    /**
+     * @brief returns the DPI (dots per inch) used to calculate the size of the picture.
+     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<int> pictureDpi() const;
+    /**
+     * @brief sets the DPI (dots per inch) used to calculate the size of the picture.
+     * If not present or zero, the DPI in the picture is used.
+     * @param dpi
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureDpi(int dpi);
+    /**
+     * @brief returns the rectangle used to stretch the picture fill.
+     * @return valid optional if the parameter is set, nullopt otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<RelativeRect> pictureStretchRect() const;
+    /**
+     * @brief sets the rectangle used to stretch the picture fill.
+     * @note This method also sets pictureFillMode to PictureFillMode::Stretch.
+     * @param rect RelativeRect that defines percentage offsets from the edges of
+     * the shape's bounding box. A positive percentage specifies
+     * an inset, while a negative percentage specifies an outset. For example, a
+     * left offset of 25% specifies that the left edge of the fill rectangle is
+     * located to the right of the bounding box's left edge by an amount equal
+     * to 25% of the bounding box's width.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureStretchRect(const RelativeRect &rect);
 
+    //TODO: doc
+    /**
+     * @brief returns the horizontal offset of the picture to fill the shape's bounding rectangle.
+     * @return
+     */
+    Coordinate pictureHorizontalOffset() const;
+    /**
+     * @brief sets the horizontal offset of the picture to fill the shape's bounding rectangle.
+     * @param offset
+     * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     */
+    void setPictureHorizontalOffset(const Coordinate &offset);
+
+    Coordinate pictureVerticalOffset() const;
+    void setPictureVerticalOffset(const Coordinate &offset);
+    /**
+     * @brief returns the horizontal scaling of the picture.
+     * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
+     */
+    std::optional<double> pictureHorizontalScale() const;
+    /**
+     * @brief sets the horizontal scaling of the picture.
+     * @param scale
+     */
+    void setPictureHorizontalScale(double scale);
+
+    std::optional<double> pictureVerticalScale() const;
+    void setPictureVerticalScale(double scale);
+
+    std::optional<Alignment> tileAlignment();
+    void setTileAlignment(Alignment alignment);
 
     bool isValid() const;
 
@@ -321,7 +511,7 @@ private:
         {FillType::NoFill, "noFill"},
         {FillType::SolidFill, "solidFill"},
         {FillType::GradientFill, "gradFill"},
-        {FillType::BlipFill, "blipFill"},
+        {FillType::PictureFill, "PictureFill"},
         {FillType::PatternFill, "pattFill"},
         {FillType::GroupFill, "grpFill"},
     });
@@ -399,21 +589,39 @@ private:
         {BlipCompression::Print, "print"},
         {BlipCompression::HqPrint, "hqprint"},
     });
+    SERIALIZE_ENUM(Alignment,
+    {
+        {Alignment::AlignTopLeft, "tl"},
+        {Alignment::AlignTop, "t"},
+        {Alignment::AlignTopRight, "tr"},
+        {Alignment::AlignRight, "r"},
+        {Alignment::AlignCenter, "ctr"},
+        {Alignment::AlignLeft, "l"},
+        {Alignment::AlignBottomLeft, "bl"},
+        {Alignment::AlignBottom, "b"},
+        {Alignment::AlignBottomRight, "br"},
+    });
     friend QDebug operator<<(QDebug, const FillFormat &f);
     QSharedDataPointer<FillFormatPrivate> d;
+    friend class Effect;
+    friend class Chart; //for the following 3 methods
+    void setPictureID(int id);
+    int registerBlip(Workbook *workbook);
+    void loadBlip(Workbook *workbook, Relationships *relationships);
+
     void readNoFill(QXmlStreamReader &reader);
     void readSolidFill(QXmlStreamReader &reader);
     void readGradientFill(QXmlStreamReader &reader);
     void readPatternFill(QXmlStreamReader &reader);
     void readGroupFill(QXmlStreamReader &reader);
-    void readBlipFill(QXmlStreamReader &reader);
+    void readPictureFill(QXmlStreamReader &reader);
 
     void writeNoFill(QXmlStreamWriter &writer) const;
     void writeSolidFill(QXmlStreamWriter &writer) const;
     void writeGradientFill(QXmlStreamWriter &writer) const;
     void writePatternFill(QXmlStreamWriter &writer) const;
     void writeGroupFill(QXmlStreamWriter &writer) const;
-    void writeBlipFill(QXmlStreamWriter &writer) const;
+    void writePictureFill(QXmlStreamWriter &writer) const;
 
     void readGradientList(QXmlStreamReader &reader);
     void writeGradientList(QXmlStreamWriter &writer) const;

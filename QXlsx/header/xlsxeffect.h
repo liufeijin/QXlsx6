@@ -16,6 +16,10 @@ namespace QXlsx {
 
 class EffectPrivate;
 
+
+//TODO: completely rewrite Effect to simplify use.
+//TODO: add methods to add effects directly to shapes.
+
 /**
  * @brief The Effect class represents effects for shapes.
  */
@@ -34,18 +38,6 @@ public:
         Screen,
         Darken,
         Lighten
-    };
-    enum class Alignment
-    {
-        AlignTopLeft,
-        AlignTop,
-        AlignTopRight,
-        AlignRight,
-        AlignCenter,
-        AlignLeft,
-        AlignBottomLeft,
-        AlignBottom,
-        AlignBottomRight,
     };
 
     Effect();
@@ -161,8 +153,8 @@ public:
     void setOuterShadowVerticalSkewFactor(Angle newOuterShadowVerticalSkewFactor);
     std::optional<bool> outerShadowRotateWithShape() const;
     void setOuterShadowRotateWithShape(bool newOuterShadowRotateWithShape);
-    std::optional<Effect::Alignment> outerShadowAlignment() const;
-    void setOuterShadowAlignment(Alignment newOuterShadowAlignment);
+    std::optional<FillFormat::Alignment> outerShadowAlignment() const;
+    void setOuterShadowAlignment(FillFormat::Alignment newOuterShadowAlignment);
     Color presetShadowColor() const;
     void setPresetShadowColor(const Color &newPresetShadowColor);
     Coordinate presetShadowOffset() const;
@@ -203,8 +195,8 @@ public:
     void setReflectionHorizontalSkewFactor(Angle newReflectionHorizontalSkewFactor);
     Angle reflectionVerticalSkewFactor() const;
     void setReflectionVerticalSkewFactor(Angle newReflectionVerticalSkewFactor);
-    std::optional<Effect::Alignment> reflectionShadowAlignment() const;
-    void setReflectionShadowAlignment(Alignment newReflectionShadowAlignment);
+    std::optional<FillFormat::Alignment> reflectionShadowAlignment() const;
+    void setReflectionShadowAlignment(FillFormat::Alignment newReflectionShadowAlignment);
     std::optional<bool> reflectionRotateWithShape() const;
     void setReflectionRotateWithShape(bool newReflectionRotateWithShape);
     Coordinate softEdgesBlurRadius() const;
@@ -220,18 +212,6 @@ private:
         {FillBlendMode::Screen, "screen"},
         {FillBlendMode::Darken, "darken"},
         {FillBlendMode::Lighten, "lighten"}
-    });
-    SERIALIZE_ENUM(Alignment,
-    {
-        {Alignment::AlignTopLeft, "tl"},
-        {Alignment::AlignTop, "t"},
-        {Alignment::AlignTopRight, "tr"},
-        {Alignment::AlignRight, "r"},
-        {Alignment::AlignCenter, "ctr"},
-        {Alignment::AlignLeft, "l"},
-        {Alignment::AlignBottomLeft, "bl"},
-        {Alignment::AlignBottom, "b"},
-        {Alignment::AlignBottomRight, "br"},
     });
 
     void readEffectList(QXmlStreamReader &reader);

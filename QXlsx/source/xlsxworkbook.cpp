@@ -676,7 +676,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 /*!
  * \internal
  */
-QList<QSharedPointer<MediaFile> > Workbook::mediaFiles() const
+QList<QWeakPointer<MediaFile> > Workbook::mediaFiles() const
 {
     Q_D(const Workbook);
 
@@ -690,14 +690,13 @@ bool Workbook::addMediaFile(QSharedPointer<MediaFile> media, bool force)
 {
     Q_D(Workbook);
 
-    if (!force)
-    {
-        for (int i=0; i<d->mediaFiles.size(); ++i)
-        {
-            if (d->mediaFiles[i]->hashKey() == media->hashKey())
-            {
-                media->setIndex(i);
-                return false;
+    if (!force) {
+        for (int i=0; i<d->mediaFiles.size(); ++i) {
+            if (auto mediaFile = d->mediaFiles[i].lock()) {
+                if (mediaFile->hashKey() == media->hashKey()) {
+                    media->setIndex(i);
+                    return false;
+                }
             }
         }
     }
@@ -713,7 +712,9 @@ void Workbook::removeMediaFile(QSharedPointer<MediaFile> media)
     d->mediaFiles.removeOne(media);
     //reindex
     int index = 0;
-    for (auto &media: d->mediaFiles) media->setIndex(index++);
+    for (auto &media: d->mediaFiles) {
+        if (auto mf = media.lock())  mf->setIndex(index++);
+    }
 }
 
 /*!

@@ -65,7 +65,7 @@ public:
     //internal used member
     bool addMediaFile(QSharedPointer<MediaFile> media, bool force=false);
     void removeMediaFile(QSharedPointer<MediaFile> media);
-    QList<QSharedPointer<MediaFile> > mediaFiles() const;
+    QList<QWeakPointer<MediaFile> > mediaFiles() const;
     void addChartFile(const QSharedPointer<Chart> &chartFile);
     void removeChartFile(const QSharedPointer<Chart> &chart);
     QList<QWeakPointer<Chart> > chartFiles() const;

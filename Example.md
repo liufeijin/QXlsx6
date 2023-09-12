@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 - :zap: Basic examples (based on QtXlsx examples)
     - [calendar](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/calendar.cpp)
     - [chart](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/chart.cpp)
-    - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/chartsheet.cpp)
+    - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
     - [data validation](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/datavalidation.cpp)
     - [demo](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/demo.cpp)
     - [document property](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/documentproperty.cpp)

@@ -536,6 +536,22 @@ void Labels::write(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
+QList<std::reference_wrapper<FillFormat> > Labels::fills()
+{
+    QList<std::reference_wrapper<FillFormat> > result;
+
+    if (d) {
+        if (d->leaderLines.isValid()) result << d->leaderLines.fills();
+        if (d->defaultProperties.shape.isValid()) result << d->defaultProperties.shape.fills();
+        for (auto &l: d->labels) {
+            if (!l.isValid()) continue;
+            if (l.d->properties.shape.isValid()) result << l.d->properties.shape.fills();
+        }
+    }
+
+    return result;
+}
+
 Labels::operator QVariant() const
 {
     const auto& cref

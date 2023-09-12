@@ -170,10 +170,10 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
                 bool exist = false;
                 const auto mfs = d->workbook->mediaFiles();
                 for (const auto &mf : mfs) {
-                    if (mf->fileName() == path) {
+                    if (auto media = mf.lock(); media->fileName() == path) {
                         //already exist
                         exist = true;
-                        d->pictureFile = mf;
+                        d->pictureFile = media;
                         break;
                     }
                 }

@@ -468,7 +468,7 @@ void DrawingAnchor::loadXmlObjectPicture(QXmlStreamReader &reader)
                 bool exist = false;
                 const auto mfs = m_drawing->workbook->mediaFiles();
                 for (const auto &mf : mfs) {
-                    if (mf->fileName() == path) {
+                    if (auto media = mf.lock(); media->fileName() == path) {
                         //already exist
                         exist = true;
                         m_pictureFile = mf;

@@ -36,7 +36,7 @@ public:
     Angle outerShadowHorizontalSkewFactor;
     Angle outerShadowVerticalSkewFactor;
     std::optional<bool> outerShadowRotateWithShape;
-    std::optional<Effect::Alignment> outerShadowAlignment;
+    std::optional<FillFormat::Alignment> outerShadowAlignment;
 
     Color presetShadowColor;
     Coordinate presetShadowOffset;
@@ -56,7 +56,7 @@ public:
     std::optional<double> reflectionVerticalScalingFactor; //in %
     Angle reflectionHorizontalSkewFactor;
     Angle reflectionVerticalSkewFactor;
-    std::optional<Effect::Alignment> reflectionShadowAlignment;
+    std::optional<FillFormat::Alignment> reflectionShadowAlignment;
     std::optional<bool> reflectionRotateWithShape;
 
     Coordinate softEdgesBlurRadius;
@@ -175,8 +175,8 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                 parseAttribute(a, QLatin1String("ky"), d->outerShadowVerticalSkewFactor);
                 parseAttributeBool(a, QLatin1String("rotWithShape"), d->outerShadowRotateWithShape);
                 if (a.hasAttribute(QLatin1String("algn"))) {
-                    Alignment t;
-                    fromString(a.value(QLatin1String("algn")).toString(), t);
+                    FillFormat::Alignment t;
+                    FillFormat::fromString(a.value(QLatin1String("algn")).toString(), t);
                     d->outerShadowAlignment = t;
                 }
                 if (reader.readNextStartElement())
@@ -203,8 +203,8 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                 parseAttribute(a, QLatin1String("kx"), d->reflectionHorizontalSkewFactor);
                 parseAttribute(a, QLatin1String("ky"), d->reflectionVerticalSkewFactor);
                 if (a.hasAttribute(QLatin1String("algn"))) {
-                    Alignment t;
-                    fromString(a.value(QLatin1String("algn")).toString(), t);
+                    FillFormat::Alignment t;
+                    FillFormat::fromString(a.value(QLatin1String("algn")).toString(), t);
                     d->reflectionShadowAlignment = t;
                 }
                 parseAttributeBool(a, QLatin1String("rotWithShape"), d->reflectionRotateWithShape);
@@ -273,7 +273,7 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         if (d->outerShadowOffset.isValid())
             writer.writeAttribute(QLatin1String("dist"), d->outerShadowOffset.toString());
         if (d->outerShadowAlignment.has_value()) {
-            QString s; toString(d->outerShadowAlignment.value(), s);
+            QString s; FillFormat::toString(d->outerShadowAlignment.value(), s);
             writer.writeAttribute(QLatin1String("algn"), s);
         }
         if (d->outerShadowRotateWithShape.has_value())
@@ -328,7 +328,7 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         if (d->reflectionShadowOffset.isValid())
             writer.writeAttribute(QLatin1String("dist"), d->reflectionShadowOffset.toString());
         if (d->reflectionShadowAlignment.has_value()) {
-            QString s; toString(d->reflectionShadowAlignment.value(), s);
+            QString s; FillFormat::toString(d->reflectionShadowAlignment.value(), s);
             writer.writeAttribute(QLatin1String("algn"), s);
         }
         if (d->reflectionRotateWithShape.has_value())
@@ -704,14 +704,14 @@ void Effect::setOuterShadowRotateWithShape(bool newOuterShadowRotateWithShape)
     d->outerShadowRotateWithShape = newOuterShadowRotateWithShape;
 }
 
-std::optional<Effect::Alignment> Effect::outerShadowAlignment() const
+std::optional<FillFormat::Alignment> Effect::outerShadowAlignment() const
 {
     if (d)
         return d->outerShadowAlignment;
     return {};
 }
 
-void Effect::setOuterShadowAlignment(Effect::Alignment newOuterShadowAlignment)
+void Effect::setOuterShadowAlignment(FillFormat::Alignment newOuterShadowAlignment)
 {
     if (!d) d = new EffectPrivate;
     d->outerShadowAlignment = newOuterShadowAlignment;
@@ -926,14 +926,14 @@ void Effect::setReflectionVerticalSkewFactor(Angle newReflectionVerticalSkewFact
     d->reflectionVerticalSkewFactor = newReflectionVerticalSkewFactor;
 }
 
-std::optional<Effect::Alignment> Effect::reflectionShadowAlignment() const
+std::optional<FillFormat::Alignment> Effect::reflectionShadowAlignment() const
 {
     if (d)
         return d->reflectionShadowAlignment;
     return {};
 }
 
-void Effect::setReflectionShadowAlignment(Effect::Alignment newReflectionShadowAlignment)
+void Effect::setReflectionShadowAlignment(FillFormat::Alignment newReflectionShadowAlignment)
 {
     if (!d) d = new EffectPrivate;
     d->reflectionShadowAlignment = newReflectionShadowAlignment;

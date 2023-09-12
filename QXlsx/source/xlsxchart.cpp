@@ -2591,9 +2591,31 @@ void Chart::loadMediaFiles(Workbook *workbook)
         fills << d->chartSpaceShape.fills();
     if (d->plotAreaShape.isValid())
         fills << d->plotAreaShape.fills();
+    for (auto &sub: d->subcharts) {
+        if (sub.dropLines.isValid()) fills << sub.dropLines.fills();
+        if (sub.hiLowLines.isValid()) fills << sub.hiLowLines.fills();
+        if (sub.upDownBars.isValid()) {
+            if (sub.upDownBars.upBar.isValid()) fills << sub.upDownBars.upBar.fills();
+            if (sub.upDownBars.downBar.isValid()) fills << sub.upDownBars.downBar.fills();
+        }
+        for (auto &sl: sub.serLines)
+            if (sl.isValid()) fills << sl.fills();
+        for (auto &s: sub.bandFormats.values()) {
+            if (s.isValid()) fills << s.fills();
+        }
+        if (sub.labels.isValid()) fills << sub.labels.fills();
+    }
+    if (d->legend.isValid() && d->legend.shape().isValid())
+        fills << d->legend.shape().fills();
+    for (auto &ax: d->axisList) {
+        if (!ax.isValid()) continue;
+        if (ax.majorGridLines().isValid()) fills << ax.majorGridLines().fills();
+        if (ax.minorGridLines().isValid()) fills << ax.minorGridLines().fills();
+        if (ax.shape().isValid()) fills << ax.shape().fills();
+    }
 
     for (auto &fill: fills) {
-        if (fill.get().type() == FillFormat::FillType::BlipFill) {
+        if (fill.get().type() == FillFormat::FillType::PictureFill) {
             fill.get().loadBlip(workbook, d->relationships);
         }
     }
@@ -2613,9 +2635,31 @@ void Chart::saveMediaFiles(Workbook *workbook)
         fills << d->chartSpaceShape.fills();
     if (d->plotAreaShape.isValid())
         fills << d->plotAreaShape.fills();
+    for (auto &sub: d->subcharts) {
+        if (sub.dropLines.isValid()) fills << sub.dropLines.fills();
+        if (sub.hiLowLines.isValid()) fills << sub.hiLowLines.fills();
+        if (sub.upDownBars.isValid()) {
+            if (sub.upDownBars.upBar.isValid()) fills << sub.upDownBars.upBar.fills();
+            if (sub.upDownBars.downBar.isValid()) fills << sub.upDownBars.downBar.fills();
+        }
+        for (auto &sl: sub.serLines)
+            if (sl.isValid()) fills << sl.fills();
+        for (auto &s: sub.bandFormats.values()) {
+            if (s.isValid()) fills << s.fills();
+        }
+        if (sub.labels.isValid()) fills << sub.labels.fills();
+    }
+    if (d->legend.isValid() && d->legend.shape().isValid())
+        fills << d->legend.shape().fills();
+    for (auto &ax: d->axisList) {
+        if (!ax.isValid()) continue;
+        if (ax.majorGridLines().isValid()) fills << ax.majorGridLines().fills();
+        if (ax.minorGridLines().isValid()) fills << ax.minorGridLines().fills();
+        if (ax.shape().isValid()) fills << ax.shape().fills();
+    }
 
     for (auto &fill: fills) {
-        if (fill.get().type() == FillFormat::FillType::BlipFill) {
+        if (fill.get().type() == FillFormat::FillType::PictureFill) {
             int id = fill.get().registerBlip(workbook); //after that blip has unique id
             if (id != -1) {
                 d->relationships->addDocumentRelationship(QStringLiteral("/image"),

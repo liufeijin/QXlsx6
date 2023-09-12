@@ -44,7 +44,7 @@ public:
     QStringList sheetNames;
     QSharedPointer<Styles> styles;
     QSharedPointer<Theme> theme;
-    QList<QSharedPointer<MediaFile> > mediaFiles;
+    QList<QWeakPointer<MediaFile> > mediaFiles;
     QList<QWeakPointer<Chart> > chartFiles;
     QList<XlsxDefineNameData> definedNamesList;
 

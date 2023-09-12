@@ -47,6 +47,14 @@ public:
     QString blipID; // internal
     double alpha;
     std::optional<FillFormat::BlipCompression> compression;
+    std::optional<RelativeRect> blipSrcRect;
+    std::optional<RelativeRect> blipFillRect;
+    Coordinate tx;
+    Coordinate ty;
+    std::optional<double> sx;
+    std::optional<double> sy;
+    std::optional<FillFormat::Alignment> tileAlignment;
+    std::optional<FillFormat::PictureFillMode> fillMode;
 
     bool operator==(const FillFormatPrivate &other) const;
 };
@@ -71,6 +79,7 @@ FillFormatPrivate::FillFormatPrivate(const FillFormatPrivate &other)
       foregroundColor(other.foregroundColor),
       backgroundColor(other.backgroundColor),
       patternType(other.patternType)
+    //TODO: rest of parameters
 {
 
 }
@@ -95,6 +104,7 @@ bool FillFormatPrivate::operator==(const FillFormatPrivate &other) const
     if (foregroundColor != other.foregroundColor) return false;
     if (backgroundColor != other.backgroundColor) return false;
     if (patternType != other.patternType) return false;
+    //TODO: rest of parameters
     return true;
 }
 
@@ -450,12 +460,19 @@ void FillFormat::setPatternType(FillFormat::PatternType patternType)
 void FillFormat::setPicture(const QImage &picture)
 {
     if (!d) d = new FillFormatPrivate;
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    picture.save(&buffer, "PNG");
+    if (picture.isNull()) {
+        d->blipImage.reset();
+        d->blipID.clear();
+    }
+    else {
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        picture.save(&buffer, "PNG");
 
-    d->blipImage = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
+        d->blipImage = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
+        //no possibility to register the new MediaFile in workbook, this will be done later.
+    }
 }
 
 QImage FillFormat::picture() const
@@ -466,6 +483,113 @@ QImage FillFormat::picture() const
         return pic;
     }
     return {};
+}
+
+std::optional<FillFormat::PictureFillMode> FillFormat::pictureFillMode() const
+{
+    if (d) return d->fillMode;
+    return std::nullopt;
+}
+void FillFormat::setPictureFillMode(std::optional<PictureFillMode> mode)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->fillMode = mode;
+}
+
+std::optional<RelativeRect> FillFormat::pictureSourceRect() const
+{
+    if (d) return d->blipSrcRect;
+    return {};
+}
+
+void FillFormat::setPictureSourceRect(const RelativeRect &rect)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->blipSrcRect = rect;
+}
+
+std::optional<int> FillFormat::pictureDpi() const
+{
+    if (d) return d->dpi;
+    return {};
+}
+
+void FillFormat::setPictureDpi(int dpi)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->dpi = dpi;
+}
+
+std::optional<RelativeRect> FillFormat::pictureStretchRect() const
+{
+    if (d) return d->blipFillRect;
+    return {};
+}
+void FillFormat::setPictureStretchRect(const RelativeRect &rect)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->blipFillRect = rect;
+    d->fillMode = PictureFillMode::Stretch;
+}
+
+Coordinate FillFormat::pictureHorizontalOffset() const
+{
+    if (d) return d->tx;
+    return {};
+}
+void FillFormat::setPictureHorizontalOffset(const Coordinate &offset)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->tx = offset;
+    d->fillMode = PictureFillMode::Tile;
+}
+
+Coordinate FillFormat::pictureVerticalOffset() const
+{
+    if (d) return d->ty;
+    return {};
+}
+void FillFormat::setPictureVerticalOffset(const Coordinate &offset)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->ty = offset;
+    d->fillMode = PictureFillMode::Tile;
+}
+
+std::optional<double> FillFormat::pictureHorizontalScale() const
+{
+    if (d) return d->sx;
+    return {};
+}
+void FillFormat::setPictureHorizontalScale(double scale)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->sx = scale;
+    d->fillMode = PictureFillMode::Tile;
+}
+
+std::optional<double> FillFormat::pictureVerticalScale() const
+{
+    if (d) return d->sy;
+    return {};
+}
+void FillFormat::setPictureVerticalScale(double scale)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->sy = scale;
+    d->fillMode = PictureFillMode::Tile;
+}
+
+std::optional<FillFormat::Alignment> FillFormat::tileAlignment()
+{
+    if (d) return d->tileAlignment;
+    return {};
+}
+void FillFormat::setTileAlignment(FillFormat::Alignment alignment)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->tileAlignment = alignment;
+    d->fillMode = PictureFillMode::Tile;
 }
 
 bool FillFormat::isValid() const
@@ -492,7 +616,7 @@ int FillFormat::registerBlip(Workbook *workbook)
 void FillFormat::loadBlip(Workbook *workbook, Relationships *relationships)
 {
     //After reading blip fill each blip has blipId that is somewhere registered in relationships.
-    //We need to find this relation and fild the corresponding MediaFile in
+    //We need to find this relation and find the corresponding MediaFile in
     //worksbooks mediaFiles.
 
     if (!d || d->blipID.isEmpty()) return;
@@ -508,10 +632,10 @@ void FillFormat::loadBlip(Workbook *workbook, Relationships *relationships)
 
         bool exist = false;
         for (const auto &mf : mediaFiles) {
-            if (mf->fileName() == path) {
+            if (auto media = mf.lock(); media->fileName() == path) {
                 //already exist
                 exist = true;
-                d->blipImage = mf;
+                d->blipImage = media;
                 break;
             }
         }
@@ -529,7 +653,7 @@ void FillFormat::write(QXmlStreamWriter &writer) const
         case FillType::NoFill : writeNoFill(writer); break;
         case FillType::SolidFill : writeSolidFill(writer); break;
         case FillType::GradientFill : writeGradientFill(writer); break;
-        case FillType::BlipFill : writeBlipFill(writer); break;
+        case FillType::PictureFill : writePictureFill(writer); break;
         case FillType::PatternFill : writePatternFill(writer); break;
         case FillType::GroupFill : writeGroupFill(writer); break;
     }
@@ -549,10 +673,8 @@ void FillFormat::read(QXmlStreamReader &reader)
     switch (d->type) {
         case FillType::NoFill: break; //NO-OP
         case FillType::SolidFill : readSolidFill(reader); break;
-
         case FillType::GradientFill : readGradientFill(reader); break;
-        //TODO: blip fill type
-        case FillType::BlipFill : readBlipFill(reader); break;
+        case FillType::PictureFill : readPictureFill(reader); break;
         case FillType::PatternFill : readPatternFill(reader); break;
         case FillType::GroupFill : readGroupFill(reader); break;
         default: break;
@@ -665,7 +787,7 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
     }
 }
 
-void FillFormat::readBlipFill(QXmlStreamReader &reader)
+void FillFormat::readPictureFill(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
     parseAttributeInt(reader.attributes(), QLatin1String("dpi"), d->dpi);
@@ -680,6 +802,7 @@ void FillFormat::readBlipFill(QXmlStreamReader &reader)
                 //TODO: rest of blip parameters
             }
             else if (reader.name() == QLatin1String("srcRect")) {
+                RelativeRect r; r.read(reader);
 
             }
             else if (reader.name() == QLatin1String("tile")) {
@@ -802,7 +925,7 @@ void FillFormat::writeGroupFill(QXmlStreamWriter &writer) const
     writer.writeEmptyElement(QLatin1String("a:grpFill"));
 }
 
-void FillFormat::writeBlipFill(QXmlStreamWriter &writer) const
+void FillFormat::writePictureFill(QXmlStreamWriter &writer) const
 {
     if (!d->blipImage || d->blipID.isEmpty()) return;
     writer.writeStartElement(QLatin1String("a:blipFill"));
@@ -854,6 +977,7 @@ void FillFormat::writeGradientList(QXmlStreamWriter &writer) const
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const FillFormat &f)
 {
+    //TODO: rest of parameters
     QDebugStateSaver saver(dbg);
     dbg.setAutoInsertSpaces(false);
     dbg << "QXlsx::FillFormat(" ;

@@ -890,10 +890,8 @@ void Text::readRichString(QXmlStreamReader &reader)
 
 void Text::readPlainString(QXmlStreamReader &reader)
 {
-    if (!d) {
-        d = new TextPrivate;
-        d->type = Type::PlainText;
-    }
+    if (!d) d = new TextPrivate;
+    d->type = Type::PlainText;
     Q_ASSERT(reader.name() == QLatin1String("v"));
 
     d->plainText = reader.readElementText();

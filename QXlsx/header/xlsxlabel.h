@@ -119,7 +119,7 @@ public:
     });
 private:
     friend QDebug operator<<(QDebug dbg, const Label &f);
-
+    friend class Labels;
     QSharedDataPointer<LabelPrivate> d;
 };
 
@@ -204,6 +204,7 @@ public:
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
+    QList<std::reference_wrapper<FillFormat> > fills();
 private:
     friend QDebug operator<<(QDebug dbg, const Labels &f);
     QSharedDataPointer<LabelsPrivate> d;

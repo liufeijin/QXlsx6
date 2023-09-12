@@ -59,6 +59,7 @@ QString toST_PercentInt(int val);
 void parseAttributeBool(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<bool> &target);
 void parseAttributeBool(const QXmlStreamAttributes &a, const QLatin1String &name, bool &target);
 void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<double> &target);
+void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &name, double &target);
 void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<int> &target);
 void parseAttributeInt(const QXmlStreamAttributes &a, const QLatin1String &name, std::optional<int> &target);
 void parseAttributeInt(const QXmlStreamAttributes &a, const QLatin1String &name, int &target);
