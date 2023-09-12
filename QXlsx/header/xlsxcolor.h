@@ -244,10 +244,11 @@ public:
      */
     Color();
     /**
-     * @brief creates a system dependent color.
-     * @param autoColor true if color is system color dependent.
+     * @brief creates a named color.
+     * @param colorName valid svg color name, f.e. "red" or "magenta" or "yellow".
      */
-    Color(bool autoColor);
+    Color(const QString &colorName);
+    Color(const char *colorName);
     /**
      * @brief creates an RGB color.
      * @param color
@@ -263,20 +264,6 @@ public:
      * @param color
      */
     Color(SystemColor color);
-    /**
-     * @brief creates a named color.
-     * @param colorName valid svg color name, f.e. "red" or "magenta" or "yellow"
-     * @warning avoid implicit conversion of char* to bool:
-     *
-     * @code
-     * Color c = "red"; //wll create a color of Type::Auto
-     * Color c1 = QString("red"); // will work as expected
-     * @endcode
-     *
-     * Use QString(), QLatin1String() or QStringLiteral() to create a named color.
-     *
-     */
-    Color(const QString &colorName);
     Color(const Color &other);
     Color &operator=(const Color &other);
     ~Color();
@@ -293,6 +280,7 @@ public:
     void setPresetColor(const QString &colorName);
     void setSchemeColor(SchemeColor color);
     void setSystemColor(SystemColor color);
+    void setAutoColor();
     /**
      * @brief adds color transform to the list of transforms.
      * @param transform transform type

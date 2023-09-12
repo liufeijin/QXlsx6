@@ -17,11 +17,6 @@ Color::Color() : type_(Type::Invalid)
 
 }
 
-Color::Color(bool autoColor) : type_{Type::Auto}, val{autoColor}
-{
-
-}
-
 Color::Color(QColor color) : type_{Type::RGB}
 {
     setRgb(color);
@@ -40,6 +35,11 @@ Color::Color(Color::SystemColor color) : type_{Type::System}
 Color::Color(const QString &colorName) : type_{Type::Preset}
 {
     val = colorName;
+}
+
+Color::Color(const char *colorName): type_{Type::Preset}
+{
+    val = QString::fromLocal8Bit(colorName);
 }
 
 Color::Color(const Color &other) : type_{other.type_}, val{other.val}, tr{other.tr},
@@ -114,6 +114,13 @@ void Color::setSystemColor(Color::SystemColor color)
 {
     type_ = Type::System;
     val = static_cast<int>(color);
+    isDirty = true;
+}
+
+void Color::setAutoColor()
+{
+    type_ = Type::Auto;
+    val = true;
     isDirty = true;
 }
 

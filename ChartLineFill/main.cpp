@@ -123,10 +123,11 @@ int main(int argc, char *argv[])
     chart4->addDefaultAxes(); //required
 
     FillFormat f(FillFormat::FillType::GradientFill);
+    f.setGradientList({{0, Color("red")}, {100, Color("blue")}});
     //the gradient fill is applied to the range [30%..70%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
-    f.addGradientStop(30, QString("red")); //first 30% of the shape will be filled with red
-    f.addGradientStop(70, QString("blue")); //last 30% of the shape will be filled with blue
+    //f.addGradientStop(30, "red"); //first 30% of the shape will be filled with red
+    //f.addGradientStop(70, "blue"); //last 30% of the shape will be filled with blue
     //set the linear gradient angle of 45 degrees
     f.setLinearShadeAngle(45.0);
     //make this angle be actually from the top left corner to the bottom right corner of the shape
@@ -140,8 +141,8 @@ int main(int argc, char *argv[])
     FillFormat f1(FillFormat::FillType::GradientFill);
     //the gradient fill is applied to the range [0%..100%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
-    f1.addGradientStop(0, Color("red"));
-    f1.addGradientStop(100, Color("blue"));
+    f1.addGradientStop(0, "red");
+    f1.addGradientStop(100, "blue");
     //set the linear gradient angle of 45 degrees
     f1.setLinearShadeAngle(45.0);
     //make this angle be actually from the top left corner to the bottom right corner of the shape

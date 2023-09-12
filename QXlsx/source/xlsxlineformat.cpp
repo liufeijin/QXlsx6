@@ -762,10 +762,10 @@ void LineFormat::readDashPattern(QXmlStreamReader &reader)
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("ds")) {
                 double dash;
-                parseAttributeDouble(reader.attributes(), QLatin1String("d"), dash);
+                parseAttributePercent(reader.attributes(), QLatin1String("d"), dash);
                 if (dash > 0) d->dashPattern << dash;
                 double space;
-                parseAttributeDouble(reader.attributes(), QLatin1String("sp"), space);
+                parseAttributePercent(reader.attributes(), QLatin1String("sp"), space);
                 if (space > 0) d->dashPattern << space;
             }
             else reader.skipCurrentElement();
