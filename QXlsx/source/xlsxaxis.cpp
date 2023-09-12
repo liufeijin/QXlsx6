@@ -1130,6 +1130,22 @@ void Axis::setDisplayUnits(const DisplayUnits &displayUnits)
     d->displayUnits = displayUnits;
 }
 
+ShapeFormat Axis::shape() const
+{
+    if (d) return d->shape;
+    return {};
+}
+ShapeFormat &Axis::shape()
+{
+    if (!d) d = new AxisPrivate;
+    return d->shape;
+}
+void Axis::setShape(const ShapeFormat &shape)
+{
+    if (!d) d = new AxisPrivate;
+    d->shape = shape;
+}
+
 TextFormat &Axis::textProperties()
 {
     if (!d) d = new AxisPrivate;

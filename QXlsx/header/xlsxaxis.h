@@ -687,6 +687,10 @@ public:
      */
     void setDisplayUnits(const DisplayUnits &displayUnits);
 
+    ShapeFormat shape() const;
+    ShapeFormat &shape();
+    void setShape(const ShapeFormat &shape);
+
     void write(QXmlStreamWriter &writer) const;
     void read(QXmlStreamReader &reader);
 
