@@ -464,4 +464,19 @@ void parseAttributePercent(const QXmlStreamAttributes &a, const QLatin1String &n
     if (a.hasAttribute(name)) target = fromST_Percent(a.value(name));
 }
 
+void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val)
+{
+    if (val.has_value()) writeAttributePercent(writer, name, val.value());
+}
+
+void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, double val)
+{
+    QString s = toST_Percent(val);
+    if (s.endsWith(".000000%")) {
+        s.chop(8);
+        s.append('%');
+    }
+    writer.writeAttribute(name, s);
+}
+
 }

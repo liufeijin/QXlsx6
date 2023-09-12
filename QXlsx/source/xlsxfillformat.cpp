@@ -45,8 +45,7 @@ public:
     std::optional<int> dpi;
     QSharedPointer<MediaFile> blipImage;
     QString blipID; // internal
-    double alpha;
-    std::optional<FillFormat::BlipCompression> compression;
+    std::optional<double> alpha;
     std::optional<RelativeRect> blipSrcRect;
     std::optional<RelativeRect> blipFillRect;
     Coordinate tx;
@@ -55,6 +54,9 @@ public:
     std::optional<double> sy;
     std::optional<FillFormat::Alignment> tileAlignment;
     std::optional<FillFormat::PictureFillMode> fillMode;
+    std::optional<FillFormat::PictureCompression> blipCompression;
+    //TODO: all other blip effects (16 more)
+    //TODO: create a separate class Blip
 
     bool operator==(const FillFormatPrivate &other) const;
 };
@@ -592,6 +594,28 @@ void FillFormat::setTileAlignment(FillFormat::Alignment alignment)
     d->fillMode = PictureFillMode::Tile;
 }
 
+std::optional<FillFormat::PictureCompression> FillFormat::pictureCompression() const
+{
+    if (d) return d->blipCompression;
+    return {};
+}
+void FillFormat::setPictureCompression(FillFormat::PictureCompression compression)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->blipCompression = compression;
+}
+
+std::optional<double> FillFormat::pictureAlpha() const
+{
+    if (d) return d->alpha;
+    return {};
+}
+void FillFormat::setPictureAlpha(double alpha)
+{
+    if (!d) d = new FillFormatPrivate;
+    d->alpha = alpha;
+}
+
 bool FillFormat::isValid() const
 {
     if (d) return true;
@@ -796,20 +820,41 @@ void FillFormat::readPictureFill(QXmlStreamReader &reader)
     while (!reader.atEnd()) {
         const auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("blip")) {
-                const auto &a = reader.attributes();
                 parseAttributeString(a, QLatin1String("r:embed"), d->blipID);
+                if (a.hasAttribute(QLatin1String("cstate"))) {
+                    PictureCompression c; fromString(a.value(QLatin1String("cstate")).toString(), c);
+                    d->blipCompression = c;
+                }
                 //TODO: rest of blip parameters
             }
             else if (reader.name() == QLatin1String("srcRect")) {
                 RelativeRect r; r.read(reader);
-
+                d->blipSrcRect = r;
             }
             else if (reader.name() == QLatin1String("tile")) {
-
+                d->fillMode = PictureFillMode::Tile;
+                if (a.hasAttribute(QLatin1String("tx"))) d->tx = Coordinate::create(a.value(QLatin1String("tx")));
+                if (a.hasAttribute(QLatin1String("ty"))) d->ty = Coordinate::create(a.value(QLatin1String("ty")));
+                parseAttributePercent(a, QLatin1String("sx"), d->sx);
+                parseAttributePercent(a, QLatin1String("sy"), d->sy);
+                if (a.hasAttribute(QLatin1String("flip"))) {
+                    TileFlipMode t; fromString(a.value(QLatin1String("flip")).toString(), t);
+                    d->tileFlipMode = t;
+                }
+                if (a.hasAttribute(QLatin1String("algn"))) {
+                    Alignment t; fromString(a.value(QLatin1String("algn")).toString(), t);
+                    d->tileAlignment = t;
+                }
             }
-            if (reader.name() == QLatin1String("stretch")) {
-
+            else if (reader.name() == QLatin1String("stretch")) {
+                d->fillMode = PictureFillMode::Stretch;
+                reader.readNextStartElement();
+                if (reader.name() == "fillRect") {
+                    RelativeRect r; r.read(reader);
+                    d->blipFillRect = r;
+                }
             }
         }
         else if (token == QXmlStreamReader::EndElement && reader.name() == name) break;
@@ -934,11 +979,46 @@ void FillFormat::writePictureFill(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("a:blip"));
     writer.writeAttribute(QLatin1String("xmlns:r"), QLatin1String("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
     writer.writeAttribute(QLatin1String("r:embed"), d->blipID);
+    if (d->blipCompression.has_value()) {
+        QString s; toString(d->blipCompression.value(), s);
+        writer.writeAttribute(QLatin1String("cstate"), s);
+    }
+    if (d->alpha.has_value()) {
+        writer.writeEmptyElement(QLatin1String("a:alphaModFix"));
+        writer.writeAttribute(QLatin1String("amt"), QString::number(int((1.0 - d->alpha.value())*100000)));
+    }
     writer.writeEndElement(); //a:blip
-    writer.writeEmptyElement(QLatin1String("a:srcRect"));
-    writer.writeStartElement(QLatin1String("a:stretch"));
-    writer.writeEmptyElement(QLatin1String("a:fillRect"));
-    writer.writeEndElement(); //a:stretch
+    if (d->blipSrcRect.has_value()) d->blipSrcRect.value().write(writer, QLatin1String("a:srcRect"));
+    if (d->fillMode.has_value()) {
+        switch (d->fillMode.value()) {
+            case PictureFillMode::Stretch: {
+                writer.writeStartElement(QLatin1String("a:stretch"));
+                if (d->blipFillRect.has_value()) {
+                    d->blipFillRect.value().write(writer, QLatin1String("a:fillRect"));
+                }
+                writer.writeEndElement(); //a:stretch
+                break;
+            }
+            case PictureFillMode::Tile: {
+                writer.writeStartElement(QLatin1String("a:tile"));
+                if (d->tx.isValid()) writeAttribute(writer, QLatin1String("tx"), d->tx.toString());
+                if (d->ty.isValid()) writeAttribute(writer, QLatin1String("ty"), d->ty.toString());
+                writeAttributePercent(writer, QLatin1String("sx"), d->sx);
+                writeAttributePercent(writer, QLatin1String("sy"), d->sy);
+                if (d->tileFlipMode.has_value()) {
+                    QString s; toString(d->tileFlipMode.value(), s);
+                    writeAttribute(writer, QLatin1String("flip"), s);
+                }
+                if (d->tileAlignment.has_value()) {
+                    QString s; toString(d->tileAlignment.value(), s);
+                    writeAttribute(writer, QLatin1String("algn"), s);
+                }
+                writer.writeEndElement(); //a:tile
+                break;
+            }
+        }
+    }
+
     writer.writeEndElement(); //a:blipFill
 }
 
@@ -967,7 +1047,7 @@ void FillFormat::writeGradientList(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("a:gsLst"));
     for (auto i = d->gradientList.constBegin(); i!= d->gradientList.constEnd(); ++i) {
         writer.writeStartElement(QLatin1String("a:gs"));
-        writer.writeAttribute("pos", toST_Percent(i.key()));
+        writeAttributePercent(writer, QLatin1String("pos"), i.key());
         i.value().write(writer);
         writer.writeEndElement();
     }

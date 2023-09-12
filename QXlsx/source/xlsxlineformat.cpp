@@ -570,10 +570,10 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
             writer.writeStartElement("a:custDash");
             for (int i = 0; i < d->dashPattern.size();) {
                 writer.writeEmptyElement(QLatin1String("a:ds"));
-                writer.writeAttribute(QLatin1String("d"), toST_Percent(d->dashPattern[i]));
+                writeAttributePercent(writer, QLatin1String("d"), d->dashPattern[i]);
                 i++;
                 if (i < d->dashPattern.size())
-                    writer.writeAttribute(QLatin1String("sp"), toST_Percent(d->dashPattern[i]));
+                    writeAttributePercent(writer, QLatin1String("sp"), d->dashPattern[i]);
                 else
                     writer.writeAttribute(QLatin1String("sp"), "100%");
                 i++;
@@ -586,7 +586,7 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
             case LineJoin::Bevel: writer.writeEmptyElement("a:bevel"); break;
             case LineJoin::Miter: {
                 writer.writeEmptyElement("a:miter");
-                if (d->miterLimit.has_value()) writer.writeAttribute("lim", toST_Percent(d->miterLimit.value()));
+                writeAttributePercent(writer, QLatin1String("lim"), d->miterLimit);
                 break;
             }
             case LineJoin::Round: writer.writeEmptyElement("a:round"); break;

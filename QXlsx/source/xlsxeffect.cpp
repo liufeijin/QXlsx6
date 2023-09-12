@@ -278,10 +278,8 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         }
         if (d->outerShadowRotateWithShape.has_value())
             writer.writeAttribute(QLatin1String("rotWithShape"), toST_Boolean(d->outerShadowRotateWithShape.value()));
-        if (d->outerShadowHorizontalScalingFactor.has_value())
-            writer.writeAttribute(QLatin1String("sx"), toST_Percent(d->outerShadowHorizontalScalingFactor.value()));
-        if (d->outerShadowVerticalScalingFactor.has_value())
-            writer.writeAttribute(QLatin1String("sy"), toST_Percent(d->outerShadowVerticalScalingFactor.value()));
+        writeAttributePercent(writer, QLatin1String("sx"), d->outerShadowHorizontalScalingFactor);
+        writeAttributePercent(writer, QLatin1String("sy"), d->outerShadowVerticalScalingFactor);
         if (d->outerShadowHorizontalSkewFactor.isValid())
             writer.writeAttribute(QLatin1String("kx"), d->outerShadowHorizontalSkewFactor.toString());
         if (d->outerShadowVerticalSkewFactor.isValid())
@@ -313,14 +311,10 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         writer.writeEmptyElement(QLatin1String("a:reflection"));
         if (d->reflectionGradientDirection.isValid())
             writer.writeAttribute(QLatin1String("dir"), d->reflectionGradientDirection.toString());
-        if (d->reflectionEndOpacity.has_value())
-            writer.writeAttribute(QLatin1String("endA"), toST_Percent(d->reflectionEndOpacity.value()));
-        if (d->reflectionStartOpacity.has_value())
-            writer.writeAttribute(QLatin1String("stA"), toST_Percent(d->reflectionStartOpacity.value()));
-        if (d->reflectionStartPosition.has_value())
-            writer.writeAttribute(QLatin1String("stPos"), toST_Percent(d->reflectionStartPosition.value()));
-        if (d->reflectionEndPosition.has_value())
-            writer.writeAttribute(QLatin1String("endPos"), toST_Percent(d->reflectionEndPosition.value()));
+        writeAttributePercent(writer, QLatin1String("endA"), d->reflectionEndOpacity);
+        writeAttributePercent(writer, QLatin1String("stA"), d->reflectionStartOpacity);
+        writeAttributePercent(writer, QLatin1String("stPos"), d->reflectionStartPosition);
+        writeAttributePercent(writer, QLatin1String("endPos"), d->reflectionEndPosition);
         if (d->reflectionOffsetDirection.isValid())
             writer.writeAttribute(QLatin1String("fadeDir"), d->reflectionOffsetDirection.toString());
         if (d->reflectionBlurRadius.isValid())
@@ -333,10 +327,8 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
         }
         if (d->reflectionRotateWithShape.has_value())
             writer.writeAttribute(QLatin1String("rotWithShape"), toST_Boolean(d->reflectionRotateWithShape.value()));
-        if (d->reflectionHorizontalScalingFactor.has_value())
-            writer.writeAttribute(QLatin1String("sx"), toST_Percent(d->reflectionHorizontalScalingFactor.value()));
-        if (d->reflectionVerticalScalingFactor.has_value())
-            writer.writeAttribute(QLatin1String("sy"), toST_Percent(d->reflectionVerticalScalingFactor.value()));
+        writeAttributePercent(writer, QLatin1String("sx"), d->reflectionHorizontalScalingFactor);
+        writeAttributePercent(writer, QLatin1String("sy"), d->reflectionVerticalScalingFactor);
         if (d->reflectionHorizontalSkewFactor.isValid())
             writer.writeAttribute(QLatin1String("kx"), d->reflectionHorizontalSkewFactor.toString());
         if (d->reflectionVerticalSkewFactor.isValid())

@@ -293,9 +293,7 @@ void Scene3D::writeCamera(QXmlStreamWriter &writer, const QString &name) const
     if (camera.fovAngle.isValid()) {
         writer.writeAttribute(QLatin1String("fov"), camera.fovAngle.toString());
     }
-    if (camera.zoom.has_value()) {
-        writer.writeAttribute(QLatin1String("zoom"), toST_Percent(camera.zoom.value()));
-    }
+    writeAttributePercent(writer, QLatin1String("zoom"), camera.zoom);
     if (camera.rotation.size()==3) {
         writer.writeEmptyElement(QLatin1String("a:rot"));
         writer.writeAttribute(QLatin1String("lat"), camera.rotation[0].toString());
@@ -1066,10 +1064,10 @@ void RelativeRect::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (!isValid()) return;
     writer.writeEmptyElement(name);
-    if (left.has_value()) writer.writeAttribute(QLatin1String("l"), toST_Percent(left.value()));
-    if (right.has_value()) writer.writeAttribute(QLatin1String("r"), toST_Percent(right.value()));
-    if (top.has_value()) writer.writeAttribute(QLatin1String("t"), toST_Percent(top.value()));
-    if (bottom.has_value()) writer.writeAttribute(QLatin1String("b"), toST_Percent(bottom.value()));
+    writeAttributePercent(writer, QLatin1String("l"), left);
+    writeAttributePercent(writer, QLatin1String("r"), right);
+    writeAttributePercent(writer, QLatin1String("t"), top);
+    writeAttributePercent(writer, QLatin1String("b"), bottom);
 }
 
 void RelativeRect::read(QXmlStreamReader &reader)

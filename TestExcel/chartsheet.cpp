@@ -35,6 +35,7 @@ int chartsheet()
     if (img.load(":/background1.jpg")) {
         barChart->chartShape().fill().setType(FillFormat::FillType::PictureFill);
         barChart->chartShape().fill().setPicture(img);
+        barChart->plotAreaShape().setFill(FillFormat(FillFormat::FillType::NoFill));
     }
 
     //Saving result
@@ -43,8 +44,8 @@ int chartsheet()
     //Testing load result
     Document xlsx2("chartsheet1.xlsx");
     {
-        Chartsheet *sheet = static_cast<Chartsheet*>(xlsx2.sheet("Chart2"));
-        Chart *barChart = sheet->chart();
+        sheet = static_cast<Chartsheet*>(xlsx2.sheet("Chart2"));
+        barChart = sheet->chart();
         Q_ASSERT(barChart->chartShape().isValid() && barChart->chartShape().fill().isValid()
                  && !barChart->chartShape().fill().picture().isNull());
 

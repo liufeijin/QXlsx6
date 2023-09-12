@@ -330,8 +330,8 @@ bool Color::write(QXmlStreamWriter &writer, const QString &node) const
             writer.writeStartElement(QLatin1String("a:hslClr"));
             QColor col = val.value<QColor>();
             writer.writeAttribute(QLatin1String("hue"), QString::number(qint64(col.hueF()*21600000)));
-            writer.writeAttribute(QLatin1String("sat"), toST_Percent(col.saturationF()*100));
-            writer.writeAttribute(QLatin1String("lum"), toST_Percent(col.lightnessF()*100));
+            writeAttributePercent(writer, QLatin1String("sat"), col.saturationF()*100);
+            writeAttributePercent(writer, QLatin1String("lum"), col.lightnessF()*100);
 
             tr.write(writer);
             writer.writeEndElement();

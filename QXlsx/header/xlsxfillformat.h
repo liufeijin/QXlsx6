@@ -135,10 +135,10 @@ public:
     };
 
     /**
-     * @brief The BlipCompression enum specifies the amount of compression that
+     * @brief The PictureCompression enum specifies the amount of compression that
      * has been used for a fill image or picture.
      */
-    enum class BlipCompression
+    enum class PictureCompression
     {
         None, /**< No compression was used (default) */
         Email, /**< Compression size suitable for inclusion with email */
@@ -230,7 +230,6 @@ public:
      * @brief sets the direction of color change for the linear gradient.
      * @param val the direction measured clockwise starting from the horizontal.
      */
-    //TODO: test and check clockwise or counterclockwise
     void setLinearShadeAngle(Angle val);
     /**
      * @brief returns whether the linear gradient angle scales with the fill region.
@@ -463,38 +462,101 @@ public:
      * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     void setPictureStretchRect(const RelativeRect &rect);
-
-    //TODO: doc
     /**
-     * @brief returns the horizontal offset of the picture to fill the shape's bounding rectangle.
-     * @return
+     * @brief returns the horizontal offset of the picture to tile the shape's bounding rectangle.
+     * @return valid Coordinate if the parameter was set.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     Coordinate pictureHorizontalOffset() const;
     /**
-     * @brief sets the horizontal offset of the picture to fill the shape's bounding rectangle.
-     * @param offset
+     * @brief sets the horizontal offset of the picture to tile the shape's bounding rectangle.
+     * @param offset horizontal picture offset.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     void setPictureHorizontalOffset(const Coordinate &offset);
-
+    /**
+     * @brief returns the vertical offset of the picture to tile the shape's bounding rectangle.
+     * @return valid Coordinate if the parameter was set.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     Coordinate pictureVerticalOffset() const;
+    /**
+     * @brief sets the vertical offset of the picture to tile the shape's bounding rectangle.
+     * @param offset vertical picture offset.
+     * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     void setPictureVerticalOffset(const Coordinate &offset);
     /**
      * @brief returns the horizontal scaling of the picture.
      * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     std::optional<double> pictureHorizontalScale() const;
     /**
      * @brief sets the horizontal scaling of the picture.
-     * @param scale
+     * @param scale Percentage of the scaling. Value of 100.0 means 100% scaling.
+     * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     void setPictureHorizontalScale(double scale);
-
+    /**
+     * @brief returns the vertical scaling of the picture.
+     * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     std::optional<double> pictureVerticalScale() const;
+    /**
+     * @brief sets the vertical scaling of the picture.
+     * @param scale Percentage of the scaling. Value of 100.0 means 100% scaling.
+     * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     void setPictureVerticalScale(double scale);
-
+    /**
+     * @brief returns where to align the first tile with respect to the shape.
+     *
+     * Alignment happens after the scaling, but before the additional offset.
+     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     std::optional<Alignment> tileAlignment();
+    /**
+     * @brief sets returns where to align the first tile with respect to the shape.
+     *
+     * Alignment happens after the scaling, but before the additional offset.
+     * @param alignment picture alignment.
+     * @note This method also sets pictureFillMode to PictureFillMode::Tile.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
     void setTileAlignment(Alignment alignment);
+    /**
+     * @brief returns the compression quality that was used for a picture.
+     * @return  valid optional if the parameter was set, nullopt otherwise.
+     * @note This parameter serves as an additional info.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<FillFormat::PictureCompression> pictureCompression() const;
+    /**
+     * @brief sets the compression quality that was used for a picture.
+     * @param compression picture compression.
+     * @note This parameter serves as an additional info.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureCompression(FillFormat::PictureCompression compression);
+    /**
+     * @brief returns the picture's alpha (opacity) (0 to 100.0 percent.)
+     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    std::optional<double> pictureAlpha() const;
+    /**
+     * @brief sets the picture's alpha (opacity) (0 to 100.0 percent.)
+     * @param alpha the picture opacity (0 means no opacity, 100.0 means full opacity.)
+     * @note This method does not check the #fillType to be FillType::PictureFill.
+     */
+    void setPictureAlpha(double alpha);
 
     bool isValid() const;
 
@@ -511,7 +573,7 @@ private:
         {FillType::NoFill, "noFill"},
         {FillType::SolidFill, "solidFill"},
         {FillType::GradientFill, "gradFill"},
-        {FillType::PictureFill, "PictureFill"},
+        {FillType::PictureFill, "blipFill"},
         {FillType::PatternFill, "pattFill"},
         {FillType::GroupFill, "grpFill"},
     });
@@ -582,12 +644,12 @@ private:
         {PatternType::Trellis, "trellis"},
         {PatternType::ZigZag, "zigZag"},
     });
-    SERIALIZE_ENUM(BlipCompression, {
-        {BlipCompression::None, "none"},
-        {BlipCompression::Email, "email"},
-        {BlipCompression::Screen, "screen"},
-        {BlipCompression::Print, "print"},
-        {BlipCompression::HqPrint, "hqprint"},
+    SERIALIZE_ENUM(PictureCompression, {
+        {PictureCompression::None, "none"},
+        {PictureCompression::Email, "email"},
+        {PictureCompression::Screen, "screen"},
+        {PictureCompression::Print, "print"},
+        {PictureCompression::HqPrint, "hqprint"},
     });
     SERIALIZE_ENUM(Alignment,
     {

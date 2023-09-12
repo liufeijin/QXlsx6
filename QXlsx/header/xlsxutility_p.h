@@ -79,6 +79,8 @@ void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::op
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, bool val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, const QString &val);
+void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val);
+void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, double val);
 
 bool parseXsdBoolean(const QString &value, bool defaultValue=false);
 

@@ -1163,10 +1163,8 @@ void TextProperties::write(QXmlStreamWriter &writer) const
                 writer.writeEmptyElement(QLatin1String("a:noAutofit")); break;
             case TextProperties::TextAutofit::NormalAutofit:
                 writer.writeEmptyElement(QLatin1String("a:normAutofit"));
-                if (fontScale.has_value())
-                    writer.writeAttribute(QLatin1String("fontScale"), toST_Percent(fontScale.value()));
-                if (lineSpaceReduction.has_value())
-                    writer.writeAttribute(QLatin1String("lnSpcReduction"), toST_Percent(lineSpaceReduction.value()));
+                writeAttributePercent(writer, QLatin1String("fontScale"), fontScale);
+                writeAttributePercent(writer, QLatin1String("lnSpcReduction"), lineSpaceReduction);
                 break;
             case TextProperties::TextAutofit::ShapeAutofit:
                 writer.writeEmptyElement(QLatin1String("a:spAutofit")); break;
@@ -1322,7 +1320,7 @@ void Size::write(QXmlStreamWriter &writer, const QString &name) const
     }
     if (val.userType() == QMetaType::Double) {
         writer.writeEmptyElement(QLatin1String("spcPct"));
-        writer.writeAttribute(QLatin1String("val"), toST_Percent(val.toDouble()));
+        writeAttributePercent(writer, QLatin1String("val"), val.toDouble());
     }
     writer.writeEndElement();
 }
@@ -2238,8 +2236,7 @@ void CharacterProperties::write(QXmlStreamWriter &writer, const QString &name) c
     writeAttribute(writer, QLatin1String("dirty"), proofingNeeded);
     writeAttribute(writer, QLatin1String("err"), spellingErrorFound);
     writeAttribute(writer, QLatin1String("smtClean"), checkForSmartTagsNeeded);
-    if (baseline.has_value()) writer.writeAttribute(QLatin1String("baseline"),
-                                                    toST_Percent(baseline.value()));
+    writeAttributePercent(writer, QLatin1String("baseline"), baseline);
     if (smartTagId.has_value()) writer.writeAttribute(QLatin1String("smtId"),
                                                     QString::number(smartTagId.value()));
     if (!bookmarkLinkTarget.isEmpty()) writer.writeAttribute(QLatin1String("bmk"),
