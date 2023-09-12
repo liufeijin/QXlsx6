@@ -49,7 +49,7 @@ Specified as a bool value. */
         Grayscale, /**< the color produced is the grayscale of the input color.
 Specified as a bool value. */
         Alpha, /**< specifies (replaces) the opacity of the input color.
-Specified as a positive percentage value (a 50.0 alpha gives 50% opacity to the color.) */
+Specified as a positive percentage value (a 30.0 alpha gives 30% opacity to the color.) */
         AlphaOffset, /**< increases or decreases the input color opacity by the specified precentage offset.
 A 10.0 alpha offset increases a 50% opacity to 60%. A -10.0 alpha offset decreases a 50% opacity to 40%.*/
         AlphaModulation, /**< specifies a more or less opaque version of its input color.

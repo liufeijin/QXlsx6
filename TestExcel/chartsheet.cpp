@@ -35,6 +35,7 @@ int chartsheet()
     if (img.load(":/background1.jpg")) {
         barChart->chartShape().fill().setType(FillFormat::FillType::PictureFill);
         barChart->chartShape().fill().setPicture(img);
+        barChart->chartShape().fill().setPictureAlpha(70); //70% opacity
         barChart->plotAreaShape().setFill(FillFormat(FillFormat::FillType::NoFill));
     }
 

@@ -47,22 +47,29 @@ public:
         PatternFill, /**< @brief line or shape is filled with a predefined pattern */
         GroupFill  /**< @brief shape inherits the fill properties of a group (not applicable to lines)*/
     };
-    //TODO: doc
-    enum class PathShadeType
+    /**
+     * @brief The PathType enum specifies the shape of path to follow for a gradient.
+     */
+    enum class PathType
     {
-        Shape,
-        Circle,
-        Rectangle
+        Shape, /**< Gradient follows the shape */
+        Circle, /**< Gradient follows a circular path */
+        Rectangle /**< Gradient follows a rectangular path */
     };
-    //TODO: doc
+    /**
+     * @brief The TileFlipMode enum specifies whether/how to flip the contents
+     * of a tile region when using it to fill a larger fill region.
+     */
     enum class TileFlipMode
     {
-        None,
-        X,
-        Y,
-        XY
+        None, /**< Tiles are not flipped */
+        X, /**< Tiles are flipped horizontally*/
+        Y, /**< Tiles are flipped vertically*/
+        XY /**< Tiles are flipped horizontally and vertically*/
     };
-    //TODO: doc
+    /**
+     * @brief The PatternType enum specifies the pattern fill type.
+     */
     enum class PatternType
     {
         Percent5,
@@ -120,18 +127,20 @@ public:
         Trellis,
         ZigZag,
     };
-    //TODO: docs
+    /**
+     * @brief The Alignment enum specifies where to align the first tile with respect to the shape.
+     */
     enum class Alignment
     {
-        AlignTopLeft,
-        AlignTop,
-        AlignTopRight,
-        AlignRight,
-        AlignCenter,
-        AlignLeft,
-        AlignBottomLeft,
-        AlignBottom,
-        AlignBottomRight,
+        AlignTopLeft, /**< Tiling will begin from the top left corner of the shape's bounding rectangle. */
+        AlignTop, /**< Tiling will begin from the top edge of the shape's bounding rectangle. */
+        AlignTopRight, /**< Tiling will begin from the top right corner of the shape's bounding rectangle. */
+        AlignRight, /**< Tiling will begin from the right edge of the shape's bounding rectangle. */
+        AlignCenter, /**< Tiling will begin from the center of the shape's bounding rectangle. */
+        AlignLeft, /**< Tiling will begin from the left edge of the shape's bounding rectangle. */
+        AlignBottomLeft, /**< Tiling will begin from the bottom left corner of the shape's bounding rectangle. */
+        AlignBottom, /**< Tiling will begin from the bottom edge of the shape's bounding rectangle. */
+        AlignBottomRight, /**< Tiling will begin from the bottom right corner of the shape's bounding rectangle. */
     };
 
     /**
@@ -155,7 +164,6 @@ public:
         Tile /**< The picture will be tiled to fill the shape */
     };
 
-    //TODO: doc
     //TODO: methods to create simple fills
     /**
      * @brief creates an invalid fill. @see isValid().
@@ -163,7 +171,14 @@ public:
     FillFormat();
     /**
      * @brief creates a fill of specified type.
-     * @param type
+     * @param type a fill type.
+     * @note There is a distinction between a default fill (when the FillFormat object
+     * is not valid) and a transparent fill (the FillFormat object has FillType::NoFill).
+     * Compare:
+     * ```cpp
+     * shape1.setFill(FillFormat::NoFill); // sets a transparent fill
+     * shape2.setFill({}); //sets default fill, that is a solid fill with white color.
+     * ```
      */
     explicit FillFormat(FillType type);
     /**
@@ -171,6 +186,41 @@ public:
      * @param brush
      */
     FillFormat(const QBrush &brush);
+    /**
+     * @brief creates solid fill.
+     * @param color the color to be used for a fill.
+     */
+    FillFormat(const QColor &color);
+    /**
+     * @brief creates solid fill.
+     * @param color the color to be used for a fill.
+     */
+    FillFormat(const Color &color);
+    /**
+     * @brief creates pattern fill
+     * @param foreground the foreground color
+     * @param background the background color
+     * @param pattern the pattern type
+     */
+    FillFormat(const QColor &foreground, const QColor &background, PatternType pattern);
+    /**
+     * @brief creates gradient fill with minimal parameters
+     * @param gradientList a map of color stops.
+     * @param pathType type of the gradient path.
+     */
+    FillFormat(const QMap<double, Color> &gradientList, PathType pathType);
+    /**
+     * @brief creates linear gradient fill with minimal parameters.
+     * @param gradientList a map of color stops.
+     */
+    FillFormat(const QMap<double, Color> &gradientList);
+
+    /**
+     * @brief creates picture fill
+     * @param picture a picture to be used for a fill.
+     */
+    FillFormat(const QImage &picture);
+
     FillFormat(const FillFormat &other);
     FillFormat &operator=(const FillFormat &rhs);
     ~FillFormat();
@@ -203,6 +253,7 @@ public:
     /**
      * @brief returns the gradients list for the gradient fill
      * @return QMap, where keys are color stops in percents, values are gradient colors.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     QMap<double, Color> gradientList() const;
     /**
@@ -211,12 +262,14 @@ public:
      *
      * The simplest gradient list:
      * ```setGradientList({{0, "red"}, {100, "blue"}});```
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setGradientList(const QMap<double, Color> &list);
     /**
      * @brief adds a gradient stop to the gradient list.
      * @param stop percentage value (100.0 is 100%).
      * @param color Color.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void addGradientStop(double stop, const Color &color);
     /**
@@ -224,11 +277,15 @@ public:
      * @return valid Angle if the parameter is set.
      *
      * The direction of color change is measured clockwise starting from the horizontal.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     Angle linearShadeAngle() const;
     /**
      * @brief sets the direction of color change for the linear gradient.
      * @param val the direction measured clockwise starting from the horizontal.
+     * @warning invoking this method also clears the path gradient parameters (#pathType(),
+     * #pathRect()).
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setLinearShadeAngle(Angle val);
     /**
@@ -236,7 +293,7 @@ public:
      * If set to true, the linearShadeAngle() is scaled to the shape's fill region.
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
-     * @return
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     std::optional<bool> linearShadeScaled() const;
     /**
@@ -245,33 +302,43 @@ public:
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
      * If false, the gradient angle is independent of the shape's fill region.
+     * @warning invoking this method also clears the path gradient parameters (#pathType(),
+     * #pathRect()).
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setLinearShadeScaled(bool scaled);
 
     /**
      * @brief returns the type of the path gradient.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
-    std::optional<PathShadeType> pathShadeType() const;
+    std::optional<PathType> pathType() const;
     /**
      * @brief sets the type of the path gradient.
-     * @param pathShadeType type of the path gradient.
+     * @param pathType type of the path gradient.
+     * @warning invoking this method also clears the linear gradient parameters (#linearShadeAngle(),
+     * #linearShadeScaled()).
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
-    void setPathShadeType(PathShadeType pathShadeType);
+    void setPathType(PathType pathType);
 
     /**
      * @brief returns the "focus" rectangle for the center shade, specified
      * relative to the fill tile rectangle. The center shade fills the entire
-     * tile except for the margins specified by pathShadeRect.
-     * @return
+     * tile except for the margins specified by pathRect.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
-    std::optional<RelativeRect> pathShadeRect() const;
+    std::optional<RelativeRect> pathRect() const;
     /**
      * @brief sets the "focus" rectangle for the center shade, specified
      * relative to the fill tile rectangle. The center shade fills the entire
      * tile except for the margins specified by rect.
      * @param rect
+     * @warning invoking this method also clears the linear gradient parameters (#linearShadeAngle(),
+     * #linearShadeScaled()).
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
-    void setPathShadeRect(RelativeRect rect);
+    void setPathRect(RelativeRect rect);
 
     /**
      * @brief returns a rectangular region of the shape to which a gradient fill
@@ -279,8 +346,7 @@ public:
      * area of the shape to complete the fill. The tile rectangle is defined by
      * percentage offsets from the sides of the shape's bounding box.
      * @return valid RelativeRect if the parameter is set, nullopt otherwise.
-     *
-     * Applicable to fill types: GradientFill.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     std::optional<RelativeRect> tileRect() const;
     /**
@@ -292,15 +358,12 @@ public:
      * This parameter is applicable to both linear and path gradients.
      * @param rect tile rectangle defined by percentage offsets from the sides
      * of the shape's bounding box.
-     *
-     * Applicable to fill types: GradientFill.
+     * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setTileRect(RelativeRect rect);
-    /**
-     * @brief tileFlipMode
-     * @return
-     */
+    //TODO: doc
     std::optional<FillFormat::TileFlipMode> tileFlipMode() const;
+    //TODO: doc
     void setTileFlipMode(TileFlipMode tileFlipMode);
     /**
      * @brief returns whether the gradient or picture should be rotated with the
@@ -316,7 +379,7 @@ public:
     /**
      * @brief sets whether the gradient or picture should be rotated with the
      * shape rotation.
-     * @param val Value of true means that when the shape that has been filled
+     * @param val true means that when the shape that has been filled
      * with a picture or a gradient is transformed with a rotation then the fill
      * is transformed with the same rotation.
      *
@@ -547,13 +610,16 @@ public:
     void setPictureCompression(FillFormat::PictureCompression compression);
     /**
      * @brief returns the picture's alpha (opacity) (0 to 100.0 percent.)
+     *
+     * If pictureAlpha() is 30.0, the picture has 30% opacity.
+     *
      * @return valid optional if the parameter was set, nullopt otherwise.
      * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     std::optional<double> pictureAlpha() const;
     /**
-     * @brief sets the picture's alpha (opacity) (0 to 100.0 percent.)
-     * @param alpha the picture opacity (0 means no opacity, 100.0 means full opacity.)
+     * @brief sets the picture's alpha (0 to 100.0 percent.)
+     * @param alpha the picture opacity (0 means transparent, 100.0 means full opacity.)
      * @note This method does not check the #fillType to be FillType::PictureFill.
      */
     void setPictureAlpha(double alpha);
@@ -577,10 +643,10 @@ private:
         {FillType::PatternFill, "pattFill"},
         {FillType::GroupFill, "grpFill"},
     });
-    SERIALIZE_ENUM(PathShadeType, {
-        {PathShadeType::Shape, "shape"},
-        {PathShadeType::Circle, "circle"},
-        {PathShadeType::Rectangle, "rect"},
+    SERIALIZE_ENUM(PathType, {
+        {PathType::Shape, "shape"},
+        {PathType::Circle, "circle"},
+        {PathType::Rectangle, "rect"},
     });
     SERIALIZE_ENUM(TileFlipMode, {
         {TileFlipMode::None, "none"},
@@ -687,6 +753,7 @@ private:
 
     void readGradientList(QXmlStreamReader &reader);
     void writeGradientList(QXmlStreamWriter &writer) const;
+    void readBlip(QXmlStreamReader &reader);
 };
 
 QDebug operator<<(QDebug dbg, const FillFormat &f);

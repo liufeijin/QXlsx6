@@ -123,33 +123,28 @@ int main(int argc, char *argv[])
     chart4->addDefaultAxes(); //required
 
     FillFormat f(FillFormat::FillType::GradientFill);
-    f.setGradientList({{0, Color("red")}, {100, Color("blue")}});
     //the gradient fill is applied to the range [30%..70%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
-    //f.addGradientStop(30, "red"); //first 30% of the shape will be filled with red
-    //f.addGradientStop(70, "blue"); //last 30% of the shape will be filled with blue
+    f.addGradientStop(30, "red"); //first 30% of the shape will be filled with red
+    f.addGradientStop(70, "blue"); //last 30% of the shape will be filled with blue
     //set the linear gradient angle of 45 degrees
     f.setLinearShadeAngle(45.0);
     //make this angle be actually from the top left corner to the bottom right corner of the shape
     f.setLinearShadeScaled(true);
     chart4->chartShape().setFill(f);
 
+
+    //Chart 5 will have path gradient fill
     Chart *chart5 = xlsx.insertChart(44, 10, QSize(600, 300));
     chart5->setType(Chart::Type::Bar); //required
     chart5->addDefaultAxes(); //required
 
-    FillFormat f1(FillFormat::FillType::GradientFill);
     //the gradient fill is applied to the range [0%..100%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
-    f1.addGradientStop(0, "red");
-    f1.addGradientStop(100, "blue");
-    //set the linear gradient angle of 45 degrees
-    f1.setLinearShadeAngle(45.0);
-    //make this angle be actually from the top left corner to the bottom right corner of the shape
-    f1.setLinearShadeScaled(true);
+    FillFormat f1({{0, "red"},{100, "blue"}}, FillFormat::PathType::Circle);
     //shrink the gradient by applying the edge margins of 20% at the top and bottom,
-    //and 45% at left and right
-    RelativeRect rr(45,20,45,20); f1.setTileRect(rr);
+    //and -10% at left and right
+    RelativeRect rr(-10,20,-10,20); f1.setTileRect(rr);
     //This parameter is actually ignored by Excel.
     f1.setTileFlipMode(FillFormat::TileFlipMode::XY);
     chart5->chartShape().setFill(f1);

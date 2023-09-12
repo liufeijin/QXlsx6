@@ -30,7 +30,7 @@ public:
     Angle linearShadeAngle; //0..360
     std::optional<bool> linearShadeScaled;
     //path gradient
-    std::optional<FillFormat::PathShadeType> pathShadeType;
+    std::optional<FillFormat::PathType> pathShadeType;
     std::optional<RelativeRect> pathShadeRect;
     std::optional<RelativeRect> tileRect;
     std::optional<FillFormat::TileFlipMode> tileFlipMode;
@@ -67,21 +67,18 @@ FillFormatPrivate::FillFormatPrivate()
 }
 
 FillFormatPrivate::FillFormatPrivate(const FillFormatPrivate &other)
-    : QSharedData(other),
-      type(other.type),
-      color(other.color),
-      gradientList(other.gradientList),
-      linearShadeAngle(other.linearShadeAngle),
-      linearShadeScaled(other.linearShadeScaled),
-      pathShadeType(other.pathShadeType),
-      pathShadeRect(other.pathShadeRect),
-      tileRect(other.tileRect),
-      tileFlipMode(other.tileFlipMode),
-      rotWithShape(other.rotWithShape),
-      foregroundColor(other.foregroundColor),
-      backgroundColor(other.backgroundColor),
-      patternType(other.patternType)
-    //TODO: rest of parameters
+    : QSharedData(other), type(other.type), color(other.color),
+      gradientList(other.gradientList), linearShadeAngle(other.linearShadeAngle),
+      linearShadeScaled(other.linearShadeScaled), pathShadeType(other.pathShadeType),
+      pathShadeRect(other.pathShadeRect), tileRect(other.tileRect),
+      tileFlipMode(other.tileFlipMode), rotWithShape(other.rotWithShape),
+      foregroundColor(other.foregroundColor), backgroundColor(other.backgroundColor),
+      patternType(other.patternType), dpi{other.dpi},
+      blipImage{other.blipImage}, //TODO: check copying of fills with picture fill
+      blipID{other.blipID}, alpha{other.alpha}, blipSrcRect{other.blipSrcRect},
+      blipFillRect{other.blipFillRect}, tx{other.tx}, ty{other.ty},
+      sx{other.sx}, sy{other.sy}, tileAlignment{other.tileAlignment},
+      fillMode{other.fillMode}, blipCompression{other.blipCompression}
 {
 
 }
@@ -106,7 +103,20 @@ bool FillFormatPrivate::operator==(const FillFormatPrivate &other) const
     if (foregroundColor != other.foregroundColor) return false;
     if (backgroundColor != other.backgroundColor) return false;
     if (patternType != other.patternType) return false;
-    //TODO: rest of parameters
+    if (dpi != other.dpi) return false;
+    if (blipImage != other.blipImage) return false;
+    if (blipID != other.blipID) return false;
+    if (alpha != other.alpha) return false;
+    if (blipSrcRect != other.blipSrcRect) return false;
+    if (blipFillRect != other.blipFillRect) return false;
+    if (tx != other.tx) return false;
+    if (ty != other.ty) return false;
+    if (sx != other.sx) return false;
+    if (sy != other.sy) return false;
+    if (tileAlignment != other.tileAlignment) return false;
+    if (fillMode != other.fillMode) return false;
+    if (blipCompression != other.blipCompression) return false;
+
     return true;
 }
 
@@ -226,8 +236,23 @@ void FillFormatPrivate::parse(const QBrush &brush)
             break;
         case Qt::ConicalGradientPattern:
             break;
-        case Qt::TexturePattern: //TODO: blip fill
+        case Qt::TexturePattern:  {
+            type = FillFormat::FillType::PictureFill;
+            auto picture = brush.textureImage();
+            if (picture.isNull()) {
+                blipImage.reset();
+                blipID.clear();
+            }
+            else {
+                QByteArray ba;
+                QBuffer buffer(&ba);
+                buffer.open(QIODevice::WriteOnly);
+                picture.save(&buffer, "PNG");
+                blipImage = QSharedPointer<MediaFile>(new MediaFile(ba, QStringLiteral("png"), QStringLiteral("image/png")));
+                //no possibility to register the new MediaFile in workbook, this will be done later.
+            }
             break;
+        }
 
     }
 }
@@ -235,7 +260,7 @@ void FillFormatPrivate::parse(const QBrush &brush)
 QBrush FillFormatPrivate::toBrush() const
 {
     QBrush brush;
-
+    //TODO:
     return brush;
 }
 
@@ -254,6 +279,51 @@ FillFormat::FillFormat(const QBrush &brush)
 {
     d = new FillFormatPrivate;
     d->parse(brush);
+}
+
+FillFormat::FillFormat(const QColor &color)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::SolidFill;
+    d->color = color;
+}
+
+FillFormat::FillFormat(const Color &color)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::SolidFill;
+    d->color = color;
+}
+
+FillFormat::FillFormat(const QColor &foreground, const QColor &background, PatternType pattern)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::PatternFill;
+    d->foregroundColor = foreground;
+    d->backgroundColor = background;
+    d->patternType = pattern;
+}
+
+FillFormat::FillFormat(const QMap<double, Color> &gradientList, PathType pathType)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::GradientFill;
+    setGradientList(gradientList);
+    d->pathShadeType = pathType;
+}
+
+FillFormat::FillFormat(const QMap<double, Color> &gradientList)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::GradientFill;
+    setGradientList(gradientList);
+}
+
+FillFormat::FillFormat(const QImage &picture)
+{
+    d = new FillFormatPrivate;
+    d->type = FillType::PictureFill;
+    setPicture(picture);
 }
 
 FillFormat::FillFormat(const FillFormat &other) : d(other.d)
@@ -349,6 +419,8 @@ void FillFormat::setLinearShadeAngle(Angle val)
 {
     if (!d) d = new FillFormatPrivate;
     d->linearShadeAngle = val;
+    d->pathShadeType.reset();
+    d->pathShadeRect.reset();
 }
 
 std::optional<bool> FillFormat::linearShadeScaled() const
@@ -361,30 +433,36 @@ void FillFormat::setLinearShadeScaled(bool scaled)
 {
     if (!d) d = new FillFormatPrivate;
     d->linearShadeScaled = scaled;
+    d->pathShadeType.reset();
+    d->pathShadeRect.reset();
 }
 
-std::optional<FillFormat::PathShadeType> FillFormat::pathShadeType() const
+std::optional<FillFormat::PathType> FillFormat::pathType() const
 {
     if (d)  return d->pathShadeType;
     return {};
 }
 
-void FillFormat::setPathShadeType(FillFormat::PathShadeType pathShadeType)
+void FillFormat::setPathType(FillFormat::PathType pathType)
 {
     if (!d) d = new FillFormatPrivate;
-    d->pathShadeType = pathShadeType;
+    d->pathShadeType = pathType;
+    d->linearShadeAngle = {};
+    d->linearShadeScaled.reset();
 }
 
-std::optional<RelativeRect> FillFormat::pathShadeRect() const
+std::optional<RelativeRect> FillFormat::pathRect() const
 {
     if (d)  return d->pathShadeRect;
     return {};
 }
 
-void FillFormat::setPathShadeRect(RelativeRect rect)
+void FillFormat::setPathRect(RelativeRect rect)
 {
     if (!d) d = new FillFormatPrivate;
     d->pathShadeRect = rect;
+    d->linearShadeAngle = {};
+    d->linearShadeScaled.reset();
 }
 
 std::optional<RelativeRect> FillFormat::tileRect() const
@@ -787,9 +865,9 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
                 const auto &attr = reader.attributes();
                 if (attr.hasAttribute(QLatin1String("path"))) {
                     auto s = attr.value(QLatin1String("path"));
-                    if (s == QLatin1String("shape")) d->pathShadeType = PathShadeType::Shape;
-                    else if (s == QLatin1String("circle")) d->pathShadeType = PathShadeType::Circle;
-                    else if (s == QLatin1String("rect")) d->pathShadeType = PathShadeType::Rectangle;
+                    if (s == QLatin1String("shape")) d->pathShadeType = PathType::Shape;
+                    else if (s == QLatin1String("circle")) d->pathShadeType = PathType::Circle;
+                    else if (s == QLatin1String("rect")) d->pathShadeType = PathType::Rectangle;
                 }
 
                 reader.readNextStartElement();
@@ -811,6 +889,31 @@ void FillFormat::readGradientFill(QXmlStreamReader &reader)
     }
 }
 
+void FillFormat::readBlip(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    const auto &a = reader.attributes();
+    parseAttributeString(a, QLatin1String("r:embed"), d->blipID);
+    if (a.hasAttribute(QLatin1String("cstate"))) {
+        PictureCompression c; fromString(a.value(QLatin1String("cstate")).toString(), c);
+        d->blipCompression = c;
+    }
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("alphaModFix")) {
+                parseAttributePercent(reader.attributes(), QLatin1String("amt"), d->alpha);
+            }
+            else {
+                reader.skipCurrentElement();
+                //TODO: all other blip effects (16 more)
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name) break;
+    }
+}
+
 void FillFormat::readPictureFill(QXmlStreamReader &reader)
 {
     const auto &name = reader.name();
@@ -822,12 +925,7 @@ void FillFormat::readPictureFill(QXmlStreamReader &reader)
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("blip")) {
-                parseAttributeString(a, QLatin1String("r:embed"), d->blipID);
-                if (a.hasAttribute(QLatin1String("cstate"))) {
-                    PictureCompression c; fromString(a.value(QLatin1String("cstate")).toString(), c);
-                    d->blipCompression = c;
-                }
-                //TODO: rest of blip parameters
+                readBlip(reader);
             }
             else if (reader.name() == QLatin1String("srcRect")) {
                 RelativeRect r; r.read(reader);
@@ -895,9 +993,9 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
     if (d->pathShadeType.has_value()) {
         writer.writeStartElement("a:path");
         switch (d->pathShadeType.value()) {
-            case PathShadeType::Shape: writer.writeAttribute("path", "shape"); break;
-            case PathShadeType::Circle: writer.writeAttribute("path", "circle"); break;
-            case PathShadeType::Rectangle: writer.writeAttribute("path", "rect"); break;
+            case PathType::Shape: writer.writeAttribute("path", "shape"); break;
+            case PathType::Circle: writer.writeAttribute("path", "circle"); break;
+            case PathType::Rectangle: writer.writeAttribute("path", "rect"); break;
         }
         if (d->pathShadeRect.has_value())
             d->pathShadeRect->write(writer, "a:fillToRect");
@@ -985,7 +1083,7 @@ void FillFormat::writePictureFill(QXmlStreamWriter &writer) const
     }
     if (d->alpha.has_value()) {
         writer.writeEmptyElement(QLatin1String("a:alphaModFix"));
-        writer.writeAttribute(QLatin1String("amt"), QString::number(int((1.0 - d->alpha.value())*100000)));
+        writeAttributePercent(writer, QLatin1String("amt"), d->alpha.value());
     }
     writer.writeEndElement(); //a:blip
     if (d->blipSrcRect.has_value()) d->blipSrcRect.value().write(writer, QLatin1String("a:srcRect"));
