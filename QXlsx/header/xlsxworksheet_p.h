@@ -127,7 +127,6 @@ struct XlsxColumnInfo
 {
     XlsxColumnInfo( int firstColumn, // = 0,
                     int lastColumn, // = 1,
-                    bool isSetWidth,
                     double width = 0,
                     const Format &format = Format(),
                     bool hidden = false)
@@ -136,7 +135,6 @@ struct XlsxColumnInfo
           firstColumn(firstColumn),
           lastColumn(lastColumn),
           outlineLevel(0),
-          isSetWidth(isSetWidth),
           customWidth(false),
           hidden(hidden),
           collapsed(false)
@@ -144,12 +142,11 @@ struct XlsxColumnInfo
 
     }
 
-    double width;
+    std::optional<double> width;
     Format format;
     int firstColumn;
     int lastColumn;
     int outlineLevel;
-    bool isSetWidth;
     bool customWidth;
     bool hidden;
     bool collapsed;
@@ -190,8 +187,11 @@ public:
     void loadXmlHyperlinks(QXmlStreamReader &reader);
     void loadXmlCell(QXmlStreamReader &reader);
 
+    //NOTE: this method inserts missing rows into rowsInfo, as it is used exclusively in
+    //setRowsHeight, setRowsFormat, setRowsHidden methods.
+    //I guess if we need to change format of rows that are yet empty, this is the best solution.
     QList<QSharedPointer<XlsxRowInfo> > getRowInfoList(int rowFirst, int rowLast);
-    QList<QSharedPointer<XlsxColumnInfo> > getColumnInfoList(int colFirst, int colLast);
+    QList<QSharedPointer<XlsxColumnInfo> > getColumnInfoList(int colFirst, int colLast) const;
     QList<int> getColumnIndexes(int colFirst, int colLast);
     bool isColumnRangeValid(int colFirst, int colLast);
 

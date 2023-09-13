@@ -34,7 +34,7 @@ int readGoogleSpreadsheet()
 {
     Document xlsx("google-spreadsheet.xlsx"); // google docs
 
-    if (!xlsx.isLoadPackage())
+    if (!xlsx.isLoaded())
     {
         qDebug() << "[readGoogleSpreadsheet] failed to load package";
         return (-1);
@@ -143,7 +143,7 @@ int readMSExcel201x()
 {
     Document xlsx("ms-number.xlsx"); // ms office online
 
-    if (!xlsx.isLoadPackage())
+    if (!xlsx.isLoaded())
     {
         qDebug() << "[ms-number] failed to load package";
         return (-1);

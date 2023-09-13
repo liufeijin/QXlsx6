@@ -25,6 +25,9 @@ class CellFormula;
 class CellPrivate;
 class WorksheetPrivate;
 
+/**
+ * @brief The Cell class represents one cell on a worksheet.
+ */
 class QXLSX_EXPORT Cell
 {
     Q_DECLARE_PRIVATE(Cell)
@@ -39,6 +42,7 @@ public:
      */
     enum class Type
     {
+        Custom, /**< Custom cell type, not defined in the ECMA-376 */
         Boolean, /**< Cell contains a boolean */
         Date, /**< Cell contains a date in the ISO 8601 format. */
         Error, /**< Cell contains an error. */
@@ -49,7 +53,6 @@ public:
         Number, /**< Cell contains a number */
         SharedString, /**< Cell contains a shared string */
         String, /**< Cell contains a formula string */
-        Custom, /**< Custom cell type, not defined in the ECMA-376 */
     };
 
 public:
@@ -65,7 +68,7 @@ public:
     CellPrivate * const d_ptr; // See D-pointer and Q-pointer of Qt, for more information.
 
 public:
-    Type cellType() const;
+    Type type() const;
     QVariant value() const;
     QVariant readValue() const;
     Format format() const;

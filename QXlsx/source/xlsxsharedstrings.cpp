@@ -101,17 +101,12 @@ void SharedStrings::removeSharedString(const RichString &string)
     }
 }
 
-int SharedStrings::getSharedStringIndex(const QString &string) const
-{
-    return getSharedStringIndex(RichString(string));
-}
-
-int SharedStrings::getSharedStringIndex(const RichString &string) const
+std::optional<int> SharedStrings::getSharedStringIndex(const RichString &string) const
 {
     auto it = m_stringTable.constFind(string);
     if (it != m_stringTable.constEnd())
         return it->index;
-    return -1;
+    return {};
 }
 
 RichString SharedStrings::getSharedString(int index) const

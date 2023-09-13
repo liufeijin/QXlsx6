@@ -73,8 +73,7 @@ public:
     void removeSharedString(const RichString &string);
     void incRefByStringIndex(int idx);
 
-    int getSharedStringIndex(const QString &string) const;
-    int getSharedStringIndex(const RichString &string) const;
+    std::optional<int> getSharedStringIndex(const RichString &string) const;
     RichString getSharedString(int index) const;
     QList<RichString> getSharedStrings() const;
 

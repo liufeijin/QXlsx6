@@ -1314,15 +1314,10 @@ bool Document::saveAs(QIODevice *device) const
     return d->savePackage(device);
 }
 
-bool Document::isLoadPackage() const
+bool Document::isLoaded() const
 {
     Q_D(const Document);
     return d->isLoad; 
-}
-
-bool Document::load() const
-{
-    return isLoadPackage();
 }
 
 bool Document::copyStyle(const QString &from, const QString &to) {
@@ -1375,56 +1370,15 @@ bool Document::changeImage(int index, const QString &fileName)
 
 
 /*!
-  Returns map of columns with their maximal width
- */
-QMap<int, int> Document::getMaximalColumnWidth(int firstRow, int lastRow)
-{
-    const int defaultPixelSize = 11;    //Default font pixel size of excel?
-    int maxRows = -1;
-    int maxCols = -1;
-    QMap<int, int> colWidth;
-    if (!currentWorksheet()) return colWidth;
-    auto cellLocation = currentWorksheet()->getFullCells(&maxRows, &maxCols);
-    
-    for (auto i = cellLocation.constBegin(); i != cellLocation.constEnd(); i++)
-    {
-        int col = i.key().column();
-        int row = i.key().row();
-        int fs = i.value().get()->format().fontSize();
-        if (fs <= 0) fs = defaultPixelSize;
-
-        QString str = read(row, col).toString();
-
-        double w = str.length() * double(fs) / defaultPixelSize + 1; // width not perfect, but works reasonably well
-
-        if (row >= firstRow && row <= lastRow) {
-            if (w > colWidth.value(col))
-                colWidth.insert(col, int(w));
-        }
-    }
-
-    return colWidth;
-}
-
-
-/*!
   Auto sets width in characters of columns with the given \a range.
   Returns true on success.
  */
 bool Document::autosizeColumnWidth(const CellRange &range)
 {
-    bool erg = false;
+    if (auto sheet = currentWorksheet())
+        return sheet->autosizeColumnWidths(range);
 
-    if( !range.isValid())
-        return false;
-
-    const QMap<int, int> colWidth = getMaximalColumnWidth(range.firstRow(), range.lastRow());
-    for (auto it = colWidth.constBegin(); it != colWidth.constEnd(); ++it) {
-        if (it.key() >= range.firstColumn() && it.key() <= range.lastColumn())
-            erg |= setColumnWidth(it.key(), it.value());
-    }
-
-    return erg;
+    return false;
 }
 
 
@@ -1434,62 +1388,35 @@ bool Document::autosizeColumnWidth(const CellRange &range)
  */
 bool Document::autosizeColumnWidth(int column)
 {
-    bool erg = false;
+    if (auto sheet = currentWorksheet())
+        return sheet->autosizeColumnWidths(column, column);
 
-    const QMap<int, int> colWidth = getMaximalColumnWidth();
-    auto it = colWidth.constBegin();
-    while (it != colWidth.constEnd()) {
-        if( it.key() == column)
-        {
-            erg |= setColumnWidth(it.key(), it.value());
-        }
-        ++it;
-    }
-
-    return erg;
+    return false;
 }
 
 
 /*!
-  Auto sets width in characters for columns [\a colFirst, \a colLast]. Columns are 1-indexed.
+  Auto sets width in characters for columns [\a firstColumn, \a lastColumn]. Columns are 1-indexed.
   Returns true on success.
  */
-bool Document::autosizeColumnWidth(int colFirst, int colLast)
+bool Document::autosizeColumnWidth(int firstColumn, int lastColumn)
 {
-    Q_UNUSED(colFirst)
-    Q_UNUSED(colLast)
-    bool erg = false;
+    if (auto sheet = currentWorksheet())
+        return sheet->autosizeColumnWidths(firstColumn, lastColumn);
 
-    const QMap<int, int> colWidth = getMaximalColumnWidth();
-    auto it = colWidth.constBegin();
-    while (it != colWidth.constEnd()) {
-        if( (it.key() >= colFirst) && (it.key() <= colLast) )
-        {
-            erg |= setColumnWidth(it.key(), it.value());
-        }
-        ++it;
-    }
-
-    return erg;
+    return false;
 }
-
 
 /*!
   Auto sets width in characters for all columns.
   Returns true on success.
  */
-bool Document::autosizeColumnWidth(void)
+bool Document::autosizeColumnWidth()
 {
-    bool erg = false;
+    if (auto sheet = currentWorksheet())
+        return sheet->autosizeColumnWidths(1, INT_MAX);
 
-    const QMap<int, int> colWidth = getMaximalColumnWidth();
-    auto it = colWidth.constBegin();
-    while (it != colWidth.constEnd()) {
-        erg |= setColumnWidth(it.key(), it.value());
-        ++it;
-    }
-
-    return erg;
+    return false;
 }
 
 

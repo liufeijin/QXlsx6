@@ -82,7 +82,7 @@ int chart()
     xlsx.saveAs("chart1.xlsx");
 
     Document xlsx2("chart1.xlsx");
-    if ( xlsx2.load() )
+    if ( xlsx2.isLoaded() )
     {
         xlsx2.saveAs("chart2.xlsx");
     }

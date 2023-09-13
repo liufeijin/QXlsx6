@@ -151,7 +151,7 @@ int chartExtended()
     //![2]
 
     Document xlsx2("chartExtended1.xlsx");
-    if ( xlsx2.load() )
+    if ( xlsx2.isLoaded() )
     {
         xlsx2.saveAs("chartExtended2.xlsx");
     }

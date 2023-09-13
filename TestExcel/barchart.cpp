@@ -173,7 +173,7 @@ int barChart()
     //![2]
 
     Document xlsx2("barCharts1.xlsx");
-    if ( xlsx2.load() )
+    if ( xlsx2.isLoaded() )
     {
         xlsx2.saveAs("barCharts2.xlsx");
     }

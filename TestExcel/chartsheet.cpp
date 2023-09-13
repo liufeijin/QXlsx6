@@ -55,7 +55,7 @@ int chartsheet()
     }
 
 
-    if (xlsx2.load())
+    if (xlsx2.isLoaded())
         xlsx2.saveAs("chartsheet2.xlsx");
 
     //chartsheet2.xlsx shouldn't have image1.png inside

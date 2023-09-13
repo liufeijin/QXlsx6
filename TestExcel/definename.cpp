@@ -38,7 +38,7 @@ int definename()
     xlsx.saveAs("definename1.xlsx");
 
     Document xlsx2("definename1.xlsx");
-    if ( xlsx2.load() )
+    if ( xlsx2.isLoaded() )
     {
         xlsx2.saveAs("definename2.xlsx");
     }

@@ -80,9 +80,9 @@ Cell::~Cell()
 }
 
 /*!
- * Return the dataType of this Cell
+ * Returns the data type of this Cell
  */
-Cell::Type Cell::cellType() const
+Cell::Type Cell::type() const
 {
     Q_D(const Cell);
 
@@ -90,7 +90,7 @@ Cell::Type Cell::cellType() const
 }
 
 /*!
- * Return the data content of this Cell
+ * Returns the data content of this Cell
  */
 QVariant Cell::value() const
 {
@@ -100,7 +100,7 @@ QVariant Cell::value() const
 }
 
 /*!
-* Return the data content of this Cell for reading 
+* Returns the data content of this Cell for reading
 */
 QVariant Cell::readValue() const
 {

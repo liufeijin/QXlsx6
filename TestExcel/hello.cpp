@@ -96,7 +96,7 @@ int ReadExcel(bool isTest)
 
     //![0]
     QXlsx::Document xlsx("ReadExcel.xlsx");
-    if (!xlsx.isLoadPackage())
+    if (!xlsx.isLoaded())
     {
         qDebug() << "[ReadExcel.xlsx] failed to load package";
         return (-3);

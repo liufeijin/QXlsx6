@@ -203,6 +203,13 @@ public:
     Format columnFormat(int column);
     bool isColumnHidden(int column);
 
+    /**
+     * @brief sets rows heights for rows in the range from rowFirst to rowLast.
+     * @param rowFirst the first row index (1-based).
+     * @param rowLast the last row index (1-based).
+     * @param height row height in points.
+     * @return true on success.
+     */
     bool setRowHeight(int rowFirst,int rowLast, double height);
     bool setRowFormat(int rowFirst,int rowLast, const Format &format);
     bool setRowHidden(int rowFirst,int rowLast, bool hidden);
@@ -236,10 +243,24 @@ public:
     void setOutlineSymbolsVisible(bool visible);
     bool isWhiteSpaceVisible() const;
     void setWhiteSpaceVisible(bool visible);
-
-    QMap<CellReference, std::shared_ptr<Cell> > getFullCells(int* maxRow, int* maxCol);
+    /**
+     * @brief autosizes columns widths for all rows in the worksheet.
+     * @param firstColumn 1-based index of the first column to autosize.
+     * @param lastColumn 1-based index of the last column to autosize.
+     * @return true on success.
+     */
+    bool autosizeColumnWidths(int firstColumn, int lastColumn);
+    /**
+     * @overload
+     * @brief autosizes columns widths for columns specified by range.
+     * @param range valid CellRange that specifies the columns range to autosize and
+     * the rows range to estimate the maximum column width.
+     * @return true on success.
+     */
+    bool autosizeColumnWidths(const CellRange &range);
 
 private:
+    QMap<int, int> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);
     void saveToXmlFile(QIODevice *device) const override;
     bool loadFromXmlFile(QIODevice *device) override;
 };
