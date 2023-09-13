@@ -135,19 +135,29 @@ int main(int argc, char *argv[])
 
 
     //Chart 5 will have path gradient fill
-    Chart *chart5 = xlsx.insertChart(44, 10, QSize(600, 300));
+    Chart *chart5 = xlsx.insertChart(44, 10, QSize(300, 300));
     chart5->setType(Chart::Type::Bar); //required
     chart5->addDefaultAxes(); //required
 
     //the gradient fill is applied to the range [0%..100%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
     FillFormat f1({{0, "red"},{100, "blue"}}, FillFormat::PathType::Circle);
-    //shrink the gradient by applying the edge margins of 20% at the top and bottom,
-    //and -10% at left and right
-    RelativeRect rr(-10,20,-10,20); f1.setTileRect(rr);
+    //expand the gradient by applying the edge margin of -50% at bottom
+    f1.setTileRect(RelativeRect(0,0,0,-50));
+    //move the focus point of the gradient to the center of the bottom edge.
+    f1.setPathRect(RelativeRect(50,100,50,0));
     //This parameter is actually ignored by Excel.
-    f1.setTileFlipMode(FillFormat::TileFlipMode::XY);
     chart5->chartShape().setFill(f1);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    //Chart 6 will use QGradient preset
+    Chart *chart6 = xlsx.insertChart(44, 20, QSize(300, 300));
+    chart6->setType(Chart::Type::Bar); //required
+    chart6->addDefaultAxes(); //required
+
+    FillFormat f2((QGradient(QGradient::KindSteel)));
+    chart6->chartShape().setFill(f2);
+#endif
 
     xlsx.saveAs("LineAndFill1.xlsx");
 

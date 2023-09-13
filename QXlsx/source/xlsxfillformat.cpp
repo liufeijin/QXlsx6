@@ -26,15 +26,17 @@ public:
 
     //Gradient fill properties
     QMap<double, Color> gradientList;
+    std::optional<RelativeRect> tileRect;
+    std::optional<FillFormat::TileFlipMode> tileFlipMode;
+    std::optional<bool> rotWithShape;
     //linear gradient
     Angle linearShadeAngle; //0..360
     std::optional<bool> linearShadeScaled;
     //path gradient
     std::optional<FillFormat::PathType> pathShadeType;
     std::optional<RelativeRect> pathShadeRect;
-    std::optional<RelativeRect> tileRect;
-    std::optional<FillFormat::TileFlipMode> tileFlipMode;
-    std::optional<bool> rotWithShape;
+
+
 
     //Pattern fill properties
     Color foregroundColor;
@@ -68,10 +70,10 @@ FillFormatPrivate::FillFormatPrivate()
 
 FillFormatPrivate::FillFormatPrivate(const FillFormatPrivate &other)
     : QSharedData(other), type(other.type), color(other.color),
-      gradientList(other.gradientList), linearShadeAngle(other.linearShadeAngle),
-      linearShadeScaled(other.linearShadeScaled), pathShadeType(other.pathShadeType),
-      pathShadeRect(other.pathShadeRect), tileRect(other.tileRect),
+      gradientList(other.gradientList), tileRect(other.tileRect),
       tileFlipMode(other.tileFlipMode), rotWithShape(other.rotWithShape),
+      linearShadeAngle(other.linearShadeAngle), linearShadeScaled(other.linearShadeScaled),
+      pathShadeType(other.pathShadeType), pathShadeRect(other.pathShadeRect),
       foregroundColor(other.foregroundColor), backgroundColor(other.backgroundColor),
       patternType(other.patternType), dpi{other.dpi},
       blipImage{other.blipImage}, //TODO: check copying of fills with picture fill
@@ -207,35 +209,110 @@ void FillFormatPrivate::parse(const QBrush &brush)
             break;
         }
         case Qt::LinearGradientPattern: {
+            type = FillFormat::FillType::GradientFill;
             const auto gradient = brush.gradient();
             if (gradient->type() == QGradient::LinearGradient) {
                 auto mode = gradient->coordinateMode();
-                const auto stops = gradient->stops();
-                auto spread = gradient->spread();
-                auto start = static_cast<const QLinearGradient*>(gradient)->start();
-                auto end = static_cast<const QLinearGradient*>(gradient)->finalStop();
-
-                //vector from start to end will give us the gradient angle
-                auto angle = atan2((end-start).y(), (end-start).x())/M_PI*360; //gradient angle
-                linearShadeAngle = Angle(angle);
                 if (mode == QGradient::LogicalMode)
                     linearShadeScaled = false;
                 if (mode == QGradient::ObjectMode)
                     linearShadeScaled = true;
+                const auto stops = gradient->stops();
                 for (auto st: stops)
-                    gradientList.insert(st.first, st.second);
+                    gradientList.insert(st.first * 100.0, st.second);
+                auto spread = gradient->spread();
                 switch (spread) {
                     case QGradient::PadSpread: tileFlipMode = FillFormat::TileFlipMode::None; break;
                     case QGradient::RepeatSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
                     case QGradient::ReflectSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
                 }
+
+                if (auto linear = static_cast<const QLinearGradient*>(gradient)) {
+                    auto start = linear->start();
+                    auto end = linear->finalStop();
+
+                    //vector from start to end will give us the gradient angle
+                    QLineF l(start, end);
+                    auto angle = - l.angle();
+                    if (angle < 0) angle += 360;
+                    linearShadeAngle = Angle(angle);
+
+                    //there is no way to find out the size of a shape if mode is LogicalMode
+                    //or the size of a paint device if mode is StretchToDeviceMode,
+                    //so we unfortunately ignore the gradient coords in these modes
+                    if (mode == QGradient::ObjectMode) {
+                        auto left = 0.0, right = 0.0, top = 0.0, bottom = 0.0;
+                        if (start.x() != end.x()) {
+                            left = qMin(start.x(), end.x());
+                            right = qMin(1.0 - end.x(), 1.0 - start.x());
+                        }
+                        if (start.y() != end.y()) {
+                            top = qMin(start.y(), end.y());
+                            bottom = qMin(1.0 - end.y(), 1.0 - start.y());
+                        }
+                        tileRect = RelativeRect(left * 100, top * 100, right * 100, bottom * 100);
+                    }
+                }
             }
             break;
         }
-        case Qt::RadialGradientPattern:
+        case Qt::RadialGradientPattern: {
+            type = FillFormat::FillType::GradientFill;
+            const auto gradient = brush.gradient();
+            if (gradient->type() == QGradient::RadialGradient) {
+                pathShadeType = FillFormat::PathType::Circle;
+                //properties common for all gradient types
+                const auto stops = gradient->stops();
+                for (auto st: stops)
+                    gradientList.insert(st.first * 100.0, st.second);
+
+                const auto mode = gradient->coordinateMode();
+
+                const auto spread = gradient->spread();
+                switch (spread) {
+                    case QGradient::PadSpread: tileFlipMode = FillFormat::TileFlipMode::None; break;
+                    case QGradient::RepeatSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
+                    case QGradient::ReflectSpread: tileFlipMode = FillFormat::TileFlipMode::XY; break;
+                }
+                //properties of radial gradient
+                auto radial = static_cast<const QRadialGradient*>(gradient);
+                if (radial) {
+                    const auto center = radial->center();
+                    const auto centerRadius = radial->centerRadius();
+                    const auto focal = radial->focalPoint();
+                    const auto focalRadius = radial->focalRadius();
+                    //there is no way to find out the size of a shape if mode is LogicalMode
+                    //or the size of a paint device if mode is StretchToDeviceMode,
+                    //so we unfortunately ignore the radial gradient coords in these modes
+                    if (mode == QGradient::ObjectMode) {
+                        //center and centerRadius of gradient will define the tileRect
+                        auto left = center.x() - centerRadius;
+                        auto right = center.x() + centerRadius;
+                        auto top = center.y() - centerRadius;
+                        auto bottom = center.y() + centerRadius;
+                        tileRect = RelativeRect(left * 100, top * 100, right * 100, bottom * 100);
+                        //focal will define the pathShadeRect
+                        //focalRadius is ignored
+                        left = focal.x();
+                        right = 1.0 - focal.x();
+                        top = focal.y();
+                        bottom = 1.0 - focal.y();
+                        pathShadeRect = RelativeRect(left * 100, top * 100, right * 100, bottom * 100);
+                        Q_UNUSED(focalRadius);
+                    }
+                }
+            }
             break;
-        case Qt::ConicalGradientPattern:
+        }
+        case Qt::ConicalGradientPattern: {
+            //There is no way to implement conical gradient in xlsx, so use solid fill with 1st color
+            const auto gradient = brush.gradient();
+            type = FillFormat::FillType::SolidFill;
+            const auto stops = gradient->stops();
+            if (!stops.isEmpty())
+                color = stops.first().second;
             break;
+        }
         case Qt::TexturePattern:  {
             type = FillFormat::FillType::PictureFill;
             auto picture = brush.textureImage();
@@ -989,17 +1066,19 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
         if (d->linearShadeScaled.has_value())
             writer.writeAttribute("scaled", d->linearShadeScaled.value() ? "true" : "false");
     }
-
-    if (d->pathShadeType.has_value()) {
-        writer.writeStartElement("a:path");
-        switch (d->pathShadeType.value()) {
-            case PathType::Shape: writer.writeAttribute("path", "shape"); break;
-            case PathType::Circle: writer.writeAttribute("path", "circle"); break;
-            case PathType::Rectangle: writer.writeAttribute("path", "rect"); break;
+    else {
+        if (d->pathShadeType.has_value() || d->pathShadeRect.has_value()) {
+            writer.writeStartElement("a:path");
+            if (d->pathShadeType.has_value())
+                switch (d->pathShadeType.value()) {
+                    case PathType::Shape: writer.writeAttribute("path", "shape"); break;
+                    case PathType::Circle: writer.writeAttribute("path", "circle"); break;
+                    case PathType::Rectangle: writer.writeAttribute("path", "rect"); break;
+                }
+            if (d->pathShadeRect.has_value())
+                d->pathShadeRect->write(writer, "a:fillToRect");
+            writer.writeEndElement();
         }
-        if (d->pathShadeRect.has_value())
-            d->pathShadeRect->write(writer, "a:fillToRect");
-        writer.writeEndElement();
     }
     if (d->tileRect.has_value() && d->tileRect->isValid())
         d->tileRect->write(writer, "a:tileRect");

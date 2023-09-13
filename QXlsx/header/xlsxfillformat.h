@@ -283,7 +283,9 @@ public:
     /**
      * @brief sets the direction of color change for the linear gradient.
      * @param val the direction measured clockwise starting from the horizontal.
-     * @warning invoking this method also clears the path gradient parameters (#pathType(),
+     * Values should be in the range [0..360]
+     * @warning This parameter is applicable to only linear gradient. Invoking
+     * this method will clear the path gradient parameters (#pathType(),
      * #pathRect()).
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
@@ -302,7 +304,8 @@ public:
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
      * If false, the gradient angle is independent of the shape's fill region.
-     * @warning invoking this method also clears the path gradient parameters (#pathType(),
+     * @warning This parameter is applicable to only linear gradient. Invoking
+     * this method will clear the path gradient parameters (#pathType(),
      * #pathRect()).
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
@@ -316,25 +319,46 @@ public:
     /**
      * @brief sets the type of the path gradient.
      * @param pathType type of the path gradient.
-     * @warning invoking this method also clears the linear gradient parameters (#linearShadeAngle(),
+     * @warning This parameter is applicable to only path gradient. Invoking
+     * this method will clear the linear gradient parameters (#linearShadeAngle(),
      * #linearShadeScaled()).
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setPathType(PathType pathType);
 
     /**
-     * @brief returns the "focus" rectangle for the center shade, specified
-     * relative to the fill tile rectangle. The center shade fills the entire
-     * tile except for the margins specified by pathRect.
+     * @brief returns the "focus" rectangle for the first color in the gradient list,
+     * specified relative to the fill tile rectangle.
+     *
+     * The first color in the gradient list fills the entire tile except for the
+     * margins specified by pathRect.
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
     std::optional<RelativeRect> pathRect() const;
     /**
-     * @brief sets the "focus" rectangle for the center shade, specified
-     * relative to the fill tile rectangle. The center shade fills the entire
-     * tile except for the margins specified by rect.
+     * @brief sets the "fill" rectangle for the first color in the gradient list, specified
+     * relative to the fill tile rectangle.
+     *
+     * The first color in the gradient list will fill the entire tile except for the
+     * margins specified by #pathRect().
+     *
+     * For example, if you specify path rect as (50,50,50,50), this means that the first
+     * color will fill the point in the center of the tile rect, that is the default
+     * behavior.
+     *
+     * If you need to _expand_ the area filled with the first color, set
+     * path rect with margins less than 50. If you set path rect as (0,0,0,0), this
+     * means that the first color in the gradient list will fill the entire tile rect
+     * except for the zero-width margins. This is actually equivalent to filling
+     * the tile rect with solid color.
+     *
+     * To specify the "focus point" (starting point) of the gradient make sure the sum of
+     * the opposite margins in pathRect() is 100.0. For example, to move the focus point
+     * to the center of the bottom edge use ```setPathRect(50,100,50,0);```
+     *
      * @param rect
-     * @warning invoking this method also clears the linear gradient parameters (#linearShadeAngle(),
+     * @warning This parameter is applicable to only path gradient. Invoking
+     * this method will clear the linear gradient parameters (#linearShadeAngle(),
      * #linearShadeScaled()).
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
@@ -352,11 +376,13 @@ public:
     /**
      * @brief sets a rectangular region of the shape to which a gradient fill is applied.
      * This region is then tiled across the remaining area of the
-     * shape to complete the fill. The tile rectangle is defined by percentage
+     * shape to complete the fill.
+     *
+     * The tile rectangle is defined by percentage
      * offsets from the sides of the shape's bounding box.
      *
      * This parameter is applicable to both linear and path gradients.
-     * @param rect tile rectangle defined by percentage offsets from the sides
+     * @param rect Tile rectangle defined by percentage offsets from the sides
      * of the shape's bounding box.
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
