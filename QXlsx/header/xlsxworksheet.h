@@ -199,9 +199,9 @@ public:
     bool setColumnFormat(int colFirst, int colLast, const Format &format);
     bool setColumnHidden(int colFirst, int colLast, bool hidden);
 
-    double columnWidth(int column);
-    Format columnFormat(int column);
-    bool isColumnHidden(int column);
+    double columnWidth(int column) const;
+    Format columnFormat(int column) const;
+    bool isColumnHidden(int column) const;
 
     /**
      * @brief sets rows heights for rows in the range from rowFirst to rowLast.
@@ -214,12 +214,32 @@ public:
     bool setRowFormat(int rowFirst,int rowLast, const Format &format);
     bool setRowHidden(int rowFirst,int rowLast, bool hidden);
 
-    double rowHeight(int row);
-    Format rowFormat(int row);
-    bool isRowHidden(int row);
+    double rowHeight(int row) const;
+    Format rowFormat(int row) const;
+    bool isRowHidden(int row) const;
 
     bool groupRows(int rowFirst, int rowLast, bool collapsed = true);
+    /**
+     * @brief groups columns from @a colFirst to @a colLast and collapse them as specified.
+     * @param colFirst 1-based index of the first column.
+     * @param colLast 1-based index of the last column.
+     * @param collapsed if true, columns will be collapsed.
+     * @return true if the maximum level of grouping is not exceeded and the grouping is successful,
+     * false otherwise.
+     *
+     * The "group/ungroup" button will appear over the column with index colLast+1.
+     */
     bool groupColumns(int colFirst, int colLast, bool collapsed = true);
+    /**
+     * @overload
+     * @brief groups columns from @a range and collapse them as specified.
+     * @param range range of columns to group.
+     * @param collapsed
+     * @return true if the maximum level of grouping is not exceeded and the grouping is successful,
+     * false otherwise.
+     *
+     * The "group/ungroup" button will appear over the column with index colLast+1.
+     */
     bool groupColumns(const CellRange &range, bool collapsed = true);
     CellRange dimension() const;
 

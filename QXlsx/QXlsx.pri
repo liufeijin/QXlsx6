@@ -50,6 +50,7 @@ INCLUDEPATH += $$PWD
 INCLUDEPATH += $${QXLSX_PARENTPATH}
 INCLUDEPATH += $${QXLSX_HEADERPATH}
 
+
 ########################################
 # source code 
 

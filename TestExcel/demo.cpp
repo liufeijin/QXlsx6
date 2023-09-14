@@ -304,9 +304,17 @@ int demo()
     xlsx.groupRows(11, 26, false);
     xlsx.groupRows(15, 17, false);
     xlsx.groupRows(20, 22, false);
-    xlsx.setColumnWidth(1, 10, 10.0);
-    xlsx.groupColumns(1, 2);
-    xlsx.groupColumns(5, 8, false);
+    xlsx.setColumnWidth(1, 10, 5.0);
+    qDebug() << "grouping columns [1-20]" << xlsx.groupColumns(1, 20, false);
+    qDebug() << "grouping columns [2-19]" << xlsx.groupColumns(2, 19, false);
+    qDebug() << "grouping columns [3-18]" << xlsx.groupColumns(3, 18, false);
+    qDebug() << "grouping columns [4-17]" << xlsx.groupColumns(4, 17, false);
+    qDebug() << "grouping columns [5-16]" << xlsx.groupColumns(5, 16, false);
+    qDebug() << "grouping columns [6-15]" << xlsx.groupColumns(6, 15, false);
+    qDebug() << "grouping columns [7-14]" << xlsx.groupColumns(7, 14, false);
+    qDebug() << "grouping columns [8-13]" << xlsx.groupColumns(8, 13, false);
+//    xlsx.groupColumns(9, 12, false);
+//    xlsx.groupColumns(10, 11, false);
 
     xlsx.saveAs("demo1.xlsx");
 

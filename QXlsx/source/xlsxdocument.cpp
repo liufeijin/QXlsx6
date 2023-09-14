@@ -998,10 +998,6 @@ bool Document::isRowHidden(int row)
      return false;
 }
 
-/*!
-   Groups rows from \a rowFirst to \a rowLast with the given \a collapsed.
-   Returns false if error occurs.
- */
 bool Document::groupRows(int rowFirst, int rowLast, bool collapsed)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1009,10 +1005,6 @@ bool Document::groupRows(int rowFirst, int rowLast, bool collapsed)
     return false;
 }
 
-/*!
-   Groups columns from \a colFirst to \a colLast with the given \a collapsed.
-   Returns false if error occurs.
- */
 bool Document::groupColumns(int colFirst, int colLast, bool collapsed)
 {
     if (Worksheet *sheet = currentWorksheet())

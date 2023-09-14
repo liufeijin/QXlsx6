@@ -142,6 +142,16 @@ public:
     bool isRowHidden(int row);
 
     bool groupRows(int rowFirst, int rowLast, bool collapsed = true);
+    /**
+     * @brief groups columns from @a colFirst to @a colLast and collapse them as specified.
+     * @param colFirst 1-based index of the first column.
+     * @param colLast 1-based index of the last column.
+     * @param collapsed if true, columns will be collapsed.
+     * @return true if the maximum level of grouping is not exceeded and the grouping is successful,
+     * false otherwise.
+     *
+     * The "group/ungroup" button will appear over the column with index colLast+1.
+     */
     bool groupColumns(int colFirst, int colLast, bool collapsed = true);
     
     bool addDataValidation(const DataValidation &validation);

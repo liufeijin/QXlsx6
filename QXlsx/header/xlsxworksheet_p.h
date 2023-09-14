@@ -123,33 +123,25 @@ struct XlsxRowInfo
     bool collapsed;
 };
 
+//TODO: convert to explicitly shareable to reduce memory
 struct XlsxColumnInfo
 {
-    XlsxColumnInfo( int firstColumn, // = 0,
-                    int lastColumn, // = 1,
-                    double width = 0,
-                    const Format &format = Format(),
-                    bool hidden = false)
-        : width(width),
-          format(format),
-          firstColumn(firstColumn),
-          lastColumn(lastColumn),
-          outlineLevel(0),
-          customWidth(false),
-          hidden(hidden),
-          collapsed(false)
-    {
-
+    bool operator==(const XlsxColumnInfo& other) const {
+        if (width != other.width) return false;
+        if (format != other.format) return false;
+        if (outlineLevel != other.outlineLevel) return false;
+        if (hidden != other.hidden) return false;
+        if (collapsed != other.collapsed) return false;
+        return true;
     }
-
+    bool operator!=(const XlsxColumnInfo& other) const {
+        return !operator==(other);
+    }
     std::optional<double> width;
     Format format;
-    int firstColumn;
-    int lastColumn;
-    int outlineLevel;
-    bool customWidth;
-    bool hidden;
-    bool collapsed;
+    std::optional<int> outlineLevel;
+    std::optional<bool> hidden;
+    std::optional<bool> collapsed;
 };
 
 class WorksheetPrivate : public AbstractSheetPrivate
@@ -161,11 +153,13 @@ public:
     ~WorksheetPrivate();
 
 public:
-    int checkDimensions(int row, int col, bool ignore_row=false, bool ignore_col=false);
+    bool rowValid(int row) const;
+    bool columnValid(int column) const;
+    bool addRowToDimensions(int row);
+    bool addColumnToDimensions(int column);
     Format cellFormat(int row, int col) const;
     QString generateDimensionString() const;
     void calculateSpans() const;
-    void splitColsInfo(int colFirst, int colLast);
     void validateDimension();
 
     void saveXmlSheetData(QXmlStreamWriter &writer) const;
@@ -187,13 +181,8 @@ public:
     void loadXmlHyperlinks(QXmlStreamReader &reader);
     void loadXmlCell(QXmlStreamReader &reader);
 
-    //NOTE: this method inserts missing rows into rowsInfo, as it is used exclusively in
-    //setRowsHeight, setRowsFormat, setRowsHidden methods.
-    //I guess if we need to change format of rows that are yet empty, this is the best solution.
-    QList<QSharedPointer<XlsxRowInfo> > getRowInfoList(int rowFirst, int rowLast);
-    QList<QSharedPointer<XlsxColumnInfo> > getColumnInfoList(int colFirst, int colLast) const;
-    QList<int> getColumnIndexes(int colFirst, int colLast);
-    bool isColumnRangeValid(int colFirst, int colLast);
+    bool isColumnRangeValid(int colFirst, int colLast) const;
+    QList<QPair<int,int>> getIntervals() const;
 
     SharedStrings *sharedStrings() const;
 
@@ -204,8 +193,7 @@ public:
     QMap<int, QMap<int, QSharedPointer<XlsxHyperlinkData> > > urlTable;
     QList<CellRange> merges;
     QMap<int, QSharedPointer<XlsxRowInfo> > rowsInfo;
-    QMap<int, QSharedPointer<XlsxColumnInfo> > colsInfo;
-    QMap<int, QSharedPointer<XlsxColumnInfo> > colsInfoHelper;
+    QMap<int, XlsxColumnInfo> colsInfo;
 
     QList<DataValidation> dataValidationsList;
     QList<ConditionalFormatting> conditionalFormattingList;
