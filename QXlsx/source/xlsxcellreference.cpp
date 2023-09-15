@@ -115,6 +115,11 @@ QString CellReference::toString(bool rowFixed, bool colFixed) const
     return cell_str;
 }
 
+CellReference CellReference::fromString(const QString &cell)
+{
+    return CellReference(cell);
+}
+
 bool CellReference::isValid() const
 {
     return _row > 0 && _column > 0;

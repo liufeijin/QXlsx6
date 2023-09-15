@@ -33,7 +33,7 @@ public:
     /**
      * @brief creates a CellReference from the given string representation of a cell location.
      * @param cell null-terminated string like "A1" or "$A$1".
-     * @note This constructor discards $s and does not understands relative locations like "R[-1]C2".
+     * @note This constructor discards $s and does not understand relative locations like "R[-1]C2".
      */
     CellReference(const char *cell);
     CellReference(const CellReference &other);

@@ -77,10 +77,10 @@ struct XlsxSheetFormatProps
 
     int baseColWidth;
     bool customHeight;
-    double defaultColWidth;
+    double defaultColWidth = 0.0;
     double defaultRowHeight;
-    quint8 outlineLevelCol;
-    quint8 outlineLevelRow;
+    int outlineLevelCol;
+    int outlineLevelRow;
     bool thickBottom;
     bool thickTop;
     bool zeroHeight;
@@ -106,21 +106,25 @@ struct SheetProperties
     std::optional<bool> enableFormatConditionsCalculation;
 };
 
+
+
 struct XlsxRowInfo
 {
-    XlsxRowInfo(double height=0, const Format &format=Format(), bool hidden=false) :
-        customHeight(false), height(height), format(format), hidden(hidden), outlineLevel(0)
-      , collapsed(false)
-    {
-
-    }
-
-    bool customHeight;
-    double height;
+    std::optional<double> height;
     Format format;
-    bool hidden;
-    int outlineLevel;
-    bool collapsed;
+    std::optional<bool> hidden;
+    std::optional<int> outlineLevel;
+    std::optional<bool> collapsed;
+
+    bool isValid() const
+    {
+        if (height.has_value()) return true;
+        if (format.isValid()) return true;
+        if (hidden.has_value()) return true;
+        if (outlineLevel.has_value()) return true;
+        if (collapsed.has_value()) return true;
+        return false;
+    }
 };
 
 //TODO: convert to explicitly shareable to reduce memory
@@ -210,21 +214,12 @@ public:
     int outlineRowLevel = 0;
     int outlineColLevel = 0;
 
-    int defaultRowHeight = 15;
+    double defaultRowHeight = 14.4;
     bool defaultRowZeroed = false;
 
     XlsxSheetFormatProps sheetFormatProps;
 
-    bool windowProtection = false;
-    bool showFormulas = false;
-    bool showGridLines = true;
-    bool showRowColHeaders = true;
-    bool showZeros = true;
-    bool rightToLeft = false;
-    bool tabSelected = false;
-    bool showRuler = false;
-    bool showOutlineSymbols = true;
-    bool showWhiteSpace = true;
+    QList<SheetView> sheetViews;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
 
