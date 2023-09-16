@@ -14,9 +14,6 @@
 #include "xlsxworksheet.h"
 #include "xlsxchartsheet.h"
 #include "xlsxstyles_p.h"
-#include "xlsxformat.h"
-#include "xlsxworksheet_p.h"
-#include "xlsxformat_p.h"
 #include "xlsxmediafile_p.h"
 #include "xlsxutility_p.h"
 #include "xlsxchart.h"
@@ -61,29 +58,13 @@ bool Workbook::isDate1904() const
     return d->date1904;
 }
 
-/*!
-  Excel for Windows uses a default epoch of 1900 and Excel
-  for Mac uses an epoch of 1904. However, Excel on either
-  platform will convert automatically between one system
-  and the other. Qt Xlsx stores dates in the 1900 format
-  by default.
-
-  \note This function should be called before any date/time
-  has been written.
-*/
 void Workbook::setDate1904(bool date1904)
 {
     Q_D(Workbook);
     d->date1904 = date1904;
 }
 
-/*
-  Enable the worksheet.write() method to convert strings
-  to numbers, where possible, using float() in order to avoid
-  an Excel warning about "Numbers Stored as Text".
 
-  The default is false
- */
 void Workbook::setStringsToNumbersEnabled(bool enable)
 {
     Q_D(Workbook);

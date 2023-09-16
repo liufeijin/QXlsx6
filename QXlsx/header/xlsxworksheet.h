@@ -209,6 +209,38 @@ mimicking how it would look if printed. */
 };
 
 class WorksheetPrivate;
+//TODO: Full documentation
+/**
+ * @brief The Worksheet class represents a worksheet in the workbook.
+ *
+ *
+ * Each worksheet can have from 1 to infinity 'sheet views', that display a specific portion of
+ * the worksheet with specific view parameters.
+ *
+ * The following methods manage worksheet views:
+ *
+ * - #view(int index) returns a specific view.
+ * - #viewCount() returns the count of views in the worksheet.
+ * - #addView() adds a view.
+ * - removeView(int index) removes the view.
+ *
+ * The following methods manage the parameters of the _last added_ view:
+ *
+ * - #isWindowProtected(), #setWindowProtected(bool protect) manage view protection.
+ * - #isFormulasVisible(), #setFormulasVisible(bool visible) manage formulas visibility.
+ * - #isGridLinesVisible(), #setGridLinesVisible(bool visible) manage visibility of gridlines between sheet cells.
+ * - #isRowColumnHeadersVisible(), #setRowColumnHeadersVisible(bool visible) manage headers visibility.
+ * - #isZerosVisible(), #setZerosVisible(bool visible) manage the zero values appearance.
+ * - #isRightToLeft(), #setRightToLeft(bool enable) manage the right-to-left appearance of the view.
+ * - #isSelected(), #setSelected(bool select) manage the selection of the worksheet tab.
+ * - #isRulerVisible(), #setRulerVisible(bool visible) manage the ruler visibility.
+ * - #isOutlineSymbolsVisible(), #setOutlineSymbolsVisible(bool visible) manage the outline symbols visibility.
+ * - #isWhiteSpaceVisible(), #setWhiteSpaceVisible(bool visible) manage visibility of whitespaces in the sheet's cells.
+ *
+ * The beforementioned methods return the default values if the corresponding parameters were not set.
+ * See SheetView documentation on the default values.
+ *
+ */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
 {
     Q_DECLARE_PRIVATE(Worksheet)
@@ -451,21 +483,57 @@ public:
     void setOutlineSymbolsVisible(bool visible);//TODO: doc
     bool isWhiteSpaceVisible() const;//TODO: doc
     void setWhiteSpaceVisible(bool visible);//TODO: doc
+    bool isDefaultGridColorUsed() const;
+    void setDefaultGridColorUsed(bool value);
+    SheetView::Type viewType() const;
+    void setViewType(SheetView::Type type);
+    /**
+     * @brief returns the location of the last added view's top left cell.
+     * @return Valid location if it was set, invalid one otherwise.
+     */
+    CellReference viewTopLeftCell() const;
+    void setViewTopLeftCell(const CellReference &ref);
+    int viewColorIndex() const;
+    void setViewColorIndex(int index);
+    /**
+     * @brief returns window zoom magnification for last added view as a percent value.
+     *
+     * This parameter is restricted to values ranging from 10 to 400.
+     *
+     * @return window zoom magnification if it was set, 100 being the default value.
+     * @note To get the view scales for specific view types see SheetView::zoomScaleNormal,
+     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
+     */
+    int viewZoomScale() const;
+    /**
+     * @brief sets window zoom magnification for last added view as a percent value.
+     * @param scale value ranging from 10 to 400.
+     *
+     * If not set, the default value is 100.
+     * @note To set the view scales for specific view types see SheetView::zoomScaleNormal,
+     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
+     */
+    void setViewZoomScale(int scale);
+
+    int workbookViewId() const;
+    void setWorkbookViewId(int id);
+
+
     /**
      * @brief returns the sheet view with the (zero-based) #index.
-     * @param index index of the sheet view.
+     * @param index zero-based index of the sheet view.
      * @return the sheet view with the (zero-based) #index. If no such view is
      * found, returns the default-constructed one.
      */
     SheetView view(int index) const;
     /**
+     * @overload
      * @brief returns the sheet view with the (zero-based) #index.
-     * @param index non-negative index of the view. If the index is negative,
+     * @param index non-negative index of the view. If the index is invalid,
      * throws std::out_of_range exception.
      * @return reference to the sheet view with the (zero-based) #index.
-     * If no such view was found, inserts a new view at #index.
      * @note The newly inserted view will point to the workbook view with
-     * index 0. See SheetView::workbookViewId.
+     * id 0. See SheetView::workbookViewId.
      *
      */
     SheetView &view(int index);

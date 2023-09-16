@@ -52,8 +52,25 @@ public:
 //    void addChart();
     bool defineName(const QString &name, const QString &formula, const QString &comment=QString(), const QString &scope=QString());
     bool isDate1904() const;
+    /*!
+    Excel for Windows uses a default epoch of 1900 and Excel
+    for Mac uses an epoch of 1904. However, Excel on either
+    platform will convert automatically between one system
+    and the other. Qt Xlsx stores dates in the 1900 format
+    by default.
+
+    \note This function should be called before any date/time
+    has been written.
+    */
     void setDate1904(bool date1904);
     bool isStringsToNumbersEnabled() const;
+    /*
+    Enable the worksheet.write() method to convert strings
+    to numbers, where possible, using float() in order to avoid
+    an Excel warning about "Numbers Stored as Text".
+
+    The default is false
+    */
     void setStringsToNumbersEnabled(bool enable=true);
     bool isStringsToHyperlinksEnabled() const;
     void setStringsToHyperlinksEnabled(bool enable=true);

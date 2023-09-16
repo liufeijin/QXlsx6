@@ -1026,7 +1026,7 @@ void FillFormat::readPictureFill(QXmlStreamReader &reader)
             else if (reader.name() == QLatin1String("stretch")) {
                 d->fillMode = PictureFillMode::Stretch;
                 reader.readNextStartElement();
-                if (reader.name() == "fillRect") {
+                if (reader.name() == QLatin1String("fillRect")) {
                     RelativeRect r; r.read(reader);
                     d->blipFillRect = r;
                 }

@@ -14,13 +14,11 @@
 #include <memory>
 
 #include "xlsxchart.h"
-#include "xlsxworksheet.h"
 #include "xlsxcellrange.h"
 #include "xlsxutility_p.h"
 #include "xlsxabstractooxmlfile_p.h"
 #include "xlsxseries.h"
 #include "xlsxworkbook.h"
-#include "xlsxmediafile_p.h"
 #include "QBuffer"
 
 namespace QXlsx {
