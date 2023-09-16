@@ -26,7 +26,6 @@
 #include "xlsxworksheet_p.h"
 #include "xlsxworkbook.h"
 #include "xlsxformat.h"
-#include "xlsxformat_p.h"
 #include "xlsxutility_p.h"
 #include "xlsxsharedstrings_p.h"
 #include "xlsxdrawing_p.h"
@@ -355,6 +354,90 @@ void Worksheet::setWhiteSpaceVisible(bool visible)
     d->sheetViews.last().showWhiteSpace = visible;
 }
 
+bool Worksheet::isDefaultGridColorUsed() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return true;
+    return d->sheetViews.last().defaultGridColor.value_or(true);
+}
+
+void Worksheet::setDefaultGridColorUsed(bool value)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().defaultGridColor = value;
+}
+
+SheetView::Type Worksheet::viewType() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return SheetView::Type::Normal;
+    return d->sheetViews.last().type.value_or(SheetView::Type::Normal);
+}
+
+void Worksheet::setViewType(SheetView::Type type)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().type = type;
+}
+
+CellReference Worksheet::viewTopLeftCell() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().topLeftCell;
+}
+
+void Worksheet::setViewTopLeftCell(const CellReference &ref)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().topLeftCell = ref;
+}
+
+int Worksheet::viewColorIndex() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return 64;
+    return d->sheetViews.last().colorId.value_or(64);
+}
+
+void Worksheet::setViewColorIndex(int index)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().colorId = index;
+}
+
+int Worksheet::viewZoomScale() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return 100;
+    return d->sheetViews.last().zoomScale.value_or(100);
+}
+
+void Worksheet::setViewZoomScale(int scale)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().zoomScale = scale;
+}
+
+int Worksheet::workbookViewId() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return 0;
+    return d->sheetViews.last().workbookViewId;
+}
+
+void Worksheet::setWorkbookViewId(int id)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().workbookViewId = id;
+}
+
 SheetView Worksheet::view(int index) const
 {
     Q_D(const Worksheet);
@@ -364,8 +447,8 @@ SheetView Worksheet::view(int index) const
 SheetView &Worksheet::view(int index)
 {
     Q_D(Worksheet);
-    if (index < 0) throw std::out_of_range("Worksheet::view(): negative view index.");
-    while (d->sheetViews.size()<=index) d->sheetViews << SheetView();
+    if (index < 0 || index >= d->sheetViews.size())
+        throw std::out_of_range("Worksheet::view(): negative view index.");
     return d->sheetViews[index];
 }
 
@@ -1608,12 +1691,12 @@ QList<QPair<int, int> > WorksheetPrivate::getIntervals() const
 
         for (; ; ++it) {
             if (it == colsInfo.constEnd()) {
-                result << QPair{firstCol, currentCol};
+                result << QPair<int,int>{firstCol, currentCol};
                 break;
             }
             currentCol++;
             if (it.value() != val || currentCol != it.key()) {
-                result << QPair{firstCol, --currentCol};
+                result << QPair<int,int>{firstCol, --currentCol};
                 val = it.value();
                 firstCol = it.key();
                 currentCol = it.key();
@@ -2168,6 +2251,8 @@ void WorksheetPrivate::loadXmlMergeCells(QXmlStreamReader &reader)
                 merges.append(CellRange(rangeStr));
             }
         }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
     }
 
     if (count != merges.size())
@@ -2221,9 +2306,8 @@ void WorksheetPrivate::loadXmlSheetFormatProps(QXmlStreamReader &reader)
     parseAttributeBool(a, QLatin1String("customHeight"), sheetFormatProps.customHeight);
     if (a.hasAttribute(QLatin1String("defaultColWidth")))
         parseAttributeDouble(a, QLatin1String("defaultColWidth"), sheetFormatProps.defaultColWidth);
-    else {
+    else if (sheetFormatProps.baseColWidth != 8)
         sheetFormatProps.defaultColWidth = calculateColWidth(sheetFormatProps.baseColWidth);
-    }
     parseAttributeDouble(a, QLatin1String("defaultRowHeight"), sheetFormatProps.defaultRowHeight);
     parseAttributeInt(a, QLatin1String("outlineLevelCol"), sheetFormatProps.outlineLevelCol);
     parseAttributeInt(a, QLatin1String("outlineLevelRow"), sheetFormatProps.outlineLevelRow);

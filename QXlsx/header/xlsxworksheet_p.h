@@ -55,35 +55,15 @@ struct XlsxHyperlinkData
 // ECMA-376 Part1 18.3.1.81
 struct XlsxSheetFormatProps
 {
-    XlsxSheetFormatProps(int baseColWidth = 8,
-                         bool customHeight = false,
-                         double defaultColWidth = 8.430f, // https://learn.microsoft.com/en-us/office/troubleshoot/excel/determine-column-widths
-                         double defaultRowHeight = 15,
-                         quint8 outlineLevelCol = 0,
-                         quint8 outlineLevelRow = 0,
-                         bool thickBottom = false,
-                         bool thickTop = false,
-                         bool zeroHeight = false) :
-        baseColWidth(baseColWidth),
-        customHeight(customHeight),
-        defaultColWidth(defaultColWidth),
-        defaultRowHeight(defaultRowHeight),
-        outlineLevelCol(outlineLevelCol),
-        outlineLevelRow(outlineLevelRow),
-        thickBottom(thickBottom),
-        thickTop(thickTop),
-        zeroHeight(zeroHeight) {
-    }
-
-    int baseColWidth;
-    bool customHeight;
-    double defaultColWidth = 0.0;
-    double defaultRowHeight;
-    int outlineLevelCol;
-    int outlineLevelRow;
-    bool thickBottom;
-    bool thickTop;
-    bool zeroHeight;
+    int baseColWidth = 8;
+    bool customHeight = false;
+    double defaultColWidth = 8.43f;
+    double defaultRowHeight = 15;
+    int outlineLevelCol = 0;
+    int outlineLevelRow = 0;
+    bool thickBottom = false;
+    bool thickTop = false;
+    bool zeroHeight = false;
 };
 
 struct SheetProperties

@@ -586,6 +586,15 @@ QDebug operator<<(QDebug dbg, const Color &c)
     return dbg.space();
 }
 
+QDebug operator<<(QDebug dbg, const ColorTransform &c)
+{
+    dbg << "ColorTransform(";
+    for (auto it = c.vals.cbegin(); it != c.vals.cend(); ++it)
+        dbg << static_cast<int>(it.key()) << ": " << it.value() << ",";
+    dbg << ")";
+    return dbg;
+}
+
 bool ColorTransform::hasTransform(Type type) const
 {
     return vals.contains(type);

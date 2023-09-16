@@ -460,6 +460,7 @@ QDataStream &operator>>(QDataStream &s, Color &color);
 #endif
 
 QDebug operator<<(QDebug dbg, const Color &c);
+QDebug operator<<(QDebug dbg, const ColorTransform &c);
 
 }
 
