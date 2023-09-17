@@ -730,25 +730,48 @@ bool Document::removeBackgroundImage()
 }
 
 
-/*!
- * Creates an chart with the given \a size and insert it to the current
- * active worksheet at the position \a row, \a col.
- * The chart will be returned.
- */
 Chart *Document::insertChart(int row, int col, const QSize &size)
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->insertChart(row, col, size);
+    return nullptr;
+}
+
+Chart *Document::chart(int index) const
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->chart(index);
+    return nullptr;
+}
+
+Chart *Document::chart(int row, int column) const
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->chart(row, column);
+    return nullptr;
+}
+
+bool Document::removeChart(int row, int column)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->removeChart(row, column);
+    return false;
+}
+
+bool Document::removeChart(int index)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->removeChart(index);
+    return false;
+}
+
+int Document::chartCount() const
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->chartCount();
     return 0;
 }
 
-/*!
-  Merge a \a range of cells. The first cell should contain the data and the others should
-  be blank. All cells will be applied the same style if a valid \a format is given.
-  Returns true on success.
-
-  \note All cells except the top-left one will be cleared.
- */
 bool Document::mergeCells(const CellRange &range, const Format &format)
 {
     if (Worksheet *sheet = currentWorksheet())

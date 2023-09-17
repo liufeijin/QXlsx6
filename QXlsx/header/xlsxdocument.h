@@ -43,8 +43,8 @@ public:
     
     /*!
      * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
-     * @param row zero-based row number where the image is anchored.
-     * @param col zero-based column number where the image is anchored.
+     * @param row 1-based row number where the image is anchored.
+     * @param col 1-based column number where the image is anchored.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int col, const QImage &image);
@@ -56,8 +56,8 @@ public:
     /**
      * @overload
      * @brief returns image from the current active worksheet.
-     * @param row zero-based row number where the image is anchored.
-     * @param col zero-based column number where the image is anchored.
+     * @param row 1-based row number where the image is anchored.
+     * @param col 1-based column number where the image is anchored.
      */
     QImage image(int row, int col);
     /**
@@ -74,8 +74,8 @@ public:
 
     /**
      * @brief removes image from the current active worksheet
-     * @param row zero-based row number where the image is anchored.
-     * @param column zero-based column number where the image is anchored.
+     * @param row 1-based row number where the image is anchored.
+     * @param column 1-based column number where the image is anchored.
      * @return true if image was found and removed, false otherwise.
      */
     bool removeImage(int row, int column);
@@ -110,9 +110,55 @@ public:
      * @return true if the background image was removed.
      */
     bool removeBackgroundImage();
-    
-    Chart *insertChart(int row, int col, const QSize &size);
-    
+    //TODO: add insertImage(int row, int column, const Size &size); to specify size in mm, pt etc.
+
+    /**
+     * @brief creates a new chart and places it inside the current active worksheet.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
+     * @param size the chart size in pixels.
+     * @return pointer to the new chart or nullptr if no chart was created.
+     */
+    Chart *insertChart(int row, int column, const QSize &size);
+    /**
+     * @brief returns chart from the current active worksheet.
+     * @param index zero-based index of the chart (0 to #chartCount()-1)
+     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     */
+    Chart *chart(int index) const;
+    /**
+     * @overload
+     * @brief returns chart from the current active worksheet.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
+     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     */
+    Chart *chart(int row, int column) const;
+    /**
+     * @brief removes chart from the current active worksheet.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
+     * @return true if the chart was found and successfully removed, false otherwise.
+     */
+    bool removeChart(int row, int column);
+    /**
+     * @overload
+     * @brief removes chart from the current active worksheet.
+     * @param index zero-based index of the chart.
+     * @return true if the chart was found and successfully removed, false otherwise.
+     */
+    bool removeChart(int index);
+    /**
+     * @brief returns count of charts on the current active worksheet or 0 if there's no current active worksheet.
+     */
+    int chartCount() const;
+    /**
+    @brief Merges a @a range of cells in the current active worksheet.
+
+    The first cell will retain its data, other cells will be cleared.
+    All cells will get the same @a format if a valid @a format is given.
+    Returns true on success.
+    */
     bool mergeCells(const CellRange &range, const Format &format=Format());
     bool unmergeCells(const CellRange &range);
 
