@@ -233,7 +233,7 @@ XlsxMarker DrawingAnchor::loadXmlMarker(QXmlStreamReader &reader, const QString 
         {
             if (reader.name() == QLatin1String("col"))
             {
-                col = reader.readElementText().toInt();
+                col = reader.readElementText().toInt()+1; //In xml row and col are 0-bazed
             }
             else if (reader.name() == QLatin1String("colOff"))
             {
@@ -241,7 +241,7 @@ XlsxMarker DrawingAnchor::loadXmlMarker(QXmlStreamReader &reader, const QString 
             }
             else if (reader.name() == QLatin1String("row"))
             {
-                row = reader.readElementText().toInt();
+                row = reader.readElementText().toInt()+1; //In xml row and col are 0-bazed
             }
             else if (reader.name() == QLatin1String("rowOff"))
             {
@@ -708,9 +708,9 @@ void DrawingAnchor::saveXmlExt(QXmlStreamWriter &writer, const QSize &ext) const
 void DrawingAnchor::saveXmlMarker(QXmlStreamWriter &writer, const XlsxMarker &marker, const QString &node) const
 {
     writer.writeStartElement(node); //xdr:from or xdr:to
-    writer.writeTextElement(QStringLiteral("xdr:col"), QString::number(marker.col()));
+    writer.writeTextElement(QStringLiteral("xdr:col"), QString::number(marker.col()-1));
     writer.writeTextElement(QStringLiteral("xdr:colOff"), QString::number(marker.colOff()));
-    writer.writeTextElement(QStringLiteral("xdr:row"), QString::number(marker.row()));
+    writer.writeTextElement(QStringLiteral("xdr:row"), QString::number(marker.row()-1));
     writer.writeTextElement(QStringLiteral("xdr:rowOff"), QString::number(marker.rowOff()));
     writer.writeEndElement();
 }

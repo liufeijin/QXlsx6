@@ -12,8 +12,6 @@
 
 #include <memory>
 
-#include "xlsxglobal.h"
-
 namespace QXlsx {
 
 class Drawing;
