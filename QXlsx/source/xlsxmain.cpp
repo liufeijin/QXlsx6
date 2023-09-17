@@ -502,6 +502,13 @@ void Coordinate::setPixels(double pixels, int dpi)
     this->val = qint64(pixels / dpi * 72.0 * 12700.0);
 }
 
+Coordinate Coordinate::fromPixels(int pixels, int dpi)
+{
+    Coordinate c;
+    c.setPixels(pixels, dpi);
+    return c;
+}
+
 Coordinate Coordinate::create(const QStringView &val)
 {
     bool ok;

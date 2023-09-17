@@ -397,7 +397,7 @@ private:
  * corresponding edge of the parent's bounding box. A positive percentage specifies
  * an inset, while a negative percentage specifies an outset.
  */
-class RelativeRect
+class QXLSX_EXPORT RelativeRect
 {
 public:
     /**
@@ -411,7 +411,7 @@ public:
      * @param right a percentage offset from the right edge of the parent's bounding box
      * @param bottom a percentage offset from the bottom edge of the parent's bounding box
      *
-     * Values of 100 equal 100%. Values can be positive or negative.
+     * Value of 100.0 equals 100%. Values can be positive or negative.
      */
     RelativeRect(double left, double top, double right, double bottom);
     std::optional<double> left; /**< @brief a percentage offset from the left edge of the parent's bounding box */
@@ -524,6 +524,13 @@ public:
      * @param pixels new value in px.
      */
     void setPixels(double pixels, int dpi = 96);
+    /**
+     * @brief creates Coordinate object and sets its value in pixels at specified resolution.
+     * @param pixels size in pixels
+     * @param dpi resolution in dots per inch.
+     * @return new Coordinate object.
+     */
+    static Coordinate fromPixels(int pixels, int dpi = 96);
 
     /**
      * @brief create parses val and creates a valid Coordinate

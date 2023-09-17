@@ -12,7 +12,6 @@
 #include "xlsxmediafile_p.h"
 #include "xlsxchart.h"
 #include "xlsxworkbook.h"
-#include "xlsxworksheet.h"
 #include "xlsxutility_p.h"
 
 namespace QXlsx {
@@ -207,14 +206,14 @@ QPoint DrawingAnchor::loadXmlPos(QXmlStreamReader &reader)
     return pos;
 }
 
-QSize DrawingAnchor::loadXmlExt(QXmlStreamReader &reader)
+QPair<Coordinate, Coordinate> DrawingAnchor::loadXmlExt(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("ext"));
 
-    QSize size;
+    QPair<Coordinate, Coordinate> size;
     QXmlStreamAttributes attrs = reader.attributes();
-    size.setWidth(attrs.value(QLatin1String("cx")).toInt());
-    size.setHeight(attrs.value(QLatin1String("cy")).toInt());
+    size.first = Coordinate::create(attrs.value(QLatin1String("cx")));
+    size.second = Coordinate::create(attrs.value(QLatin1String("cy")));
     return size;
 }
 
@@ -697,11 +696,11 @@ void DrawingAnchor::saveXmlPos(QXmlStreamWriter &writer, const QPoint &pos) cons
     writer.writeAttribute(QStringLiteral("y"), QString::number(pos.y()));
 }
 
-void DrawingAnchor::saveXmlExt(QXmlStreamWriter &writer, const QSize &ext) const
+void DrawingAnchor::saveXmlExt(QXmlStreamWriter &writer, QPair<Coordinate, Coordinate> ext) const
 {
     writer.writeStartElement(QStringLiteral("xdr:ext"));
-    writer.writeAttribute(QStringLiteral("cx"), QString::number(ext.width()));
-    writer.writeAttribute(QStringLiteral("cy"), QString::number(ext.height()));
+    writer.writeAttribute(QStringLiteral("cx"), ext.first.toString());
+    writer.writeAttribute(QStringLiteral("cy"), ext.second.toString());
     writer.writeEndElement(); //xdr:ext
 }
 
@@ -753,8 +752,8 @@ void DrawingAnchor::saveXmlObjectConnectionShape(QXmlStreamWriter &writer) const
         writer.writeAttribute(QStringLiteral("x"), QString::number(posTA.x()));
         writer.writeAttribute(QStringLiteral("y"), QString::number(posTA.y()));
         writer.writeEmptyElement(QStringLiteral("a:ext"));
-        writer.writeAttribute(QStringLiteral("cx"), QString::number(extTA.width()));
-        writer.writeAttribute(QStringLiteral("cy"), QString::number(extTA.height()));
+        writer.writeAttribute(QStringLiteral("cx"), extTA.first.toString());
+        writer.writeAttribute(QStringLiteral("cy"), extTA.second.toString());
         writer.writeEndElement(); //a:xfrm
 
         writer.writeStartElement(QStringLiteral("a:prstGeom"));
@@ -950,8 +949,8 @@ void DrawingAnchor::saveXmlObjectShape(QXmlStreamWriter &writer) const
         writer.writeAttribute(QStringLiteral("x"), QString::number(posTA.x()));
         writer.writeAttribute(QStringLiteral("y"), QString::number(posTA.y()));
         writer.writeEmptyElement(QStringLiteral("a:ext"));
-        writer.writeAttribute(QStringLiteral("cx"), QString::number(extTA.width()));
-        writer.writeAttribute(QStringLiteral("cy"), QString::number(extTA.height()));
+        writer.writeAttribute(QStringLiteral("cx"), extTA.first.toString());
+        writer.writeAttribute(QStringLiteral("cy"), extTA.second.toString());
         writer.writeEndElement(); //a:xfrm
 
         writer.writeStartElement(QStringLiteral("a:prstGeom"));

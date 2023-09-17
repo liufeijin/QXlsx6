@@ -737,6 +737,13 @@ Chart *Document::insertChart(int row, int col, const QSize &size)
     return nullptr;
 }
 
+Chart *Document::insertChart(int row, int column, Coordinate width, Coordinate height)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->insertChart(row, column, width, height);
+    return nullptr;
+}
+
 Chart *Document::chart(int index) const
 {
     if (Worksheet *sheet = currentWorksheet())

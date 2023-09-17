@@ -214,7 +214,7 @@ class WorksheetPrivate;
  * @brief The Worksheet class represents a worksheet in the workbook.
  *
  *
- * Each worksheet can have from 1 to infinity 'sheet views', that display a specific portion of
+ * Each worksheet can have 1 to infinity 'sheet views', that display a specific portion of
  * the worksheet with specific view parameters.
  *
  * The following methods manage worksheet views:
@@ -237,7 +237,7 @@ class WorksheetPrivate;
  * - #isOutlineSymbolsVisible(), #setOutlineSymbolsVisible(bool visible) manage the outline symbols visibility.
  * - #isWhiteSpaceVisible(), #setWhiteSpaceVisible(bool visible) manage visibility of whitespaces in the sheet's cells.
  *
- * The beforementioned methods return the default values if the corresponding parameters were not set.
+ * The aforementioned methods return the default values if the corresponding parameters were not set.
  * See SheetView documentation on the default values.
  *
  */
@@ -306,8 +306,8 @@ public:
     /**
      * @overload
      * @brief returns cell by its row and column number.
-     * @param row zero-based cell row number.
-     * @param column zero-based cell column number.
+     * @param row 1-based cell row number.
+     * @param column 1-based cell column number.
      * @return valid pointer to the cell if the cell was found, nullptr otherwise.
      */
     Cell *cell(int row, int column) const;
@@ -355,11 +355,22 @@ public:
      * @brief creates a new chart and places it inside the current worksheet.
      * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
-     * @param size the chart size in pixels.
+     * @param size the chart size in pixels at 96 dpi.
      * @return pointer to the new chart or nullptr if no chart was created.
      */
     Chart *insertChart(int row, int column, const QSize &size);
-    //TODO: add insertImage(int row, int column, const Size &size); to specify size in mm, pt etc.
+    /**
+     * @overload
+     * @brief creates a new chart and places it inside the current worksheet.
+     * @param rowt he 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
+     * @param width width of a chart specified as a Coordinate object. You can use it to set
+     * width in pixels, points, millimeters, EMU etc. See Coordinate for help.
+     * @param height height of a chart specified as a Coordinate object. You can use it to set
+     * height in pixels, points, millimeters, EMU etc. See Coordinate for help.
+     * @return pointer to the new chart or nullptr if no chart was created.
+     */
+    Chart *insertChart(int row, int column, Coordinate width, Coordinate height);
     /**
      * @brief returns chart
      * @param index zero-based index of the chart (0 to #chartCount()-1)

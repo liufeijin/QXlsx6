@@ -38,6 +38,7 @@
 #include "xlsxchart.h"
 #include "xlsxcellformula.h"
 #include "xlsxcellformula_p.h"
+#include "xlsxmain.h"
 
 namespace QXlsx {
 
@@ -984,10 +985,10 @@ int Worksheet::insertImage(int row, int column, const QImage &image)
         EMU is 1/360 000 of centimiter.
         */
         anchor->from = XlsxMarker(row, column, 0, 0);
-        float scaleX = 36e6f / std::max(1,image.dotsPerMeterX());
-        float scaleY = 36e6f / std::max(1,image.dotsPerMeterY());
-        anchor->ext = QSize( int(image.width() * scaleX), int(image.height() * scaleY) );
-
+        int dpiX = int(double(image.dotsPerMeterX()) / 39.3700787); //calculate dpi from dpm
+        int dpiY = int(double(image.dotsPerMeterY()) / 39.3700787);
+        anchor->ext = QPair<Coordinate, Coordinate>(Coordinate::fromPixels(image.width(), dpiX),
+                                                    Coordinate::fromPixels(image.height(), dpiY));
         anchor->setObjectPicture(image);
         return d->drawing->anchors.size()-1;
     }
@@ -1106,7 +1107,29 @@ Chart *Worksheet::insertChart(int row, int column, const QSize &size)
         pixel
     */
     anchor->from = XlsxMarker(row, column, 0, 0);
-    anchor->ext = size * 9525;
+    anchor->ext = QPair<Coordinate, Coordinate>(Coordinate(qint64(size.width() * 9525)),
+                                                Coordinate(qint64(size.height() * 9525)));
+
+    QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, F_NewFromScratch));
+    anchor->setObjectGraphicFrame(chart);
+
+    return chart.data();
+}
+
+Chart *Worksheet::insertChart(int row, int column, Coordinate width, Coordinate height)
+{
+    Q_D(Worksheet);
+
+    if (!d->drawing)
+        d->drawing = std::make_shared<Drawing>(this, F_NewFromScratch);
+
+    if (!d->addRowToDimensions(row)) return nullptr;
+    if (!d->addColumnToDimensions(column)) return nullptr;
+
+    DrawingOneCellAnchor *anchor = new DrawingOneCellAnchor(d->drawing.get());
+
+    anchor->from = XlsxMarker(row, column, 0, 0);
+    anchor->ext = QPair<Coordinate, Coordinate>(width, height);
 
     QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, F_NewFromScratch));
     anchor->setObjectGraphicFrame(chart);

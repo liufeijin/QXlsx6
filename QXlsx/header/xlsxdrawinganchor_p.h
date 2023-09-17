@@ -12,6 +12,8 @@
 
 #include <memory>
 
+#include "xlsxmain.h"
+
 namespace QXlsx {
 
 class Drawing;
@@ -73,7 +75,7 @@ public:
 
 protected:
     QPoint loadXmlPos(QXmlStreamReader &reader);
-    QSize loadXmlExt(QXmlStreamReader &reader);
+    QPair<Coordinate, Coordinate> loadXmlExt(QXmlStreamReader &reader);
     XlsxMarker loadXmlMarker(QXmlStreamReader &reader, const QString &node);
     void loadXmlObject(QXmlStreamReader &reader);
     void loadXmlObjectShape(QXmlStreamReader &reader);
@@ -83,7 +85,7 @@ protected:
     void loadXmlObjectPicture(QXmlStreamReader &reader);
 
     void saveXmlPos(QXmlStreamWriter &writer, const QPoint &pos) const;
-    void saveXmlExt(QXmlStreamWriter &writer, const QSize &ext) const;
+    void saveXmlExt(QXmlStreamWriter &writer, QPair<Coordinate, Coordinate> ext) const;
     void saveXmlMarker(QXmlStreamWriter &writer, const XlsxMarker &marker, const QString &node) const;
     void saveXmlObject(QXmlStreamWriter &writer) const;
     void saveXmlObjectShape(QXmlStreamWriter &writer) const;
@@ -111,7 +113,7 @@ protected:
     QString  editASName; 
     // below only for twocellanchor shape
     QPoint posTA;   // for shape liufeij 20181024
-    QSize extTA;    // for shape liufeij 20181024
+    QPair<Coordinate, Coordinate> extTA;    // for shape liufeij 20181024
     int rotWithShapeTA;  //// for shape liufeij 20181024
     int dpiTA;           //// for shape liufeij 20181024
     QString sp_textlink,sp_macro,sp_blip_cstate,sp_blip_rembed;
@@ -136,7 +138,7 @@ public:
     DrawingAbsoluteAnchor(Drawing *drawing, ObjectType objectType=Unknown);
 
     QPoint pos;
-    QSize ext;
+    QPair<Coordinate, Coordinate> ext;
 
     bool loadFromXml(QXmlStreamReader &reader) override;
     void saveToXml(QXmlStreamWriter &writer) const override;
@@ -150,7 +152,7 @@ public:
     DrawingOneCellAnchor(Drawing *drawing, ObjectType objectType=Unknown);
 
     XlsxMarker from;
-    QSize ext;
+    QPair<Coordinate, Coordinate> ext;
 
     int row() const override;
     int col() const override;

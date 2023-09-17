@@ -38,14 +38,16 @@ int barChart()
     barChart11->setTitle("Row-based, no options");
     barChart11->addSeries(CellRange(1,1,3,10), nullptr, true, true, false);
 
-    Chart *barChart12 = xlsx.insertChart(5, 10, QSize(300, 300));
+    //demonstrates how to use Coordinate to set size in pixels
+    Chart *barChart12 = xlsx.insertChart(5, 10, Coordinate("300px"), Coordinate("300px"));
     barChart12->setType(Chart::Type::Bar);
     barChart12->setLegend(Legend::Position::Right);
     barChart12->setTitle("Row-based, Clustered grouping");
     barChart12->addSeries(CellRange(1,1,3,10), nullptr, true, true, false);
     barChart12->setBarGrouping(Chart::BarGrouping::Clustered);
 
-    Chart *barChart13 = xlsx.insertChart(5, 16, QSize(300, 300));
+    //demonstrates how to use Coordinate to set size in pixels
+    Chart *barChart13 = xlsx.insertChart(5, 16, Coordinate("80mm"), Coordinate("80mm"));
     barChart13->setType(Chart::Type::Bar);
     barChart13->setLegend(Legend::Position::Right);
     barChart13->setTitle("Row-based, Stacked grouping");

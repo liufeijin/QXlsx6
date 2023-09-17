@@ -40,7 +40,7 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
         DrawingAbsoluteAnchor *anchor = new DrawingAbsoluteAnchor(drawing(), DrawingAnchor::Picture);
 
         anchor->pos = QPoint(0, 0);
-        anchor->ext = QSize(9293679, 6068786);
+        anchor->ext = qMakePair(Coordinate(9293679ll), Coordinate(6068786ll));
 
         QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, flag));
         chart->setType(Chart::Type::Bar);
