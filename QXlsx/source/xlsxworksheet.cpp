@@ -1134,7 +1134,7 @@ Chart *Worksheet::chart(int index) const
     return nullptr;
 }
 
-Chart *Worksheet::chart(int row, int column)
+Chart *Worksheet::chart(int row, int column) const
 {
     Q_D(const Worksheet);
     if (d->drawing) {
@@ -1203,13 +1203,6 @@ int Worksheet::chartCount() const
     return count;
 }
 
-/*!
-    Merge a \a range of cells. The first cell should contain the data and the others should
-    be blank. All cells will be applied the same style if a valid \a format is given.
-    Returns true on success.
-
-    \note All cells except the top-left one will be cleared.
- */
 bool Worksheet::mergeCells(const CellRange &range, const Format &format)
 {
     Q_D(Worksheet);

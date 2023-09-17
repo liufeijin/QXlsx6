@@ -99,7 +99,7 @@ void Title::setStringReference(const QString &reference)
 void Title::setStringReference(const CellRange &range, AbstractSheet *sheet)
 {
     if (!d) d = new TitlePrivate;
-    if (!range.isValid())
+    if (!range.isValid() || !sheet)
         return;
     if (sheet && sheet->type() != AbstractSheet::Type::Worksheet)
         return;
@@ -169,22 +169,22 @@ void Title::setTextProperties(const TextProperties &textProperties)
     else d->text.setTextProperties(textProperties);
 }
 
-//TextFormat Title::textFormat() const
-//{
-//    if (!d) return {};
-//    return d->textProperties;
-//}
+TextFormat Title::textFormat() const
+{
+    if (!d) return {};
+    return d->textProperties;
+}
 
 TextFormat &Title::textFormat()
 {
     if (!d) d = new TitlePrivate;
     return d->textProperties;
 }
-//void Title::setTextFormat(const TextFormat &textFormat)
-//{
-//    if (!d) d = new TitlePrivate;
-//    d->textProperties = textFormat;
-//}
+void Title::setTextFormat(const TextFormat &textFormat)
+{
+    if (!d) d = new TitlePrivate;
+    d->textProperties = textFormat;
+}
 
 ParagraphProperties Title::defaultParagraphProperties() const
 {

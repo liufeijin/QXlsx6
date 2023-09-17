@@ -8,13 +8,9 @@
 #include <iostream>
 using namespace std;
 
-// [0] include QXlsx headers
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
 #include "xlsxcellrange.h"
 #include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
 using namespace QXlsx;
 
 int main(int argc, char *argv[])
@@ -94,7 +90,7 @@ int main(int argc, char *argv[])
     xlsx.saveAs("combinedChart1.xlsx");
 
     Document xlsx2("combinedChart1.xlsx");
-    if (xlsx2.load()) {
+    if (xlsx2.isLoaded()) {
         xlsx2.saveAs("combinedChart2.xlsx");
     }
 

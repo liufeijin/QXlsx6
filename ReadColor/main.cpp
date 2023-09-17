@@ -12,11 +12,6 @@
 using namespace std;
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
 using namespace QXlsx;
 
 void printColor(Cell* cell);
@@ -27,7 +22,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     Document xlsxR(":/color.xlsx");
-    if ( !xlsxR.load() )
+    if ( !xlsxR.isLoaded() )
     {
         return (-1);
     }

@@ -13,12 +13,7 @@
 #include <iostream>
 using namespace std;
 
-// [0] include QXlsx headers
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 using namespace QXlsx;
 
@@ -38,82 +33,41 @@ int main(int argc, char *argv[])
     QString xlsxFileName = argv[1];
     qDebug() << xlsxFileName;
 
-    // tried to load xlsx using temporary document
-    QXlsx::Document xlsxTmp( xlsxFileName );
-    if ( !xlsxTmp.isLoadPackage() )
-    {
+    // load new xlsx using new document
+    QXlsx::Document xlsxDoc(xlsxFileName);
+    if (!xlsxDoc.isLoaded()) {
         qCritical() << "Failed to load" << xlsxFileName;
         return (-1); // failed to load
     }
 
-    // load new xlsx using new document
-    QXlsx::Document xlsxDoc( xlsxFileName );
-    xlsxDoc.isLoadPackage();
-
     int sheetIndexNumber = 0;
-    foreach( QString curretnSheetName, xlsxDoc.sheetNames() )
+    foreach (QString currentSheetName, xlsxDoc.sheetNames() )
     {
-        QXlsx::AbstractSheet* currentSheet = xlsxDoc.sheet( curretnSheetName );
-        if ( NULL == currentSheet )
+        QXlsx::AbstractSheet* currentSheet = xlsxDoc.sheet(currentSheetName);
+        if (!currentSheet)
             continue;
 
         // get full cells of sheet
-        int maxRow = -1;
-        int maxCol = -1;
+
         currentSheet->workbook()->setActiveSheet( sheetIndexNumber );
         Worksheet* wsheet = (Worksheet*) currentSheet->workbook()->activeSheet();
-        if ( NULL == wsheet )
+        if (!wsheet)
             continue;
-
-        QString strSheetName = wsheet->name(); // sheet name
 
         // display sheet name
         std::cout
-                << std::string( strSheetName.toLocal8Bit() )
+                << std::string( currentSheetName.toLocal8Bit() )
                 << std::endl;
 
-        auto clList = wsheet->getFullCells( &maxRow, &maxCol );
-
-        QVector< QVector<QString> > cellValues;
-        for (int rc = 0; rc < maxRow; rc++)
-        {
-            QVector<QString> tempValue;
-            for (int cc = 0; cc < maxCol; cc++)
-            {
-                tempValue.push_back(QString(""));
-            }
-            cellValues.push_back(tempValue);
-        }
-
-        for (auto ic = clList.constBegin(); ic != clList.constEnd(); ++ic) {
-            // cell location
-            auto cl = ic.key();
-
-            int row = cl.row() - 1;
-            int col = cl.column() - 1;
-
-            // https://github.com/QtExcel/QXlsx/commit/9ab612ff5c9defc35333799c55b01be31aa66fc2
-            // {{
-            // QSharedPointer<Cell> ptrCell = cl.cell; // cell pointer
-            auto ptrCell = ic.value(); // cell pointer
-
-            // value of cell
-            // QVariant var = cl.cell.data()->value();
-            QVariant var = ptrCell->value();
-            // }}
-
-            QString str = var.toString();
-
-            cellValues[row][col] = str;
-        }
+        int maxRow = wsheet->dimension().lastRow() - wsheet->dimension().firstRow();
+        int maxCol = wsheet->dimension().lastColumn() - wsheet->dimension().firstColumn();
 
         fort::table fortTable;
-        for (int rc = 0; rc < maxRow; rc++)
-        {
-            for (int cc = 0; cc < maxCol; cc++)
-            {
-                QString strTemp = cellValues[rc][cc];
-                fortTable << std::string( strTemp.toLocal8Bit() ); // display value
+        for (int row = 0; row < maxRow; row++)  {
+            for (int col = 0; col < maxCol; col++) {
+                auto val = wsheet->read(row + wsheet->dimension().firstRow(),
+                                        col + wsheet->dimension().firstColumn()).toString();
+                fortTable << std::string( val.toLocal8Bit() ); // display value
             }
             fortTable << fort::endr; // change to new row
         }

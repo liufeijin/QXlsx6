@@ -314,8 +314,8 @@ public:
 
     /*!
      * @brief Inserts an \a image at the position \a row, \a column.
-     * @param row the zero-based row index of the image top left corner.
-     * @param column the zero-based column index of the image top left corner.
+     * @param row the 1-based row index of the image top left corner.
+     * @param column the 1-based column index of the image top left corner.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int column, const QImage &image);
@@ -328,8 +328,8 @@ public:
     /**
      * @overload
      * @brief returns image.
-     * @param row the zero-based row index of the image top left corner.
-     * @param column the zero-based column index of the image top left corner.
+     * @param row the 1-based row index of the image top left corner.
+     * @param column the 1-based column index of the image top left corner.
      * @return non-null QImage if image was found and read.
      */
     QImage image(int row, int column) const;
@@ -339,8 +339,8 @@ public:
     int imageCount() const;
     /**
      * @brief removes image from the worksheet
-     * @param row the zero-based row index of the image top left corner.
-     * @param column the zero-based column index of the image top left corner.
+     * @param row the 1-based row index of the image top left corner.
+     * @param column the 1-based column index of the image top left corner.
      * @return true if image was found and removed, false otherwise.
      */
     bool removeImage(int row, int column);
@@ -353,8 +353,8 @@ public:
 
     /**
      * @brief creates a new chart and places it inside the current worksheet.
-     * @param row the zero-based row index of the chart top left corner.
-     * @param column the zero-based column index of the chart top left corner.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
      * @param size the chart size in pixels.
      * @return pointer to the new chart or nullptr if no chart was created.
      */
@@ -369,15 +369,15 @@ public:
     /**
      * @overload
      * @brief returns chart.
-     * @param row the zero-based row index of the chart top left corner.
-     * @param column the zero-based column index of the chart top left corner.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
      * @return valid pointer to the chart if the chart was found, nullptr otherwise.
      */
-    Chart *chart(int row, int column);
+    Chart *chart(int row, int column) const;
     /**
      * @brief removes chart from the worksheet.
-     * @param row the zero-based row index of the chart top left corner.
-     * @param column the zero-based column index of the chart top left corner.
+     * @param row the 1-based row index of the chart top left corner.
+     * @param column the 1-based column index of the chart top left corner.
      * @return true if the chart was found and successfully removed, false otherwise.
      */
     bool removeChart(int row, int column);
@@ -392,7 +392,13 @@ public:
      * @brief returns count of charts on the worksheet.
      */
     int chartCount() const;
+    /**
+    @brief Merges a @a range of cells.
 
+    The first cell will retain its data, other cells will be cleared.
+    All cells will get the same @a format if a valid @a format is given.
+    Returns true on success.
+    */
     bool mergeCells(const CellRange &range, const Format &format=Format());
     bool unmergeCells(const CellRange &range);
     QList<CellRange> mergedCells() const;

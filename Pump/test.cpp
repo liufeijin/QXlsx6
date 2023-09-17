@@ -20,11 +20,6 @@
 using namespace std;
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
 
 #ifdef Q_OS_WIN
 // #include "colorprintf.h" // https://github.com/VittGam/colorprintf
@@ -56,7 +51,7 @@ int test( QVector<QVariant> params )
         {
             using namespace QXlsx;
             Document output2(currentFilename);
-            if ( output2.load() )
+            if ( output2.isLoaded() )
             {
                 if ( output2.saveAs( strArg3 ) )
                 {

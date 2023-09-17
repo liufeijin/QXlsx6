@@ -158,7 +158,7 @@ void sat_calc::generate_report()
     input.close();
 
     Document doc2(report_file);
-    if (doc2.load())
+    if (doc2.isLoaded())
     {
         doc2.saveAs("doc2.xlsx");
     }
@@ -166,5 +166,4 @@ void sat_calc::generate_report()
     QMessageBox msgBox;
     msgBox.setText("Success to write a xlsx file.");
     msgBox.exec();
-
 }

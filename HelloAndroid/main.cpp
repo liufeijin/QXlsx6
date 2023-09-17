@@ -21,10 +21,6 @@
 #include <iostream>
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 using namespace QXlsx;
 
@@ -35,37 +31,33 @@ std::string convertFromNumberToExcelColumn(int n);
 
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
-
+#endif
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
     QQmlContext* ctxt = engine.rootContext();
 
     QXlsx::Document xlsx( ":/test.xlsx" ); // load xlsx
-    if (!xlsx.load())
+    if (!xlsx.isLoaded())
     {
         qDebug() << "[ERROR] Failed to load xlsx";
         return (-1);
     }
 
     QList<QString> colTitle; // list of column title
-    QVector<CellLocation> vcl; // vector of cell(s) location
     Worksheet* wsheet = (Worksheet*) xlsx.workbook()->activeSheet();
-    if ( NULL == wsheet )
+    if (!wsheet )
     {
         qDebug() << "[ERROR] Failed to get active sheet";
         return (-2);
     }
 
-    int rowMax = -1;
-    int colMax = -1;
-    vcl = wsheet->getFullCells( &rowMax, &colMax );
+    int maxRow = wsheet->dimension().lastRow() - wsheet->dimension().firstRow();
+    int maxCol = wsheet->dimension().lastColumn() - wsheet->dimension().firstColumn();
 
-    Q_ASSERT( (-1) != rowMax ); // To CHECK
-    Q_ASSERT( (-1) != colMax );
-
-    for (int ic = 0 ; ic < colMax ; ic++)
+    for (int ic = 0 ; ic < maxCol ; ic++)
     {
         std::string strCol = convertFromNumberToExcelColumn(ic + 1);
         QString colName = QString::fromStdString( strCol );
@@ -74,32 +66,22 @@ int main(int argc, char *argv[])
 
     // make cell matrix that has (colMax x rowMax) size.
 
-    DynArray2D< std::string > dynIntArray(colMax, rowMax);
+    DynArray2D< std::string > dynIntArray(maxCol, maxRow);
 
-    for ( int icl = 0; icl < vcl.size(); ++icl )
-    {
-          CellLocation cl = vcl.at(icl); // cell location
-
-          // NOTICE: First cell of tableWidget is 0.
-          // But first cell of Qxlsx document is 1.
-          int row = cl.row - 1;
-          int col = cl.col - 1;
-
-          auto ptrCell = cl.cell; // cell pointer
-
-          // value of cell
-          QVariant var = ptrCell->value();
-          QString str = var.toString();
-
-          // set string value to (col, row)
-          dynIntArray.setValue( col, row, str.toStdString() );
+    for (int row = 0; row < maxRow; row++)  {
+        for (int col = 0; col < maxCol; col++) {
+            auto val = wsheet->read(row + wsheet->dimension().firstRow(),
+                                    col + wsheet->dimension().firstColumn()).toString();
+            // set string value to (col, row)
+            dynIntArray.setValue( col, row, val.toStdString() );
+        }
     }
 
     QList<VLIST> xlsxData;
-    for (int ir = 0; ir < rowMax; ir++ )
+    for (int ir = 0; ir < maxRow; ir++ )
     {
         VLIST vl;
-        for (int ic = 0; ic < colMax; ic++)
+        for (int ic = 0; ic < maxCol; ic++)
         {
             std::string value = dynIntArray.getValue( ic, ir );
             vl.append( QString::fromStdString(value) );

@@ -267,6 +267,8 @@ public:
     /**
      * @brief order of the polynomial trend line.
      *
+     * The order of the polynomial trend line is restricted to values 2..6.
+     *
      * If not set, the default value is 2.
      */
     std::optional<int> order; //2..6

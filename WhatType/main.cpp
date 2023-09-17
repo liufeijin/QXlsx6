@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
 
     qDebug() << "[debug] current directory is " << QDir::currentPath();
 
-    Document xlsxR("Test.xlsx"); 
-    if ( ! xlsxR.load() )
+    Document xlsxR("Test.xlsx");
+    if ( ! xlsxR.isLoaded() )
     {
         qDebug() << "[debug][error] failed to load xlsx file.";
     }

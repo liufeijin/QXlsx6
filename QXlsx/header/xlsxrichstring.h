@@ -63,8 +63,6 @@ public:
 
     RichString &operator=(const RichString &other);
 
-    void read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer);
 private:
     friend   uint qHash(const RichString &rs, uint seed) Q_DECL_NOTHROW;
     friend   bool operator==(const RichString &rs1, const RichString &rs2);

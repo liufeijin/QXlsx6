@@ -178,9 +178,9 @@ public:
      */
     void setTextProperties(const TextProperties &textProperties);
 
-//    TextFormat textFormat() const;
+    TextFormat textFormat() const;
     TextFormat &textFormat();
-//    void setTextFormat(const TextFormat &textFormat);
+    void setTextFormat(const TextFormat &textFormat);
 
     /**
      * @brief returns the default paragraph properties of the title.

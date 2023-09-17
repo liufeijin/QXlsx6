@@ -99,7 +99,7 @@ int test2( QVector<QVariant> params )
     qDebug() << "\n\ndoc2\n";
 
     Document doc2("datetime.xlsx");
-    if ( !doc2.load() )
+    if ( !doc2.isLoaded() )
     {
         qWarning() << "failed to load datetime.xlsx" ;
         return (-1);
@@ -141,7 +141,7 @@ int test2( QVector<QVariant> params )
     qDebug() << "\n\ndoc3\n";
 
     Document doc3("datetime2.xlsx");
-    if ( !doc3.load() )
+    if ( !doc3.isLoaded() )
     {
         qWarning() << "failed to load datetime2.xlsx" ;
         return (-1);

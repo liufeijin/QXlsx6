@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
     //--------------------------------------
     // [2] Reading excel file(*.xlsx)
 
-    Document xlsxR("Test.xlsx"); 
-    if ( xlsxR.load() ) // load excel file
+    Document xlsxR("Test.xlsx");
+    if ( xlsxR.isLoaded() ) // load excel file
     {
         qDebug() << "[debug] success to load xlsx file.";
 

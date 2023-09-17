@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     Document xlsx2("chartsheet1.xlsx");
-    if (xlsx2.load()) {
+    if (xlsx2.isLoaded()) {
         xlsx2.saveAs("chartsheet2.xlsx");
     }
 

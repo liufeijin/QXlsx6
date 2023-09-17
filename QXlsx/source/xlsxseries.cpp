@@ -1176,7 +1176,39 @@ void TrendLine::readTrendLineLabel(QXmlStreamReader &reader)
 
 void TrendLine::write(QXmlStreamWriter &writer, const QString &name) const
 {
-//TODO:
+    if (!isValid()) return;
+
+    writer.writeStartElement(name);
+
+    if (!this->name.isEmpty()) writer.writeTextElement(QLatin1String("c:name"), this->name);
+    shape.write(writer, QLatin1String("c:spPr"));
+    QString s; toString(type, s); writeEmptyElement(writer, QLatin1String("c:trendlineType"), s);
+    switch (type) {
+        case Type::MovingAverage:
+            writeEmptyElement(writer, QLatin1String("c:period"), period); break;
+        case Type::Polynomial:
+            writeEmptyElement(writer, QLatin1String("c:order"), order); break;
+        default: break;
+    }
+    writeEmptyElement(writer, QLatin1String("c:forward"), forward);
+    writeEmptyElement(writer, QLatin1String("c:backward"), backward);
+    writeEmptyElement(writer, QLatin1String("c:intercept"), intercept);
+    writeEmptyElement(writer, QLatin1String("c:dispRSqr"), dispRSqr);
+    writeEmptyElement(writer, QLatin1String("c:dispEq"), dispEq);
+    if (label.isValid() || !numberFormat.isEmpty()) {
+        writer.writeStartElement(QLatin1String("c:trendlineLbl"));
+        label.layout().write(writer, "c:layout");
+        label.text().write(writer, "c:tx");
+        writeEmptyElement(writer, QLatin1String("c:numFmt"), numberFormat);
+        label.shape().write(writer, "c:spPr");
+
+        if (label.textFormat().isValid() && label.text().type() == Text::Type::StringRef)
+            label.textFormat().write(writer, QLatin1String("c:txPr"));
+        writer.writeEndElement();
+    }
+
+
+    writer.writeEndElement();
 }
 
 /// End of TrendLine

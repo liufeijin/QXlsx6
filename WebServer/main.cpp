@@ -82,14 +82,14 @@ bool loadXlsx(QString fileName, QString& strHtml)
 {
     // tried to load xlsx using temporary document
     QXlsx::Document xlsxTmp( fileName );
-    if ( !xlsxTmp.isLoadPackage() )
+    if ( !xlsxTmp.isLoaded() )
     {
         return false; // failed to load
     }
 
     // load new xlsx using new document
     QXlsx::Document xlsxDoc( fileName );
-    xlsxDoc.isLoadPackage();
+    xlsxDoc.isLoaded();
 
     int sheetIndexNumber = 0;
     foreach( QString curretnSheetName, xlsxDoc.sheetNames() )
@@ -99,8 +99,6 @@ bool loadXlsx(QString fileName, QString& strHtml)
             continue;
 
         // get full cells of sheet
-        int maxRow = -1;
-        int maxCol = -1;
         currentSheet->workbook()->setActiveSheet( sheetIndexNumber );
         Worksheet* wsheet = (Worksheet*) currentSheet->workbook()->activeSheet();
         if ( NULL == wsheet )
@@ -108,43 +106,10 @@ bool loadXlsx(QString fileName, QString& strHtml)
 
         QString strSheetName = wsheet->name(); // sheet name
         strHtml = strHtml + QString("<b>") + strSheetName + QString("</b><br>\n"); // UTF-8
-
         strHtml = strHtml + QString("<table>");
 
-        auto clList = wsheet->getFullCells( &maxRow, &maxCol );
-
-        QVector< QVector<QString> > cellValues;
-        for (int rc = 0; rc < maxRow; rc++)
-        {
-            QVector<QString> tempValue;
-            for (int cc = 0; cc < maxCol; cc++)
-            {
-                tempValue.push_back(QString(""));
-            }
-            cellValues.push_back(tempValue);
-        }
-
-        for (auto ic = clList.constBegin(); ic != clList.constEnd(); ++ic) {
-            // cell location
-            auto cl = ic.key();
-
-            int row = cl.row() - 1;
-            int col = cl.column() - 1;
-
-            //  Update ShowConsole example for 9ab612f
-            // {{
-            // QSharedPointer<Cell> ptrCell = cl.cell; // cell pointer
-            auto ptrCell = ic.value(); // cell pointer
-
-            // value of cell
-            // QVariant var = cl.cell.data()->value();
-            QVariant var = ptrCell->value();
-            // }}
-
-            QString str = var.toString();
-
-            cellValues[row][col] = str;
-        }
+        int maxRow = wsheet->dimension().lastRow() - wsheet->dimension().firstRow();
+        int maxCol = wsheet->dimension().lastColumn() - wsheet->dimension().firstColumn();
 
         QString strTableRecord;
         for (int rc = 0; rc < maxRow; rc++)
@@ -152,7 +117,9 @@ bool loadXlsx(QString fileName, QString& strHtml)
             strTableRecord = strTableRecord + QString("<tr>");
             for (int cc = 0; cc < maxCol; cc++)
             {
-                QString strTemp = cellValues[rc][cc];
+                QString strTemp = wsheet->read(rc + wsheet->dimension().firstRow(),
+                                               cc + wsheet->dimension().firstColumn()).toString();
+                if (strTemp.isEmpty()) strTemp = "&nbsp;";
                 strTableRecord = strTableRecord + QString("<td>");
                 strTableRecord = strTableRecord + strTemp; // UTF-8
                 strTableRecord = strTableRecord + QString("</td>");

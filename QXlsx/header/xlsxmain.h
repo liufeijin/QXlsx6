@@ -10,6 +10,7 @@
 #include <QXmlStreamReader>
 #include <QSharedData>
 #include <QVector3D>
+#include <QSize>
 #include <optional>
 
 #include "xlsxglobal.h"
