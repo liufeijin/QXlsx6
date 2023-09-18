@@ -160,6 +160,12 @@ void AbstractSheet::setPageMargins(const PageMargins &margins)
     d->pageMargins = margins;
 }
 
+void AbstractSheet::setDefaultPageMargins()
+{
+    Q_D(AbstractSheet);
+    d->pageMargins = PageMargins();
+}
+
 PageSetup AbstractSheet::pageSetup() const
 {
     Q_D(const AbstractSheet);
@@ -176,6 +182,68 @@ void AbstractSheet::setPageSetup(const PageSetup &pageSetup)
 {
     Q_D(AbstractSheet);
     d->pageSetup = pageSetup;
+}
+
+void AbstractSheet::setPaperSize(PageSetup::PaperSize paperSize)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.paperSize = paperSize;
+}
+
+PageSetup::PaperSize AbstractSheet::paperSize() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.paperSize.value_or(PageSetup::PaperSize::Unknown);
+}
+
+void AbstractSheet::setPaperSizeMM(double width, double height)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.paperWidth = QString::number(width,'f')+"mm";
+    d->pageSetup.paperHeight = QString::number(height,'f')+"mm";
+}
+
+void AbstractSheet::setPaperSizeInches(double width, double height)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.paperWidth = QString::number(width,'f')+"in";
+    d->pageSetup.paperHeight = QString::number(height,'f')+"in";
+}
+
+QString AbstractSheet::paperWidth() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.paperWidth;
+}
+
+void AbstractSheet::setPaperWidth(const QString &width)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.paperWidth = width;
+}
+
+QString AbstractSheet::paperHeight() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.paperHeight;
+}
+
+void AbstractSheet::setPaperHeight(const QString &height)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.paperHeight = height;
+}
+
+PageSetup::Orientation AbstractSheet::pageOrientation() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.orientation.value_or(PageSetup::Orientation::Default);
+}
+
+void AbstractSheet::setPageOrientation(PageSetup::Orientation orientation)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.orientation = orientation;
 }
 
 void AbstractSheet::setBackgroundImage(const QImage &image)
@@ -386,17 +454,6 @@ void HeaderFooter::read(QXmlStreamReader &reader)
     }
 }
 
-PageMargins::PageMargins(double left, double top, double right, double bottom,
-            double header, double footer)
-{
-    mMargins.insert(Position::Left, left);
-    mMargins.insert(Position::Top, top);
-    mMargins.insert(Position::Right, right);
-    mMargins.insert(Position::Bottom, bottom);
-    mMargins.insert(Position::Header, header);
-    mMargins.insert(Position::Footer, footer);
-}
-
 void PageMargins::setMarginsInches(double left, double top, double right, double bottom, double header, double footer)
 {
     mMargins.insert(Position::Left, left);
@@ -472,6 +529,25 @@ void PageMargins::setHeaderMarginMm(double value)
 void PageMargins::setFooterMarginMm(double value)
 {
     mMargins.insert(Position::Footer, value / 25.4);
+}
+
+PageMargins PageMargins::defaultPageMargins()
+{
+    return {};
+}
+
+PageMargins PageMargins::pageMarginsMm(double left, double top, double right, double bottom, double header, double footer)
+{
+    PageMargins p;
+    p.setMarginsMm(left, top, right, bottom, header, footer);
+    return p;
+}
+
+PageMargins PageMargins::pageMarginsInches(double left, double top, double right, double bottom, double header, double footer)
+{
+    PageMargins p;
+    p.setMarginsInches(left, top, right, bottom, header, footer);
+    return p;
 }
 QMap<PageMargins::Position, double> PageMargins::marginsInches() const
 {
@@ -575,8 +651,8 @@ void PageMargins::read(QXmlStreamReader &reader)
 bool PageSetup::isValid() const
 {
     if (paperSize.has_value()) return true;
-    if (!paperWidth.isEmpty()) return false;
-    if (!paperHeight.isEmpty()) return false;
+    if (!paperWidth.isEmpty()) return true;
+    if (!paperHeight.isEmpty()) return true;
     if (scale.has_value()) return true;
     if (firstPageNumber.has_value()) return true;
     if (fitToWidth.has_value()) return true;

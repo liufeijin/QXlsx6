@@ -474,6 +474,30 @@ bool Worksheet::removeView(int index)
     return true;
 }
 
+void Worksheet::setPrintScale(int scale)
+{
+    Q_D(Worksheet);
+    d->pageSetup.scale = scale;
+}
+
+int Worksheet::printScale() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.scale.value_or(100);
+}
+
+PageSetup::PageOrder Worksheet::pageOrder() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.pageOrder.value_or(PageSetup::PageOrder::DownThenOver);
+}
+
+void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
+{
+    Q_D(Worksheet);
+    d->pageSetup.pageOrder = pageOrder;
+}
+
 bool Worksheet::write(int row, int column, const QVariant &value, const Format &format)
 {
     Q_D(Worksheet);

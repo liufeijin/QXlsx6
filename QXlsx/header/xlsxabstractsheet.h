@@ -96,7 +96,7 @@ public:
 
 /**
  * @brief The PageMargins class represents the margins of a sheet page.
- * Margins are specified in inches. There are methods to set them in millimeters or in inches.
+ * Margins are specified in inches or millimetres.
  * @note If you set any of the margins, you need to also set all the other margins,
  * otherwise the document will be ill-formed. Any missing margins will be written as zeroes.
  */
@@ -113,17 +113,9 @@ public:
         Footer
     };
     /**
-     * @brief creates page margins from values specified in inches.
-     * @param left left page margin in inches.
-     * @param top top page margin in inches.
-     * @param right right page margin in inches.
-     * @param bottom bottom page margin in inches.
-     * @param header header page margin in inches.
-     * @param footer footer page margin in inches.
-     * @note To set pageMargins in millimetres use #setMarginsMm(), #setLeftMarginMm() etc.
+     * @brief creates invalid (default) page margins.
      */
-    PageMargins(double left = 0, double top = 0, double right = 0, double bottom = 0,
-                double header = 0, double footer = 0);
+    PageMargins() {}
     /**
      * @brief sets page margins specified in inches.
      * @param left left page margin in inches.
@@ -142,6 +134,15 @@ public:
     void setBottomMarginInches(double value);
     void setHeaderMarginInches(double value);
     void setFooterMarginInches(double value);
+    /**
+     * @brief sets page margins specified in millimeters.
+     * @param left left page margin in millimeters.
+     * @param top top page margin in millimeters.
+     * @param right right page margin in millimeters.
+     * @param bottom bottom page margin in millimeters.
+     * @param header header page margin in millimeters.
+     * @param footer footer page margin in millimeters.
+     */
     void setMarginsMm(double left = 0, double top = 0, double right = 0, double bottom = 0,
                       double header = 0, double footer = 0);
     void setMarginMm(Position pos, double value);
@@ -151,6 +152,34 @@ public:
     void setBottomMarginMm(double value);
     void setHeaderMarginMm(double value);
     void setFooterMarginMm(double value);
+
+    /**
+     * @brief creates default page margins.
+     */
+    static PageMargins defaultPageMargins();
+    /**
+     * @brief creates page margins from values specified in millimeters.
+     * @param left left page margin in millimeters.
+     * @param top top page margin in millimeters.
+     * @param right right page margin in millimeters.
+     * @param bottom bottom page margin in millimeters.
+     * @param header header page margin in millimeters.
+     * @param footer footer page margin in millimeters.
+     */
+    static PageMargins pageMarginsMm(double left = 0, double top = 0, double right = 0, double bottom = 0,
+                                     double header = 0, double footer = 0);
+    /**
+     * @brief creates page margins from values specified in inches.
+     * @param left left page margin in inches.
+     * @param top top page margin in inches.
+     * @param right right page margin in inches.
+     * @param bottom bottom page margin in inches.
+     * @param header header page margin in inches.
+     * @param footer footer page margin in inches.
+     * @note To set pageMargins in millimetres use #pageMarginsMm().
+     */
+    static PageMargins pageMarginsInches(double left = 0, double top = 0, double right = 0, double bottom = 0,
+                                         double header = 0, double footer = 0);
 
     /**
      * @brief returns page margins in inches.
@@ -195,12 +224,12 @@ private:
  * @brief The PageSetup class represents paper parameters when printing the sheet.
  *
  * Not all parameters are applicable to chartsheets. See the description of parameters.
- * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
+ * If a non-applicable parameter is set for a chartsheet, it will be ignored
  * when saving the document.
  */
-//TODO: setCustomPrinter via relations (printerId)
 class QXLSX_EXPORT PageSetup
 {
+//TODO: setCustomPrinter via relations (printerId)
 public:
     /**
      * @brief The PaperSize enum specifies possible paper size variants.
@@ -403,7 +432,7 @@ public:
      *
      * If #fitToWidth and/or #fitToHeight are specified, #scale is ignored.
      * @note This parameter is not applicable to chartsheets.
-     * @sa AbstractSheet::setPrintScale(), AbstractSheet::printScale().
+     * @sa Worksheet::setPrintScale(), Worksheet::printScale().
      */
     std::optional<int> scale;
     /**
@@ -438,12 +467,14 @@ public:
      *
      * If no value is specified, then PageOrder::DownThenOver is assumed.
      * @note This parameter is not applicable to chartsheets.
+     * @sa Worksheet::setPageOrder(), Worksheet::pageOrder().
      */
     std::optional<PageOrder> pageOrder;
     /**
      * @brief specifies the page orientation.
      *
      * If no value is specified, then Orientation::Default is assumed.
+     * @sa AbstractSheet::setPageOrientation(), AbstractSheet::pageOrientation().
      */
     std::optional<Orientation> orientation;
     /**
@@ -497,7 +528,7 @@ public:
     /**
      * @brief Relationship Id of the devMode printer settings part.
      */
-    QString printerId;
+    QString printerId; //TODO: addding printer
     /**
      * @brief  specifies how to display cells with errors when printing the worksheet.
      *
@@ -848,6 +879,7 @@ public:
 
     //TODO: add methods to fine-tune header and footer
 
+    // Page margins methods
     QMap<PageMargins::Position, double> pageMarginsInches() const;
     QMap<PageMargins::Position, double> pageMarginsMm() const;
     void setPageMarginsInches(double left = 0, double top = 0, double right = 0, double bottom = 0,
@@ -857,10 +889,85 @@ public:
     PageMargins pageMargins() const;
     PageMargins &pageMargins();
     void setPageMargins(const PageMargins &margins);
+    /**
+     * @brief sets default page margins, clearing all margins values.
+     */
+    void setDefaultPageMargins();
 
+    // Page setup methods
     PageSetup pageSetup() const;
     PageSetup &pageSetup();
+    /**
+     * @brief sets the sheet's page parameters.
+     * @param pageSetup page parameters as a PageSetup object.
+     * @note To clear all page parameters and set them to their default values use ```sheet->setPageSetup(PageSetup());```
+     */
     void setPageSetup(const PageSetup &pageSetup);
+    /**
+     * @brief sets the sheet's paper size as one of the predefined sizes.
+     * @sa PageSetup::paperSize.
+     */
+    void setPaperSize(PageSetup::PaperSize paperSize);
+    /**
+     * @brief returns the sheet's paper size as one of the predefined sizes.
+     * @return If custom paper size is set with #setPaperSizeMM(), #setPaperSizeInches(),
+     * #setPaperWidth(), #setPaperHeight() or PageSetup::paperWidth, PageSetup::paperHeight,
+     * then this method returns PageSetup::PaperSize::Unknown.
+     * @sa PageSetup::paperSize.
+     */
+    PageSetup::PaperSize paperSize() const;
+    /**
+     * @brief sets the sheet's paper size in millimeters.
+     * @param width width in millimeters.
+     * @param height height in millimeters.
+     */
+    void setPaperSizeMM(double width, double height);
+    /**
+     * @brief sets the sheet's paper size in inches.
+     * @param width width in inches.
+     * @param height height in inches.
+     */
+    void setPaperSizeInches(double width, double height);
+    /**
+     * @brief returns the sheet's paper width as a univeral measure (f.e. "210mm").
+     * @return A string in format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)" if paper width was set,
+     * empty string otherwise.
+     * @note This method does not convert #paperSize() value to string. If #paperSize() was set,
+     * and paperWidth was not set, this method returns an empty string.
+     */
+    QString paperWidth() const;
+    /**
+     * @brief sets the sheet's paper width as a univeral measure (f.e. "210mm").
+     * @param width A string in format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)".
+     * @note This method does not check @a width for validity.
+     */
+    void setPaperWidth(const QString &width);
+    /**
+     * @brief returns the sheet's paper height as a univeral measure (f.e. "210mm").
+     * @return A string in format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)" if paper height was set,
+     * empty string otherwise.
+     */
+    QString paperHeight() const;
+    /**
+     * @brief sets the sheet's paper height as a univeral measure (f.e. "210mm").
+     * @param height A string in format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)".
+     * @note This method does not check @a height for validity.
+     */
+    void setPaperHeight(const QString &height);
+    /**
+     * @brief returns the sheet's paper orientation.
+     * @return PageSetup::Orientation value. If no orientation was set, returns
+     * the default value of PageSetup::Orientation::Default.
+     */
+    PageSetup::Orientation pageOrientation() const;
+    /**
+     * @brief sets the sheet's paper orientation.
+     * @param orientation PageSetup::Orientation value.
+     */
+    void setPageOrientation(PageSetup::Orientation orientation);
+
+
+
     /**
      * @brief sets the sheet's background image
      * @param image

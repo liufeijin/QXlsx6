@@ -1195,6 +1195,12 @@ bool Document::addSheet(const QString &name, AbstractSheet::Type type)
     return d->workbook->addSheet(name, type);
 }
 
+Worksheet *Document::addWorksheet(const QString &name)
+{
+    Q_D(Document);
+    return dynamic_cast<Worksheet*>(d->workbook->addSheet(name));
+}
+
 /*!
  * Creates and inserts an document with the given \a name and \a type at the \a index.
  * Returns false if the \a name already used.

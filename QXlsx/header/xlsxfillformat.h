@@ -175,10 +175,12 @@ public:
      * @note There is a distinction between a default fill (when the FillFormat object
      * is not valid) and a transparent fill (the FillFormat object has FillType::NoFill).
      * Compare:
-     * ```cpp
+     *
+     * @code
      * shape1.setFill(FillFormat::NoFill); // sets a transparent fill
      * shape2.setFill({}); //sets default fill, that is a solid fill with white color.
-     * ```
+     * @endcode
+     *
      */
     explicit FillFormat(FillType type);
     /**

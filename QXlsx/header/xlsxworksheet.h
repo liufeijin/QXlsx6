@@ -488,10 +488,46 @@ public:
     void setGridLinesVisible(bool visible);//TODO: doc
     bool isRowColumnHeadersVisible() const;//TODO: doc
     void setRowColumnHeadersVisible(bool visible);//TODO: doc
-    bool isZerosVisible() const;//TODO: doc
-    void setZerosVisible(bool visible);//TODO: doc
-    bool isRightToLeft() const;//TODO: doc
-    void setRightToLeft(bool enable);//TODO: doc
+    /**
+     * @brief returns whether the window should show 0 (zero) in cells
+     * containing zero value.
+     * @return true if zeroes are displayed as is, false if cells with zero value
+     * appear blank.
+     *
+     * The default value is true.
+     */
+    bool isZerosVisible() const;
+    /**
+     * @brief sets whether the window should show 0 (zero) in cells
+     * containing zero value.
+     * @param visible If true, cells containing zero value shall display 0. If false,
+     * cells containing zero value shall appear blank.
+     *
+     * If not set, the default value is true.
+     */
+    void setZerosVisible(bool visible);
+    /**
+     * @brief returns whether the sheet is in 'right to left' display mode.
+     *
+     * When in this mode, Column A is on the far right, Column B is one column
+     * left of Column A, and so on. Also, information in cells is displayed in
+     * the Right to Left format.
+     *
+     * @return true if the sheet is in 'right to left' display mode.
+     *
+     * The default value is false.
+     */
+    bool isRightToLeft() const;
+    /**
+     * @brief sets whether the sheet is in 'right to left' display mode.
+     *
+     * @param enable If true, Column A is on the far right, Column B is one column
+     * left of Column A, and so on. Also, information in cells is displayed in
+     * the Right to Left format.
+     *
+     * If not set, the default value is false.
+     */
+    void setRightToLeft(bool enable);
     bool isSelected() const;//TODO: doc
     void setSelected(bool select);//TODO: doc
     bool isRulerVisible() const;//TODO: doc
@@ -571,6 +607,28 @@ public:
      */
     bool removeView(int index);
 
+
+    /**
+     * @brief sets the worksheet's print scale in percents.
+     * @param scale value from 10 to 400. The value of 100 equals 100% scaling.
+     */
+    void setPrintScale(int scale);
+    /**
+     * @brief returns the worksheet's print scale in percents.
+     * @return value from 10 to 400. If no print scale was specified, this method
+     * returns the default value of 100.
+     */
+    int printScale() const;
+    /**
+     * @brief returns the order of printing the worksheet pages.
+     * @return
+     */
+    PageSetup::PageOrder pageOrder() const;
+    /**
+     * @brief sets the order of printing the worksheet pages.
+     * @param pageOrder
+     */
+    void setPageOrder(PageSetup::PageOrder pageOrder);
 
     /**
      * @brief autosizes columns widths for all rows in the worksheet.

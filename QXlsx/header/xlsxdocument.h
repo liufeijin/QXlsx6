@@ -229,6 +229,7 @@ public:
     QStringList sheetNames() const;
     bool addSheet(const QString &name = QString(),
                   AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
+    Worksheet *addWorksheet(const QString &name = QString());
     bool insertSheet(int index, const QString &name = QString(),
                      AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
     bool selectSheet(const QString &name);

@@ -242,9 +242,6 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
     return sheet;
 }
 
-/*!
- * Returns current active worksheet.
- */
 AbstractSheet *Workbook::activeSheet() const
 {
     Q_D(const Workbook);
