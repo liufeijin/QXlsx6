@@ -14,6 +14,7 @@
 #include "xlsxabstractooxmlfile_p.h"
 #include "xlsxdrawing_p.h"
 #include "xlsxmediafile_p.h"
+#include "xlsxsheetview.h"
 
 namespace QXlsx {
 
@@ -36,7 +37,7 @@ public:
     PageSetup pageSetup;
     QSharedPointer<MediaFile> pictureFile;
     std::optional<SheetProtection> sheetProtection; //using optional allows adding default protection
-
+    QList<SheetView> sheetViews;
     ExtensionList extLst;
 };
 

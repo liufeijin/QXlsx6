@@ -55,6 +55,7 @@ INCLUDEPATH += $${QXLSX_HEADERPATH}
 # source code 
 
 HEADERS += \
+$${QXLSX_HEADERPATH}xlsxsheetview.h \
 $${QXLSX_HEADERPATH}xlsxlegend.h \
 $${QXLSX_HEADERPATH}xlsxlayout.h \
 $${QXLSX_HEADERPATH}xlsxseries.h \
@@ -116,6 +117,7 @@ $${QXLSX_HEADERPATH}xlsxzipreader_p.h \
 $${QXLSX_HEADERPATH}xlsxzipwriter_p.h
 
 SOURCES += \
+$${QXLSX_SOURCEPATH}xlsxsheetview.cpp \
 $${QXLSX_SOURCEPATH}xlsxlegend.cpp \
 $${QXLSX_SOURCEPATH}xlsxlayout.cpp \
 $${QXLSX_SOURCEPATH}xlsxseries.cpp \

@@ -1097,7 +1097,8 @@ Cell *Document::cellAt(int row, int col) const
  *
  * \param name The defined name.
  * \param formula The cell or range that the defined name refers to.
- * \param scope The name of one worksheet, or empty which means golbal scope.
+ * \param comment
+ * \param scope The name of one worksheet, or empty which means global scope.
  * \return Return false if the name invalid.
  */
 bool Document::defineName(const QString &name, const QString &formula, const QString &comment, const QString &scope)
@@ -1130,32 +1131,10 @@ QString Document::documentProperty(const QString &key) const
         return QString();
 }
 
-/*!
-    Set the document properties such as Title, Author etc.
-
-    The method can be used to set the document properties of the Excel
-    file created by Qt Xlsx. These properties are visible when you use the
-    Office Button -> Prepare -> Properties option in Excel and are also
-    available to external applications that read or index windows files.
-
-    The \a property \a key that can be set are:
-
-    \list
-    \li title
-    \li subject
-    \li creator
-    \li manager
-    \li company
-    \li category
-    \li keywords
-    \li description
-    \li status
-    \endlist
-*/
-void Document::setDocumentProperty(const QString &key, const QString &property)
+void Document::setDocumentProperty(const QString &name, const QString &property)
 {
     Q_D(Document);
-    d->documentProperties[key] = property;
+    d->documentProperties[name] = property;
 }
 
 /*!

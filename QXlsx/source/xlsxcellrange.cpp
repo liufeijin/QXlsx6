@@ -73,6 +73,18 @@ void CellRange::fixOrder()
     if (left > right) std::swap(left, right);
 }
 
+bool CellRange::contains(const CellReference &ref) const
+{
+    return (ref.row() >= top && ref.row() <= bottom &&
+            ref.column() >= left && ref.column() <= right);
+}
+
+bool CellRange::contains(int row, int column) const
+{
+    return (row >= top && row <= bottom &&
+            column >= left && column <= right);
+}
+
 CellRange::CellRange(const CellRange &other)
     : top(other.top), left(other.left), bottom(other.bottom), right(other.right)
 {

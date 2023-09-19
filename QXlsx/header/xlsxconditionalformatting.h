@@ -24,6 +24,11 @@ class Worksheet;
 class Styles;
 class ConditionalFormattingPrivate;
 
+/**
+ * @brief Conditional formatting for single cell or ranges
+ *
+ * The conditional formatting can be applied to a single cell or ranges of cells.
+ */
 class QXLSX_EXPORT ConditionalFormatting
 {
 public:

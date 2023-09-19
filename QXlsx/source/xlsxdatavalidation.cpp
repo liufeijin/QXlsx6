@@ -42,55 +42,6 @@ DataValidationPrivate::~DataValidationPrivate()
 }
 
 /*!
- * \class DataValidation
- * \brief Data validation for single cell or a range
- *
- * The data validation can be applied to a single cell or a range of cells.
- */
-
-/*!
- * \enum DataValidation::ValidationType
- *
- * The enum type defines the type of data that you wish to validate.
- *
- * \value None the type of data is unrestricted. This is the same as not applying a data validation.
- * \value Whole restricts the cell to integer values. Means "Whole number"?
- * \value Decimal restricts the cell to decimal values.
- * \value List restricts the cell to a set of user specified values.
- * \value Date restricts the cell to date values.
- * \value Time restricts the cell to time values.
- * \value TextLength restricts the cell data based on an integer string length.
- * \value Custom restricts the cell based on an external Excel formula that returns a true/false value.
- */
-
-/*!
- * \enum DataValidation::ValidationOperator
- *
- *  The enum type defines the criteria by which the data in the
- *  cell is validated
- *
- * \value Between
- * \value NotBetween
- * \value Equal
- * \value NotEqual
- * \value LessThan
- * \value LessThanOrEqual
- * \value GreaterThan
- * \value GreaterThanOrEqual
- */
-
-/*!
- * \enum DataValidation::ErrorStyle
- *
- *  The enum type defines the type of error dialog that
- *  is displayed.
- *
- * \value Stop
- * \value Warning
- * \value Information
- */
-
-/*!
  * Construct a data validation object with the given \a type, \a op, \a formula1
  * \a formula2, and \a allowBlank.
  */

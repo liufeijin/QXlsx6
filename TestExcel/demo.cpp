@@ -284,16 +284,14 @@ int demo()
     xlsx.addSheet("Grouping");
 
 #if QT_VERSION >= 0x060000 // Qt 6.0 or over
+    QRandomGenerator rgen;
 #else
     qsrand(QDateTime::currentMSecsSinceEpoch());
 #endif
 
-    for (int row=2; row<31; ++row)
-    {
-        for (int col=1; col<=10; ++col)
-        {
+    for (int row=2; row<31; ++row) {
+        for (int col=1; col<=10; ++col) {
 #if QT_VERSION >= 0x060000 // Qt 6.0 or over
-            QRandomGenerator rgen;
             xlsx.write(row, col, rgen.generate() % 100);
 #else
             xlsx.write(row, col, qrand() % 100);
@@ -313,8 +311,18 @@ int demo()
     qDebug() << "grouping columns [6-15]" << xlsx.groupColumns(6, 15, false);
     qDebug() << "grouping columns [7-14]" << xlsx.groupColumns(7, 14, false);
     qDebug() << "grouping columns [8-13]" << xlsx.groupColumns(8, 13, false);
-//    xlsx.groupColumns(9, 12, false);
-//    xlsx.groupColumns(10, 11, false);
+
+    xlsx.setRowHeight(2,10);
+    xlsx.setRowHeight(3,10,20);
+    xlsx.setRowHeight(30,40,30);
+
+    //select cells
+    auto sheet = xlsx.currentWorksheet();
+    for (int row=30; row<=40; ++row) {
+        for (int column = 1; column <=20; ++column) {
+            if ((row+column) % 2 == 0) sheet->addSelection(CellRange(row,column,row,column));
+        }
+    }
 
     xlsx.saveAs("demo1.xlsx");
 

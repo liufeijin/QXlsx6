@@ -262,8 +262,7 @@ public:
      * @brief sets the gradient list for the gradient fill.
      * @param list a map with keys being the color stops (in percents), values being the colors.
      *
-     * The simplest gradient list:
-     * ```setGradientList({{0, "red"}, {100, "blue"}});```
+     * The simplest gradient list: ```setGradientList({{0, "red"}, {100, "blue"}});```
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
     void setGradientList(const QMap<double, Color> &list);
@@ -295,7 +294,8 @@ public:
     /**
      * @brief returns whether the linear gradient angle scales with the fill region.
      * If set to true, the linearShadeAngle() is scaled to the shape's fill region.
-     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
+     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape
+     * with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
@@ -303,7 +303,8 @@ public:
     /**
      * @brief sets whether the linear gradient angle scales with the fill region.
      * @param scaled if true, then the linearShadeAngle() will be scaled to the shape's fill region.
-     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape with width of 300 and height of 200
+     * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in
+     * a shape with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
      * If false, the gradient angle is independent of the shape's fill region.
      * @warning This parameter is applicable to only linear gradient. Invoking
@@ -460,11 +461,11 @@ public:
      * This method can be used to set the picture for the fill. The picture will
      * be written in xlsx file as PNG.
      *
-     * You can also specify additional parameters of the picture fill: #setDpi(),
+     * You can also specify additional parameters of the picture fill: #setPictureDpi(),
      * #setRotateWithShape(), #setPictureSourceRect(). The picture can either be stretched
      * or tiled. The stretch rectangle is set via #setPictureStretchRect(),
      * the tile parameters via #setPictureHorizontalOffset(), #setPictureVerticalOffset(),
-     * #setPictureHorizontalScale(), #setPictureVerticalScale(), #setPictureAlignment(),
+     * #setPictureHorizontalScale(), #setPictureVerticalScale(), #setTileAlignment(),
      * #setTileFlipMode().
      *
      * @param picture If null, the previous picture will be removed.
@@ -474,7 +475,7 @@ public:
     /**
      * @brief returns the picture that is used for filling.
      * @return Not-null QImage if the picture was set, null QImage otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     QImage picture() const;
     /**
@@ -483,7 +484,7 @@ public:
      * @note If this parameter is not set, the picture will simply be truncated to
      * the shape's bounding box.
      *
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<PictureFillMode> pictureFillMode() const;
     /**
@@ -494,7 +495,7 @@ public:
      * the shape's bounding box.
      *
      * You can use this method to clear the picture fill mode: ```setPictureFillMode(std::nullopt);```
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureFillMode(std::optional<PictureFillMode> mode);
     /**
@@ -508,7 +509,7 @@ public:
      * to 25% of the bounding box's width.
      *
      * @return valid optional if the parameter is set, nullopt otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<RelativeRect> pictureSourceRect() const;
     /**
@@ -519,26 +520,26 @@ public:
      * left offset of 25% specifies that the left edge of the source rectangle is
      * located to the right of the bounding box's left edge by an amount equal
      * to 25% of the bounding box's width.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureSourceRect(const RelativeRect &rect);
     /**
      * @brief returns the DPI (dots per inch) used to calculate the size of the picture.
      * @return valid optional if the parameter was set, nullopt otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<int> pictureDpi() const;
     /**
      * @brief sets the DPI (dots per inch) used to calculate the size of the picture.
      * If not present or zero, the DPI in the picture is used.
      * @param dpi
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureDpi(int dpi);
     /**
      * @brief returns the rectangle used to stretch the picture fill.
      * @return valid optional if the parameter is set, nullopt otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<RelativeRect> pictureStretchRect() const;
     /**
@@ -550,59 +551,59 @@ public:
      * left offset of 25% specifies that the left edge of the fill rectangle is
      * located to the right of the bounding box's left edge by an amount equal
      * to 25% of the bounding box's width.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureStretchRect(const RelativeRect &rect);
     /**
      * @brief returns the horizontal offset of the picture to tile the shape's bounding rectangle.
      * @return valid Coordinate if the parameter was set.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     Coordinate pictureHorizontalOffset() const;
     /**
      * @brief sets the horizontal offset of the picture to tile the shape's bounding rectangle.
      * @param offset horizontal picture offset.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureHorizontalOffset(const Coordinate &offset);
     /**
      * @brief returns the vertical offset of the picture to tile the shape's bounding rectangle.
      * @return valid Coordinate if the parameter was set.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     Coordinate pictureVerticalOffset() const;
     /**
      * @brief sets the vertical offset of the picture to tile the shape's bounding rectangle.
      * @param offset vertical picture offset.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureVerticalOffset(const Coordinate &offset);
     /**
      * @brief returns the horizontal scaling of the picture.
      * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<double> pictureHorizontalScale() const;
     /**
      * @brief sets the horizontal scaling of the picture.
      * @param scale Percentage of the scaling. Value of 100.0 means 100% scaling.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureHorizontalScale(double scale);
     /**
      * @brief returns the vertical scaling of the picture.
      * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<double> pictureVerticalScale() const;
     /**
      * @brief sets the vertical scaling of the picture.
      * @param scale Percentage of the scaling. Value of 100.0 means 100% scaling.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureVerticalScale(double scale);
     /**
@@ -610,7 +611,7 @@ public:
      *
      * Alignment happens after the scaling, but before the additional offset.
      * @return valid optional if the parameter was set, nullopt otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<Alignment> tileAlignment();
     /**
@@ -619,21 +620,21 @@ public:
      * Alignment happens after the scaling, but before the additional offset.
      * @param alignment picture alignment.
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setTileAlignment(Alignment alignment);
     /**
      * @brief returns the compression quality that was used for a picture.
      * @return  valid optional if the parameter was set, nullopt otherwise.
      * @note This parameter serves as an additional info.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<FillFormat::PictureCompression> pictureCompression() const;
     /**
      * @brief sets the compression quality that was used for a picture.
      * @param compression picture compression.
      * @note This parameter serves as an additional info.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureCompression(FillFormat::PictureCompression compression);
     /**
@@ -642,13 +643,13 @@ public:
      * If pictureAlpha() is 30.0, the picture has 30% opacity.
      *
      * @return valid optional if the parameter was set, nullopt otherwise.
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<double> pictureAlpha() const;
     /**
      * @brief sets the picture's alpha (0 to 100.0 percent.)
      * @param alpha the picture opacity (0 means transparent, 100.0 means full opacity.)
-     * @note This method does not check the #fillType to be FillType::PictureFill.
+     * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureAlpha(double alpha);
 

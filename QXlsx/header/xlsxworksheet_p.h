@@ -199,8 +199,6 @@ public:
 
     XlsxSheetFormatProps sheetFormatProps;
 
-    QList<SheetView> sheetViews;
-
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
 
 private:

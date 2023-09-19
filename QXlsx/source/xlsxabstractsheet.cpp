@@ -303,6 +303,83 @@ bool AbstractSheet::removeBackgroundImage()
     return false;
 }
 
+bool AbstractSheet::isSelected() const
+{
+    Q_D(const AbstractSheet);
+    if (d->sheetViews.isEmpty()) return false;
+    return d->sheetViews.last().tabSelected.value_or(false);
+}
+
+void AbstractSheet::setSelected(bool selected)
+{
+    Q_D(AbstractSheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().tabSelected = selected;
+}
+
+int AbstractSheet::viewZoomScale() const
+{
+    Q_D(const AbstractSheet);
+    if (d->sheetViews.isEmpty()) return 100;
+    return d->sheetViews.last().zoomScale.value_or(100);
+}
+
+void AbstractSheet::setViewZoomScale(int scale)
+{
+    Q_D(AbstractSheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().zoomScale = scale;
+}
+
+int AbstractSheet::workbookViewId() const
+{
+    Q_D(const AbstractSheet);
+    if (d->sheetViews.isEmpty()) return 0;
+    return d->sheetViews.last().workbookViewId;
+}
+
+void AbstractSheet::setWorkbookViewId(int id)
+{
+    Q_D(AbstractSheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().workbookViewId = id;
+}
+
+SheetView AbstractSheet::view(int index) const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetViews.value(index);
+}
+
+SheetView &AbstractSheet::view(int index)
+{
+    Q_D(AbstractSheet);
+    if (index < 0 || index >= d->sheetViews.size())
+        throw std::out_of_range("AbstractSheet::view(): view index is out of range.");
+    return d->sheetViews[index];
+}
+
+int AbstractSheet::viewsCount() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetViews.size();
+}
+
+SheetView &AbstractSheet::addView()
+{
+    Q_D(AbstractSheet);
+    d->sheetViews << SheetView();
+    return d->sheetViews.last();
+}
+
+bool AbstractSheet::removeView(int index)
+{
+    Q_D(AbstractSheet);
+    if (index < 0 || index >= d->sheetViews.size()) return false;
+    d->sheetViews.removeAt(index);
+    return true;
+}
+
 SheetProtection AbstractSheet::sheetProtection() const
 {
     Q_D(const AbstractSheet);

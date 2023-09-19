@@ -48,93 +48,18 @@ void ConditionalFormattingPrivate::writeCfVo(QXmlStreamWriter &writer, const Xls
         writer.writeAttribute(QStringLiteral("gte"), QStringLiteral("0"));
 }
 
-/*!
- * \class ConditionalFormatting
- * \brief Conditional formatting for single cell or ranges
- *
- * The conditional formatting can be applied to a single cell or ranges of cells.
- */
-
-
-/*!
-    \enum ConditionalFormatting::HighlightRuleType
-
-    \value Highlight_LessThan
-    \value Highlight_LessThanOrEqual
-    \value Highlight_Equal
-    \value Highlight_NotEqual
-    \value Highlight_GreaterThanOrEqual
-    \value Highlight_GreaterThan
-    \value Highlight_Between
-    \value Highlight_NotBetween
-
-    \value Highlight_ContainsText
-    \value Highlight_NotContainsText
-    \value Highlight_BeginsWith
-    \value Highlight_EndsWith
-
-    \value Highlight_TimePeriod
-
-    \value Highlight_Duplicate
-    \value Highlight_Unique
-
-    \value Highlight_Blanks
-    \value Highlight_NoBlanks
-    \value Highlight_Errors
-    \value Highlight_NoErrors
-
-    \value Highlight_Top
-    \value Highlight_TopPercent
-    \value Highlight_Bottom
-    \value Highlight_BottomPercent
-
-    \value Highlight_AboveAverage
-    \value Highlight_AboveOrEqualAverage
-    \value Highlight_BelowAverage
-    \value Highlight_BelowOrEqualAverage
-    \value Highlight_AboveStdDev1
-    \value Highlight_AboveStdDev2
-    \value Highlight_AboveStdDev3
-    \value Highlight_BelowStdDev1
-    \value Highlight_BelowStdDev2
-    \value Highlight_BelowStdDev3
-
-    \value Highlight_Expression
-*/
-
-/*!
-    \enum ConditionalFormatting::ValueObjectType
-
-    \value VOT_Formula
-    \value VOT_Max
-    \value VOT_Min
-    \value VOT_Num
-    \value VOT_Percent
-    \value VOT_Percentile
-*/
-
-/*!
-    Construct a conditional formatting object
-*/
 ConditionalFormatting::ConditionalFormatting()
     :d(new ConditionalFormattingPrivate())
 {
 
 }
 
-/*!
-    Constructs a copy of \a other.
-*/
 ConditionalFormatting::ConditionalFormatting(const ConditionalFormatting &other)
     :d(other.d)
 {
 
 }
 
-/*!
-    Assigns \a other to this conditional formatting and returns a reference to
-    this conditional formatting.
- */
 ConditionalFormatting &ConditionalFormatting::operator=(const ConditionalFormatting &other)
 {
     this->d = other.d;
@@ -142,18 +67,10 @@ ConditionalFormatting &ConditionalFormatting::operator=(const ConditionalFormatt
 }
 
 
-/*!
- * Destroy the object.
- */
 ConditionalFormatting::~ConditionalFormatting()
 {
 }
 
-/*!
- * Add a hightlight rule with the given \a type, \a formula1, \a formula2,
- * \a format and \a stopIfTrue.
- * Return false if failed.
- */
 bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const QString &formula1, const QString &formula2, const Format &format, bool stopIfTrue)
 {
     if (format.isEmpty())
@@ -260,11 +177,6 @@ bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const 
     return true;
 }
 
-/*!
- * \overload
- *
- * Add a hightlight rule with the given \a type \a format and \a stopIfTrue.
- */
 bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const Format &format, bool stopIfTrue)
 {
     if ((type >= Highlight_AboveAverage && type <= Highlight_BelowStdDev3)
@@ -275,12 +187,6 @@ bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const 
     return false;
 }
 
-/*!
- * \overload
- *
- * Add a hightlight rule with the given \a type, \a formula, \a format and \a stopIfTrue.
- * Return false if failed.
- */
 bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const QString &formula, const Format &format, bool stopIfTrue)
 {
     if (type == Highlight_Between || type == Highlight_NotBetween)
@@ -289,11 +195,6 @@ bool ConditionalFormatting::addHighlightCellsRule(HighlightRuleType type, const 
     return addHighlightCellsRule(type, formula, QString(), format, stopIfTrue);
 }
 
-/*!
- * Add a dataBar rule with the given \a color, \a type1, \a val1
- * , \a type2, \a val2, \a showData and \a stopIfTrue.
- * Return false if failed.
- */
 bool ConditionalFormatting::addDataBarRule(const QColor &color, ValueObjectType type1, const QString &val1, ValueObjectType type2, const QString &val2, bool showData, bool stopIfTrue)
 {
     auto cfRule = std::make_shared<XlsxCfRuleData>();
@@ -314,19 +215,11 @@ bool ConditionalFormatting::addDataBarRule(const QColor &color, ValueObjectType 
     return true;
 }
 
-/*!
- * \overload
- * Add a dataBar rule with the given \a color, \a showData and \a stopIfTrue.
- */
 bool ConditionalFormatting::addDataBarRule(const QColor &color, bool showData, bool stopIfTrue)
 {
     return addDataBarRule(color, VOT_Min, QStringLiteral("0"), VOT_Max, QStringLiteral("0"), showData, stopIfTrue);
 }
 
-/*!
- * Add a colorScale rule with the given \a minColor, \a maxColor and \a stopIfTrue.
- * Return false if failed.
- */
 bool ConditionalFormatting::add2ColorScaleRule(const QColor &minColor, const QColor &maxColor, bool stopIfTrue)
 {
     ValueObjectType type1 = VOT_Min;
@@ -351,10 +244,6 @@ bool ConditionalFormatting::add2ColorScaleRule(const QColor &minColor, const QCo
     return true;
 }
 
-/*!
- * Add a colorScale rule with the given \a minColor, \a midColor, \a maxColor and \a stopIfTrue.
- * Return false if failed.
- */
 bool ConditionalFormatting::add3ColorScaleRule(const QColor &minColor, const QColor &midColor, const QColor &maxColor, bool stopIfTrue)
 {
     ValueObjectType type1 = VOT_Min;

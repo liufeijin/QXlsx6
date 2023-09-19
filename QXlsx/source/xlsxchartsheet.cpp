@@ -72,6 +72,20 @@ Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
     return sheet;
 }
 
+bool Chartsheet::zoomToFit() const
+{
+    Q_D(const Chartsheet);
+    if (d->sheetViews.isEmpty()) return false;
+    return d->sheetViews.last().zoomToFit.value_or(false);
+}
+
+void Chartsheet::setZoomToFit(bool zoom)
+{
+    Q_D(Chartsheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().zoomToFit = zoom;
+}
+
 Chartsheet::~Chartsheet()
 {
 }
@@ -97,10 +111,11 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeNamespace(QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"), QStringLiteral("r"));
     writer.writeStartElement(QStringLiteral("chartsheet"));
 
-    writer.writeStartElement(QStringLiteral("sheetViews"));
-    writer.writeEmptyElement(QStringLiteral("sheetView"));
-    writer.writeAttribute(QStringLiteral("workbookViewId"), QString::number(0));
-    writer.writeAttribute(QStringLiteral("zoomToFit"), QStringLiteral("1"));
+    auto views = d->sheetViews;
+    if (views.isEmpty()) views << SheetView();
+    writer.writeStartElement(QLatin1String("sheetViews"));
+    for (auto &view: views)
+        if (view.isValid()) view.write(writer, QLatin1String("sheetView"), false);
     writer.writeEndElement(); //sheetViews
 
     //sheet protection

@@ -6,6 +6,7 @@
 #include "xlsxglobal.h"
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxmain.h"
+#include "xlsxsheetview.h"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -382,7 +383,7 @@ public:
         Displayed, /**< Display cell errors as displayed on screen.*/
         Blank, /**< Display cell errors as blank.*/
         Dash, /**< Display cell errors as dashes.*/
-        NotAvailable /**< Display cell errors as #N/A.*/
+        NotAvailable /**< Display cell errors as N/A.*/
     };
     /**
      * @brief The CellComments enum specifies how to print cell comments.
@@ -1009,13 +1010,16 @@ public:
     void setSheetProtection(const SheetProtection &sheetProtection);
     /**
      * @brief returns whether the sheet is protected.
-     * @return
+     * @return true if any of the protection parameters were set.
+     * @sa #isPasswordProtectionSet().
      */
     bool isSheetProtected() const;
     /**
      * @brief returns whether the sheet is protected with password.
      * @return true if both SheetProtection::algorithmName and SheetProtection::hashValue
      * parameters are set in #sheetProtection(), false otherwise.
+     *
+     * If password protection is set, then #isSheetProtected() also returns true.
      */
     bool isPasswordProtectionSet() const;
     /**
@@ -1043,6 +1047,77 @@ public:
      * default ones.
      */
     void removeSheetProtection();
+
+    /**
+     * @brief returns whether the sheet's tab is selected.
+     * @return true if the sheet's tab is selected.
+     *
+     * The default value is false.
+     */
+    bool isSelected() const;
+    /**
+     * @brief sets @a selected to the sheet's tab.
+     * @param selected tab selection state.
+     *
+     * If not set, the default value is false (not selected).
+     */
+    void setSelected(bool selected);
+    /**
+     * @brief returns window zoom magnification for last added view as a percent value.
+     *
+     * This parameter is restricted to values ranging from 10 to 400.
+     *
+     * @return window zoom magnification if it was set, 100 being the default value.
+     * @note To get the view scales for specific view types see SheetView::zoomScaleNormal,
+     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
+     */
+    int viewZoomScale() const;
+    /**
+     * @brief sets window zoom magnification for last added view as a percent value.
+     * @param scale value ranging from 10 to 400.
+     *
+     * If not set, the default value is 100.
+     * @note To set the view scales for specific view types see SheetView::zoomScaleNormal,
+     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
+     */
+    void setViewZoomScale(int scale);
+
+    int workbookViewId() const;//TODO: doc
+    void setWorkbookViewId(int id);//TODO: doc
+    /**
+     * @brief returns the sheet view with the (zero-based) @a index.
+     * @param index zero-based index of the sheet view.
+     * @return the sheet view with the (zero-based) @a index. If no such view is
+     * found, returns the default-constructed one.
+     */
+    SheetView view(int index) const;
+    /**
+     * @overload
+     * @brief returns the sheet view with the (zero-based) @a index.
+     * @param index non-negative index of the view. If the index is invalid,
+     * throws std::out_of_range exception.
+     * @return reference to the sheet view with the (zero-based) @a index.
+     * @note The newly inserted view will point to the workbook view with
+     * id 0. See SheetView::workbookViewId.
+     *
+     */
+    SheetView &view(int index);
+    /**
+     * @brief returns the count of sheet views defined in the worksheet.
+     * @return
+     */
+    int viewsCount() const;
+    /**
+     * @brief adds new default-constructed sheet view.
+     * @return reference to the added view.
+     */
+    SheetView & addView();
+    /**
+     * @brief removes the sheet view with @a index.
+     * @param index non-negative index of the view.
+     * @return true if the view was found and removed, false otherwise.
+     */
+    bool removeView(int index);
 
 protected:
     friend class Workbook;

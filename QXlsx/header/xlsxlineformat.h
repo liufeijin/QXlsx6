@@ -106,7 +106,7 @@ public:
     /**
      * @brief creates a new line format with specified fill, width and color.
      * @param fill line fill.
-     * @param widthInPt line width specified in EMU (1 pt = 12700 EMU).
+     * @param widthInEMU line width specified in EMU (1 pt = 12700 EMU).
      * @param color line color as an RGB value.
      */
     LineFormat(FillFormat::FillType fill, qint64 widthInEMU, QColor color);

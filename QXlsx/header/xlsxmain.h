@@ -474,7 +474,7 @@ public:
 
     /**
      * @brief Coordinate creates Coordinate as a number of EMU
-     * @param val coordinate value [-27273042329600 .. -27273042329600]
+     * @param emu coordinate value [-27273042329600 .. -27273042329600]
      */
     explicit Coordinate(qint64 emu);
 
@@ -522,6 +522,7 @@ public:
      * @brief sets the coordinate value in pixels (at 96 DPI by default)
      * and stores it in EMUs.
      * @param pixels new value in px.
+     * @param dpi resolution (dots per inch) to help convert @a pixels to EMU.
      */
     void setPixels(double pixels, int dpi = 96);
     /**

@@ -19,6 +19,7 @@
 #include "xlsxcell.h"
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
+#include "xlsxsheetview.h"
 
 class WorksheetTest;
 
@@ -35,178 +36,7 @@ class RichString;
 class Relationships;
 class Chart;
 
-/**
- * @brief The SheetView struct represents one of the 'views' into the worksheet.
- */
-struct QXLSX_EXPORT SheetView
-        //TODO: convert to implicitly shareable class
-{
-    /**
-     * @brief The Type enum defines the kinds of view available to an application
-     * when rendering a SpreadsheetML document.
-     */
-    enum class Type
-    {
-        Normal, /**< Specifies that the worksheet should be displayed without regard to pagination.*/
-        PageBreakPreview, /**<  Specifies that the worksheet should be displayed
-showing where pages would break if it were printed. */
-        PageLayout /**< Specifies that the worksheet should be displayed
-mimicking how it would look if printed. */
-    };
 
-    /**
-     * @brief Flag indicating whether the panes in the window are locked due to
-     * workbook protection.
-     *
-     * This is an option when the workbook structure is protected.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> windowProtection;
-    /**
-     * @brief Flag indicating whether this sheet should display formulas.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> showFormulas;
-    /**
-     * @brief Flag indicating whether this sheet should display gridlines.
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> showGridLines;
-    /**
-     * @brief Flag indicating whether the sheet should display row and column headings.
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> showRowColHeaders;
-    /**
-     * @brief Flag indicating whether the window should show 0 (zero) in cells
-     * containing zero value.
-     *
-     * When false, cells with zero value appear blank instead of showing the number zero.
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> showZeros;
-    /**
-     * @brief Flag indicating whether the sheet is in 'right to left' display mode.
-     *
-     * When in this mode, Column A is on the far right, Column B ;is one column
-     * left of Column A, and so on. Also, information in cells is displayed in
-     * the Right to Left format.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> rightToLeft;
-    /**
-     * @brief Flag indicating whether this sheet is selected.
-     *
-     * When only 1 sheet is selected and active, this value should be in synch
-     * with the activeTab value.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> tabSelected;
-    /**
-     * @brief Show the ruler in page layout view.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> showRuler;
-    /**
-     * @brief Flag indicating whether the sheet has outline symbols visible.
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> showOutlineSymbols;
-    /**
-     * @brief Flag indicating whether page layout view shall display margins.
-     *
-     * False means do not display left, right, top (header), and bottom (footer)
-     * margins (even when there is data in the header or footer).
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> showWhiteSpace;
-    /**
-     * @brief Flag indicating that the application should use the default grid
-     * lines color (system dependent).
-     *
-     * Overrides any color specified in colorId.
-     *
-     * If not set, the default value is true.
-     */
-    std::optional<bool> defaultGridColor;
-    /**
-     * @brief View type.
-     *
-     * If not set, the default value is Type::Normal.
-     */
-    std::optional<Type> type;
-    /**
-     * @brief Location of the top left visible cell.
-     */
-    CellReference topLeftCell;
-    /**
-     * @brief  Index to the color value for row/column text headings and gridlines.
-     * This is an 'index color value' (ICV) rather than rgb value.
-     *
-     * If not set, the default value is 64.
-     */
-    std::optional<int> colorId;
-    /**
-     * @brief Window zoom magnification for current view representing percent values.
-     *
-     * This parameter is restricted to values ranging from 10 to 400.
-     *
-     * If not set, the default value is 100.
-     */
-    std::optional<int> zoomScale;
-    /**
-     * @brief Zoom magnification to use when in normal view, representing percent values.
-     *
-     * This attribute is restricted to values ranging from 10 to 400. Zero value implies
-     * automatic setting. Horizontal & Vertical scale together.
-     *
-     * If not set, the default value is 0 (auto zoom scale in normal view).
-     */
-    std::optional<int> zoomScaleNormal;
-    /**
-     * @brief Zoom magnification to use when in page break view, representing percent values.
-     *
-     * This attribute is restricted to values ranging from 10 to 400. Zero value implies
-     * automatic setting. Horizontal & Vertical scale together.
-     *
-     * If not set, the default value is 0 (auto zoom scale in page break view).
-     */
-    std::optional<int> zoomScalePageBreakView;
-    /**
-     * @brief Zoom magnification to use when in page layout view, representing percent values.
-     *
-     * This attribute is restricted to values ranging from 10 to 400. Zero value implies
-     * automatic setting. Horizontal & Vertical scale together.
-     *
-     * If not set, the default value is 0 (auto zoom scale in page layout view).
-     */
-    std::optional<int> zoomScalePageLayoutView;
-    /**
-     * @brief Zero-based index of this workbook view, pointing to a specific workbookView
-     * element in the bookViews collection.
-     */
-    int workbookViewId = 0; //required
-
-    //TODO:
-//    std::optional<CT_Pane> pane;
-//    std::optional<CT_Selection> selection;
-//    std::optional<CT_PivotSelection> pivotSelection;
-
-    ExtensionList extLst;
-
-    void read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
-};
 
 class WorksheetPrivate;
 //TODO: Full documentation
@@ -217,12 +47,12 @@ class WorksheetPrivate;
  * Each worksheet can have 1 to infinity 'sheet views', that display a specific portion of
  * the worksheet with specific view parameters.
  *
- * The following methods manage worksheet views:
+ * The following methods manage sheet views:
  *
- * - #view(int index) returns a specific view.
- * - #viewCount() returns the count of views in the worksheet.
- * - #addView() adds a view.
- * - removeView(int index) removes the view.
+ * - AbstractSheet::view(int index) returns a specific view.
+ * - AbstractSheet::viewCount() returns the count of views in the sheet.
+ * - AbstractSheet::addView() adds a view.
+ * - AbstractSheet::removeView(int index) removes the view.
  *
  * The following methods manage the parameters of the _last added_ view:
  *
@@ -232,12 +62,14 @@ class WorksheetPrivate;
  * - #isRowColumnHeadersVisible(), #setRowColumnHeadersVisible(bool visible) manage headers visibility.
  * - #isZerosVisible(), #setZerosVisible(bool visible) manage the zero values appearance.
  * - #isRightToLeft(), #setRightToLeft(bool enable) manage the right-to-left appearance of the view.
- * - #isSelected(), #setSelected(bool select) manage the selection of the worksheet tab.
+ * - AbstractSheet::isSelected(), AbstractSheet::setSelected(bool select) manage the selection of the sheet tab.
  * - #isRulerVisible(), #setRulerVisible(bool visible) manage the ruler visibility.
  * - #isOutlineSymbolsVisible(), #setOutlineSymbolsVisible(bool visible) manage the outline symbols visibility.
  * - #isWhiteSpaceVisible(), #setWhiteSpaceVisible(bool visible) manage visibility of whitespaces in the sheet's cells.
+ * - #selection(), #setSelection(), #selectedRanges(), #addSelection(), #removeSelection(), and #clearSelection() manage the selection on the worksheet.
+ * - #activeCell(), #setActiveCell() manage the active cell on the worksheet.
  *
- * The aforementioned methods return the default values if the corresponding parameters were not set.
+ * The above-mentioned methods return the default values if the corresponding parameters were not set.
  * See SheetView documentation on the default values.
  *
  */
@@ -312,10 +144,11 @@ public:
      */
     Cell *cell(int row, int column) const;
 
-    /*!
-     * @brief Inserts an \a image at the position \a row, \a column.
+    /**
+     * @brief Inserts an @a image at the position @a row, @a column.
      * @param row the 1-based row index of the image top left corner.
      * @param column the 1-based column index of the image top left corner.
+     * @param image Image to be inserted.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int column, const QImage &image);
@@ -362,7 +195,7 @@ public:
     /**
      * @overload
      * @brief creates a new chart and places it inside the current worksheet.
-     * @param rowt he 1-based row index of the chart top left corner.
+     * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
      * @param width width of a chart specified as a Coordinate object. You can use it to set
      * width in pixels, points, millimeters, EMU etc. See Coordinate for help.
@@ -528,8 +361,7 @@ public:
      * If not set, the default value is false.
      */
     void setRightToLeft(bool enable);
-    bool isSelected() const;//TODO: doc
-    void setSelected(bool select);//TODO: doc
+
     bool isRulerVisible() const;//TODO: doc
     void setRulerVisible(bool visible);//TODO: doc
     bool isOutlineSymbolsVisible() const;//TODO: doc
@@ -548,65 +380,60 @@ public:
     void setViewTopLeftCell(const CellReference &ref);
     int viewColorIndex() const;
     void setViewColorIndex(int index);
-    /**
-     * @brief returns window zoom magnification for last added view as a percent value.
-     *
-     * This parameter is restricted to values ranging from 10 to 400.
-     *
-     * @return window zoom magnification if it was set, 100 being the default value.
-     * @note To get the view scales for specific view types see SheetView::zoomScaleNormal,
-     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
-     */
-    int viewZoomScale() const;
-    /**
-     * @brief sets window zoom magnification for last added view as a percent value.
-     * @param scale value ranging from 10 to 400.
-     *
-     * If not set, the default value is 100.
-     * @note To set the view scales for specific view types see SheetView::zoomScaleNormal,
-     * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
-     */
-    void setViewZoomScale(int scale);
-
-    int workbookViewId() const;
-    void setWorkbookViewId(int id);
 
 
     /**
-     * @brief returns the sheet view with the (zero-based) #index.
-     * @param index zero-based index of the sheet view.
-     * @return the sheet view with the (zero-based) #index. If no such view is
-     * found, returns the default-constructed one.
+     * @brief returns the last defined sheet view's active cell.
+     * @return copy of CellReference object.
      */
-    SheetView view(int index) const;
+    CellReference activeCell() const;
     /**
-     * @overload
-     * @brief returns the sheet view with the (zero-based) #index.
-     * @param index non-negative index of the view. If the index is invalid,
-     * throws std::out_of_range exception.
-     * @return reference to the sheet view with the (zero-based) #index.
-     * @note The newly inserted view will point to the workbook view with
-     * id 0. See SheetView::workbookViewId.
-     *
+     * @brief sets active cell to the last added sheet view.
+     * @param activeCell
      */
-    SheetView &view(int index);
+    void setActiveCell(const CellReference &activeCell);
     /**
-     * @brief returns the count of sheet views defined in the worksheet.
+     * @brief returns a list of cell ranges selected in the last added sheet view.
      * @return
      */
-    int viewsCount() const;
+    QList<CellRange> selectedRanges() const;
     /**
-     * @brief adds new default-constructed sheet view.
-     * @return reference to the added view.
+     * @brief adds @a range to the list of cell ranges selected in the last added sheet view.
+     * @param range valid cell range.
+     * @return true if @a range was successfully added, false if @a range is invalid or already
+     * present in the selection.
      */
-    SheetView & addView();
+    bool addSelection(const CellRange &range);
     /**
-     * @brief removes the sheet view with #index.
-     * @param index non-negative index of the view.
-     * @return true if the view was found and removed, false otherwise.
+     * @brief removes range from the list of cell ranges selected in the last added sheet view.
+     * @param range cell range to remove.
+     * @return true if @a range was found and removed, false otherwise.
+     * @note This method does not check @a range for intersections with selection, it simply
+     * searches the selection for the whole range and if found, removes it.
      */
-    bool removeView(int index);
+    bool removeSelection(const CellRange &range);
+    /**
+     * @brief removes all selection from the last added sheet view.
+     */
+    void clearSelection();
+    /**
+     * @brief returns selection parameters of the last added sheet view.
+     * @return copy of Selection object.
+     */
+    Selection selection() const;
+    /**
+     * @brief returns selection parameters of the last added sheet view.
+     * @return reference to the Selection object.
+     */
+    Selection &selection();
+    /**
+     * @brief sets selection parameters of the last added sheet view.
+     * @param selection the Selection object.
+     */
+    void setSelection(const Selection &selection);
 
+
+    //TODO: test methods to set, add, remove and clear selections.
 
     /**
      * @brief sets the worksheet's print scale in percents.

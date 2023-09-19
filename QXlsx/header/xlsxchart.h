@@ -350,19 +350,19 @@ public:
 
     /**
      * @overload
-     * @brief adds one or more series with data defined by #range.
+     * @brief adds one or more series with data defined by @a range.
      * @param range valid CellRange
-     * @param sheet data source for range
+     * @param sheet data source for @a range
      * @param firstRowContainsHeaders specifies that the 1st row (the 1st column
-     * if columnBased is false) contains the series titles and should be
+     * if @a columnBased is false) contains the series titles and should be
      * excluded from the series data.
      * @param firstColumnContainsCategoryData specifies that the 1st column
-     * (the 1st row if columnBased is false) contains data for the category (x)
+     * (the 1st row if @a columnBased is false) contains data for the category (x)
      * axis.
-     * @param columnBased specifies that range should be treated as column-based
-     * or row-based: if columnBased is true, the first column is category data
-     * (if firstColumnContainsCategoryData is set to true),
-     * other columns are value data for new series. If columnBased is false, the
+     * @param columnBased specifies that @a range should be treated as column-based
+     * or row-based: if @a columnBased is true, the first column is category data
+     * (if @a firstColumnContainsCategoryData is set to true),
+     * other columns are value data for new series. If @a columnBased is false, the
      * first row is category data, other rows are value data for new series.
      * @note the series will have the type specified by the most recently set chart type.
      * So it is possible to have series of different types on the same chart.
@@ -401,8 +401,8 @@ public:
     int seriesCount() const;
 
     /**
-     * @brief removes series with #index from the chart.
-     * @param index series index starting from 0.
+     * @brief removes series with @a index from the chart.
+     * @param index zero-based series index.
      * @return true if such a series was found and successfully deleted, false otherwise.
      */
     bool removeSeries(int index);
@@ -529,16 +529,16 @@ public:
     Axis *axis(int idx); //TODO: replace with std::optional<std::reference_wrapper<Axis>> axis(int idx);
     /**
      * @overload
-     * @brief returns axis that has position #pos.
+     * @brief returns axis that has position @a pos.
      * @param pos Axis::Position.
-     * @note A chart can have several axes positioned at #pos. This method returns
-     * _the first added_ axis that has position #pos.
+     * @note A chart can have several axes positioned at @a pos. This method returns
+     * _the first added_ axis that has position @a pos.
      * @return pointer to the axis if such axis exists, nullptr otherwise.
      */
     Axis *axis(Axis::Position pos);
     /**
      * @overload
-     * @brief returns an axis that has type #type.
+     * @brief returns an axis that has type @a type.
      * @param type Axis::Type.
      * @note A chart can have several axes of the same type (f.e. scatter chart
      * usually has 2 value axes). This method returns _the first added_ axis of the
@@ -548,7 +548,7 @@ public:
     Axis *axis(Axis::Type type);
     /**
      * @overload
-     * @brief returns an axis that has position #pos and type #type.
+     * @brief returns an axis that has position @a pos and @a type.
      * @param pos Axis::Position.
      * @param type Axis::Type.
      * @note A chart can have several axes of the same position and type. This
@@ -586,7 +586,7 @@ public:
      */
     void removeAxes();
     /**
-     * @brief returns the list of series that use axis with #axisID.
+     * @brief returns the list of series that use axis with @a axisID.
      * @param axisID axis ID (_not axis index!_). @see Axis::id().
      * @return
      */
@@ -648,7 +648,8 @@ public:
     std::optional<bool> plotOnlyVisibleCells() const;
     /**
      * @brief sets whether only visible cells should be plotted on the chart.
-     * @param plot
+     * @param value If true, only visible cells are plotted. If false, all cells are plotted,
+     * including hidden ones.
      *
      * If not set, the default value is true.
      */

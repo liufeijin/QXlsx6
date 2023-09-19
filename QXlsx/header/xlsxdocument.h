@@ -45,12 +45,13 @@ public:
      * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
      * @param row 1-based row number where the image is anchored.
      * @param col 1-based column number where the image is anchored.
+     * @param image the image to insert.
      * @return image index (zero-based) on success, -1 otherwise.
      */
     int insertImage(int row, int col, const QImage &image);
     /**
      * @brief returns image from the current active worksheet.
-     * @param imageIndex zero-based image index (0 to #getImageCount()-1).
+     * @param imageIndex zero-based image index (0 to #imageCount()-1).
      */
     QImage image(int imageIndex);
     /**
@@ -65,9 +66,9 @@ public:
      */
     int imageCount();
     /**
-     * @brief sets new content to the image with (zero-based) #index
-     * @param index zero-base index of image in the list of all images in the workbook.
-     * @param newfile the name of the file from which new content will be loaded.
+     * @brief sets new content to the image with (zero-based) @a index.
+     * @param index zero-based index of image in the list of all images in the workbook.
+     * @param fileName the name of the file from which new content will be loaded.
      * @return true if the image was found and new content was loaded, false otherwise.
      */
     bool changeImage(int index, const QString &fileName); // TODO: remove, as this method uses index differently
@@ -122,7 +123,7 @@ public:
     Chart *insertChart(int row, int column, const QSize &size);
     /**
      * @brief creates a new chart and places it inside the current active worksheet.
-     * @param rowt he 1-based row index of the chart top left corner.
+     * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
      * @param width width of a chart specified as a Coordinate object. You can use it to set
      * width in pixels, points, millimeters, EMU etc. See Coordinate for help.
@@ -223,6 +224,26 @@ public:
     CellRange dimension() const;
 
     QString documentProperty(const QString &name) const;
+    /**
+        @brief Set the document properties such as Title, Author etc.
+
+        The method can be used to set the document properties of the Excel
+        file created by Qt Xlsx. These properties are visible when you use the
+        Office Button -> Prepare -> Properties option in Excel and are also
+        available to external applications that read or index windows files.
+
+        The property @a name that can be set are:
+
+        - title
+        - subject
+        - creator
+        - manager
+        - company
+        - category
+        - keywords
+        - description
+        - status
+    */
     void setDocumentProperty(const QString &name, const QString &property);
     QStringList documentPropertyNames() const;
 

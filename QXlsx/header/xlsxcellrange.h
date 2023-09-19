@@ -44,10 +44,22 @@ public:
      * @param rowOffset row offset to be applied to the @a cell row to yield the second corner.
      * @param columnOffset column offset to be applied to the @a cell column to yield the second corner.
      * @note This constructor checks the range for validity and fixes the order if needed.
-     * @note The resulting range may be invalid.
+     * @note The resulting range may still be invalid.
      */
     CellRange(const CellReference &cell, int rowOffset, int columnOffset);
+    /**
+     * @brief parses @a range and creates CellRange from the result.
+     * @param range string representing the range (f.e. "A1:G5").
+     * @note This constructor checks the range for validity and fixes the order if needed.
+     * @note The resulting range may still be invalid.
+     */
     CellRange(const QString &range);
+    /**
+     * @brief parses @a range and creates CellRange from the result.
+     * @param range null-terminated string representing the range (f.e. "A1:G5").
+     * @note This constructor checks the range for validity and fixes the order if needed.
+     * @note The resulting range may still be invalid.
+     */
     CellRange(const char *range);
     CellRange(const CellRange &other);
     ~CellRange();
@@ -81,6 +93,19 @@ public:
      * @note If the resulting left column or top row are < 1, the range is still invalid.
      */
     void fixOrder();
+    /**
+     * @brief return whether the range contains the cell defined as CellReference.
+     * @param ref cell reference to test.
+     * @return true if range contains @a ref.
+     */
+    bool contains(const CellReference &ref) const;
+    /**
+     * @brief return whether the range contains the cell defined by its row and column.
+     * @param row 1-based row index.
+     * @param column 1-based column index.
+     * @return true if range contains cell.
+     */
+    bool contains(int row, int column) const;
 
     inline void operator =(const CellRange &other)
     {

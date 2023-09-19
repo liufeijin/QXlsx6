@@ -299,20 +299,6 @@ void Worksheet::setZerosVisible(bool visible)
     d->sheetViews.last().showZeros = visible;
 }
 
-bool Worksheet::isSelected() const
-{
-    Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().tabSelected.value_or(false);
-}
-
-void Worksheet::setSelected(bool select)
-{
-    Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().tabSelected = select;
-}
-
 bool Worksheet::isRulerVisible() const
 {
     Q_D(const Worksheet);
@@ -411,67 +397,77 @@ void Worksheet::setViewColorIndex(int index)
     d->sheetViews.last().colorId = index;
 }
 
-int Worksheet::viewZoomScale() const
+
+
+CellReference Worksheet::activeCell() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return 100;
-    return d->sheetViews.last().zoomScale.value_or(100);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().selection.activeCell;
 }
 
-void Worksheet::setViewZoomScale(int scale)
+void Worksheet::setActiveCell(const CellReference &activeCell)
 {
     Q_D(Worksheet);
     if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().zoomScale = scale;
+    d->sheetViews.last().selection.activeCell = activeCell;
 }
 
-int Worksheet::workbookViewId() const
+QList<CellRange> Worksheet::selectedRanges() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return 0;
-    return d->sheetViews.last().workbookViewId;
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().selection.selectedRanges;
 }
 
-void Worksheet::setWorkbookViewId(int id)
+bool Worksheet::addSelection(const CellRange &range)
 {
     Q_D(Worksheet);
+    if (!range.isValid()) return false;
+
     if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().workbookViewId = id;
-}
-
-SheetView Worksheet::view(int index) const
-{
-    Q_D(const Worksheet);
-    return d->sheetViews.value(index);
-}
-
-SheetView &Worksheet::view(int index)
-{
-    Q_D(Worksheet);
-    if (index < 0 || index >= d->sheetViews.size())
-        throw std::out_of_range("Worksheet::view(): negative view index.");
-    return d->sheetViews[index];
-}
-
-int Worksheet::viewsCount() const
-{
-    Q_D(const Worksheet);
-    return d->sheetViews.size();
-}
-
-SheetView &Worksheet::addView()
-{
-    Q_D(Worksheet);
-    d->sheetViews << SheetView();
-    return d->sheetViews.last();
-}
-
-bool Worksheet::removeView(int index)
-{
-    Q_D(Worksheet);
-    if (index < 0 || index >= d->sheetViews.size()) return false;
-    d->sheetViews.removeAt(index);
+    if (d->sheetViews.last().selection.selectedRanges.contains(range)) return false;
+    d->sheetViews.last().selection.selectedRanges << range;
     return true;
+}
+
+bool Worksheet::removeSelection(const CellRange &range)
+{
+    Q_D(Worksheet);
+    if (!range.isValid()) return false;
+
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    return d->sheetViews.last().selection.selectedRanges.removeOne(range);
+}
+
+void Worksheet::clearSelection()
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().selection.selectedRanges.clear();
+    d->sheetViews.last().selection.activeCell = CellReference();
+    d->sheetViews.last().selection.activeCellId.reset();
+}
+
+Selection Worksheet::selection() const
+{
+    Q_D(const Worksheet);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().selection;
+}
+
+Selection &Worksheet::selection()
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    return d->sheetViews.last().selection;
+}
+
+void Worksheet::setSelection(const Selection &selection)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    d->sheetViews.last().selection = selection;
 }
 
 void Worksheet::setPrintScale(int scale)
@@ -1328,7 +1324,8 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     auto views = d->sheetViews;
     if (views.isEmpty()) views << SheetView();
     writer.writeStartElement(QLatin1String("sheetViews"));
-    for (auto &view: views) view.write(writer, QLatin1String("sheetView"));
+    for (auto &view: views)
+        if (view.isValid()) view.write(writer, QLatin1String("sheetView"));
     writer.writeEndElement();//sheetViews
 
     //4. sheetFormatPr
@@ -2574,97 +2571,6 @@ QMap<int, int> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
     }
 
     return colWidth;
-}
-
-void SheetView::read(QXmlStreamReader &reader)
-{
-    const auto &name = reader.name();
-    auto a = reader.attributes();
-    parseAttributeBool(a, QLatin1String("windowProtection"), windowProtection);
-    parseAttributeBool(a, QLatin1String("showFormulas"), showFormulas);
-    parseAttributeBool(a, QLatin1String("showGridLines"), showGridLines);
-    parseAttributeBool(a, QLatin1String("showRowColHeaders"), showRowColHeaders);
-    parseAttributeBool(a, QLatin1String("showZeros"), showZeros);
-    parseAttributeBool(a, QLatin1String("rightToLeft"), rightToLeft);
-    parseAttributeBool(a, QLatin1String("tabSelected"), tabSelected);
-    parseAttributeBool(a, QLatin1String("showRuler"), showRuler);
-    parseAttributeBool(a, QLatin1String("showOutlineSymbols"), showOutlineSymbols);
-    parseAttributeBool(a, QLatin1String("showWhiteSpace"), showWhiteSpace);
-    parseAttributeBool(a, QLatin1String("defaultGridColor"), defaultGridColor);
-    if (a.hasAttribute(QLatin1String("view"))) {
-        auto s = a.value(QLatin1String("view"));
-        if (s == QLatin1String("normal")) type = Type::Normal;
-        else if (s == QLatin1String("pageBreakPreview")) type = Type::PageBreakPreview;
-        else if (s == QLatin1String("pageLayout")) type = Type::PageLayout;
-    }
-    if (a.hasAttribute(QLatin1String("topLeftCell")))
-        topLeftCell = CellReference(a.value(QLatin1String("topLeftCell")).toString());
-    parseAttributeInt(a, QLatin1String("colorId"), colorId);
-    parseAttributeInt(a, QLatin1String("zoomScale"), zoomScale);
-    parseAttributeInt(a, QLatin1String("zoomScaleNormal"), zoomScaleNormal);
-    parseAttributeInt(a, QLatin1String("zoomScaleSheetLayoutView"), zoomScalePageBreakView);
-    parseAttributeInt(a, QLatin1String("zoomScalePageLayoutView"), zoomScalePageLayoutView);
-    parseAttributeInt(a, QLatin1String("workbookViewId"), workbookViewId);
-
-    while (!reader.atEnd()) {
-        const auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            if (reader.name() == QLatin1String("pane")) {
-                //TODO: //    std::optional<CT_Pane> pane;
-                reader.skipCurrentElement();
-            }
-            else if (reader.name() == QLatin1String("selection")) {
-                //TODO://    std::optional<CT_Selection> selection;
-                reader.skipCurrentElement();
-            }
-            else if (reader.name() == QLatin1String("pivotSelection")) {
-                //TODO://    std::optional<CT_PivotSelection> pivotSelection;
-                reader.skipCurrentElement();
-            }
-            else if (reader.name() == QLatin1String("extLst")) {
-                extLst.read(reader);
-            }
-            else reader.skipCurrentElement();
-        }
-        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
-            break;
-    }
-}
-
-void SheetView::write(QXmlStreamWriter &writer, const QLatin1String &name) const
-{
-    writer.writeStartElement(name);
-    writeAttribute(writer, QLatin1String("windowProtection"), windowProtection);
-    writeAttribute(writer, QLatin1String("showFormulas"), showFormulas);
-    writeAttribute(writer, QLatin1String("showGridLines"), showGridLines);
-    writeAttribute(writer, QLatin1String("showRowColHeaders"), showRowColHeaders);
-    writeAttribute(writer, QLatin1String("showZeros"), showZeros);
-    writeAttribute(writer, QLatin1String("rightToLeft"), rightToLeft);
-    writeAttribute(writer, QLatin1String("tabSelected"), tabSelected);
-    writeAttribute(writer, QLatin1String("showRuler"), showRuler);
-    writeAttribute(writer, QLatin1String("showOutlineSymbols"), showOutlineSymbols);
-    writeAttribute(writer, QLatin1String("showWhiteSpace"), showWhiteSpace);
-    writeAttribute(writer, QLatin1String("defaultGridColor"), defaultGridColor);
-    switch (type.value_or(Type::Normal)) {
-        case Type::Normal: break;
-        case Type::PageLayout: writer.writeAttribute(QLatin1String("view"), QLatin1String("pageLayout")); break;
-        case Type::PageBreakPreview: writer.writeAttribute(QLatin1String("view"), QLatin1String("pageBreakPreview")); break;
-    }
-    if (topLeftCell.isValid()) writer.writeAttribute(QLatin1String("topLeftCell"), topLeftCell.toString());
-    writeAttribute(writer, QLatin1String("colorId"), colorId);
-    writeAttribute(writer, QLatin1String("zoomScale"), zoomScale);
-    writeAttribute(writer, QLatin1String("zoomScaleNormal"), zoomScaleNormal);
-    writeAttribute(writer, QLatin1String("zoomScaleSheetLayoutView"), zoomScalePageBreakView);
-    writeAttribute(writer, QLatin1String("zoomScalePageLayoutView"), zoomScalePageLayoutView);
-    writeAttribute(writer, QLatin1String("workbookViewId"), workbookViewId);
-
-    //TODO:
-    //    std::optional<CT_Pane> pane;
-    //    std::optional<CT_Selection> selection;
-    //    std::optional<CT_PivotSelection> pivotSelection;
-
-    extLst.write(writer, QLatin1String("extLst"));
-    writer.writeEndElement();
 }
 
 }

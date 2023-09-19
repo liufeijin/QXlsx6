@@ -22,21 +22,32 @@ class CellRange;
 class CellReference;
 
 class DataValidationPrivate;
+/*!
+ * \brief Data validation for single cell or a range
+ *
+ * The data validation can be applied to a single cell or a range of cells.
+ */
 class QXLSX_EXPORT DataValidation
 {
 public:
+    /**
+     * @brief The ValidationType enum defines the type of data that you wish to validate.
+     */
     enum ValidationType
     {
-        None,
-        Whole,
-        Decimal,
-        List,
-        Date,
-        Time,
-        TextLength,
-        Custom
+        None, /**< the type of data is unrestricted. This is the same as not applying a data validation. */
+        Whole, /**< restricts the cell to integer values. */
+        Decimal, /**< restricts the cell to decimal values. */
+        List, /**< restricts the cell to a set of user specified values. */
+        Date, /**< restricts the cell to date values. */
+        Time, /**< restricts the cell to time values. */
+        TextLength, /**< restricts the cell data based on an integer string length. */
+        Custom /**< restricts the cell based on an external Excel formula that returns a true/false value. */
     };
-
+    /**
+     * @brief The ValidationOperator enum defines the criteria by which the data in the
+     *  cell is validated
+     */
     enum ValidationOperator
     {
         Between,
@@ -48,7 +59,10 @@ public:
         GreaterThan,
         GreaterThanOrEqual
     };
-
+    /**
+     * @brief The ErrorStyle enum defines the type of error dialog that
+     *  is displayed.
+     */
     enum ErrorStyle
     {
         Stop,
