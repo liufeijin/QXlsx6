@@ -1277,10 +1277,6 @@ bool Worksheet::mergeCells(const CellRange &range, const Format &format)
     return true;
 }
 
-/*!
-    Unmerge the cells in the \a range. Returns true on success.
-
-*/
 bool Worksheet::unmergeCells(const CellRange &range)
 {
     Q_D(Worksheet);
@@ -1314,6 +1310,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //    writer.writeAttribute("mc:Ignorable", "x14ac");
 
     //1. sheetPr - CT_SheetPr
+    if (d->sheetProperties.isValid()) d->sheetProperties.write(writer, QLatin1String("sheetPr"));
 
     //2. dimension
     writer.writeStartElement(QLatin1String("dimension"));
@@ -1744,10 +1741,6 @@ QList<QPair<int, int> > WorksheetPrivate::getIntervals() const
     return result;
 }
 
-/*!
-  Sets width in characters of a \a range of columns to \a width.
-  Returns true on success.
- */
 bool Worksheet::setColumnWidth(const CellRange &range, double width)
 {
     if (!range.isValid())
@@ -1756,10 +1749,6 @@ bool Worksheet::setColumnWidth(const CellRange &range, double width)
     return setColumnWidth(range.firstColumn(), range.lastColumn(), width);
 }
 
-/*!
-  Sets format property of a \a range of columns to \a format. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Worksheet::setColumnFormat(const CellRange& range, const Format &format)
 {
     if (!range.isValid())
@@ -1768,11 +1757,6 @@ bool Worksheet::setColumnFormat(const CellRange& range, const Format &format)
     return setColumnFormat(range.firstColumn(), range.lastColumn(), format);
 }
 
-/*!
-  Sets hidden property of a \a range of columns to \a hidden. Columns are 1-indexed.
-  Hidden columns are not visible.
-  Returns true on success.
- */
 bool Worksheet::setColumnHidden(const CellRange &range, bool hidden)
 {
     if (!range.isValid())
@@ -1781,11 +1765,6 @@ bool Worksheet::setColumnHidden(const CellRange &range, bool hidden)
     return setColumnHidden(range.firstColumn(), range.lastColumn(), hidden);
 }
 
-/*!
-  Sets width in characters for columns [\a colFirst, \a colLast] to \a width.
-  Columns are 1-indexed.
-  Returns true on success.
- */
 bool Worksheet::setColumnWidth(int colFirst, int colLast, double width)
 {
     Q_D(Worksheet);
@@ -1799,11 +1778,6 @@ bool Worksheet::setColumnWidth(int colFirst, int colLast, double width)
     return true;
 }
 
-/*!
-  Sets format property of a range of columns [\a colFirst, \a colLast] to \a format.
-  Columns are 1-indexed.
-  Returns true on success.
- */
 bool Worksheet::setColumnFormat(int colFirst, int colLast, const Format &format)
 {
     Q_D(Worksheet);
@@ -1818,10 +1792,6 @@ bool Worksheet::setColumnFormat(int colFirst, int colLast, const Format &format)
     return true;
 }
 
-/*!
-  Sets hidden property of a range of columns [\a colFirst, \a colLast] to \a hidden.
-  Columns are 1-indexed. Returns true on success.
- */
 bool Worksheet::setColumnHidden(int colFirst, int colLast, bool hidden)
 {
     Q_D(Worksheet);
@@ -1835,9 +1805,6 @@ bool Worksheet::setColumnHidden(int colFirst, int colLast, bool hidden)
     return true;
 }
 
-/*!
-  Returns width of the \a column in characters of the normal font. Columns are 1-indexed.
- */
 double Worksheet::columnWidth(int column) const
 {
     Q_D(const Worksheet);
@@ -1848,9 +1815,6 @@ double Worksheet::columnWidth(int column) const
     return d->sheetFormatProps.defaultColWidth;
 }
 
-/*!
-  Returns formatting of the \a column. Columns are 1-indexed.
- */
 Format Worksheet::columnFormat(int column) const
 {
     Q_D(const Worksheet);
@@ -1861,9 +1825,6 @@ Format Worksheet::columnFormat(int column) const
     return Format();
 }
 
-/*!
-  Returns true if \a column is hidden. Columns are 1-indexed.
- */
 bool Worksheet::isColumnHidden(int column) const
 {
     Q_D (const Worksheet);
@@ -1891,12 +1852,6 @@ bool Worksheet::setRowHeight(int rowFirst, int rowLast, double height)
     return true;
 }
 
-/*!
-  Sets the \a format of the rows including and between \a rowFirst and \a rowLast.
-  Rows are 1-indexed.
-
-  Returns true if success.
-*/
 bool Worksheet::setRowFormat(int rowFirst,int rowLast, const Format &format)
 {
     Q_D(Worksheet);
@@ -1915,12 +1870,6 @@ bool Worksheet::setRowFormat(int rowFirst,int rowLast, const Format &format)
     return true;
 }
 
-/*!
-  Sets the \a hidden property of the rows including and between \a rowFirst and \a rowLast.
-  Rows are 1-indexed. If hidden is true rows will not be visible.
-
-  Returns true if success.
-*/
 bool Worksheet::setRowHidden(int rowFirst,int rowLast, bool hidden)
 {
     Q_D(Worksheet);
@@ -1938,9 +1887,7 @@ bool Worksheet::setRowHidden(int rowFirst,int rowLast, bool hidden)
     return true;
 }
 
-/*!
- Returns height of \a row in points.
-*/
+
 double Worksheet::rowHeight(int row) const
 {
     Q_D(const Worksheet);
@@ -1950,9 +1897,6 @@ double Worksheet::rowHeight(int row) const
     return d->sheetFormatProps.defaultRowHeight; //return default on invalid row
 }
 
-/*!
- Returns format of \a row.
-*/
 Format Worksheet::rowFormat(int row) const
 {
     Q_D(const Worksheet);
@@ -1962,9 +1906,6 @@ Format Worksheet::rowFormat(int row) const
     return {};
 }
 
-/*!
- Returns true if \a row is hidden.
-*/
 bool Worksheet::isRowHidden(int row) const
 {
     Q_D(const Worksheet);
@@ -1973,11 +1914,6 @@ bool Worksheet::isRowHidden(int row) const
     return false;
 }
 
-/*!
-   Groups rows from \a rowFirst to \a rowLast with the given \a collapsed.
-
-   Returns false if error occurs.
- */
 bool Worksheet::groupRows(int rowFirst, int rowLast, bool collapsed)
 {
     Q_D(Worksheet);
@@ -2047,13 +1983,124 @@ bool Worksheet::groupColumns(int colFirst, int colLast, bool collapsed)
     return true;
 }
 
-/*!
-    Return the range that contains cell data.
- */
 CellRange Worksheet::dimension() const
 {
     Q_D(const Worksheet);
     return d->dimension;
+}
+
+QString Worksheet::codeName() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.codeName;
+}
+
+void Worksheet::setCodeName(const QString &codeName)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.codeName = codeName;
+}
+
+bool Worksheet::isFormatConditionsCalculationEnabled() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.enableFormatConditionsCalculation.value_or(true);
+}
+
+void Worksheet::setFormatConditionsCalculationEnabled(bool enabled)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.enableFormatConditionsCalculation = enabled;
+}
+
+bool Worksheet::isPublished() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.published.value_or(true);
+}
+
+void Worksheet::setPublished(bool published)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.published = published;
+}
+
+bool Worksheet::isSyncedHorizontal() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.syncHorizontal.value_or(false);
+}
+
+void Worksheet::setSyncedHorizontal(bool sync)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.syncHorizontal = sync;
+}
+
+bool Worksheet::isSyncedVertical() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.syncVertical.value_or(false);
+}
+
+void Worksheet::setSyncedVertical(bool sync)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.syncVertical = sync;
+}
+
+CellReference Worksheet::topLeftAnchor() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.syncRef;
+}
+
+void Worksheet::setTopLeftAnchor(const CellReference &ref)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.syncRef = ref;
+}
+
+Color Worksheet::tabColor() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.tabColor;
+}
+
+void Worksheet::setTabColor(const Color &color)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.tabColor = color;
+}
+
+void Worksheet::setTabColor(const QColor &color)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.tabColor = Color(color);
+}
+
+bool Worksheet::showAutoPageBreaks() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.autoPageBreaks.value_or(true);
+}
+
+void Worksheet::setShowAutoPageBreaks(bool show)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.autoPageBreaks = show;
+}
+
+bool Worksheet::fitToPage() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.fitToPage.value_or(false);
+}
+
+void Worksheet::setFitToPage(bool value)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.fitToPage = value;
 }
 
 /*
@@ -2405,7 +2452,9 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
-            if (reader.name() == QLatin1String("dimension")) {
+            if (reader.name() == QLatin1String("sheetPr"))
+                d->sheetProperties.read(reader);
+            else if (reader.name() == QLatin1String("dimension")) {
                 QString range = a.value(QLatin1String("ref")).toString();
                 d->dimension = CellRange(range);
             }
@@ -2571,6 +2620,99 @@ QMap<int, int> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
     }
 
     return colWidth;
+}
+
+bool SheetProperties::isValid() const
+{
+    if (tabColor.isValid()) return true;
+    if (applyStyles.has_value()) return true;
+    if (summaryBelow.has_value()) return true;
+    if (summaryRight.has_value()) return true;
+    if (showOutlineSymbols.has_value()) return true;
+    if (autoPageBreaks.has_value()) return true;
+    if (fitToPage.has_value()) return true;
+    if (syncHorizontal.has_value()) return true;
+    if (syncVertical.has_value()) return true;
+    if (syncRef.isValid()) return true;
+    if (transitionEvaluation.has_value()) return true;
+    if (transitionEntry.has_value()) return true;
+    if (published.has_value()) return true;
+    if (!codeName.isEmpty()) return true;
+    if (filterMode.has_value()) return true;
+    if (enableFormatConditionsCalculation.has_value()) return true;
+
+    return false;
+}
+
+void SheetProperties::read(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+
+    const auto &a = reader.attributes();
+    parseAttributeBool(a, QLatin1String("syncHorizontal"), syncHorizontal);
+    parseAttributeBool(a, QLatin1String("syncVertical"), syncVertical);
+    if (a.hasAttribute(QLatin1String("syncRef")))
+        syncRef = CellReference::fromString(a.value(QLatin1String("syncRef")).toString());
+    parseAttributeBool(a, QLatin1String("transitionEvaluation"), transitionEvaluation);
+    parseAttributeBool(a, QLatin1String("transitionEntry"), transitionEntry);
+    parseAttributeBool(a, QLatin1String("published"), published);
+    parseAttributeString(a, QLatin1String("codeName"), codeName);
+    parseAttributeBool(a, QLatin1String("filterMode"), filterMode);
+    parseAttributeBool(a, QLatin1String("enableFormatConditionsCalculation"), enableFormatConditionsCalculation);
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("tabColor"))
+                tabColor.read(reader);
+            else if (reader.name() == QLatin1String("outlinePr")) {
+                const auto &a1 = reader.attributes();
+                parseAttributeBool(a1, QLatin1String("applyStyles"), applyStyles);
+                parseAttributeBool(a1, QLatin1String("summaryBelow"), summaryBelow);
+                parseAttributeBool(a1, QLatin1String("summaryRight"), summaryRight);
+                parseAttributeBool(a1, QLatin1String("showOutlineSymbols"), showOutlineSymbols);
+            }
+            else if (reader.name() == QLatin1String("pageSetUpPr")) {
+                const auto &a1 = reader.attributes();
+                parseAttributeBool(a1, QLatin1String("autoPageBreaks"), autoPageBreaks);
+                parseAttributeBool(a1, QLatin1String("fitToPage"), fitToPage);
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void SheetProperties::write(QXmlStreamWriter &writer, const QLatin1String &name) const
+{
+    if (!isValid()) return;
+
+    writer.writeStartElement(name);
+    writeAttribute(writer, QLatin1String("syncHorizontal"), syncHorizontal);
+    writeAttribute(writer, QLatin1String("syncVertical"), syncVertical);
+    if (syncRef.isValid())
+        writeAttribute(writer, QLatin1String("syncRef"), syncRef.toString());
+    writeAttribute(writer, QLatin1String("transitionEvaluation"), transitionEvaluation);
+    writeAttribute(writer, QLatin1String("transitionEntry"), transitionEntry);
+    writeAttribute(writer, QLatin1String("published"), published);
+    writeAttribute(writer, QLatin1String("codeName"), codeName);
+    writeAttribute(writer, QLatin1String("filterMode"), filterMode);
+    writeAttribute(writer, QLatin1String("enableFormatConditionsCalculation"), enableFormatConditionsCalculation);
+    if (tabColor.isValid()) tabColor.write(writer, QLatin1String("tabColor"));
+    if (applyStyles.has_value() || summaryBelow.has_value() || summaryRight.has_value() ||
+        showOutlineSymbols.has_value()) {
+        writer.writeEmptyElement(QLatin1String("outlinePr"));
+        writeAttribute(writer, QLatin1String("applyStyles"), applyStyles);
+        writeAttribute(writer, QLatin1String("summaryBelow"), summaryBelow);
+        writeAttribute(writer, QLatin1String("summaryRight"), summaryRight);
+        writeAttribute(writer, QLatin1String("showOutlineSymbols"), showOutlineSymbols);
+    }
+    if (autoPageBreaks.has_value() || fitToPage.has_value()) {
+        writer.writeEmptyElement(QLatin1String("pageSetUpPr"));
+        writeAttribute(writer, QLatin1String("autoPageBreaks"), autoPageBreaks);
+        writeAttribute(writer, QLatin1String("fitToPage"), fitToPage);
+    }
+    writer.writeEndElement();
 }
 
 }

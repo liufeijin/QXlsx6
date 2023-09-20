@@ -43,6 +43,21 @@ class WorksheetPrivate;
 /**
  * @brief The Worksheet class represents a worksheet in the workbook.
  *
+ * # Sheet Properties
+ *
+ * The following parameters define the behavior and look-and-feel of the worksheet:
+ *
+ * - #codeName(), #setCodeName() manage the unique stable name of the sheet.
+ * - #isFormatConditionsCalculationEnabled(), #setFormatConditionsCalculationEnabled()
+ *   manage the recalculation of the conditional formatting.
+ * - #isPublished(), #setPublished() manage the publishing of the sheet.
+ * - #syncHorizontal(), #setSyncHorizontal(), #syncVertical(), #setSyncVertical(),
+ *   #syncRef(), #setSyncRef() manage the anchor parameters of the sheet.
+ * - #tabColor(), #setTabColor() manage the sheet's tab color.
+ * - #showAutoPageBreaks(), #setShowAutoPageBreaks() manage the auto page breaks visibility.
+ *
+ *
+ * # Sheet Views
  *
  * Each worksheet can have 1 to infinity 'sheet views', that display a specific portion of
  * the worksheet with specific view parameters.
@@ -50,7 +65,7 @@ class WorksheetPrivate;
  * The following methods manage sheet views:
  *
  * - AbstractSheet::view(int index) returns a specific view.
- * - AbstractSheet::viewCount() returns the count of views in the sheet.
+ * - AbstractSheet::viewsCount() returns the count of views in the sheet.
  * - AbstractSheet::addView() adds a view.
  * - AbstractSheet::removeView(int index) removes the view.
  *
@@ -66,11 +81,19 @@ class WorksheetPrivate;
  * - #isRulerVisible(), #setRulerVisible(bool visible) manage the ruler visibility.
  * - #isOutlineSymbolsVisible(), #setOutlineSymbolsVisible(bool visible) manage the outline symbols visibility.
  * - #isWhiteSpaceVisible(), #setWhiteSpaceVisible(bool visible) manage visibility of whitespaces in the sheet's cells.
+ * - #isDefaultGridColorUsed(), #setDefaultGridColorUsed(bool value) manage using the default/custom grid lines color.
+ * - #viewType(), #setViewType(SheetView::Type type) manage the type of the sheet view.
+ * - #viewTopLeftCell(), #setViewTopLeftCell(const CellReference &ref) manage the reference to the view's top left cell.
+ * - #viewColorIndex(), #setViewColorIndex(int index) manage the sheet tab's color in the current view.
  * - #selection(), #setSelection(), #selectedRanges(), #addSelection(), #removeSelection(), and #clearSelection() manage the selection on the worksheet.
  * - #activeCell(), #setActiveCell() manage the active cell on the worksheet.
  *
  * The above-mentioned methods return the default values if the corresponding parameters were not set.
- * See SheetView documentation on the default values.
+ * See SheetView and Selection documentation on the default values.
+ *
+ * # Sheet Printing Parameters
+ *
+ *
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
@@ -244,7 +267,18 @@ public:
     Returns true on success.
     */
     bool mergeCells(const CellRange &range, const Format &format=Format());
+    /**
+     * @brief Un-merges a @a range of cells.
+     * @param range the range to unmerge.
+     * @return true if @a range was successfully unmerged.
+     * @note This method does not check the merged cells range for intersections with
+     * other merged cells.
+     */
     bool unmergeCells(const CellRange &range);
+    /**
+     * @brief returns the list of merged ranges.
+     * @return non-empty list of merged ranges if any of cells were merged.
+     */
     QList<CellRange> mergedCells() const;
 
     bool setColumnWidth(const CellRange& range, double width);
@@ -253,7 +287,11 @@ public:
     bool setColumnWidth(int colFirst, int colLast, double width);
     bool setColumnFormat(int colFirst, int colLast, const Format &format);
     bool setColumnHidden(int colFirst, int colLast, bool hidden);
-
+    /**
+     * @brief returns the width of @column in characters.
+     * @param column column index (1-based).
+     * @return the width of @column in characters of a standard font.
+     */
     double columnWidth(int column) const;
     Format columnFormat(int column) const;
     bool isColumnHidden(int column) const;
@@ -267,8 +305,17 @@ public:
      */
     bool setRowHeight(int rowFirst,int rowLast, double height);
     bool setRowFormat(int rowFirst,int rowLast, const Format &format);
-    bool setRowHidden(int rowFirst,int rowLast, bool hidden);
-
+    /**
+     * @brief sets @a hidden to rows from @a rowFirst to @a rowLast.
+     * @param rowFirst The first row index (1-based) of the range to set @a hidden.
+     * @param rowLast The last row index (1-based) of the range to set @a hidden.
+     * @param hidden visibility of rows.
+     * @return true if @a rowFirst and @a rowLast are valid and the visibility is successfully changed.
+     */
+    bool setRowHidden(int rowFirst, int rowLast, bool hidden);
+    /*!
+     Returns height of \a row in points.
+    */
     double rowHeight(int row) const;
     Format rowFormat(int row) const;
     bool isRowHidden(int row) const;
@@ -296,12 +343,192 @@ public:
      * The "group/ungroup" button will appear over the column with index colLast+1.
      */
     bool groupColumns(const CellRange &range, bool collapsed = true);
+    /**
+     * @brief returns the dimension (extent) of the worksheet.
+     * @return dimension (extent) of the worksheet.
+     */
     CellRange dimension() const;
+
+    /**
+     * @brief autosizes columns widths for all rows in the worksheet.
+     * @param firstColumn 1-based index of the first column to autosize.
+     * @param lastColumn 1-based index of the last column to autosize.
+     * @return true on success.
+     */
+    bool autosizeColumnWidths(int firstColumn, int lastColumn);
+    /**
+     * @overload
+     * @brief autosizes columns widths for columns specified by range.
+     * @param range valid CellRange that specifies the columns range to autosize and
+     * the rows range to estimate the maximum column width.
+     * @return true on success.
+     */
+    bool autosizeColumnWidths(const CellRange &range);
+
+
+
+
+    // Sheet Parameters
+
+    /**
+     * @brief returns the unique stable sheet name.
+     *
+     * codeName should not change over time, and does not change from user input.
+     * This name should be used by code to reference a particular sheet.
+     *
+     * @return Non-empty string if the codeName was set.
+     */
+    QString codeName() const;
+    /**
+     * @brief sets the unique stable sheet name.
+     *
+     * codeName should not change over time, and does not change from user input.
+     * This name should be used by code to reference a particular sheet.
+     * @param a unique string.
+     * @warning This method does not check the codeName to be unique throughout the workbook!
+     * Use QUuid class to create a unique codeName.
+     */
+    void setCodeName(const QString &codeName);
+    /**
+     * @brief returns whether the conditional formatting calculations shall be
+     * evaluated. If set to false, then the min/max values of color scales or
+     * databars or threshold values in Top N rules shall not be updated.
+     *
+     * This is useful when conditional formats are being set programmatically at
+     * runtime, recalculation of the conditional formatting does not need to be
+     * done until the program execution has finished setting all the conditional
+     * formatting properties.
+     *
+     * If not set, the default value is true.
+     *
+     * @return true if the recalculation of the conditional formatting is on.
+     */
+    bool isFormatConditionsCalculationEnabled() const;
+    /**
+     * @brief sets whether the conditional formatting calculations shall be
+     * evaluated.
+     * @param enabled If false, then the min/max values of color scales or
+     * databars or threshold values in Top N rules shall not be updated.
+     *
+     * This is useful when conditional formats are being set programmatically at
+     * runtime, recalculation of the conditional formatting does not need to be
+     * done until the program execution has finished setting all the conditional
+     * formatting properties.
+     *
+     * The default value is true.
+     */
+    void setFormatConditionsCalculationEnabled(bool enabled);
+    /**
+     * @brief returns whether the worksheet is published.
+     * @return true if the worksheet was published.
+     *
+     * If not set, the default value is true.
+     */
+    bool isPublished() const;
+    /**
+     * @brief sets whether the worksheet is published.
+     * @param published
+     *
+     * The default value is true.
+     */
+    void setPublished(bool published);
+
+    /**
+     * @brief returns whether the worksheet is horizontally synced to the #topLeftAnchor().
+     * @return If true, and scroll location is missing from the window properties,
+     * the window view shall be scrolled to the #topLeftAnchor() column.
+     *
+     * If not set, the default value is false.
+     */
+    bool isSyncedHorizontal() const;
+    /**
+     * @brief sets whether the worksheet is horizontally synced to the #topLeftAnchor().
+     * @param sync If true, and scroll location is missing from the window properties,
+     * the window view shall be scrolled to the #topLeftAnchor() column.
+     *
+     * The default value is false.
+     */
+    void setSyncedHorizontal(bool sync);
+    /**
+     * @brief returns whether the worksheet is vertically synced to the #topLeftAnchor().
+     * @return If true, and scroll location is missing from the window properties,
+     * the window view shall be scrolled to the #topLeftAnchor() row.
+     *
+     * If not set, the default value is false.
+     */
+    bool isSyncedVertical() const;
+    /**
+     * @brief sets whether the worksheet is vertically synced to the #topLeftAnchor().
+     * @param sync If true, and scroll location is missing from the window properties,
+     * the window view shall be scrolled to the #topLeftAnchor() row.
+     *
+     * The default value is false.
+     */
+    void setSyncedVertical(bool sync);
+    /**
+     * @brief returns the anchor cell the window view shall be scrolled to according
+     * to the #isSyncedHorizontal() and #isSyncedVertical() parameters.
+     * @return valid CellReference if the anchor cell was set.
+     */
+    CellReference topLeftAnchor() const;
+    /**
+     * @brief sets the anchor cell the window view shall be scrolled to according
+     * to the #isSyncedHorizontal() and #isSyncedVertical() parameters.
+     * @param ref If not valid, clears the anchor cell.
+     */
+    void setTopLeftAnchor(const CellReference &ref);
+    /**
+     * @brief returns the sheet's tab color.
+     * @return Valid Color if the tab color was set.
+     */
+    Color tabColor() const;
+    /**
+     * @brief sets the sheet's tab color.
+     * @param color the tab color.
+     */
+    void setTabColor(const Color &color);
+    /**
+     * @overload
+     * @brief sets the sheet's tab color.
+     * @param color the tab color.
+     */
+    void setTabColor(const QColor &color);
+    /**
+     * @brief returns  whether the sheet displays Automatic Page Breaks.
+     * @return automatic page breaks visibility.
+     *
+     * If not set, the defalult value is true.
+     */
+    bool showAutoPageBreaks() const;
+    /**
+     * @brief sets whether the sheet displays Automatic Page Breaks.
+     * @param show automatic page breaks visibility.
+     *
+     * The default value is true.
+     */
+    void setShowAutoPageBreaks(bool show);
+    /**
+     * @brief returns whether the Fit to Page print option is enabled.
+     * @return the Fit to Page print option.
+     *
+     * If not set, the default value is false.
+     */
+    bool fitToPage() const;
+    /**
+     * @brief sets the Fit to Page print option.
+     * @param value If true, then the sheet's contents will be scaled to fit the page.
+     *
+     * The default value is false.
+     */
+    void setFitToPage(bool value);
+
+    // Sheet View parameters
+
     /**
      * @brief returns whether the panes in the window are locked due to workbook protection.
      *
      * The default value is false.
-     * @note The worksheet can have more than one view. This method returns the
+     * @note Worksheet can have more than one view. This method returns the
      * property of the last one. To get the specific view use #view() method.
      */
     bool isWindowProtected() const;
@@ -309,13 +536,12 @@ public:
      * @brief sets whether the panes in the window are locked due to workbook protection.
      *
      * @param protect Sets protected to the view. The default value is false.
-     * @note The worksheet can have more than one view. This method sets the
+     * @note Worksheet can have more than one view. This method sets the
      * property of the last one. If no sheet views were added, this method
      * adds the default one. To get the specific view use #view() method.
      */
     void setWindowProtected(bool protect);
-    //TODO: doc
-    bool isFormulasVisible() const;
+    bool isFormulasVisible() const; //TODO: doc
     void setFormulasVisible(bool visible);//TODO: doc
     bool isGridLinesVisible() const;//TODO: doc
     void setGridLinesVisible(bool visible);//TODO: doc
@@ -361,27 +587,24 @@ public:
      * If not set, the default value is false.
      */
     void setRightToLeft(bool enable);
-
     bool isRulerVisible() const;//TODO: doc
     void setRulerVisible(bool visible);//TODO: doc
     bool isOutlineSymbolsVisible() const;//TODO: doc
     void setOutlineSymbolsVisible(bool visible);//TODO: doc
     bool isWhiteSpaceVisible() const;//TODO: doc
     void setWhiteSpaceVisible(bool visible);//TODO: doc
-    bool isDefaultGridColorUsed() const;
-    void setDefaultGridColorUsed(bool value);
-    SheetView::Type viewType() const;
-    void setViewType(SheetView::Type type);
+    bool isDefaultGridColorUsed() const;//TODO: doc
+    void setDefaultGridColorUsed(bool value);//TODO: doc
+    SheetView::Type viewType() const;//TODO: doc
+    void setViewType(SheetView::Type type);//TODO: doc
     /**
      * @brief returns the location of the last added view's top left cell.
      * @return Valid location if it was set, invalid one otherwise.
      */
     CellReference viewTopLeftCell() const;
-    void setViewTopLeftCell(const CellReference &ref);
-    int viewColorIndex() const;
-    void setViewColorIndex(int index);
-
-
+    void setViewTopLeftCell(const CellReference &ref);//TODO: doc
+    int viewColorIndex() const;//TODO: doc
+    void setViewColorIndex(int index);//TODO: doc
     /**
      * @brief returns the last defined sheet view's active cell.
      * @return copy of CellReference object.
@@ -435,6 +658,10 @@ public:
 
     //TODO: test methods to set, add, remove and clear selections.
 
+    // Print and page parameters
+
+    //TODO: add methods for print and page parameters
+
     /**
      * @brief sets the worksheet's print scale in percents.
      * @param scale value from 10 to 400. The value of 100 equals 100% scaling.
@@ -456,22 +683,6 @@ public:
      * @param pageOrder
      */
     void setPageOrder(PageSetup::PageOrder pageOrder);
-
-    /**
-     * @brief autosizes columns widths for all rows in the worksheet.
-     * @param firstColumn 1-based index of the first column to autosize.
-     * @param lastColumn 1-based index of the last column to autosize.
-     * @return true on success.
-     */
-    bool autosizeColumnWidths(int firstColumn, int lastColumn);
-    /**
-     * @overload
-     * @brief autosizes columns widths for columns specified by range.
-     * @param range valid CellRange that specifies the columns range to autosize and
-     * the rows range to estimate the maximum column width.
-     * @return true on success.
-     */
-    bool autosizeColumnWidths(const CellRange &range);
 
 private:
     QMap<int, int> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);

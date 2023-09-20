@@ -107,6 +107,7 @@ int demo()
     xlsx.setColumnWidth(2, 20); //Column B
     xlsx.setColumnWidth(8, 12); //Column H
     xlsx.currentWorksheet()->setGridLinesVisible(false);
+    xlsx.currentWorksheet()->setTabColor(Qt::magenta);
 
     //Alignment
     writeHorizontalAlignCell(xlsx, "B3", "AlignLeft", Format::AlignLeft);
@@ -148,6 +149,7 @@ int demo()
     //---------------------------------------------------------------
     //Create the second sheet.
     xlsx.addSheet("Fonts");
+    xlsx.currentWorksheet()->setTabColor(Qt::yellow);
 
     xlsx.write("B3", "Normal");
     Format font_bold;
@@ -188,6 +190,7 @@ int demo()
     //---------------------------------------------------------------
     //Create the third sheet.
     xlsx.addSheet("Formulas");
+    xlsx.currentWorksheet()->setTabColor(Qt::darkCyan);
     xlsx.setColumnWidth(1, 2, 40);
     Format rAlign;
     rAlign.setHorizontalAlignment(Format::AlignRight);
@@ -251,6 +254,7 @@ int demo()
     //---------------------------------------------------------------
     //Create the fourth sheet.
     xlsx.addSheet("NumFormats");
+    xlsx.currentWorksheet()->setTabColor(Qt::darkRed);
     xlsx.setColumnWidth(2, 40);
     writeInternalNumFormatsCell(xlsx, 4, 2.5681, 2);
     writeInternalNumFormatsCell(xlsx, 5, 2500000, 3);
@@ -269,6 +273,7 @@ int demo()
     //---------------------------------------------------------------
     //Create the fifth sheet.
     xlsx.addSheet("Merging");
+    xlsx.currentWorksheet()->setTabColor(Qt::red);
     Format centerAlign;
     centerAlign.setHorizontalAlignment(Format::AlignHCenter);
     centerAlign.setVerticalAlignment(Format::AlignVCenter);
@@ -282,6 +287,7 @@ int demo()
     //---------------------------------------------------------------
     //Create the fifth sheet.
     xlsx.addSheet("Grouping");
+    xlsx.currentWorksheet()->setTabColor(Qt::darkBlue);
 
 #if QT_VERSION >= 0x060000 // Qt 6.0 or over
     QRandomGenerator rgen;
@@ -323,6 +329,8 @@ int demo()
             if ((row+column) % 2 == 0) sheet->addSelection(CellRange(row,column,row,column));
         }
     }
+
+    sheet->setFitToPage(true);
 
     xlsx.saveAs("demo1.xlsx");
 

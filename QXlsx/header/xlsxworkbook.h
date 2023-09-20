@@ -64,8 +64,8 @@ public:
     */
     void setDate1904(bool date1904);
     bool isStringsToNumbersEnabled() const;
-    /*
-    Enable the worksheet.write() method to convert strings
+    /**
+    Enables the worksheet.write() method to convert strings
     to numbers, where possible, using float() in order to avoid
     an Excel warning about "Numbers Stored as Text".
 

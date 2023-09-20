@@ -77,13 +77,16 @@ struct SheetProperties
     std::optional<bool> fitToPage;
     std::optional<bool> syncHorizontal;
     std::optional<bool> syncVertical;
-    QString syncRef;
+    CellReference syncRef;
     std::optional<bool> transitionEvaluation;
     std::optional<bool> transitionEntry;
     std::optional<bool> published;
     QString codeName;
     std::optional<bool> filterMode;
     std::optional<bool> enableFormatConditionsCalculation;
+    bool isValid() const;
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
 };
 
 
@@ -198,6 +201,7 @@ public:
     bool defaultRowZeroed = false;
 
     XlsxSheetFormatProps sheetFormatProps;
+    SheetProperties sheetProperties;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
 
