@@ -2608,11 +2608,11 @@ QMap<int, double> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
             int colIndex = col.key();
             std::shared_ptr<Cell> ptrCell = col.value(); // value
 
-            int fs = ptrCell->format().fontSize();
+            auto fs = ptrCell->format().fontSize();
             if (fs <= 0) fs = defaultPtSize;
 
             QString str = read(rowIndex, colIndex).toString();
-            double w = str.length() * double(fs) / defaultPtSize + 1; // width not perfect, but works reasonably well
+            double w = str.length() * fs / defaultPtSize + 1; // width not perfect, but works reasonably well
 
             if (rowIndex >= firstRow && rowIndex <= lastRow) {
                 if (w > colWidth.value(colIndex))

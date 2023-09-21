@@ -125,8 +125,8 @@ public:
     void setNumberFormat(int id, const QString &format);
     bool isDateTimeFormat() const;
 
-    int fontSize() const;
-    void setFontSize(int size);
+    double fontSize() const;
+    void setFontSize(double size);
     bool fontItalic() const;
     void setFontItalic(bool italic);
     bool fontStrikeOut() const;

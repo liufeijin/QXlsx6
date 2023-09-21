@@ -3,6 +3,7 @@
 #include <QtGlobal>
 #include <QBuffer>
 #include <QByteArray>
+#include <QDebug>
 
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxabstractooxmlfile_p.h"

@@ -318,7 +318,7 @@ Format SharedStrings::readRichStringPart_rPr(QXmlStreamReader &reader)
                 color.read(reader);
                 format.setProperty(FormatPrivate::P_Font_Color, color);
             } else if (reader.name() == QLatin1String("sz")) {
-                format.setFontSize(attributes.value(QLatin1String("val")).toInt());
+                format.setFontSize(attributes.value(QLatin1String("val")).toDouble());
             } else if (reader.name() == QLatin1String("u")) {
                 QString value = attributes.value(QLatin1String("val")).toString();
                 if (value == QLatin1String("double"))

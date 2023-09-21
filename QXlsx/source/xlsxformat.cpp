@@ -184,15 +184,15 @@ bool Format::hasNumFmtData() const
 /*!
  * Return the size of the font in points.
  */
-int Format::fontSize() const
+double Format::fontSize() const
 {
-    return intProperty(FormatPrivate::P_Font_Size);
+    return doubleProperty(FormatPrivate::P_Font_Size);
 }
 
 /*!
  * Set the \a size of the font in points.
  */
-void Format::setFontSize(int size)
+void Format::setFontSize(double size)
 {
     setProperty(FormatPrivate::P_Font_Size, size, 0);
 }
@@ -335,7 +335,7 @@ QFont Format::font() const
    QFont font;
    font.setFamily(fontName());
    if (fontSize() > 0)
-       font.setPointSize(fontSize());
+       font.setPointSizeF(fontSize());
    font.setBold(fontBold());
    font.setItalic(fontItalic());
    font.setUnderline(fontUnderline()!=FontUnderlineNone);
@@ -349,8 +349,8 @@ QFont Format::font() const
 void Format::setFont(const QFont &font)
 {
     setFontName(font.family());
-    if (font.pointSize() > 0)
-        setFontSize(font.pointSize());
+    if (font.pointSizeF() > 0)
+        setFontSize(font.pointSizeF());
     setFontBold(font.bold());
     setFontItalic(font.italic());
     setFontUnderline(font.underline() ? FontUnderlineSingle : FontUnderlineNone);

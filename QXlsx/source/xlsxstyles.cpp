@@ -847,7 +847,7 @@ bool Styles::readFont(QXmlStreamReader &reader, Format &format)
                 color.read(reader);
                 format.setProperty(FormatPrivate::P_Font_Color, color);
             } else if (reader.name() == QLatin1String("sz")) {
-                const auto sz = attributes.value(QLatin1String("val")).toInt();
+                const auto sz = attributes.value(QLatin1String("val")).toDouble();
                 format.setFontSize(sz);
             } else if (reader.name() == QLatin1String("u")) {
                 QString value = attributes.value(QLatin1String("val")).toString();

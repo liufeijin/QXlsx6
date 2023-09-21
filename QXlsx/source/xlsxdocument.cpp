@@ -809,7 +809,7 @@ bool Document::setColumnWidth(const CellRange &range, double width)
 }
 
 /*!
-  Sets format property of columns with the gien \a range and \a format.
+  Sets format property of columns with the given \a range and \a format.
   Returns true on success.
  */
 bool Document::setColumnFormat(const CellRange &range, const Format &format)

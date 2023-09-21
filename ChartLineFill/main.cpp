@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     An example of chart lines and filling.
     */
 
-    Chart *chart1 = xlsx.insertChart(12, 0, QSize(600, 600));
+    Chart *chart1 = xlsx.insertChart(13, 1, QSize(600, 600));
     chart1->setLegend(Legend::Position::Right);
     chart1->setTitle("Line stroke style");
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         chart1->series(i)->setName(s);
     }
 
-    Chart *chart2 = xlsx.insertChart(12, 10, QSize(600, 600));
+    Chart *chart2 = xlsx.insertChart(13, 11, QSize(600, 600));
     chart2->setLegend(Legend::Position::Right);
     chart2->setTitle("custom dash pattern");
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
         chart2->series(i)->setName(s);
     }
 
-    Chart *chart3 = xlsx.insertChart(12, 20, QSize(600, 600));
+    Chart *chart3 = xlsx.insertChart(13, 21, QSize(600, 600));
     chart3->setLegend(Legend::Position::Right);
     chart3->setTitle("Line ending");
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
         chart3->series(j+9)->line().setLineEndLength(static_cast<LineFormat::LineEndSize>(j));
     }
 
-    Chart *chart4 = xlsx.insertChart(44, 0, QSize(600, 300));
+    Chart *chart4 = xlsx.insertChart(45, 1, QSize(600, 300));
     chart4->setType(Chart::Type::Bar); //required
     chart4->addDefaultAxes(); //required
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
 
     //Chart 5 will have path gradient fill
-    Chart *chart5 = xlsx.insertChart(44, 10, QSize(300, 300));
+    Chart *chart5 = xlsx.insertChart(45, 11, QSize(300, 300));
     chart5->setType(Chart::Type::Bar); //required
     chart5->addDefaultAxes(); //required
 
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     //Chart 6 will use QGradient preset
-    Chart *chart6 = xlsx.insertChart(44, 20, QSize(300, 300));
+    Chart *chart6 = xlsx.insertChart(45, 21, QSize(300, 300));
     chart6->setType(Chart::Type::Bar); //required
     chart6->addDefaultAxes(); //required
 
