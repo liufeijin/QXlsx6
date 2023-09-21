@@ -104,7 +104,7 @@ private:
     Theme *theme();
     QList<QImage> images();
     QList<Drawing *> drawings();
-    QList<QSharedPointer<AbstractSheet> > getSheetsByTypes(AbstractSheet::Type type) const;
+    QList<QSharedPointer<AbstractSheet> > getSheetsByType(AbstractSheet::Type type) const;
     QStringList worksheetNames() const;
     AbstractSheet *addSheet(const QString &name, int sheetId, AbstractSheet::Type type);
 };

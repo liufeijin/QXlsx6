@@ -55,7 +55,8 @@ class WorksheetPrivate;
  *   #syncRef(), #setSyncRef() manage the anchor parameters of the sheet.
  * - #tabColor(), #setTabColor() manage the sheet's tab color.
  * - #showAutoPageBreaks(), #setShowAutoPageBreaks() manage the auto page breaks visibility.
- *
+ * - #thickBottom(), #setThickBottom(), #thickTop(), #setThickTop() manage default thickness of rows borders.
+ * - #rowsHiddenByDefault(), #setRowsHiddenByDefault() manage the default visibility of rows.
  *
  * # Sheet Views
  *
@@ -93,6 +94,25 @@ class WorksheetPrivate;
  *
  * # Sheet Printing Parameters
  *
+ *
+ * # Rows and columns
+ *
+ * Row heights are measured in points. The row height can be set separately for
+ * each row with #setRowHeight() or for all rows in the sheet with
+ * #setDefaultRowHeight(), and tested with #rowHeight().
+ * The default row height is 14.4 pt (24 px at 96 dpi).
+ *
+ * Column widths are measured in widths of the widest digit of the normal style's font.
+ * The column width can be set separately for each column with #setColumnWidth() or
+ * for all columns in the sheet with #setDefaultColumnWidth(), and tested with
+ * #columnWidth(). The default column width is 8 5/7 widths of the widest digit
+ * of the normal style's font (Calibri 11 pt).
+ *
+ * Rows and columns can be hidden with #setRowHidden(), #setColumnHidden(). Also if only
+ * some rows need to be visible, then #setRowsHiddenByDefault() can come in handy.
+ * Rows and columns visibility can be tested with #isRowHidden() and #isColumnHidden().
+ *
+ * # Data Manipulation
  *
  *
  */
@@ -522,6 +542,89 @@ public:
      */
     void setFitToPage(bool value);
 
+    // Sheet Format Parameters
+
+    /**
+     * @brief returns whether rows have thick bottom borders by default.
+     * @return true if rows have thick bottom borders by default.
+     *
+     * The default value is false.
+     */
+    bool thickBottomBorder() const;
+    /**
+     * @brief sets whether rows have thick bottom borders by default.
+     * @param thick if true, then rows will have thick bottom borders by default.
+     *
+     * The default value is false.
+     */
+    void setThickBottomBorder(bool thick);
+    /**
+     * @brief returns whether rows have thick top borders by default.
+     * @return true if rows have thick top borders by default.
+     *
+     * The default value is false.
+     */
+    bool thickTopBorder() const;
+    /**
+     * @brief sets whether rows have thick top borders by default.
+     * @param thick if true, then rows will have thick top borders by default.
+     *
+     * The default value is false.
+     */
+    void setThickTopBorder(bool thick);
+
+    /**
+     * @brief returns whether rows are hidden by default.
+     * @return true if all rows are hidden by default.
+     *
+     * The default value is false.
+     *
+     * This parameter is useful if it is much shorter to only write out the rows
+     * that are not hidden with #setRowHidden().
+     */
+    bool rowsHiddenByDefault() const;
+    /**
+     * @brief sets whether rows are hidden by default.
+     * @param hidden if true, then all rows are hidden by default.
+     *
+     * The default value is false.
+     *
+     * This parameter is useful if it is much shorter to only write out the rows
+     * that are not hidden with #setRowHidden().
+     */
+    void setRowsHiddenByDefault(bool hidden);
+    /**
+     * @brief returns the default row height set in the worksheet.
+     * @return the default row height in points.
+     *
+     * The default value is 14.4 (pt).
+     */
+    double defaultRowHeight() const;
+    /**
+     * @brief sets the default row height.
+     * @param height the default row height in points.
+     *
+     * The default value is 14.4 (pt).
+     *
+     * This parameter is useful if most of the rows in a sheet have the same
+     * height, but that height isn't the default height (14.4 pt)
+     */
+    void setDefaultRowHeight(double height);
+    /**
+     * @brief returns the default column width.
+     * @return the default column width in characters of the widest digit of the normal style's font.
+     *
+     * The default value is 8 5/7.
+     */
+    double defaultColumnWidth() const;
+    /**
+     * @brief sets the default column width.
+     * @param width value measured in characters of the widest digit of the normal style's font.
+     *
+     * The default value is 8 5/7.
+     */
+    void setDefaultColumnWidth(double width);
+
     // Sheet View parameters
 
     /**
@@ -685,7 +788,7 @@ public:
     void setPageOrder(PageSetup::PageOrder pageOrder);
 
 private:
-    QMap<int, int> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);
+    QMap<int, double> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);
     void saveToXmlFile(QIODevice *device) const override;
     bool loadFromXmlFile(QIODevice *device) override;
 };

@@ -345,7 +345,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     DocPropsCore docPropsCore(DocPropsCore::F_NewFromScratch);
 
     // save worksheet xml files
-    QList<QSharedPointer<AbstractSheet> > worksheets = workbook->getSheetsByTypes(AbstractSheet::Type::Worksheet);
+    QList<QSharedPointer<AbstractSheet> > worksheets = workbook->getSheetsByType(AbstractSheet::Type::Worksheet);
     if (!worksheets.isEmpty())
         docPropsApp.addHeadingPair(QStringLiteral("Worksheets"), worksheets.size());
 
@@ -363,7 +363,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     }
 
     //save chartsheet xml files
-    QList<QSharedPointer<AbstractSheet> > chartsheets = workbook->getSheetsByTypes(AbstractSheet::Type::Chartsheet);
+    QList<QSharedPointer<AbstractSheet> > chartsheets = workbook->getSheetsByType(AbstractSheet::Type::Chartsheet);
     if (!chartsheets.isEmpty())
         docPropsApp.addHeadingPair(QStringLiteral("Chartsheets"), chartsheets.size());
     for (int i=0; i<chartsheets.size(); ++i)

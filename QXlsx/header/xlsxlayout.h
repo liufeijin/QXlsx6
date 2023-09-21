@@ -19,7 +19,7 @@ class LayoutPrivate;
 /**
  * @brief The class is used to set the exact position of a chart element.
  */
-class Layout
+class QXLSX_EXPORT Layout
 {
 public:
     /**

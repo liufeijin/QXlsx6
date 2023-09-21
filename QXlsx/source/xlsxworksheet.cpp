@@ -83,9 +83,9 @@ bool WorksheetPrivate::addColumnToDimensions(int column)
   makes comparing files easier. The span is the same for each
   block of 16 rows.
  */
-void WorksheetPrivate::calculateSpans() const
+QMap<int, QString> WorksheetPrivate::calculateSpans() const
 {
-    rowSpans.clear();
+    QMap<int, QString> rowSpans;
     int span_min = XLSX_COLUMN_MAX+1;
     int span_max = -1;
 
@@ -131,6 +131,7 @@ void WorksheetPrivate::calculateSpans() const
             }
         }
     }
+    return rowSpans;
 }
 
 
@@ -1326,18 +1327,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement();//sheetViews
 
     //4. sheetFormatPr
-    writer.writeStartElement(QLatin1String("sheetFormatPr"));
-    writer.writeAttribute(QLatin1String("defaultRowHeight"), QString::number(d->defaultRowHeight));
-    if (d->defaultRowHeight != 14.4)
-        writer.writeAttribute(QLatin1String("customHeight"), QLatin1String("1"));
-    writeAttribute(writer, QLatin1String("zeroHeight"), d->defaultRowZeroed);
-    if (d->outlineRowLevel)
-        writer.writeAttribute(QLatin1String("outlineLevelRow"), QString::number(d->outlineRowLevel));
-    if (d->outlineColLevel)
-        writer.writeAttribute(QLatin1String("outlineLevelCol"), QString::number(d->outlineColLevel));
-    //for Excel 2010
-    //    writer.writeAttribute("x14ac:dyDescent", "0.25");
-    writer.writeEndElement();//sheetFormatPr
+    d->sheetFormatProperties.write(writer, QLatin1String("sheetFormatPr"));
 
     //5. cols
     if (!d->colsInfo.empty()) {
@@ -1454,7 +1444,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
 
 void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 {
-    calculateSpans();
+    QMap<int, QString> rowSpans = calculateSpans();
     for (int row = dimension.firstRow(); row <= dimension.lastRow(); row++) {
         auto ctIt = cellTable.constFind(row);
         auto riIt = rowsInfo.constFind(row);
@@ -1482,8 +1472,6 @@ void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
                 writeAttribute(writer, QLatin1String("customFormat"), true);
             }
 
-            //TODO: support customHeight from info struct
-            //TODO: where does this magic number '15' come from?
             if (rowInfo->height.has_value()) {
                 writeAttribute(writer, QLatin1String("ht"), rowInfo->height);
                 writeAttribute(writer, QLatin1String("customHeight"), true);
@@ -1810,9 +1798,9 @@ double Worksheet::columnWidth(int column) const
     Q_D(const Worksheet);
 
     if (d->colsInfo.contains(column))
-        return d->colsInfo.value(column).width.value_or(d->sheetFormatProps.defaultColWidth);
+        return d->colsInfo.value(column).width.value_or(d->sheetFormatProperties.defaultColumnWidth());
 
-    return d->sheetFormatProps.defaultColWidth;
+    return d->sheetFormatProperties.defaultColumnWidth();
 }
 
 Format Worksheet::columnFormat(int column) const
@@ -1893,8 +1881,8 @@ double Worksheet::rowHeight(int row) const
     Q_D(const Worksheet);
 
     if (d->rowsInfo.contains(row))
-        return d->rowsInfo.value(row)->height.value_or(d->sheetFormatProps.defaultRowHeight);
-    return d->sheetFormatProps.defaultRowHeight; //return default on invalid row
+        return d->rowsInfo.value(row)->height.value_or(d->sheetFormatProperties.defaultRowHeight);
+    return d->sheetFormatProperties.defaultRowHeight; //return default on invalid row
 }
 
 Format Worksheet::rowFormat(int row) const
@@ -1921,6 +1909,15 @@ bool Worksheet::groupRows(int rowFirst, int rowLast, bool collapsed)
     if (!d->addRowToDimensions(rowFirst)) return false;
     if (!d->addRowToDimensions(rowLast)) return false;
 
+    //calculate current max outline level
+    int maximumOutlineLevel = 0;
+    for (int i = rowFirst; i <= rowLast; ++i) {
+        if (d->rowsInfo.contains(i))
+            maximumOutlineLevel = std::max(d->rowsInfo.value(i)->outlineLevel.value_or(0),
+                                           maximumOutlineLevel);
+    }
+    if (maximumOutlineLevel >= 7) return false;
+
     for (int row=rowFirst; row<=rowLast; ++row) {
         auto it = d->rowsInfo.find(row);
         if (it != d->rowsInfo.end()) {
@@ -1939,6 +1936,7 @@ bool Worksheet::groupRows(int rowFirst, int rowLast, bool collapsed)
             it = d->rowsInfo.insert(rowLast+1, QSharedPointer<XlsxRowInfo>(new XlsxRowInfo));
         (*it)->collapsed = true;
     }
+    d->sheetFormatProperties.outlineLevelRow = maximumOutlineLevel+1;
     return true;
 }
 
@@ -1954,13 +1952,14 @@ bool Worksheet::groupColumns(int colFirst, int colLast, bool collapsed)
 {
     Q_D(Worksheet);
 
+    //calculate current max outline level
     int maximumOutlineLevel = 0;
     for (int i = colFirst; i <= colLast; ++i) {
         if (d->colsInfo.contains(i))
-            maximumOutlineLevel = std::max(d->colsInfo.value(i).outlineLevel.value_or(0)+1,
+            maximumOutlineLevel = std::max(d->colsInfo.value(i).outlineLevel.value_or(0),
                                            maximumOutlineLevel);
     }
-    if (maximumOutlineLevel > 7) return false;
+    if (maximumOutlineLevel >= 7) return false;
 
     if (!d->addColumnToDimensions(colFirst)) return false;
     if (!d->addColumnToDimensions(colLast)) return false;
@@ -1970,16 +1969,18 @@ bool Worksheet::groupColumns(int colFirst, int colLast, bool collapsed)
         val.outlineLevel = val.outlineLevel.value_or(0) + 1;
         if (collapsed) val.hidden = true;
         else {
-            if (!val.width.has_value()) val.width = d->sheetFormatProps.defaultColWidth;
+            //we need it for Excel to not hide grouped columns
+            if (!val.width.has_value()) val.width = d->sheetFormatProperties.defaultColumnWidth();
             if (!val.hidden.has_value()) val.hidden = false;
         }
     }
     if (collapsed) {
         auto &val = d->colsInfo[colLast+1];
         val.collapsed = true;
-        if (!val.width.has_value()) val.width = d->sheetFormatProps.defaultColWidth;
+        if (!val.width.has_value()) val.width = d->sheetFormatProperties.defaultColumnWidth();
         if (!val.hidden.has_value()) val.hidden = false;
     }
+    d->sheetFormatProperties.outlineLevelCol = maximumOutlineLevel+1;
     return true;
 }
 
@@ -2103,45 +2104,66 @@ void Worksheet::setFitToPage(bool value)
     d->sheetProperties.fitToPage = value;
 }
 
-/*
- Convert the height of a cell from user's units to pixels. If the
- height hasn't been set by the user we use the default value. If
- the row is hidden it has a value of zero.
-*/
-int WorksheetPrivate::rowPixelsSize(int row) const
+bool Worksheet::thickBottomBorder() const
 {
-    double height;
-    auto it = rowSizes.constFind(row);
-    if (it != rowSizes.constEnd())
-        height = it.value();
-    else
-        height = defaultRowHeight;
-    return static_cast<int>(4.0 / 3.0 *height);
+    Q_D(const Worksheet);
+    return d->sheetFormatProperties.thickBottom.value_or(false);
 }
 
-/*
- Convert the width of a cell from user's units to pixels. Excel rounds
- the column width to the nearest pixel. If the width hasn't been set
- by the user we use the default value. If the column is hidden it
- has a value of zero.
-*/
-int WorksheetPrivate::colPixelsSize(int col) const
+void Worksheet::setThickBottomBorder(bool thick)
 {
-    double max_digit_width = 7.0; //For Calibri 11
-    double padding = 5.0;
-    int pixels = 0;
+    Q_D(Worksheet);
+    d->sheetFormatProperties.thickBottom = thick;
+}
 
-    auto it = colSizes.constFind(col);
-    if (it != colSizes.constEnd()) {
-        double width = it.value();
-        if (width < 1)
-            pixels = static_cast<int>(width * (max_digit_width + padding) + 0.5);
-        else
-            pixels = static_cast<int>(width * max_digit_width + 0.5) + padding;
-    } else {
-        pixels = 64;
-    }
-    return pixels;
+bool Worksheet::thickTopBorder() const
+{
+    Q_D(const Worksheet);
+    return d->sheetFormatProperties.thickTop.value_or(false);
+}
+
+void Worksheet::setThickTopBorder(bool thick)
+{
+    Q_D(Worksheet);
+    d->sheetFormatProperties.thickTop = thick;
+}
+
+bool Worksheet::rowsHiddenByDefault() const
+{
+    Q_D(const Worksheet);
+    return d->sheetFormatProperties.zeroHeight.value_or(false);
+}
+
+void Worksheet::setRowsHiddenByDefault(bool hidden)
+{
+    Q_D(Worksheet);
+    d->sheetFormatProperties.zeroHeight = hidden;
+}
+
+double Worksheet::defaultRowHeight() const
+{
+    Q_D(const Worksheet);
+    return d->sheetFormatProperties.defaultRowHeight;
+}
+
+void Worksheet::setDefaultRowHeight(double height)
+{
+    Q_D(Worksheet);
+    d->sheetFormatProperties.defaultRowHeight = height;
+    if (d->sheetFormatProperties.defaultRowHeight != XLSX_DEFAULT_ROW_HEIGHT)
+        d->sheetFormatProperties.customHeight = true;
+}
+
+double Worksheet::defaultColumnWidth() const
+{
+    Q_D(const Worksheet);
+    return d->sheetFormatProperties.defaultColumnWidth();
+}
+
+void Worksheet::setDefaultColumnWidth(double width)
+{
+    Q_D(Worksheet);
+    d->sheetFormatProperties.defaultColWidth = width;
 }
 
 void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
@@ -2167,7 +2189,7 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
                 }
                 bool customHeight;
                 parseAttributeBool(a, QLatin1String("customHeight"), customHeight);
-                if (customHeight) info->height = defaultRowHeight;
+                if (customHeight) info->height = sheetFormatProperties.defaultRowHeight;
                 parseAttributeDouble(a, QLatin1String("ht"), info->height);
                 parseAttributeBool(a, QLatin1String("hidden"), info->hidden);
                 parseAttributeBool(a, QLatin1String("collapsed"), info->collapsed);
@@ -2296,7 +2318,7 @@ void WorksheetPrivate::loadXmlColumnsInfo(QXmlStreamReader &reader)
                 // default or has been manually set
                 bool customWidth = false;
                 parseAttributeBool(a, QLatin1String("customWidth"), customWidth);
-                if (customWidth) info.width = sheetFormatProps.defaultColWidth;
+                if (customWidth) info.width = sheetFormatProperties.defaultColumnWidth();
 
                 //Note, node may have "width" without "customWidth"
                 // [dev54]
@@ -2380,26 +2402,6 @@ void WorksheetPrivate::loadXmlSheetViews(QXmlStreamReader &reader)
     }
 }
 
-void WorksheetPrivate::loadXmlSheetFormatProps(QXmlStreamReader &reader)
-{
-    Q_ASSERT(reader.name() == QLatin1String("sheetFormatPr"));
-
-    const QXmlStreamAttributes a = reader.attributes();
-
-    parseAttributeInt(a, QLatin1String("baseColWidth"), sheetFormatProps.baseColWidth);
-    parseAttributeBool(a, QLatin1String("customHeight"), sheetFormatProps.customHeight);
-    if (a.hasAttribute(QLatin1String("defaultColWidth")))
-        parseAttributeDouble(a, QLatin1String("defaultColWidth"), sheetFormatProps.defaultColWidth);
-    else if (sheetFormatProps.baseColWidth != 8)
-        sheetFormatProps.defaultColWidth = calculateColWidth(sheetFormatProps.baseColWidth);
-    parseAttributeDouble(a, QLatin1String("defaultRowHeight"), sheetFormatProps.defaultRowHeight);
-    parseAttributeInt(a, QLatin1String("outlineLevelCol"), sheetFormatProps.outlineLevelCol);
-    parseAttributeInt(a, QLatin1String("outlineLevelRow"), sheetFormatProps.outlineLevelRow);
-    parseAttributeBool(a, QLatin1String("thickBottom"), sheetFormatProps.thickBottom);
-    parseAttributeBool(a, QLatin1String("thickTop"), sheetFormatProps.thickTop);
-    parseAttributeBool(a, QLatin1String("zeroHeight"), sheetFormatProps.zeroHeight);
-}
-
 double WorksheetPrivate::calculateColWidth(int characters)
 {
 //    Default column width measured as the number of characters of the maximum digit width
@@ -2461,7 +2463,7 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
             else if (reader.name() == QLatin1String("sheetViews"))
                 d->loadXmlSheetViews(reader);
             else if (reader.name() == QLatin1String("sheetFormatPr"))
-                d->loadXmlSheetFormatProps(reader);
+                d->sheetFormatProperties.read(reader);
             else if (reader.name() == QLatin1String("cols"))
                 d->loadXmlColumnsInfo(reader);
             else if (reader.name() == QLatin1String("sheetData"))
@@ -2583,20 +2585,20 @@ bool Worksheet::autosizeColumnWidths(const CellRange &range)
 
         for (auto it = columnWidths.constBegin(); it != columnWidths.constEnd(); ++it) {
             if (it.key() >= range.firstColumn() && it.key() <= range.lastColumn())
-                result |= setColumnWidth(it.key(), it.key(),it.value());
+                result |= setColumnWidth(it.key(), it.key(), it.value());
         }
     }
 
     return result;
 }
 
-QMap<int, int> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
+QMap<int, double> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
 {
     Q_D(const Worksheet);
 
-    const int defaultPixelSize = 11;    //Default font pixel size of excel?
+    const int defaultPtSize = 11;    //Calibri 11
 
-    QMap<int, int> colWidth;
+    QMap<int, double> colWidth;
 
     for (auto row = d->cellTable.constBegin(); row != d->cellTable.constEnd(); ++row) {
         int rowIndex = row.key();
@@ -2607,14 +2609,14 @@ QMap<int, int> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)
             std::shared_ptr<Cell> ptrCell = col.value(); // value
 
             int fs = ptrCell->format().fontSize();
-            if (fs <= 0) fs = defaultPixelSize;
+            if (fs <= 0) fs = defaultPtSize;
 
             QString str = read(rowIndex, colIndex).toString();
-            double w = str.length() * double(fs) / defaultPixelSize + 1; // width not perfect, but works reasonably well
+            double w = str.length() * double(fs) / defaultPtSize + 1; // width not perfect, but works reasonably well
 
             if (rowIndex >= firstRow && rowIndex <= lastRow) {
                 if (w > colWidth.value(colIndex))
-                    colWidth.insert(colIndex, int(w));
+                    colWidth.insert(colIndex, w);
             }
         }
     }
@@ -2713,6 +2715,65 @@ void SheetProperties::write(QXmlStreamWriter &writer, const QLatin1String &name)
         writeAttribute(writer, QLatin1String("fitToPage"), fitToPage);
     }
     writer.writeEndElement();
+}
+
+double SheetFormatProperties::defaultColumnWidth() const
+{
+    return defaultColWidth.value_or(double(baseColWidth) + 5.0/7.0);
+}
+
+bool SheetFormatProperties::isValid() const
+{
+    //baseColWidth was made non-optional, so we test it
+    if (baseColWidth != 8) return true;
+    if (customHeight.has_value()) return true; // = false;
+    if (defaultColWidth.has_value()) return true; // = 8.43f;
+    //sheetFormatPr is optional in worksheet, but defaultRowHeight is not,
+    //so we ignore it: if any other parameter is present, then we write sheetFormatPr.
+    //if (defaultRowHeight.has_value()) return true; // 14.4
+    if (outlineLevelCol.has_value()) return true; // = 0;
+    if (outlineLevelRow.has_value()) return true; // = 0;
+    if (thickBottom.has_value()) return true; // = false;
+    if (thickTop.has_value()) return true; //= false;
+    if (zeroHeight.has_value()) return true; // = false;
+
+    return false;
+}
+
+void SheetFormatProperties::read(QXmlStreamReader &reader)
+{
+    Q_ASSERT(reader.name() == QLatin1String("sheetFormatPr"));
+
+    const QXmlStreamAttributes a = reader.attributes();
+
+    parseAttributeInt(a, QLatin1String("baseColWidth"), baseColWidth);
+    parseAttributeBool(a, QLatin1String("customHeight"), customHeight);
+    if (a.hasAttribute(QLatin1String("defaultColWidth")))
+        parseAttributeDouble(a, QLatin1String("defaultColWidth"), defaultColWidth);
+    else if (baseColWidth != 8)
+        defaultColWidth = double(baseColWidth) + 5.0/7.0;
+    parseAttributeDouble(a, QLatin1String("defaultRowHeight"), defaultRowHeight);
+    parseAttributeInt(a, QLatin1String("outlineLevelCol"), outlineLevelCol);
+    parseAttributeInt(a, QLatin1String("outlineLevelRow"), outlineLevelRow);
+    parseAttributeBool(a, QLatin1String("thickBottom"), thickBottom);
+    parseAttributeBool(a, QLatin1String("thickTop"), thickTop);
+    parseAttributeBool(a, QLatin1String("zeroHeight"), zeroHeight);
+}
+
+void SheetFormatProperties::write(QXmlStreamWriter &writer, const QLatin1String &name) const
+{
+    if (!isValid()) return;
+
+    writer.writeEmptyElement(name);
+    writeAttribute(writer, QLatin1String("baseColWidth"), baseColWidth);
+    writeAttribute(writer, QLatin1String("defaultColWidth"), defaultColWidth);
+    writeAttribute(writer, QLatin1String("defaultRowHeight"), defaultRowHeight);
+    writeAttribute(writer, QLatin1String("customHeight"), customHeight);
+    writeAttribute(writer, QLatin1String("zeroHeight"), zeroHeight);
+    writeAttribute(writer, QLatin1String("thickTop"), thickTop);
+    writeAttribute(writer, QLatin1String("thickBottom"), thickBottom);
+    writeAttribute(writer, QLatin1String("outlineLevelRow"), outlineLevelRow);
+    writeAttribute(writer, QLatin1String("outlineLevelCol"), outlineLevelCol);
 }
 
 }

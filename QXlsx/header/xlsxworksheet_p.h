@@ -27,6 +27,7 @@ namespace QXlsx {
 const int XLSX_ROW_MAX = 1048576;
 const int XLSX_COLUMN_MAX = 16384;
 const int XLSX_STRING_MAX = 32767;
+constexpr const double XLSX_DEFAULT_ROW_HEIGHT = 14.4;
 
 class SharedStrings;
 
@@ -53,17 +54,22 @@ struct XlsxHyperlinkData
 };
 
 // ECMA-376 Part1 18.3.1.81
-struct XlsxSheetFormatProps
+struct SheetFormatProperties
 {
-    int baseColWidth = 8;
-    bool customHeight = false;
-    double defaultColWidth = 8.43f;
-    double defaultRowHeight = 15;
-    int outlineLevelCol = 0;
-    int outlineLevelRow = 0;
-    bool thickBottom = false;
-    bool thickTop = false;
-    bool zeroHeight = false;
+    int baseColWidth = 8; //we make it non-optional to have some base value we can use elsewhere.
+    std::optional<bool> customHeight; // = false;
+    std::optional<double> defaultColWidth; // = 8.43f;
+    double defaultRowHeight = 15; //or 14.4, required according to ECMA376
+    std::optional<int> outlineLevelCol; // = 0;
+    std::optional<int> outlineLevelRow; // = 0;
+    std::optional<bool> thickBottom; // = false;
+    std::optional<bool> thickTop; //= false;
+    std::optional<bool> zeroHeight; // = false;
+    //returns calculated default column width
+    double defaultColumnWidth() const;
+    bool isValid() const;
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
 };
 
 struct SheetProperties
@@ -146,7 +152,7 @@ public:
     bool addColumnToDimensions(int column);
     Format cellFormat(int row, int col) const;
     QString generateDimensionString() const;
-    void calculateSpans() const;
+    QMap<int, QString> calculateSpans() const;
     void validateDimension();
 
     void saveXmlSheetData(QXmlStreamWriter &writer) const;
@@ -156,14 +162,10 @@ public:
     void saveXmlDrawings(QXmlStreamWriter &writer) const;
     void saveXmlDataValidations(QXmlStreamWriter &writer) const;
 
-    int rowPixelsSize(int row) const;
-    int colPixelsSize(int col) const;
-
     void loadXmlSheetData(QXmlStreamReader &reader);
     void loadXmlColumnsInfo(QXmlStreamReader &reader);
     void loadXmlMergeCells(QXmlStreamReader &reader);
     void loadXmlDataValidations(QXmlStreamReader &reader);
-    void loadXmlSheetFormatProps(QXmlStreamReader &reader);
     void loadXmlSheetViews(QXmlStreamReader &reader);
     void loadXmlHyperlinks(QXmlStreamReader &reader);
     void loadXmlCell(QXmlStreamReader &reader);
@@ -188,23 +190,11 @@ public:
     QMap<int, CellFormula> sharedFormulaMap; // shared formula map
 
     CellRange dimension;
-//    int previous_row = 0;
 
-    mutable QMap<int, QString> rowSpans;
-    QMap<int, double> rowSizes;
-    QMap<int, double> colSizes;
-
-    int outlineRowLevel = 0;
-    int outlineColLevel = 0;
-
-    double defaultRowHeight = 14.4;
-    bool defaultRowZeroed = false;
-
-    XlsxSheetFormatProps sheetFormatProps;
+    SheetFormatProperties sheetFormatProperties;
     SheetProperties sheetProperties;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
-
 private:
 
     static double calculateColWidth(int characters);

@@ -407,7 +407,7 @@ QList<Drawing *> Workbook::drawings()
 /*!
  * \internal
  */
-QList<QSharedPointer<AbstractSheet> > Workbook::getSheetsByTypes(AbstractSheet::Type type) const
+QList<QSharedPointer<AbstractSheet> > Workbook::getSheetsByType(AbstractSheet::Type type) const
 {
     Q_D(const Workbook);
     QList<QSharedPointer<AbstractSheet> > list;
@@ -534,9 +534,8 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
     while (!reader.atEnd()) {
          QXmlStreamReader::TokenType token = reader.readNext();
          if (token == QXmlStreamReader::StartElement) {
+             QXmlStreamAttributes attributes = reader.attributes();
              if (reader.name() == QLatin1String("sheet")) {
-                 QXmlStreamAttributes attributes = reader.attributes();
-
                  const auto& name = attributes.value(QLatin1String("name")).toString();
 
                  int sheetId = attributes.value(QLatin1String("sheetId")).toInt();
@@ -555,25 +554,15 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                  auto type = AbstractSheet::Type::Worksheet;
                  if (relationship.type.endsWith(QLatin1String("/worksheet")))
-                 {
                      type = AbstractSheet::Type::Worksheet;
-                 }
                  else if (relationship.type.endsWith(QLatin1String("/chartsheet")))
-                 {
                      type = AbstractSheet::Type::Chartsheet;
-                 }
                  else if (relationship.type.endsWith(QLatin1String("/dialogsheet")))
-                 {
                      type = AbstractSheet::Type::Dialogsheet;
-                 }
                  else if (relationship.type.endsWith(QLatin1String("/xlMacrosheet")))
-                 {
                      type = AbstractSheet::Type::Macrosheet;
-                 }
                  else
-                 {
                      qWarning() << "unknown sheet type : " << relationship.type ;
-                 }
 
                  AbstractSheet *sheet = addSheet(name, sheetId, type);
                  sheet->setVisibility(state);
@@ -585,14 +574,12 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                  sheet->setFilePath(fullPath);
              }
-             else if (reader.name() == QLatin1String("workbookPr"))
-             {
-                QXmlStreamAttributes attrs = reader.attributes();
-                if (attrs.hasAttribute(QLatin1String("date1904")))
+             else if (reader.name() == QLatin1String("workbookPr")) {
+                 //TODO: workbookPr
+                if (attributes.hasAttribute(QLatin1String("date1904")))
                     d->date1904 = true;
              }
-             else if (reader.name() == QLatin1String("bookviews"))
-             {
+             else if (reader.name() == QLatin1String("bookviews")) {
                 while (!(reader.name() == QLatin1String("bookviews") &&
                          reader.tokenType() == QXmlStreamReader::EndElement))
                 {
@@ -618,9 +605,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                     }
                 }
              }
-             else if (reader.name() == QLatin1String("externalReference"))
-             {
-                 QXmlStreamAttributes attributes = reader.attributes();
+             else if (reader.name() == QLatin1String("externalReference")) {
                  const QString rId = attributes.value(QLatin1String("r:id")).toString();
                  XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
@@ -631,15 +616,15 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                  link->setFilePath(fullPath);
                  d->externalLinks.append(link);
-             } else if (reader.name() == QLatin1String("definedName")) {
-                 QXmlStreamAttributes attrs = reader.attributes();
+             }
+             else if (reader.name() == QLatin1String("definedName")) {
                  XlsxDefineNameData data;
 
-                 data.name = attrs.value(QLatin1String("name")).toString();
-                 if (attrs.hasAttribute(QLatin1String("comment")))
-                     data.comment = attrs.value(QLatin1String("comment")).toString();
-                 if (attrs.hasAttribute(QLatin1String("localSheetId"))) {
-                     int localId = attrs.value(QLatin1String("localSheetId")).toInt();
+                 data.name = attributes.value(QLatin1String("name")).toString();
+                 if (attributes.hasAttribute(QLatin1String("comment")))
+                     data.comment = attributes.value(QLatin1String("comment")).toString();
+                 if (attributes.hasAttribute(QLatin1String("localSheetId"))) {
+                     int localId = attributes.value(QLatin1String("localSheetId")).toInt();
                      int sheetId = d->sheets.at(localId)->id();
                      data.sheetId = sheetId;
                  }
