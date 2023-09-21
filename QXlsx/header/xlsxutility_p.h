@@ -72,11 +72,15 @@ void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std:
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, bool val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, int val);
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, double val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, QString val);
 
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val);
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val);
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, int val);
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, double val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, bool val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, const QString &val);
 void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val);

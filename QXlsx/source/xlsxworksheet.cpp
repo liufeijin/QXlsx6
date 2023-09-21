@@ -2762,10 +2762,10 @@ void SheetFormatProperties::read(QXmlStreamReader &reader)
 
 void SheetFormatProperties::write(QXmlStreamWriter &writer, const QLatin1String &name) const
 {
-    if (!isValid()) return;
+//    if (!isValid()) return;
 
     writer.writeEmptyElement(name);
-    writeAttribute(writer, QLatin1String("baseColWidth"), baseColWidth);
+    if (baseColWidth != 8) writeAttribute(writer, QLatin1String("baseColWidth"), baseColWidth);
     writeAttribute(writer, QLatin1String("defaultColWidth"), defaultColWidth);
     writeAttribute(writer, QLatin1String("defaultRowHeight"), defaultRowHeight);
     writeAttribute(writer, QLatin1String("customHeight"), customHeight);

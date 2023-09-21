@@ -409,6 +409,12 @@ void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, int 
     writer.writeAttribute(QLatin1String("val"), QString::number(val));
 }
 
+void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, double val)
+{
+    writer.writeEmptyElement(name);
+    writer.writeAttribute(QLatin1String("val"), QString::number(val));
+}
+
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val)
 {
     if (val.has_value()) {
@@ -477,6 +483,21 @@ void writeAttributePercent(QXmlStreamWriter &writer, const QLatin1String &name, 
         s.append('%');
     }
     writer.writeAttribute(name, s);
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, int val)
+{
+    writer.writeAttribute(name, QString::number(val));
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, double val)
+{
+    writer.writeAttribute(name, QString::number(val));
+}
+
+void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val)
+{
+    if (val.has_value()) writeAttribute(writer, name, val.value());
 }
 
 }
