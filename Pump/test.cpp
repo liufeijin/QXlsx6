@@ -38,34 +38,22 @@ int test( QVector<QVariant> params )
         return (-1);
     }
 
-    while (!fileNames.atEnd())
-    {
-        QByteArray line = fileNames.readLine();
+    while (!fileNames.atEnd()) {
+        QString line = fileNames.readLine().simplified();
 
-        QString strArg(line);
-        QString strArg2 = strArg.simplified();
-        QString strArg3 = strArg2.trimmed();
-
-        QString currentFilename = QString(":/xlsx_files/%1").arg(strArg3);
+        QString currentFilename = QString(":/xlsx_files/%1").arg(line);
 
         {
             using namespace QXlsx;
             Document output2(currentFilename);
-            if ( output2.isLoaded() )
-            {
-                if ( output2.saveAs( strArg3 ) )
-                {
-                    qDebug() << "[debug] xlsx is saved. " << strArg3;
-                }
+            if (output2.isLoaded()) {
+                if (output2.saveAs(line))
+                    qDebug() << "[debug] xlsx is saved. " << line;
                 else
-                {
-                    qCritical() << "[debug] failed to save. " << strArg3;
-                }
+                    qCritical() << "[debug] failed to save. " << line;
             }
             else
-            {
-                qCritical() << "[debug] failed to load. " << strArg3;
-            }
+                qCritical() << "[debug] failed to load. " << line;
         }
     }
 

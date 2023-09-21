@@ -49,10 +49,10 @@ namespace QXlsx {
         Labels labels;
 
         //+line, +line3d, +stock, +area, +area3d,
-        ShapeFormat dropLines;
+        std::optional<ShapeFormat> dropLines; //drop lines can be default
 
         //+line, +stock,
-        ShapeFormat hiLowLines;
+        std::optional<ShapeFormat> hiLowLines; //can be default
 
         //+line, +stock
         UpDownBar upDownBars; //optional
@@ -127,6 +127,7 @@ namespace QXlsx {
         void loadStockChart(QXmlStreamReader &reader);
         void loadRadarChart(QXmlStreamReader &reader);
         void readBandFormats(QXmlStreamReader &reader);
+        void readDropLines(QXmlStreamReader &reader, ShapeFormat &shape);
 
         void saveAreaChart(QXmlStreamWriter &writer) const;
         void saveSurfaceChart(QXmlStreamWriter &writer) const;
@@ -1019,7 +1020,10 @@ bool Chart::loadFromXmlFile(QIODevice *device)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             const auto &a = reader.attributes();
-            if (reader.name() == QLatin1String("chart")) {
+            if (reader.name() == QLatin1String("chartSpace")) {
+                //dive into
+            }
+            else if (reader.name() == QLatin1String("chart")) {
                 if (!d->loadXmlChart(reader))
                     return false;
             }
@@ -1037,12 +1041,15 @@ bool Chart::loadFromXmlFile(QIODevice *device)
             }
             else if (reader.name() == QLatin1String("clrMapOvr")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("pivotSource")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("protection")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("spPr"))
                 d->chartSpaceShape.read(reader);
@@ -1050,15 +1057,20 @@ bool Chart::loadFromXmlFile(QIODevice *device)
                 d->textProperties.read(reader);
             else if (reader.name() == QLatin1String("externalData")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("printSettings")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("userShapes")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("extLst"))
                 d->chartSpaceExtList.read(reader);
+            else
+                reader.skipCurrentElement();
         }
     }
 
@@ -1087,18 +1099,23 @@ bool ChartPrivate::loadXmlChart(QXmlStreamReader &reader)
                 parseAttributeBool(a, QLatin1String("val"), autoTitleDeleted);
             else if (reader.name() == QLatin1String("pivotFmts")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("view3D")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("floor")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("sideWall")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("backWall")) {
                 //TODO
+                reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("legend")) {
                 legend.read(reader);
@@ -1211,8 +1228,9 @@ void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("dLbls"))
         labels.read(reader);
     else if (reader.name() == QLatin1String("dropLines")) {
-        reader.readNextStartElement();
-        dropLines.read(reader);
+        ShapeFormat f;
+        readDropLines(reader, f);
+        dropLines = f;
     }
     else if (reader.name() == QLatin1String("axId"))
         axesIds << a.value(QLatin1String("val")).toInt();
@@ -1328,12 +1346,14 @@ void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
     else if (reader.name() == QLatin1String("dLbls"))
         labels.read(reader);
     else if (reader.name() == QLatin1String("dropLines")) {
-        reader.readNextStartElement();
-        dropLines.read(reader);
+        ShapeFormat f;
+        readDropLines(reader, f);
+        dropLines = f;
     }
     else if (reader.name() == QLatin1String("hiLowLines")) {
-        reader.readNextStartElement();
-        hiLowLines.read(reader);
+        ShapeFormat f;
+        readDropLines(reader, f);
+        hiLowLines = f;
     }
     else if (reader.name() == QLatin1String("upDownBars"))
         upDownBars.read(reader);
@@ -1419,11 +1439,15 @@ void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
         seriesList << ser;
     }
     else if (reader.name() == QLatin1String("dropLines")) {
-        reader.readNextStartElement();
-        dropLines.read(reader);
+        ShapeFormat f;
+        readDropLines(reader, f);
+        dropLines = f;
     }
-    else if (reader.name() == QLatin1String("hiLowLines"))
-        hiLowLines.read(reader);
+    else if (reader.name() == QLatin1String("hiLowLines")) {
+        ShapeFormat f;
+        readDropLines(reader, f);
+        hiLowLines = f;
+    }
     else if (reader.name() == QLatin1String("dLbls"))
         labels.read(reader);
     else if (reader.name() == QLatin1String("upDownBars"))
@@ -1531,6 +1555,21 @@ void CT_XXXChart::readBandFormats(QXmlStreamReader &reader)
     }
 }
 
+void CT_XXXChart::readDropLines(QXmlStreamReader &reader, ShapeFormat &shape)
+{
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("spPr"))
+                shape.read(reader);
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
 void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Area3D ? QLatin1String("c:area3DChart") : QLatin1String("c:areaChart"));
@@ -1541,10 +1580,13 @@ void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
-    if (dropLines.isValid()) {
-        writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("c:spPr"));
-        writer.writeEndElement();
+    if (dropLines.has_value()) {
+        if (dropLines->isValid()) {
+            writer.writeStartElement(QLatin1String("c:dropLines"));
+            dropLines->write(writer, QLatin1String("c:spPr"));
+            writer.writeEndElement();
+        }
+        else writer.writeEmptyElement(QLatin1String("c:dropLines"));
     }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
     if (gapDepth.has_value() && type == Chart::Type::Area3D)
@@ -1646,16 +1688,22 @@ void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
-    if (dropLines.isValid()) {
-        writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("c:spPr"));
-        writer.writeEndElement();
+    if (dropLines.has_value()) {
+        if (dropLines->isValid()) {
+            writer.writeStartElement(QLatin1String("c:dropLines"));
+            dropLines->write(writer, QLatin1String("c:spPr"));
+            writer.writeEndElement();
+        }
+        else writer.writeEmptyElement(QLatin1String("c:dropLines"));
     }
     if (type == Chart::Type::Line) {
-        if (hiLowLines.isValid()) {
-            writer.writeStartElement(QLatin1String("c:hiLowLines"));
-            hiLowLines.write(writer, QLatin1String("c:spPr"));
-            writer.writeEndElement();
+        if (hiLowLines.has_value()) {
+            if (hiLowLines->isValid()) {
+                writer.writeStartElement(QLatin1String("c:hiLowLines"));
+                hiLowLines->write(writer, QLatin1String("c:spPr"));
+                writer.writeEndElement();
+            }
+            else writer.writeEmptyElement(QLatin1String("c:hiLowLines"));
         }
         if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
         writeEmptyElement(writer, QLatin1String("c:marker"), marker);
@@ -1733,15 +1781,21 @@ void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
 
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
-    if (dropLines.isValid()) {
-        writer.writeStartElement(QLatin1String("c:dropLines"));
-        dropLines.write(writer, QLatin1String("c:spPr"));
-        writer.writeEndElement();
+    if (dropLines.has_value()) {
+        if (dropLines->isValid()) {
+            writer.writeStartElement(QLatin1String("c:dropLines"));
+            dropLines->write(writer, QLatin1String("c:spPr"));
+            writer.writeEndElement();
+        }
+        else writer.writeEmptyElement(QLatin1String("c:dropLines"));
     }
-    if (hiLowLines.isValid()) {
-        writer.writeStartElement(QLatin1String("c:hiLowLines"));
-        hiLowLines.write(writer, QLatin1String("c:spPr"));
-        writer.writeEndElement();
+    if (hiLowLines.has_value()) {
+        if (hiLowLines->isValid()) {
+            writer.writeStartElement(QLatin1String("c:hiLowLines"));
+            hiLowLines->write(writer, QLatin1String("c:spPr"));
+            writer.writeEndElement();
+        }
+        else writer.writeEmptyElement(QLatin1String("c:hiLowLines"));
     }
     if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
@@ -2043,7 +2097,7 @@ ShapeFormat Chart::dropLines() const
     Q_D(const Chart);
 
     if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().dropLines;
+    return d->subcharts.last().dropLines.value_or(ShapeFormat());
 }
 
 ShapeFormat &Chart::dropLines()
@@ -2051,7 +2105,9 @@ ShapeFormat &Chart::dropLines()
     Q_D(Chart);
 
     if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    return d->subcharts.last().dropLines;
+    if (!d->subcharts.last().dropLines.has_value())
+        d->subcharts.last().dropLines = ShapeFormat();
+    return d->subcharts.last().dropLines.value();
 }
 
 void Chart::setDropLines(const ShapeFormat &dropLines)
@@ -2062,12 +2118,20 @@ void Chart::setDropLines(const ShapeFormat &dropLines)
     d->subcharts.last().dropLines = dropLines;
 }
 
+void  Chart::removeDropLines()
+{
+    Q_D(Chart);
+
+    if (d->subcharts.isEmpty()) return;
+    d->subcharts.last().dropLines.reset();
+}
+
 ShapeFormat Chart::hiLowLines() const
 {
     Q_D(const Chart);
 
     if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().hiLowLines;
+    return d->subcharts.last().hiLowLines.value_or(ShapeFormat());
 }
 
 ShapeFormat &Chart::hiLowLines()
@@ -2075,7 +2139,9 @@ ShapeFormat &Chart::hiLowLines()
     Q_D(Chart);
 
     if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    return d->subcharts.last().hiLowLines;
+    if (!d->subcharts.last().hiLowLines.has_value())
+        d->subcharts.last().hiLowLines = ShapeFormat();
+    return d->subcharts.last().hiLowLines.value();
 }
 
 void Chart::setHiLowLines(const ShapeFormat &hiLowLines)
@@ -2084,6 +2150,12 @@ void Chart::setHiLowLines(const ShapeFormat &hiLowLines)
 
     if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
     d->subcharts.last().hiLowLines = hiLowLines;
+}
+
+void Chart::removeHiLowLines()
+{
+    Q_D(Chart);
+    if (!d->subcharts.isEmpty()) d->subcharts.last().hiLowLines.reset();
 }
 
 UpDownBar Chart::upDownBars() const
@@ -2590,8 +2662,8 @@ void Chart::loadMediaFiles(Workbook *workbook)
     if (d->plotAreaShape.isValid())
         fills << d->plotAreaShape.fills();
     for (auto &sub: d->subcharts) {
-        if (sub.dropLines.isValid()) fills << sub.dropLines.fills();
-        if (sub.hiLowLines.isValid()) fills << sub.hiLowLines.fills();
+        if (sub.dropLines.has_value() && sub.dropLines->isValid()) fills << sub.dropLines->fills();
+        if (sub.hiLowLines.has_value() && sub.hiLowLines->isValid()) fills << sub.hiLowLines->fills();
         if (sub.upDownBars.isValid()) {
             if (sub.upDownBars.upBar.isValid()) fills << sub.upDownBars.upBar.fills();
             if (sub.upDownBars.downBar.isValid()) fills << sub.upDownBars.downBar.fills();
@@ -2634,8 +2706,8 @@ void Chart::saveMediaFiles(Workbook *workbook)
     if (d->plotAreaShape.isValid())
         fills << d->plotAreaShape.fills();
     for (auto &sub: d->subcharts) {
-        if (sub.dropLines.isValid()) fills << sub.dropLines.fills();
-        if (sub.hiLowLines.isValid()) fills << sub.hiLowLines.fills();
+        if (sub.dropLines.has_value() && sub.dropLines->isValid()) fills << sub.dropLines->fills();
+        if (sub.hiLowLines.has_value() && sub.hiLowLines->isValid()) fills << sub.hiLowLines->fills();
         if (sub.upDownBars.isValid()) {
             if (sub.upDownBars.upBar.isValid()) fills << sub.upDownBars.upBar.fills();
             if (sub.upDownBars.downBar.isValid()) fills << sub.upDownBars.downBar.fills();

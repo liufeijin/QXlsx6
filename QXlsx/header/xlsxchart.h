@@ -851,9 +851,16 @@ public:
      *
      * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
      *
-     * @param dropLines
+     * @param dropLines If not valid, sets default drop lines.
+     * @note To remove drop lines use #removeDropLines().
      */
     void setDropLines(const ShapeFormat &dropLines);
+    /**
+     * @brief removes the chart drop lines.
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
+     */
+    void removeDropLines();
 
     /**
      * @brief returns the chart high-low lines.
@@ -874,11 +881,13 @@ public:
     /**
      * @brief sets the chart high-low lines.
      *
-     * Applicable to chart types: Line, Stock
+     * Applicable to chart types: Line, Stock.
      *
-     * @param hiLowLines
+     * @param hiLowLines If not valid, sets default hi-low lines.
+     * @note to remove hi-low lines use #removeHiLowLines().
      */
     void setHiLowLines(const ShapeFormat &hiLowLines);
+    void removeHiLowLines();
 
     /**
      * @brief returns the chart up-dow lines.
