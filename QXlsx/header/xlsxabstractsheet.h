@@ -559,7 +559,7 @@ private:
  * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
  * when saving the document.
  */
-class SheetProtection
+class QXLSX_EXPORT SheetProtection
 {
 public:
     /**
@@ -812,6 +812,14 @@ public:
      * @return
      */
     QString name() const;
+
+    /**
+     * @brief tries to rename the sheet
+     * @param newName
+     * @return
+     */
+    bool rename(const QString &newName);
+
     /**
      * @brief returns the sheet's type.
      * @return

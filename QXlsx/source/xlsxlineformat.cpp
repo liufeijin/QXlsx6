@@ -254,28 +254,18 @@ LineFormat::LineFormat(const QPen &pen)
     d->parse(pen);
 }
 
-/*!
-   Creates a new format with the same attributes as the \a other format.
- */
 LineFormat::LineFormat(const LineFormat &other)
     :d(other.d)
 {
 
 }
 
-/*!
-   Assigns the \a other format to this format, and returns a
-   reference to this format.
- */
 LineFormat &LineFormat::operator =(const LineFormat &other)
 {
     if (*this != other) d = other.d;
     return *this;
 }
 
-/*!
- * Destroys this format.
- */
 LineFormat::~LineFormat()
 {
 }

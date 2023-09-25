@@ -12,7 +12,6 @@ QXLSX_USE_NAMESPACE
 
 int chart()
 {
-    //![0]
     Document xlsx;
     for (int i=1; i<10; ++i)
     {
@@ -20,14 +19,12 @@ int chart()
         xlsx.write(i, 2, i*i); //B1:B9
         xlsx.write(i, 3, i*i-1); //C1:C9
     }
-    //![0]
 
-    //![1]
-   Chart *pieChart = xlsx.insertChart(3, 3, QSize(300, 300));
-   pieChart->setType(Chart::Type::Pie);
-   pieChart->addSeries(CellRange("A1:A9"));
-   pieChart->addSeries(CellRange("B1:B9"));
-   pieChart->addSeries(CellRange("C1:C9"));
+    Chart *pieChart = xlsx.insertChart(3, 3, QSize(300, 300));
+    pieChart->setType(Chart::Type::Pie);
+    pieChart->addSeries(CellRange("A1:A9"));
+    pieChart->addSeries(CellRange("B1:B9"));
+    pieChart->addSeries(CellRange("C1:C9"));
 
     Chart *pie3DChart = xlsx.insertChart(3, 9, QSize(300, 300));
     pie3DChart->setType(Chart::Type::Pie3D);

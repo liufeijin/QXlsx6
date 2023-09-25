@@ -495,6 +495,18 @@ void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
     d->pageSetup.pageOrder = pageOrder;
 }
 
+AutoFilter &Worksheet::autofilter()
+{
+    Q_D(Worksheet);
+    return d->autofilter;
+}
+
+void Worksheet::clearAutofilter()
+{
+    Q_D(Worksheet);
+    d->autofilter = {};
+}
+
 bool Worksheet::write(int row, int column, const QVariant &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -1311,7 +1323,9 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //    writer.writeAttribute("mc:Ignorable", "x14ac");
 
     //1. sheetPr - CT_SheetPr
-    if (d->sheetProperties.isValid()) d->sheetProperties.write(writer, QLatin1String("sheetPr"));
+    auto sp = d->sheetProperties;
+    if (d->autofilter.isValid()) sp.filterMode = true;
+    if (sp.isValid()) sp.write(writer, QLatin1String("sheetPr"));
 
     //2. dimension
     writer.writeStartElement(QLatin1String("dimension"));
@@ -1368,6 +1382,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //10. scenarios
 
     //11. autoFilter
+    if (d->autofilter.isValid()) d->autofilter.write(writer, QLatin1String("autoFilter"));
 
     //12. sortState
 
@@ -2490,6 +2505,8 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->pageMargins.read(reader);
             else if(reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
+            else if (reader.name() == QLatin1String("autoFilter"))
+                d->autofilter.read(reader);
             else if (reader.name() == QLatin1String("drawing")) {
                 QString rId = a.value(QLatin1String("r:id")).toString();
                 QString name = d->relationships->getRelationshipById(rId).target;

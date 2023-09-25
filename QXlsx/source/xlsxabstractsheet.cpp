@@ -42,6 +42,13 @@ QString AbstractSheet::name() const
     return d->name;
 }
 
+bool AbstractSheet::rename(const QString &newName)
+{
+    if (name() == newName)
+        return false;
+    return workbook()->renameSheet(name(), newName);
+}
+
 /*!
  * \internal
  */

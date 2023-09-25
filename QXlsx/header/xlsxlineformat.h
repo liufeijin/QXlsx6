@@ -308,11 +308,15 @@ public:
     });
 private:
     void readDashPattern(QXmlStreamReader &reader);
+#ifndef QT_NO_DEBUG_STREAM
     friend QDebug operator<<(QDebug, const LineFormat &f);
+#endif
     QSharedDataPointer<LineFormatPrivate> d;
 };
 
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const LineFormat &f);
+#endif
 
 }
 

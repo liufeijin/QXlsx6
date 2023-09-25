@@ -18,6 +18,7 @@
 #include "xlsxdatavalidation.h"
 #include "xlsxconditionalformatting.h"
 #include "xlsxcellformula.h"
+#include "xlsxautofilter.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -193,6 +194,7 @@ public:
 
     SheetFormatProperties sheetFormatProperties;
     SheetProperties sheetProperties;
+    AutoFilter autofilter;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
 private:

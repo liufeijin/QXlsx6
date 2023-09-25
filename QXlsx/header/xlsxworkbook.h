@@ -42,6 +42,7 @@ public:
     AbstractSheet *addSheet(const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
     AbstractSheet *insertSheet(int index, const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
     bool renameSheet(int index, const QString &name);
+    bool renameSheet(const QString &oldName, const QString &newName);
     bool deleteSheet(int index);
     bool copySheet(int index, const QString &newName=QString());
     bool moveSheet(int srcIndex, int distIndex);

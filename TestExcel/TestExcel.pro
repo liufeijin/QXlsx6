@@ -34,6 +34,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # source code
 
 SOURCES += \
+    autofilter.cpp \
     barchart.cpp \
 calendar.cpp \
 chart.cpp \

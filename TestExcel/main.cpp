@@ -31,6 +31,7 @@ extern int worksheetoperations();
 extern int readStyle();
 extern int pages();
 extern int readextlist();
+extern int autofilter();
 
 int main(int argc, char *argv[])
 {
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
     worksheetoperations();
     pages();
     readextlist();
+    autofilter();
     
     qDebug() << "**** end of main() ****";
 

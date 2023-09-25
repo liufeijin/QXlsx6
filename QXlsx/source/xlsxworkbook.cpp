@@ -282,6 +282,15 @@ bool Workbook::renameSheet(int index, const QString &newName)
     return true;
 }
 
+bool Workbook::renameSheet(const QString &oldName, const QString &newName)
+{
+    Q_D(Workbook);
+
+    if (oldName == newName) return false;
+    int index = d->sheetNames.indexOf(oldName);
+    return renameSheet(index, newName);
+}
+
 /*!
  * Remove the worksheet at pos \a index.
  */

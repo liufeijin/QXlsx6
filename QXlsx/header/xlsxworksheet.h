@@ -20,6 +20,7 @@
 #include "xlsxcellrange.h"
 #include "xlsxcellreference.h"
 #include "xlsxsheetview.h"
+#include "xlsxautofilter.h"
 
 class WorksheetTest;
 
@@ -786,6 +787,12 @@ public:
      * @param pageOrder
      */
     void setPageOrder(PageSetup::PageOrder pageOrder);
+
+
+    // Autofilter parameters
+
+    AutoFilter &autofilter();
+    void clearAutofilter();
 
 private:
     QMap<int, double> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);
