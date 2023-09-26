@@ -10,6 +10,37 @@
 
 # What is yet to be done:
 
+## Charts
+
+1. Add printSettings
+2. Add user shapes
+3. Add externalData
+4. Add protection
+5. Add pivotSource
+6. Add clrMapOvr
+7. Add pivotFmts
+8. Add view3D
+9. Add floor and walls
+
+### Shapes
+
+1. Add custom geometry shapes.
+2. Add Effects DAG support.
+3. Add methods to add effects directly to shapes.
+4. add methods to create a shape with line, fill, shape
+
+### Fills
+
+1. Add methods to create simple fills.
+
+## Sheets
+
+1. Add support for custom sheet views.
+2. Add support for web publish items.
+3. Add support for drawings in header/footer.
+4. Add support for custom printers via relations.
+5. Add methods to fine-tune header/footer (f.e. addPageNumber(Footer::Right))
+
 ## Worksheets
 
 1. Overhaul rich strings support.
@@ -66,9 +97,10 @@
 
 ### tableParts
 
-## Charts
+## Text
 
-1. Add support for custom shapes in charts.
+1. Add hyperlinks support
+
 
 ## Global
 
@@ -76,4 +108,6 @@
 2. Rewrite all examples and tests, as they duplicate each other.
 3. Add documentation to all new classes.
 4. Add tests.
+5. Write NumberFormat class to easily create and validate number formats.
+6. Convert to implicitly shareable classes that allow it.
 
