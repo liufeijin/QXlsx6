@@ -7,7 +7,6 @@ namespace QXlsx {
 
 struct AutoFilterColumn
 {
-
     void write(QXmlStreamWriter &writer, const QString &name, int index) const;
     void read(QXmlStreamReader &reader);
     bool operator==(const AutoFilterColumn &other) const;
@@ -120,6 +119,41 @@ void AutoFilter::setRange(const CellRange &range)
     d->range = range;
 }
 
+bool AutoFilter::filterButtonHidden(int column) const
+{
+    if (d) return d->columns.value(column).filterButtonHidden.value_or(false);
+    return false;
+}
+
+void AutoFilter::setFilterButtonHidden(int column, bool hidden)
+{
+    if (!d) d = new AutoFilterPrivate;
+    d->columns[column].filterButtonHidden = hidden;
+}
+void AutoFilter::setFilterButtonHidden(bool hidden)
+{
+    if (!d) d = new AutoFilterPrivate;
+    for (int col = d->range.firstColumn(); col <= d->range.lastColumn(); ++col)
+        d->columns[col].filterButtonHidden = hidden;
+}
+
+bool AutoFilter::showFilterOptions(int column) const
+{
+    if (d) return d->columns.value(column).showFilterOptions.value_or(true);
+    return true;
+}
+void AutoFilter::setShowFilterOptions(int column, bool show)
+{
+    if (!d) d = new AutoFilterPrivate;
+    d->columns[column].showFilterOptions = show;
+}
+void AutoFilter::setShowFilterOptions(bool show)
+{
+    if (!d) d = new AutoFilterPrivate;
+    for (int col = d->range.firstColumn(); col <= d->range.lastColumn(); ++col)
+        d->columns[col].showFilterOptions = show;
+}
+
 void AutoFilter::setFilterByTopN(int column, double value, double filterBy, bool usePercents)
 {
     //TODO
@@ -148,7 +182,7 @@ QVariantList AutoFilter::filterValues(int column) const
     return {};
 }
 
-void AutoFilter::setCustomPredicate(int column, const QVariant &val1, Filter::Predicate op1, const QVariant &val2, Filter::Predicate op2, Filter::Operation op)
+void AutoFilter::setPredicate(int column, Filter::Predicate op1, const QVariant &val1, Filter::Operation op, Filter::Predicate op2, const QVariant &val2)
 {
     if (!d) d = new AutoFilterPrivate;
     if (column < 0) return;
@@ -160,6 +194,22 @@ void AutoFilter::setCustomPredicate(int column, const QVariant &val1, Filter::Pr
     c.filter.op2 = op2;
     c.filter.op = op;
     d->columns.insert(column, c);
+}
+
+void AutoFilter::setDynamicFilter(int column, Filter::DynamicFilterType type)
+{
+    if (!d) d = new AutoFilterPrivate;
+    if (column < 0) return;
+    AutoFilterColumn c;
+    c.filter.type = Filter::Type::Dynamic;
+    c.filter.dynamicType = type;
+    d->columns.insert(column, c);
+}
+
+Filter::DynamicFilterType AutoFilter::dynamicFilterType(int column) const
+{
+    if (!d) return Filter::DynamicFilterType::Invalid;
+    return d->columns.value(column).filter.dynamicType;
 }
 
 Filter::Type AutoFilter::filterType(int column) const
@@ -289,13 +339,13 @@ void AutoFilterColumn::write(QXmlStreamWriter &writer, const QString &name, int 
         case Filter::Type::Custom: {
             if (filter.val1.isValid() || filter.val2.isValid()) {
                 writer.writeStartElement(QLatin1String("customFilters"));
-                if (filter.op == Filter::Operation::And)
+                if (filter.op.value_or(Filter::Operation::Or) == Filter::Operation::And)
                     writeAttribute(writer, QLatin1String("and"), true);
                 if (filter.val1.isValid()) {
                     writer.writeEmptyElement(QLatin1String("customFilter"));
                     writer.writeAttribute(QLatin1String("val"), filter.val1.toString());
                     QString s;
-                    switch (filter.op1) {
+                    switch (filter.op1.value_or(Filter::Predicate::Equal)) {
                         case Filter::Predicate::LessThan: s = "lessThan"; break;
                         case Filter::Predicate::LessThanOrEqual: s = "lessThanOrEqual"; break;
                         case Filter::Predicate::GreaterThanOrEqual: s = "greaterThanOrEqual"; break;
@@ -309,7 +359,7 @@ void AutoFilterColumn::write(QXmlStreamWriter &writer, const QString &name, int 
                     writer.writeEmptyElement(QLatin1String("customFilter"));
                     writer.writeAttribute(QLatin1String("val"), filter.val2.toString());
                     QString s;
-                    switch (filter.op2) {
+                    switch (filter.op2.value_or(Filter::Predicate::Equal)) {
                         case Filter::Predicate::LessThan: s = "lessThan"; break;
                         case Filter::Predicate::LessThanOrEqual: s = "lessThanOrEqual"; break;
                         case Filter::Predicate::GreaterThanOrEqual: s = "greaterThanOrEqual"; break;
@@ -320,6 +370,23 @@ void AutoFilterColumn::write(QXmlStreamWriter &writer, const QString &name, int 
                     writeAttribute(writer, QLatin1String("operator"), s);
                 }
                 writer.writeEndElement();
+            }
+            break;
+        }
+        case Filter::Type::Dynamic: {
+            if (filter.dynamicType != Filter::DynamicFilterType::Invalid) {
+                writer.writeEmptyElement(QLatin1String("dynamicFilter"));
+                QString s; Filter::toString(filter.dynamicType, s);
+                writeAttribute(writer, QLatin1String("type"), s);
+                writeAttribute(writer, QLatin1String("val"), filter.val);
+                if (filter.dateTime.has_value()) {
+                    double val = datetimeToNumber(filter.dateTime.value());
+                    writeAttribute(writer, QLatin1String("valIso"), val);
+                }
+                if (filter.maxDateTime.has_value()) {
+                    double val = datetimeToNumber(filter.maxDateTime.value());
+                    writeAttribute(writer, QLatin1String("maxValIso"), val);
+                }
             }
             break;
         }
@@ -350,11 +417,22 @@ void AutoFilterColumn::read(QXmlStreamReader &reader)
                 reader.skipCurrentElement();
             }
             else if (reader.name() == QLatin1String("customFilters")) {
+                filter.type = Filter::Type::Custom;
                 readCustomFilters(reader);
             }
             else if (reader.name() == QLatin1String("dynamicFilter")) {
-                //TODO:
-                reader.skipCurrentElement();
+                filter.type = Filter::Type::Dynamic;
+                const auto &a = reader.attributes();
+                Filter::fromString(a.value(QLatin1String("type")).toString(), filter.dynamicType);
+                parseAttributeDouble(a, QLatin1String("val"), filter.val);
+                if (a.hasAttribute(QLatin1String("valIso"))) {
+                    auto dt = datetimeFromNumber(a.value(QLatin1String("valIso")).toDouble());
+                    filter.dateTime = dt.toDateTime();
+                }
+                if (a.hasAttribute(QLatin1String("maxValIso"))) {
+                    auto dt = datetimeFromNumber(a.value(QLatin1String("maxValIso")).toDouble());
+                    filter.maxDateTime = dt.toDateTime();
+                }
             }
             else if (reader.name() == QLatin1String("colorFilter")) {
                 //TODO:
@@ -444,6 +522,7 @@ bool AutoFilterColumn::isValid() const
         case Filter::Type::Invalid: return false;
         case Filter::Type::Values: return !filter.filters.isEmpty();
         case Filter::Type::Custom: return (filter.val1.isValid() || filter.val2.isValid());
+        case Filter::Type::Dynamic: return (filter.dynamicType != Filter::DynamicFilterType::Invalid);
         default:
             break;
     }

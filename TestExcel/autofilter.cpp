@@ -33,9 +33,28 @@ int autofilter()
         }
     }
     sheet->autofilter().setRange(QXlsx::CellRange(1,1,31,10));
-    sheet->autofilter().setCustomPredicate(3, 10, QXlsx::Filter::Predicate::GreaterThanOrEqual,
-                                              40, QXlsx::Filter::Predicate::LessThanOrEqual,
-                                              QXlsx::Filter::Operation::And);
+    sheet->autofilter().setPredicate(3,
+                                     QXlsx::Filter::Predicate::GreaterThanOrEqual, 10,
+                                     QXlsx::Filter::Operation::And,
+                                     QXlsx::Filter::Predicate::LessThanOrEqual, 40
+                                     );
+
+
+    //3. Dynamic filtering of dates
+    sheet = xlsx.addWorksheet(("dynamic filter"));
+    sheet->write(1,1, "dates");
+    sheet->write(1,2, "dates");
+    const auto now = QDateTime::currentDateTime();
+    for (int i=-5; i<=5; ++i) {
+        auto dt = now.addMonths(i);
+        sheet->write(i+7, 1, dt);
+        dt = now.addDays(i*2);
+        sheet->write(i+7, 2, dt);
+    }
+    sheet->autosizeColumnWidths(1,2);
+    sheet->autofilter().setRange(QXlsx::CellRange(1,1,12,2));
+    sheet->autofilter().setDynamicFilter(0, QXlsx::Filter::DynamicFilterType::LastQuarter);
+    sheet->autofilter().setDynamicFilter(1, QXlsx::Filter::DynamicFilterType::LastWeek);
 
     xlsx.saveAs("autofilter.xlsx");
     return 0;

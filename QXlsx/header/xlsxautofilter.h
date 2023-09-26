@@ -3,10 +3,11 @@
 
 #include <QSharedData>
 #include <QXmlStreamWriter>
+#include <QDateTime>
 
 #include "xlsxglobal.h"
 #include "xlsxcellrange.h"
-
+#include "xlsxutility_p.h"
 
 
 namespace QXlsx {
@@ -41,6 +42,47 @@ struct Filter
         And,
         Or
     };
+    /**
+     * @brief The DynamicFilterType enum specifies criteria of filtering for dynamic filters.
+     */
+    enum class DynamicFilterType
+    {
+        Invalid, /**< Common filter type not available.  */
+        AboveAverage, /**< Shows values that are above average. */
+        BelowAverage, /**< Shows values that are below average. */
+        Tomorrow, /**< Shows tomorrow's dates. */
+        Today, /**< Shows today's dates. */
+        Yesterday, /**< Shows yesterday's dates. */
+        NextWeek, /**< Shows next week's dates, using Sunday as the first weekday. */
+        ThisWeek, /**< Shows this week's dates, using Sunday as the first weekday. */
+        LastWeek, /**<  Shows last week's dates, using Sunday as the first weekday. */
+        NextMonth, /**< Shows next month's dates. */
+        ThisMonth, /**< Shows this month's dates. */
+        LastMonth, /**< Shows last month's dates. */
+        NextQuarter, /**< Shows next calendar quarter's dates. */
+        ThisQuarter, /**< Shows this calendar quarter's dates. */
+        LastQuarter, /**< Shows last calendar quarter's dates. */
+        NextYear, /**< Shows next year's dates. */
+        ThisYear, /**< Shows this year's dates. */
+        LastYear, /**< Shows last year's dates.  */
+        YearToDate, /**< Shows the dates between the beginning of the year and today, inclusive. */
+        Q1, /**< Shows the dates that are in the 1st calendar quarter, regardless of year. */
+        Q2, /**< Shows the dates that are in the 2nd calendar quarter, regardless of year. */
+        Q3, /**< Shows the dates that are in the 3rd calendar quarter, regardless of year. */
+        Q4, /**< Shows the dates that are in the 4th calendar quarter, regardless of year. */
+        M1, /**< Shows the dates that are in January, regardless of year. */
+        M2, /**< Shows the dates that are in February, regardless of year. */
+        M3, /**<  Shows the dates that are in March, regardless of year. */
+        M4, /**< Shows the dates that are in April, regardless of year. */
+        M5, /**< Shows the dates that are in May, regardless of year. */
+        M6, /**< Shows the dates that are in June, regardless of year.  */
+        M7, /**<  Shows the dates that are in July, regardless of year. */
+        M8, /**<  Shows the dates that are in August, regardless of year. */
+        M9, /**< Shows the dates that are in September, regardless of year.  */
+        M10, /**< Shows the dates that are in October, regardless of year. */
+        M11, /**< Shows the dates that are in November, regardless of year. */
+        M12, /**<  Shows the dates that are in December, regardless of year. */
+    };
 
     bool operator==(const Filter &other) const;
 
@@ -51,11 +93,57 @@ struct Filter
     //custom filters
     QVariant val1;
     QVariant val2;
-    Predicate op1 = Predicate::Equal;
-    Predicate op2 = Predicate::Equal;
-    Operation op = Operation::Or;
+    std::optional<Predicate> op1;// = Predicate::Equal;
+    std::optional<Predicate> op2;// = Predicate::Equal;
+    std::optional<Operation> op;// = Operation::Or;
+
+    //dynamic filters
+    DynamicFilterType dynamicType = DynamicFilterType::Invalid;
+    std::optional<QDateTime> maxDateTime;
+    std::optional<QDateTime> dateTime;
+    std::optional<double> val;
+    SERIALIZE_ENUM(DynamicFilterType, {
+        {DynamicFilterType::Invalid, "null"},
+        {DynamicFilterType::AboveAverage, "aboveAverage"},
+        {DynamicFilterType::BelowAverage, "belowAverage"},
+        {DynamicFilterType::Tomorrow, "tomorrow"},
+        {DynamicFilterType::Today, "today"},
+        {DynamicFilterType::Yesterday, "yesterday"},
+        {DynamicFilterType::NextWeek, "nextWeek"},
+        {DynamicFilterType::ThisWeek, "thisWeek"},
+        {DynamicFilterType::LastWeek, "lastWeek"},
+        {DynamicFilterType::NextMonth, "nextMonth"},
+        {DynamicFilterType::ThisMonth, "thisMonth"},
+        {DynamicFilterType::LastMonth, "lastMonth"},
+        {DynamicFilterType::NextQuarter, "nextQuarter"},
+        {DynamicFilterType::ThisQuarter, "thisQuarter"},
+        {DynamicFilterType::LastQuarter, "lastQuarter"},
+        {DynamicFilterType::NextYear, "nextYear"},
+        {DynamicFilterType::ThisYear, "thisYear"},
+        {DynamicFilterType::LastYear, "lastYear"},
+        {DynamicFilterType::YearToDate, "yearToDate"},
+        {DynamicFilterType::Q1, "q1"},
+        {DynamicFilterType::Q2, "q2"},
+        {DynamicFilterType::Q3, "q3"},
+        {DynamicFilterType::Q4, "q4"},
+        {DynamicFilterType::M1, "m1"},
+        {DynamicFilterType::M2, "m2"},
+        {DynamicFilterType::M3, "m3"},
+        {DynamicFilterType::M4, "m4"},
+        {DynamicFilterType::M5, "m5"},
+        {DynamicFilterType::M6, "m6"},
+        {DynamicFilterType::M7, "m7"},
+        {DynamicFilterType::M8, "m8"},
+        {DynamicFilterType::M9, "m9"},
+        {DynamicFilterType::M10, "m10"},
+        {DynamicFilterType::M11, "m11"},
+        {DynamicFilterType::M12, "m12"},
+    });
 };
 
+
+
+class AutoFilterPrivate;
 /**
  * @brief The AutoFilter class represents the autofilter parameters for worksheet data.
  *
@@ -66,9 +154,6 @@ struct Filter
  * You can set filters to columns within #range() with #setFilter().
  * To remove filter use #removeFilter(). To get current filter use #filter().
  */
-
-class AutoFilterPrivate;
-
 class QXLSX_EXPORT AutoFilter
 {
 public:
@@ -110,6 +195,15 @@ public:
      */
     void setRange(const CellRange &range);
 
+    bool filterButtonHidden(int column) const; //default = false
+    void setFilterButtonHidden(int column, bool hidden);
+    void setFilterButtonHidden(bool hidden);
+
+    bool showFilterOptions(int column) const; //default = true
+    void setShowFilterOptions(int column, bool show);
+    void setShowFilterOptions(bool show);
+
+
     void setFilterByTopN(int column, double value, double filterBy, bool usePercents = false); //0-based index in range
     void setFilterByBottomN(int column, double value, double filterBy, bool usePercents = false); //0-based index in range
 
@@ -117,6 +211,7 @@ public:
      * @brief sets @a column filtering by @a values.
      * @param column zero-based column index in the autofilter #range(). //TODO: consider changing to real column index
      * @param values Values to filter rows by.
+     * @note The previous filter in this column will be deleted.
      */
     void setFilterByValues(int column, const QVariantList &values);
     /**
@@ -125,7 +220,7 @@ public:
      * Returns a list of values that autofilter use to hide rows not containing these values.
      *
      * @param column zero-based index of a column in the autofilter #range().
-     * @return non-empty list if #filterType() for @column is Filter::Type::Values and
+     * @return non-empty list if #filterType() for @a column is Filter::Type::Values and
      * filter values were set, empty list otherwise.
      */
     QVariantList filterValues(int column) const;
@@ -134,8 +229,8 @@ public:
      *
      * Suppose we want to clamp values in the first column leaving only values from range [100, 1000].
      * Then the following code will do the job:
-     * @code setCustomPredicate(0, 100, Filter::Predicate::GreaterThanOrEqual, 1000, Filter::Predicate::LessThanOrEqual,
-     * Filter::Operation::And);
+     * @code setCustomPredicate(0, Filter::Predicate::GreaterThanOrEqual, 100, Filter::Operation::And,
+     * Filter::Predicate::LessThanOrEqual, 1000);
      * @endcode
      *
      * @param column zero-based index of a column in the autofilter #range().
@@ -144,11 +239,29 @@ public:
      * @param val2 the second, optional, value to be compared with cell values according to @a op2.
      * @param op2 the predicate for @a val2.
      * @param op the predicate to connect @a op1 and @a op2.
-     *
+     * @note The previous filter in this column will be deleted.
      */
-    void setCustomPredicate(int column, const QVariant &val1, Filter::Predicate op1,
-                            const QVariant &val2 = QVariant(), Filter::Predicate op2 = Filter::Predicate::Equal,
-                            Filter::Operation op = Filter::Operation::Or);
+    void setPredicate(int column,
+                      Filter::Predicate op1, const QVariant &val1,
+                      Filter::Operation op = Filter::Operation::Or,
+                      Filter::Predicate op2 = Filter::Predicate::Equal, const QVariant &val2 = QVariant());
+    /**
+     * @brief sets filtering for dynamically changing data.
+     *
+     * A dynamic filter returns a result set which might vary due to a change in the
+     * data itself or a change in the date on which the filter is being applied.
+
+     * @param column zero-based index of a column in the autofilter #range().
+     * @param type one of the following Filter::DynamicFilterType enums.
+     */
+    void setDynamicFilter(int column, Filter::DynamicFilterType type);
+    /**
+     * @brief returns dynamic filter type of the filter that was set to @a column.
+     * @param column zero-based index of a column in the autofilter #range().
+     * @return dynamic filter type. Can be Filter::DynamicFilterType::Invalid if
+     * no filter was set to @a column.
+     */
+    Filter::DynamicFilterType dynamicFilterType(int column) const;
 
     /**
      * @brief returns filter type of the filter that was set to @a column.

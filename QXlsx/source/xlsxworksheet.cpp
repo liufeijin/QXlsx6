@@ -1603,9 +1603,9 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
         }
         case Cell::Type::Date: { // 'd'
             // dev67
-            double num = cell->value().toDouble();
-            if (!q->workbook()->isDate1904() && num > 60) // for mac os excel
-                num = num - 1;
+//            double num = cell->value().toDouble();
+//            if (!q->workbook()->isDate1904() && num > 60) // for mac os excel
+//                num = num - 1;
 
             // number type. see for 18.18.11 ST_CellType (Cell Type) more information.
             writer.writeAttribute(QLatin1String("t"), QLatin1String("n"));
