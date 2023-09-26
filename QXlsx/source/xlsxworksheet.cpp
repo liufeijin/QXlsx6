@@ -1122,6 +1122,56 @@ bool Worksheet::removeImage(int index)
     return false;
 }
 
+bool Worksheet::changeImage(int index, const QString &fileName, bool keepSize)
+{
+    Q_D(const Worksheet);
+
+    if (index < 0) return false;
+    int currentIndex = -1;
+    if (d->drawing) {
+        for (auto anchor: qAsConst(d->drawing->anchors)) {
+            if (anchor && anchor->isPicture()) {
+                currentIndex++;
+                if (currentIndex == index) break;
+            }
+        }
+    }
+    if (currentIndex > -1) {
+        QImage newpic(fileName);
+        if (newpic.isNull()) return false;
+
+        const QString suffix = fileName.mid(fileName.lastIndexOf(QLatin1Char('.'))+1);
+        QString mimetypemy;
+        if(QString::compare(QLatin1String("jpg"), suffix, Qt::CaseInsensitive)==0)
+           mimetypemy=QStringLiteral("image/jpeg");
+        if(QString::compare(QLatin1String("bmp"), suffix, Qt::CaseInsensitive)==0)
+           mimetypemy=QStringLiteral("image/bmp");
+        if(QString::compare(QLatin1String("gif"), suffix, Qt::CaseInsensitive)==0)
+           mimetypemy=QStringLiteral("image/gif");
+        if(QString::compare(QLatin1String("png"), suffix, Qt::CaseInsensitive)==0)
+           mimetypemy=QStringLiteral("image/png");
+
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.setBuffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        newpic.save(&buffer,suffix.toLocal8Bit().data());
+
+        if (auto anchor = dynamic_cast<DrawingOneCellAnchor*>(d->drawing->anchors[currentIndex])) {
+            anchor->setObjectPicture(newpic);
+            if (!keepSize) {
+                int dpiX = int(double(newpic.dotsPerMeterX()) / 39.3700787); //calculate dpi from dpm
+                int dpiY = int(double(newpic.dotsPerMeterY()) / 39.3700787);
+                anchor->ext = QPair<Coordinate, Coordinate>(Coordinate::fromPixels(newpic.width(), dpiX),
+                                                            Coordinate::fromPixels(newpic.height(), dpiY));
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Chart *Worksheet::insertChart(int row, int column, const QSize &size)
 {
     Q_D(Worksheet);
@@ -2005,18 +2055,6 @@ CellRange Worksheet::dimension() const
     return d->dimension;
 }
 
-QString Worksheet::codeName() const
-{
-    Q_D(const Worksheet);
-    return d->sheetProperties.codeName;
-}
-
-void Worksheet::setCodeName(const QString &codeName)
-{
-    Q_D(Worksheet);
-    d->sheetProperties.codeName = codeName;
-}
-
 bool Worksheet::isFormatConditionsCalculationEnabled() const
 {
     Q_D(const Worksheet);
@@ -2027,18 +2065,6 @@ void Worksheet::setFormatConditionsCalculationEnabled(bool enabled)
 {
     Q_D(Worksheet);
     d->sheetProperties.enableFormatConditionsCalculation = enabled;
-}
-
-bool Worksheet::isPublished() const
-{
-    Q_D(const Worksheet);
-    return d->sheetProperties.published.value_or(true);
-}
-
-void Worksheet::setPublished(bool published)
-{
-    Q_D(Worksheet);
-    d->sheetProperties.published = published;
 }
 
 bool Worksheet::isSyncedHorizontal() const
@@ -2075,24 +2101,6 @@ void Worksheet::setTopLeftAnchor(const CellReference &ref)
 {
     Q_D(Worksheet);
     d->sheetProperties.syncRef = ref;
-}
-
-Color Worksheet::tabColor() const
-{
-    Q_D(const Worksheet);
-    return d->sheetProperties.tabColor;
-}
-
-void Worksheet::setTabColor(const Color &color)
-{
-    Q_D(Worksheet);
-    d->sheetProperties.tabColor = color;
-}
-
-void Worksheet::setTabColor(const QColor &color)
-{
-    Q_D(Worksheet);
-    d->sheetProperties.tabColor = Color(color);
 }
 
 bool Worksheet::showAutoPageBreaks() const

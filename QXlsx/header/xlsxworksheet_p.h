@@ -73,31 +73,6 @@ struct SheetFormatProperties
     void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
 };
 
-struct SheetProperties
-{
-    Color tabColor;
-    std::optional<bool> applyStyles;
-    std::optional<bool> summaryBelow;
-    std::optional<bool> summaryRight;
-    std::optional<bool> showOutlineSymbols;
-    std::optional<bool> autoPageBreaks;
-    std::optional<bool> fitToPage;
-    std::optional<bool> syncHorizontal;
-    std::optional<bool> syncVertical;
-    CellReference syncRef;
-    std::optional<bool> transitionEvaluation;
-    std::optional<bool> transitionEntry;
-    std::optional<bool> published;
-    QString codeName;
-    std::optional<bool> filterMode;
-    std::optional<bool> enableFormatConditionsCalculation;
-    bool isValid() const;
-    void read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
-};
-
-
-
 struct XlsxRowInfo
 {
     std::optional<double> height;
@@ -193,7 +168,6 @@ public:
     CellRange dimension;
 
     SheetFormatProperties sheetFormatProperties;
-    SheetProperties sheetProperties;
     AutoFilter autofilter;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};

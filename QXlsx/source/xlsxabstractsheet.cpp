@@ -125,6 +125,48 @@ HeaderFooter &AbstractSheet::headerFooter()
     return d->headerFooter;
 }
 
+bool AbstractSheet::isPublished() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetProperties.published.value_or(true);
+}
+
+void AbstractSheet::setPublished(bool published)
+{
+    Q_D(AbstractSheet);
+    d->sheetProperties.published = published;
+}
+
+QString AbstractSheet::codeName() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetProperties.codeName;
+}
+
+void AbstractSheet::setCodeName(const QString &codeName)
+{
+    Q_D(AbstractSheet);
+    d->sheetProperties.codeName = codeName;
+}
+
+Color AbstractSheet::tabColor() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetProperties.tabColor;
+}
+
+void AbstractSheet::setTabColor(const Color &color)
+{
+    Q_D(AbstractSheet);
+    d->sheetProperties.tabColor = color;
+}
+
+void AbstractSheet::setTabColor(const QColor &color)
+{
+    Q_D(AbstractSheet);
+    d->sheetProperties.tabColor = Color(color);
+}
+
 QMap<PageMargins::Position, double> AbstractSheet::pageMarginsInches() const
 {
     Q_D(const AbstractSheet);

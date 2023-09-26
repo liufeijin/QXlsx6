@@ -68,6 +68,7 @@ Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
     sheet_d->pictureFile = d->pictureFile;
     sheet_d->sheetProtection = d->sheetProtection;
     sheet_d->extLst = d->extLst;
+    sheet_d->sheetProperties = d->sheetProperties;
 
     return sheet;
 }
@@ -110,6 +111,15 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeDefaultNamespace(QStringLiteral("http://schemas.openxmlformats.org/spreadsheetml/2006/main"));
     writer.writeNamespace(QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"), QStringLiteral("r"));
     writer.writeStartElement(QStringLiteral("chartsheet"));
+
+    //1. sheetPr - CT_SheetPr
+    if (d->sheetProperties.isValid()) {
+        writer.writeStartElement(QLatin1String("sheetPr"));
+        writeAttribute(writer, QLatin1String("published"), d->sheetProperties.published);
+        writeAttribute(writer, QLatin1String("codeName"), d->sheetProperties.codeName);
+        if (d->sheetProperties.tabColor.isValid()) d->sheetProperties.tabColor.write(writer, QLatin1String("tabColor"));
+        writer.writeEndElement();
+    }
 
     auto views = d->sheetViews;
     if (views.isEmpty()) views << SheetView();
@@ -163,6 +173,9 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
 
                 d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
                 d->drawing->setFilePath(path);
+            }
+            else if (reader.name() == QLatin1String("sheetPr")) {
+                d->sheetProperties.read(reader);
             }
             else if (reader.name() == QLatin1String("sheetProtection")) {
                 SheetProtection s;

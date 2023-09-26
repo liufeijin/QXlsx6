@@ -21,6 +21,35 @@ class Chart;
  * Each chartsheet has a pointer to #chart() that can be used to edit the chart series,
  * axes, title etc.
  *
+ * # Sheet Properties
+ *
+ * The following parameters define the behavior and look-and-feel of the chartsheet:
+ *
+ * - AbstractSheet::codeName(), AbstractSheet::setCodeName() manage the unique stable name of the sheet.
+ * - AbstractSheet::isPublished(), AbstractSheet::setPublished() manage the publishing of the sheet.
+ * - AbstractSheet::tabColor(), AbstractSheet::setTabColor() manage the sheet's tab color.
+ *
+ * # Sheet Views
+ *
+ * Each chartsheet can have 1 to infinity 'sheet views', that display a specific portion of
+ * the chartsheet with specific view parameters.
+ *
+ * The following methods manage sheet views:
+ *
+ * - AbstractSheet::view(int index) returns a specific view.
+ * - AbstractSheet::viewsCount() returns the count of views in the sheet.
+ * - AbstractSheet::addView() adds a view.
+ * - AbstractSheet::removeView(int index) removes the view.
+ *
+ * The following methods manage the parameters of the _last added_ view:
+ *
+ * - AbstractSheet::isSelected(), AbstractSheet::setSelected(bool select) manage the selection of the sheet tab.
+ * - AbstractSheet::viewZoomScale(), AbstractSheet::setViewZoomScale() manage the scale of the current view.
+ * - #zoomToFit(), #setZoomToFit() manage the automatic zooming of the chartsheet.
+ *
+ * The above-mentioned methods return the default values if the corresponding parameters were not set.
+ * See SheetView documentation on the default values.
+ *
  */
 class QXLSX_EXPORT Chartsheet : public AbstractSheet
 {

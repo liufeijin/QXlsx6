@@ -529,7 +529,7 @@ public:
     /**
      * @brief Relationship Id of the devMode printer settings part.
      */
-    QString printerId; //TODO: addding printer
+    QString printerId; //TODO: adding printer
     /**
      * @brief  specifies how to display cells with errors when printing the worksheet.
      *
@@ -974,6 +974,58 @@ public:
      * @param orientation PageSetup::Orientation value.
      */
     void setPageOrientation(PageSetup::Orientation orientation);
+
+
+    //Sheet properties, common to both chartsheets and worksheets
+    /**
+     * @brief returns whether the sheet is published.
+     * @return true if the sheet was published.
+     *
+     * If not set, the default value is true.
+     */
+    bool isPublished() const;
+    /**
+     * @brief sets whether the sheet is published.
+     * @param published
+     *
+     * The default value is true.
+     */
+    void setPublished(bool published);
+    /**
+     * @brief returns the unique stable sheet name.
+     *
+     * codeName should not change over time, and does not change from user input.
+     * This name should be used by code to reference a particular sheet.
+     *
+     * @return Non-empty string if the codeName was set.
+     */
+    QString codeName() const;
+    /**
+     * @brief sets the unique stable sheet name.
+     *
+     * codeName should not change over time, and does not change from user input.
+     * This name should be used by code to reference a particular sheet.
+     * @param a unique string.
+     * @warning This method does not check the codeName to be unique throughout the workbook!
+     * Use QUuid class to create a unique codeName.
+     */
+    void setCodeName(const QString &codeName);
+    /**
+     * @brief returns the sheet's tab color.
+     * @return Valid Color if the tab color was set.
+     */
+    Color tabColor() const;
+    /**
+     * @brief sets the sheet's tab color.
+     * @param color the tab color.
+     */
+    void setTabColor(const Color &color);
+    /**
+     * @overload
+     * @brief sets the sheet's tab color.
+     * @param color the tab color.
+     */
+    void setTabColor(const QColor &color);
 
 
 

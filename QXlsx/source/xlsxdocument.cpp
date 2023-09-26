@@ -703,6 +703,14 @@ bool Document::removeImage(int index)
     return false;
 }
 
+bool Document::changeImage(int index, const QString &fileName, bool keepSize)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->changeImage(index, fileName, keepSize);
+
+    return false;
+}
+
 void Document::setBackgroundImage(const QImage &image)
 {
     if (auto sheet = currentSheet())
@@ -1299,10 +1307,6 @@ bool Document::save() const
     return saveAs(name);
 }
 
-/*!
- * Saves the document to the file with the given \a name.
- * Returns true if saved successfully.
- */
 bool Document::saveAs(const QString &name) const
 {
     QFile file(name);
@@ -1311,12 +1315,6 @@ bool Document::saveAs(const QString &name) const
     return false;
 }
 
-/*!
- * \overload
- * This function writes a document to the given \a device.
- *
- * \warning The \a device will be closed when this function returned.
- */
 bool Document::saveAs(QIODevice *device) const
 {
     Q_D(const Document);
@@ -1333,55 +1331,11 @@ bool Document::copyStyle(const QString &from, const QString &to) {
     return DocumentPrivate::copyStyle(from, to);
 }
 
-/*!
- * Destroys the document and cleans up.
- */
 Document::~Document()
 {
     delete d_ptr;
 }
 
-//  add by liufeijin 20181025 {{
-bool Document::changeImage(int index, const QString &fileName)
-{
-    Q_D(const Document);
-
-    QImage newpic(fileName);
-    
-    auto mediaFileToLoad = d->workbook->mediaFiles();
-    const auto mf = mediaFileToLoad[index].lock();
-    
-    const QString suffix = fileName.mid(fileName.lastIndexOf(QLatin1Char('.'))+1);
-    QString mimetypemy;
-    if(QString::compare(QLatin1String("jpg"), suffix, Qt::CaseInsensitive)==0)
-       mimetypemy=QStringLiteral("image/jpeg");
-    if(QString::compare(QLatin1String("bmp"), suffix, Qt::CaseInsensitive)==0)
-       mimetypemy=QStringLiteral("image/bmp");
-    if(QString::compare(QLatin1String("gif"), suffix, Qt::CaseInsensitive)==0)
-       mimetypemy=QStringLiteral("image/gif");
-    if(QString::compare(QLatin1String("png"), suffix, Qt::CaseInsensitive)==0)
-       mimetypemy=QStringLiteral("image/png");
-    
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.setBuffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    newpic.save(&buffer,suffix.toLocal8Bit().data());
-    
-    if (mf) {
-        mf->set(ba,suffix,mimetypemy);
-        mediaFileToLoad[index]=mf;
-    }
-    
-    return true;
-}
-// liufeijin }}
-
-
-/*!
-  Auto sets width in characters of columns with the given \a range.
-  Returns true on success.
- */
 bool Document::autosizeColumnWidth(const CellRange &range)
 {
     if (auto sheet = currentWorksheet())
@@ -1391,10 +1345,6 @@ bool Document::autosizeColumnWidth(const CellRange &range)
 }
 
 
-/*!
-  Auto sets width in characters \a column . Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::autosizeColumnWidth(int column)
 {
     if (auto sheet = currentWorksheet())
@@ -1404,10 +1354,6 @@ bool Document::autosizeColumnWidth(int column)
 }
 
 
-/*!
-  Auto sets width in characters for columns [\a firstColumn, \a lastColumn]. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::autosizeColumnWidth(int firstColumn, int lastColumn)
 {
     if (auto sheet = currentWorksheet())
@@ -1416,10 +1362,6 @@ bool Document::autosizeColumnWidth(int firstColumn, int lastColumn)
     return false;
 }
 
-/*!
-  Auto sets width in characters for all columns.
-  Returns true on success.
- */
 bool Document::autosizeColumnWidth()
 {
     if (auto sheet = currentWorksheet())

@@ -39,7 +39,6 @@ int autofilter()
                                      QXlsx::Filter::Predicate::LessThanOrEqual, 40
                                      );
 
-
     //3. Dynamic filtering of dates
     sheet = xlsx.addWorksheet(("dynamic filter"));
     sheet->write(1,1, "dates");

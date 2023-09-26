@@ -48,13 +48,13 @@ class WorksheetPrivate;
  *
  * The following parameters define the behavior and look-and-feel of the worksheet:
  *
- * - #codeName(), #setCodeName() manage the unique stable name of the sheet.
+ * - AbstractSheet::codeName(), AbstractSheet::setCodeName() manage the unique stable name of the sheet.
  * - #isFormatConditionsCalculationEnabled(), #setFormatConditionsCalculationEnabled()
  *   manage the recalculation of the conditional formatting.
- * - #isPublished(), #setPublished() manage the publishing of the sheet.
+ * - AbstractSheet::isPublished(), AbstractSheet::setPublished() manage the publishing of the sheet.
  * - #syncHorizontal(), #setSyncHorizontal(), #syncVertical(), #setSyncVertical(),
  *   #syncRef(), #setSyncRef() manage the anchor parameters of the sheet.
- * - #tabColor(), #setTabColor() manage the sheet's tab color.
+ * - AbstractSheet::tabColor(), AbstractSheet::setTabColor() manage the sheet's tab color.
  * - #showAutoPageBreaks(), #setShowAutoPageBreaks() manage the auto page breaks visibility.
  * - #thickBottom(), #setThickBottom(), #thickTop(), #setThickTop() manage default thickness of rows borders.
  * - #rowsHiddenByDefault(), #setRowsHiddenByDefault() manage the default visibility of rows.
@@ -227,6 +227,15 @@ public:
      * @return true if image was found and removed, false otherwise.
      */
     bool removeImage(int index);
+    /**
+     * @brief sets new image content to the image specified by @a index.
+     * @param index zero-based index of the image (0 to #imagecount()-1).
+     * @param fileName file name where to load new content from.
+     * @param keepSize if true, then new image will be resized to the old image size.
+     * If false, then new image will have its size.
+     * @return true if the image was found and file was loaded, false otherwise.
+     */
+    bool changeImage(int index, const QString &fileName, bool keepSize = true);
 
     /**
      * @brief creates a new chart and places it inside the current worksheet.
@@ -392,25 +401,6 @@ public:
     // Sheet Parameters
 
     /**
-     * @brief returns the unique stable sheet name.
-     *
-     * codeName should not change over time, and does not change from user input.
-     * This name should be used by code to reference a particular sheet.
-     *
-     * @return Non-empty string if the codeName was set.
-     */
-    QString codeName() const;
-    /**
-     * @brief sets the unique stable sheet name.
-     *
-     * codeName should not change over time, and does not change from user input.
-     * This name should be used by code to reference a particular sheet.
-     * @param a unique string.
-     * @warning This method does not check the codeName to be unique throughout the workbook!
-     * Use QUuid class to create a unique codeName.
-     */
-    void setCodeName(const QString &codeName);
-    /**
      * @brief returns whether the conditional formatting calculations shall be
      * evaluated. If set to false, then the min/max values of color scales or
      * databars or threshold values in Top N rules shall not be updated.
@@ -439,21 +429,6 @@ public:
      * The default value is true.
      */
     void setFormatConditionsCalculationEnabled(bool enabled);
-    /**
-     * @brief returns whether the worksheet is published.
-     * @return true if the worksheet was published.
-     *
-     * If not set, the default value is true.
-     */
-    bool isPublished() const;
-    /**
-     * @brief sets whether the worksheet is published.
-     * @param published
-     *
-     * The default value is true.
-     */
-    void setPublished(bool published);
-
     /**
      * @brief returns whether the worksheet is horizontally synced to the #topLeftAnchor().
      * @return If true, and scroll location is missing from the window properties,
@@ -498,22 +473,6 @@ public:
      * @param ref If not valid, clears the anchor cell.
      */
     void setTopLeftAnchor(const CellReference &ref);
-    /**
-     * @brief returns the sheet's tab color.
-     * @return Valid Color if the tab color was set.
-     */
-    Color tabColor() const;
-    /**
-     * @brief sets the sheet's tab color.
-     * @param color the tab color.
-     */
-    void setTabColor(const Color &color);
-    /**
-     * @overload
-     * @brief sets the sheet's tab color.
-     * @param color the tab color.
-     */
-    void setTabColor(const QColor &color);
     /**
      * @brief returns  whether the sheet displays Automatic Page Breaks.
      * @return automatic page breaks visibility.

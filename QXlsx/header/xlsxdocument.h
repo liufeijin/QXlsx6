@@ -67,11 +67,13 @@ public:
     int imageCount();
     /**
      * @brief sets new content to the image with (zero-based) @a index.
-     * @param index zero-based index of image in the list of all images in the workbook.
+     * @param index zero-based index of image (0 to #imageCount()-1).
      * @param fileName the name of the file from which new content will be loaded.
+     * @param keepSize if true, then new image will be resized to the old image size.
+     * If false, then new image will have its size.
      * @return true if the image was found and new content was loaded, false otherwise.
      */
-    bool changeImage(int index, const QString &fileName); // TODO: remove, as this method uses index differently
+    bool changeImage(int index, const QString &fileName, bool keepSize = true);
 
     /**
      * @brief removes image from the current active worksheet
@@ -111,7 +113,6 @@ public:
      * @return true if the background image was removed.
      */
     bool removeBackgroundImage();
-    //TODO: add insertImage(int row, int column, const Size &size); to specify size in mm, pt etc.
 
     /**
      * @brief creates a new chart and places it inside the current active worksheet.
