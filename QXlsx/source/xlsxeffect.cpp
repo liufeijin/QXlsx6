@@ -147,9 +147,8 @@ void Effect::readEffectList(QXmlStreamReader &reader)
                 parseAttributeBool(a, QLatin1String("grow"), d->blurGrow);
             }
             else if (reader.name() == QLatin1String("fillOverlay")) {
-                FillBlendMode t;
-                fromString(a.value(QLatin1String("blend")).toString(), t);
-                d->fillBlendMode = t;
+//                d->fillBlendMode = magic_cast<FillBlendMode>(a.value(QLatin1String("blend"))).value();
+                fromString(a.value(QLatin1String("blend")).toString(), d->fillBlendMode);
                 reader.readNextStartElement();
                 d->fillOverlay.read(reader);
             }
@@ -235,9 +234,7 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
     }
     if (d->fillOverlay.isValid()) {
         writer.writeStartElement(QLatin1String("a:fillOverlay"));
-        QString s;
-        toString(d->fillBlendMode, s);
-        writer.writeAttribute(QLatin1String("blend"), s);
+        writer.writeAttribute(QLatin1String("blend"), toString(d->fillBlendMode));
         d->fillOverlay.write(writer);
         writer.writeEndElement();
     }
@@ -272,10 +269,8 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
             writer.writeAttribute(QLatin1String("blurRad"), d->outerShadowBlurRadius.toString());
         if (d->outerShadowOffset.isValid())
             writer.writeAttribute(QLatin1String("dist"), d->outerShadowOffset.toString());
-        if (d->outerShadowAlignment.has_value()) {
-            QString s; FillFormat::toString(d->outerShadowAlignment.value(), s);
-            writer.writeAttribute(QLatin1String("algn"), s);
-        }
+        if (d->outerShadowAlignment.has_value())
+            writer.writeAttribute(QLatin1String("algn"), FillFormat::toString(d->outerShadowAlignment.value()));
         if (d->outerShadowRotateWithShape.has_value())
             writer.writeAttribute(QLatin1String("rotWithShape"), toST_Boolean(d->outerShadowRotateWithShape.value()));
         writeAttributePercent(writer, QLatin1String("sx"), d->outerShadowHorizontalScalingFactor);
@@ -321,10 +316,8 @@ void Effect::writeEffectList(QXmlStreamWriter &writer) const
             writer.writeAttribute(QLatin1String("blurRad"), d->reflectionBlurRadius.toString());
         if (d->reflectionShadowOffset.isValid())
             writer.writeAttribute(QLatin1String("dist"), d->reflectionShadowOffset.toString());
-        if (d->reflectionShadowAlignment.has_value()) {
-            QString s; FillFormat::toString(d->reflectionShadowAlignment.value(), s);
-            writer.writeAttribute(QLatin1String("algn"), s);
-        }
+        if (d->reflectionShadowAlignment.has_value())
+            writer.writeAttribute(QLatin1String("algn"), FillFormat::toString(d->reflectionShadowAlignment.value()));
         if (d->reflectionRotateWithShape.has_value())
             writer.writeAttribute(QLatin1String("rotWithShape"), toST_Boolean(d->reflectionRotateWithShape.value()));
         writeAttributePercent(writer, QLatin1String("sx"), d->reflectionHorizontalScalingFactor);

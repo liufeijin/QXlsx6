@@ -1440,15 +1440,13 @@ void ParagraphProperties::write(QXmlStreamWriter &writer, const QString &name) c
     writeAttribute(writer, QLatin1String("marR"), rightMargin.toString());
     writeAttribute(writer, QLatin1String("lvl"), indentLevel);
     writeAttribute(writer, QLatin1String("indent"), indent.toString());
-    if (align.has_value()) {
-        QString s; toString(align.value(), s); writer.writeAttribute(QLatin1String("algn"), s);
-    }
+    if (align.has_value())
+        writer.writeAttribute(QLatin1String("algn"), toString(align.value()));
     writeAttribute(writer, QLatin1String("defTabSz"), defaultTabSize.toString());
     writeAttribute(writer, QLatin1String("rtl"), rtl);
     writeAttribute(writer, QLatin1String("eaLnBrk"), eastAsianLineBreak);
-    if (fontAlign.has_value()) {
-        QString s; toString(fontAlign.value(), s); writer.writeAttribute(QLatin1String("fontAlgn"), s);
-    }
+    if (fontAlign.has_value())
+        writer.writeAttribute(QLatin1String("fontAlgn"), toString(fontAlign.value()));
     writeAttribute(writer, QLatin1String("latinLnBrk"), latinLineBreak);
     writeAttribute(writer, QLatin1String("hangingPunct"), hangingPunctuation);
 
@@ -1487,8 +1485,7 @@ void ParagraphProperties::write(QXmlStreamWriter &writer, const QString &name) c
             }
             case BulletType::AutoNumber: {
                 writer.writeEmptyElement(QLatin1String("a:buAutoNum"));
-                QString s; toString(bulletAutonumberType, s);
-                writer.writeAttribute(QLatin1String("type"), s);
+                writeAttribute(writer, QLatin1String("type"), toString(bulletAutonumberType));
                 writeAttribute(writer, QLatin1String("startAt"), bulletAutonumberStart);
                 break;
             }
@@ -1669,9 +1666,7 @@ void ParagraphProperties::writeTabStops(QXmlStreamWriter &writer, const QString 
     for (const auto &p: qAsConst(tabStops)) {
         writer.writeEmptyElement(QLatin1String("a:tab"));
         writer.writeAttribute(QLatin1String("pos"), p.first.toString());
-        QString s;
-        toString(p.second, s);
-        writer.writeAttribute(QLatin1String("algn"), s);
+        writer.writeAttribute(QLatin1String("algn"), toString(p.second));
     }
     writer.writeEndElement();
 }
@@ -2216,20 +2211,14 @@ void CharacterProperties::write(QXmlStreamWriter &writer, const QString &name) c
                                                     QString::number(qRound(fontSize.value()*100)));
     writeAttribute(writer, QLatin1String("b"), bold);
     writeAttribute(writer, QLatin1String("i"), italic);
-    if (underline.has_value()) {
-        QString s; toString(underline.value(), s);
-        writer.writeAttribute(QLatin1String("u"), s);
-    }
-    if (strike.has_value()) {
-        QString s; toString(strike.value(), s);
-        writer.writeAttribute(QLatin1String("strike"), s);
-    }
+    if (underline.has_value())
+        writer.writeAttribute(QLatin1String("u"), toString(underline.value()));
+    if (strike.has_value())
+        writer.writeAttribute(QLatin1String("strike"), toString(strike.value()));
     if (kerningFontSize.has_value()) writer.writeAttribute(QLatin1String("kern"),
                                                            QString::number(qRound(kerningFontSize.value()*100)));
-    if (capitalization.has_value()) {
-        QString s; toString(capitalization.value(), s);
-        writer.writeAttribute(QLatin1String("cap"), s);
-    }
+    if (capitalization.has_value())
+        writer.writeAttribute(QLatin1String("cap"), toString(capitalization.value()));
     if (spacing.has_value()) writer.writeAttribute(QLatin1String("spc"), spacing.value().toString());
     writeAttribute(writer, QLatin1String("normalizeH"), normalizeHeights);
     writeAttribute(writer, QLatin1String("noProof"), noProofing);

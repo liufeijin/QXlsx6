@@ -586,8 +586,7 @@ void Series::write(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:smooth"), d->smooth);
     if (d->barShape.has_value() && d->type == Type::Bar) {
         writer.writeEmptyElement(QLatin1String("c:shape"));
-        QString s; toString(d->barShape.value(), s);
-        writer.writeAttribute(QLatin1String("val"), s);
+        writer.writeAttribute(QLatin1String("val"), toString(d->barShape.value()));
     }
     if (d->type == Type::Pie)
         writeEmptyElement(writer, QLatin1String("c:explosion"), d->pieExplosion);
@@ -984,19 +983,11 @@ void ErrorBars::read(QXmlStreamReader &reader)
 
 void ErrorBars::write(QXmlStreamWriter &writer, const QString &name) const
 {
-    QString s;
     writer.writeStartElement(name);
-    if (direction.has_value()) {
-        writer.writeEmptyElement(QLatin1String("c:errDir"));
-        toString(direction.value(), s);
-        writer.writeAttribute(QLatin1String("val"), s);
-    }
-    writer.writeEmptyElement(QLatin1String("c:errBarType"));
-    toString(barType, s); writer.writeAttribute(QLatin1String("val"), s);
-
-    writer.writeEmptyElement(QLatin1String("c:errValType"));
-    toString(valueType, s); writer.writeAttribute(QLatin1String("val"), s);
-
+    if (direction.has_value())
+        writeEmptyElement(writer, QLatin1String("c:errDir"), toString(direction.value()));
+    writeEmptyElement(writer, QLatin1String("c:errBarType"), toString(barType));
+    writeEmptyElement(writer, QLatin1String("c:errValType"), toString(valueType));
     writeEmptyElement(writer, QLatin1String("c:noEndCap"), noEndCap);
 
     if (plus.isValid()) plus.write(writer, QLatin1String("c:plus"));
@@ -1182,7 +1173,7 @@ void TrendLine::write(QXmlStreamWriter &writer, const QString &name) const
 
     if (!this->name.isEmpty()) writer.writeTextElement(QLatin1String("c:name"), this->name);
     shape.write(writer, QLatin1String("c:spPr"));
-    QString s; toString(type, s); writeEmptyElement(writer, QLatin1String("c:trendlineType"), s);
+    writeEmptyElement(writer, QLatin1String("c:trendlineType"), toString(type));
     switch (type) {
         case Type::MovingAverage:
             writeEmptyElement(writer, QLatin1String("c:period"), period); break;

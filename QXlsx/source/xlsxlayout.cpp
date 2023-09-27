@@ -367,28 +367,23 @@ QDebug operator<<(QDebug dbg, const Layout &f)
     dbg.nospace() << "layoutTarget=";
     QString s;
     if (f.d->layoutTarget.has_value()) {
-        f.toString(f.d->layoutTarget.value(), s);
-        dbg.nospace() << s << ", ";
+        dbg.nospace() << f.toString(f.d->layoutTarget.value()) << ", ";
     }
     else dbg.nospace() << "not def, ";
     if (f.d->xMode.has_value()) {
-        f.toString(f.d->xMode.value(), s);
-        dbg.nospace() << s << ", ";
+        dbg.nospace() << f.toString(f.d->xMode.value()) << ", ";
     }
     else dbg.nospace() << "not def, ";
     if (f.d->yMode.has_value()) {
-        f.toString(f.d->yMode.value(), s);
-        dbg.nospace() << s << ", ";
+        dbg.nospace() << f.toString(f.d->yMode.value()) << ", ";
     }
     else dbg.nospace() << "not def, ";
     if (f.d->wMode.has_value()) {
-        f.toString(f.d->wMode.value(), s);
-        dbg.nospace() << s << ", ";
+        dbg.nospace() << f.toString(f.d->wMode.value()) << ", ";
     }
     else dbg.nospace() << "not def, ";
     if (f.d->hMode.has_value()) {
-        f.toString(f.d->hMode.value(), s);
-        dbg.nospace() << s << ", ";
+        dbg.nospace() << f.toString(f.d->hMode.value()) << ", ";
     }
     else dbg.nospace() << "not def, ";
     if (f.d->x.has_value()) {

@@ -205,15 +205,13 @@ public:
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
 private:
-    SERIALIZE_ENUM(FillBlendMode,
-    {
+    SERIALIZE_ENUM(FillBlendMode, {
         {FillBlendMode::Overlay, "over"},
         {FillBlendMode::Multiply, "mult"},
         {FillBlendMode::Screen, "screen"},
         {FillBlendMode::Darken, "darken"},
         {FillBlendMode::Lighten, "lighten"}
     });
-
     void readEffectList(QXmlStreamReader &reader);
     void writeEffectList(QXmlStreamWriter &writer) const;
     QSharedDataPointer<EffectPrivate> d;
@@ -222,7 +220,43 @@ private:
 
 QDebug operator<<(QDebug dbg, const Effect &e);
 
+} //namespace QXlsx
 
-}
+//template<>
+//constexpr std::string_view enum_name<QXlsx::Effect::FillBlendMode>(QXlsx::Effect::FillBlendMode value) noexcept
+//{
+//    switch (value) {
+//        case QXlsx::Effect::FillBlendMode::Overlay: return "over";
+//        case QXlsx::Effect::FillBlendMode::Multiply: return "mult";
+//        case QXlsx::Effect::FillBlendMode::Screen: return "screen";
+//        case QXlsx::Effect::FillBlendMode::Darken: return "darken";
+//        case QXlsx::Effect::FillBlendMode::Lighten: return "lighten";
+//    }
+//    return "";
+//}
+
+//template<>
+//constexpr QXlsx::Effect::FillBlendMode enum_cast<QXlsx::Effect::FillBlendMode>(std::string value) noexcept
+//{
+//    if ()
+//    switch (value) {
+//        case QXlsx::Effect::FillBlendMode::Overlay: return "over";
+//        case QXlsx::Effect::FillBlendMode::Multiply: return "mult";
+//        case QXlsx::Effect::FillBlendMode::Screen: return "screen";
+//        case QXlsx::Effect::FillBlendMode::Darken: return "darken";
+//        case QXlsx::Effect::FillBlendMode::Lighten: return "lighten";
+//    }
+//    return "";
+//}
+
+//#if MAGIC_ENUM_SUPPORTED
+//template <>
+//constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<QXlsx::Effect::FillBlendMode>(QXlsx::Effect::FillBlendMode value) noexcept
+//{
+//    return QXlsx::enum_name(value);
+//}
+//#endif
+
+
 
 #endif // XLSXEFFECT_H

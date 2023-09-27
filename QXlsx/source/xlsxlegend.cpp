@@ -219,8 +219,7 @@ void Legend::write(QXmlStreamWriter &writer) const
 
     writer.writeStartElement(QLatin1String("c:legend"));
     if (d->pos.has_value()) {
-        QString s; toString(d->pos.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:legendPos"), s);
+        writeEmptyElement(writer, QLatin1String("c:legendPos"), toString(d->pos.value()));
     }
     for (const auto &e: qAsConst(d->entries)) e.write(writer, QLatin1String("c:legendEntry"));
     d->layout.write(writer, QLatin1String("c:layout"));

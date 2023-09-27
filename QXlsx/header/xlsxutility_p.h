@@ -38,13 +38,13 @@ QString toST_Percent(double val);
 QString toST_PercentInt(int val);
 
 #define SERIALIZE_ENUM(ENUM_TYPE,...) \
-    static inline void toString(const ENUM_TYPE &e, QString &s) { \
+    static inline QString toString(const ENUM_TYPE &e) { \
         static_assert(std::is_enum<ENUM_TYPE>(), #ENUM_TYPE " must be an enum!"); \
         static const std::pair<ENUM_TYPE, QString> m[] = __VA_ARGS__; \
         auto it = std::find_if(std::begin(m), std::end(m), \
                   [e](const std::pair<ENUM_TYPE, QString> &pair) -> bool \
                   { return pair.first == e;}); \
-        s = (it != std::end(m)) ? it->second : std::begin(m)->second; \
+        return (it != std::end(m)) ? it->second : std::begin(m)->second; \
     } \
     static inline void fromString(const QString &s, ENUM_TYPE &e) { \
         static_assert(std::is_enum<ENUM_TYPE>(), #ENUM_TYPE " must be an enum!"); \

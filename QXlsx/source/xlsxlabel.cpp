@@ -665,12 +665,10 @@ void SharedLabelProperties::write(QXmlStreamWriter &writer) const
         writer.writeAttribute(QLatin1String("formatCode"), numberFormat);
         writer.writeAttribute(QLatin1String("sourceLinked"), toST_Boolean(formatSourceLinked));
     }
-    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
-    if (text.isValid()) text.write(writer, QLatin1String("c:txPr"));
-    if (pos.has_value()) {
-        QString s; Label::toString(pos.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:dLblPos"), s);
-    }
+    shape.write(writer, QLatin1String("c:spPr"));
+    text.write(writer, QLatin1String("c:txPr"));
+    if (pos.has_value())
+        writeEmptyElement(writer, QLatin1String("c:dLblPos"), Label::toString(pos.value()));
     writeEmptyElement(writer, QLatin1String("c:showVal"), showFlags.testFlag(Label::ShowValue));
     writeEmptyElement(writer, QLatin1String("c:showCatName"), showFlags.testFlag(Label::ShowCategory));
     writeEmptyElement(writer, QLatin1String("c:showSerName"), showFlags.testFlag(Label::ShowSeries));

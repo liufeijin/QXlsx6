@@ -38,112 +38,130 @@ if(NOT DEFINED ${QXLSX_SOURCEPATH})
 	set(QXLSX_SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/source/)
 endif(NOT DEFINED ${QXLSX_SOURCEPATH})
 
-message("Current Path of QXlsx")
+message("Current paths of QXlsx: ")
 message(${QXLSX_PARENTPATH})
 message(${QXLSX_HEADERPATH})
 message(${QXLSX_SOURCEPATH})
 
-# Due historical reasons this value is kept off
+# Due to historical reasons this value is kept off
 option(BUILD_SHARED_LIBS "Build in shared lib mode" OFF)
 
 set(SRC_FILES
-    source/xlsxlegend.cpp
-    source/xlsxlayout.cpp
-    source/xlsxseries.cpp
-    source/xlsxeffect.cpp
-    source/xlsxlabel.cpp
-    source/xlsxfont.cpp
-    source/xlsxtext.cpp
-    source/xlsxtitle.cpp
-    source/xlsxfillformat.cpp
-    source/xlsxmain.cpp
-    source/xlsxshapeformat.cpp
-    source/xlsxaxis.cpp
-    source/xlsxmarkerformat.cpp
-    source/xlsxlineformat.cpp
-    header/xlsxlegend.h
-    header/xlsxlayout.h
-    header/xlsxseries.h
-    header/xlsxeffect.h
-    header/xlsxlabel.h
-    header/xlsxfont.h
-    header/xlsxtext.h
-    header/xlsxtext_p.h
-    header/xlsxtitle.h
-    header/xlsxfillformat.h
-    header/xlsxmain.h
-    header/xlsxshapeformat.h
-    header/xlsxaxis.h
-    header/xlsxmarkerformat.h
-    header/xlsxmarkerformat_p.h
-    header/xlsxlineformat.h
-    header/xlsxlineformat_p.h
-    source/xlsxcellrange.cpp
-    source/xlsxcellrange.cpp
-    source/xlsxcontenttypes.cpp
-    source/xlsxdrawinganchor.cpp
-    source/xlsxrichstring.cpp
-    source/xlsxworkbook.cpp
-    source/xlsxabstractooxmlfile.cpp
     source/xlsxcellreference.cpp
-    source/xlsxdatavalidation.cpp
-    source/xlsxdrawing.cpp
-    source/xlsxsharedstrings.cpp
-    source/xlsxworksheet.cpp
-    source/xlsxabstractsheet.cpp
     source/xlsxchart.cpp
-    source/xlsxdatetype.cpp
-    source/xlsxformat.cpp
-    source/xlsxsimpleooxmlfile.cpp
-    source/xlsxzipreader.cpp
-    source/xlsxcell.cpp
     source/xlsxchartsheet.cpp
-    source/xlsxdocpropsapp.cpp
-    source/xlsxmediafile.cpp
-    source/xlsxstyles.cpp
-    source/xlsxzipwriter.cpp
-    source/xlsxcellformula.cpp
     source/xlsxcolor.cpp
-    source/xlsxdocpropscore.cpp
-    source/xlsxnumformatparser.cpp
-    source/xlsxtheme.cpp
-    source/xlsxcelllocation.cpp
     source/xlsxconditionalformatting.cpp
+    source/xlsxcontenttypes.cpp
+    source/xlsxdatavalidation.cpp
+    source/xlsxdatetype.cpp
+    source/xlsxdocpropsapp.cpp
+    source/xlsxdocpropscore.cpp
     source/xlsxdocument.cpp
+    source/xlsxdrawing.cpp
+    source/xlsxdrawinganchor.cpp
+    source/xlsxeffect.cpp
+    source/xlsxfillformat.cpp
+    source/xlsxfont.cpp
+    source/xlsxformat.cpp
+    source/xlsxlabel.cpp
+    source/xlsxlayout.cpp
+    source/xlsxlegend.cpp
+    source/xlsxlineformat.cpp
+    source/xlsxmain.cpp
+    source/xlsxmarkerformat.cpp
+    source/xlsxmediafile.cpp
+    source/xlsxnumformatparser.cpp
     source/xlsxrelationships.cpp
+    source/xlsxrichstring.cpp
+    source/xlsxseries.cpp
+    source/xlsxshapeformat.cpp
+    source/xlsxsharedstrings.cpp
+    source/xlsxsheetview.cpp
+    source/xlsxsimpleooxmlfile.cpp
+    source/xlsxstyles.cpp
+    source/xlsxtext.cpp
+    source/xlsxtheme.cpp
+    source/xlsxtitle.cpp
     source/xlsxutility.cpp
-    header/xlsxabstractooxmlfile_p.h
-    header/xlsxchartsheet_p.h
-    header/xlsxdocpropsapp_p.h
-    header/xlsxformat_p.h
-    header/xlsxsharedstrings_p.h
-    header/xlsxworkbook_p.h
-    header/xlsxabstractsheet_p.h
-    header/xlsxcolor_p.h
-    header/xlsxdocpropscore_p.h
-    header/xlsxmediafile_p.h
-    header/xlsxsimpleooxmlfile_p.h
-    header/xlsxworksheet_p.h
-    header/xlsxcellformula_p.h
+    source/xlsxworkbook.cpp
+    source/xlsxworksheet.cpp
+    source/xlsxzipreader.cpp
+    source/xlsxzipwriter.cpp
+    source/xlsxabstractooxmlfile.cpp
+    source/xlsxabstractsheet.cpp
+    source/xlsxautofilter.cpp
+    source/xlsxaxis.cpp
+    source/xlsxcell.cpp
+    source/xlsxcellformula.cpp
+    source/xlsxcellrange.cpp
     header/xlsxconditionalformatting_p.h
-    header/xlsxdocument_p.h
-    header/xlsxnumformatparser_p.h
-    header/xlsxstyles_p.h
-    header/xlsxzipreader_p.h
-    header/xlsxcell_p.h
     header/xlsxcontenttypes_p.h
-    header/xlsxdrawinganchor_p.h
-    header/xlsxrelationships_p.h
-    header/xlsxtheme_p.h
-    header/xlsxzipwriter_p.h
-    header/xlsxchart_p.h
+    header/xlsxdatavalidation.h
     header/xlsxdatavalidation_p.h
+    header/xlsxdatetype.h
+    header/xlsxdocpropsapp_p.h
+    header/xlsxdocpropscore_p.h
+    header/xlsxdocument.h
+    header/xlsxdocument_p.h
     header/xlsxdrawing_p.h
+    header/xlsxdrawinganchor_p.h
+    header/xlsxeffect.h
+    header/xlsxfillformat.h
+    header/xlsxfont.h
+    header/xlsxformat.h
+    header/xlsxformat_p.h
+    header/xlsxglobal.h
+    header/xlsxlabel.h
+    header/xlsxlayout.h
+    header/xlsxlegend.h
+    header/xlsxlineformat.h
+    header/xlsxmain.h
+    header/xlsxmarkerformat.h
+    header/xlsxmediafile_p.h
+    header/xlsxnumformatparser_p.h
+    header/xlsxrelationships_p.h
+    header/xlsxrichstring.h
     header/xlsxrichstring_p.h
+    header/xlsxseries.h
+    header/xlsxshapeformat.h
+    header/xlsxsharedstrings_p.h
+    header/xlsxsheetview.h
+    header/xlsxsimpleooxmlfile_p.h
+    header/xlsxstyles_p.h
+    header/xlsxtext.h
+    header/xlsxtheme_p.h
+    header/xlsxtitle.h
     header/xlsxutility_p.h
+    header/xlsxworkbook.h
+    header/xlsxworkbook_p.h
+    header/xlsxworksheet.h
+    header/xlsxworksheet_p.h
+    header/xlsxzipreader_p.h
+    header/xlsxzipwriter_p.h
+    header/xlsxabstractooxmlfile.h
+    header/xlsxabstractooxmlfile_p.h
+    header/xlsxabstractsheet.h
+    header/xlsxabstractsheet_p.h
+    header/xlsxautofilter.h
+    header/xlsxaxis.h
+    header/xlsxcell.h
+    header/xlsxcell_p.h
+    header/xlsxcellformula.h
+    header/xlsxcellformula_p.h
+    header/xlsxcellrange.h
+    header/xlsxcellreference.h
+    header/xlsxchart.h
+    header/xlsxchartsheet.h
+    header/xlsxchartsheet_p.h
+    header/xlsxcolor.h
+    header/xlsxcolor_p.h
+    header/xlsxconditionalformatting.h
 )
 
 set(QXLSX_PUBLIC_HEADERS
+    header/xlsxautofilter.h
+    header/xlsxsheetview.h
     header/xlsxlegend.h
     header/xlsxlayout.h
     header/xlsxseries.h
@@ -163,7 +181,6 @@ set(QXLSX_PUBLIC_HEADERS
     header/xlsxabstractsheet_p.h
     header/xlsxcellformula.h
     header/xlsxcell.h
-    header/xlsxcelllocation.h
     header/xlsxcellrange.h
     header/xlsxcellreference.h
     header/xlsxchart.h
@@ -188,8 +205,6 @@ add_library(QXlsx::QXlsx ALIAS QXlsx)
 
 target_compile_definitions(QXlsx PRIVATE
     QT_NO_KEYWORDS
-    QT_NO_CAST_TO_ASCII
-    QT_NO_CAST_FROM_ASCII
     QT_NO_URL_CAST_FROM_STRING
     QT_NO_CAST_FROM_BYTEARRAY
     QT_USE_QSTRINGBUILDER
@@ -206,7 +221,7 @@ if (NOT WIN32)
     target_compile_definitions(QXlsx PRIVATE QT_STRICT_ITERATORS)
 endif()
 
-target_compile_features(QXlsx INTERFACE cxx_std_11)
+target_compile_features(QXlsx INTERFACE cxx_std_17)
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(QXlsx PUBLIC QXlsx_SHAREDLIB)

@@ -199,10 +199,7 @@ QString Color::schemeColorName() const
     if (type_ != Type::Scheme) return QString();
 
     SchemeColor c = static_cast<SchemeColor>(val.toInt());
-    QString s;
-    toString(c, s);
-
-    return s;
+    return toString(c);
 }
 
 Color::SystemColor Color::systemColor() const
@@ -217,10 +214,7 @@ QString Color::systemColorName() const
     if (type_ != Type::System) return QString();
 
     SystemColor c = static_cast<SystemColor>(val.toInt());
-    QString s;
-    toString(c, s);
-
-    return s;
+    return toString(c);
 }
 
 int Color::indexedColor() const

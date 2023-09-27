@@ -600,8 +600,7 @@ void Axis::write(QXmlStreamWriter &writer) const
     if (d->visible.has_value())
         writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
 
-    writer.writeEmptyElement("c:axPos");
-    QString s; toString(d->position, s); writer.writeAttribute(QLatin1String("val"), s);
+    writeEmptyElement(writer, QLatin1String("c:axPos"), toString(d->position));
 
     if (d->majorGridlines.isValid() || d->majorGridlinesOn) {
         if (!d->majorGridlines.isValid()) {
@@ -652,22 +651,12 @@ void Axis::write(QXmlStreamWriter &writer) const
 
     d->numberFormat.write(writer, QLatin1String("c:numFmt"));
 
-    if (d->majorTickMark.has_value()) {
-        QString s;
-        toString(d->majorTickMark.value(), s);
-        writer.writeEmptyElement("c:majorTickMark");
-        writer.writeAttribute("val", s);
-    }
-    if (d->minorTickMark.has_value()) {
-        QString s;
-        toString(d->minorTickMark.value(), s);
-        writer.writeEmptyElement("c:minorTickMark");
-        writer.writeAttribute("val", s);
-    }
-    if (d->tickLabelPosition.has_value()) {
-        QString s; toString(d->tickLabelPosition.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:tickLblPos"), s);
-    }
+    if (d->majorTickMark.has_value())
+        writeEmptyElement(writer, QLatin1String("c:majorTickMark"), toString(d->majorTickMark.value()));
+    if (d->minorTickMark.has_value())
+        writeEmptyElement(writer, QLatin1String("c:minorTickMark"), toString(d->minorTickMark.value()));
+    if (d->tickLabelPosition.has_value())
+        writeEmptyElement(writer, QLatin1String("c:tickLblPos"), toString(d->tickLabelPosition.value()));
     d->shape.write(writer, QLatin1String("c:spPr"));
 
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
@@ -675,10 +664,8 @@ void Axis::write(QXmlStreamWriter &writer) const
     if (d->type == Type::Category || d->type == Type::Date) {
         writeEmptyElement(writer, QLatin1String("c:auto"), d->axAuto);
     }
-    if (d->type == Type::Category && d->labelAlignment.has_value()) {
-        QString s; toString(d->labelAlignment.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:lblAlgn"), s);
-    }
+    if (d->type == Type::Category && d->labelAlignment.has_value())
+        writeEmptyElement(writer, QLatin1String("c:lblAlgn"), toString(d->labelAlignment.value()));
 
     if (d->type == Type::Category || d->type == Type::Date) {
         if (d->labelOffset.has_value())
@@ -691,18 +678,12 @@ void Axis::write(QXmlStreamWriter &writer) const
     }
     if (d->type == Type::Date) {
         QString s;
-        if (d->baseTimeUnit.has_value()) {
-            toString(d->baseTimeUnit.value(), s);
-            writeEmptyElement(writer, QLatin1String("c:baseTimeUnit"), s);
-        }
-        if (d->majorTimeUnit.has_value()) {
-            toString(d->majorTimeUnit.value(), s);
-            writeEmptyElement(writer, QLatin1String("c:majorTimeUnit"), s);
-        }
-        if (d->minorTimeUnit.has_value()) {
-            toString(d->minorTimeUnit.value(), s);
-            writeEmptyElement(writer, QLatin1String("c:minorTimeUnit"), s);
-        }
+        if (d->baseTimeUnit.has_value())
+            writeEmptyElement(writer, QLatin1String("c:baseTimeUnit"), toString(d->baseTimeUnit.value()));
+        if (d->majorTimeUnit.has_value())
+            writeEmptyElement(writer, QLatin1String("c:majorTimeUnit"), toString(d->majorTimeUnit.value()));
+        if (d->minorTimeUnit.has_value())
+            writeEmptyElement(writer, QLatin1String("c:minorTimeUnit"), toString(d->minorTimeUnit.value()));
     }
     if (d->type == Type::Value || d->type == Type::Series) {
         writeEmptyElement(writer, QLatin1String("c:tickLblSkip"), d->tickLabelSkip);
@@ -711,11 +692,9 @@ void Axis::write(QXmlStreamWriter &writer) const
     if (d->type == Type::Category)
         writeEmptyElement(writer, QLatin1String("c:noMultiLvlLbl"), d->noMultiLevelLabels);
     if (d->type == Type::Value) {
-        if (d->crossesBetween.has_value()) {
-            QString s; toString(d->crossesBetween.value(), s);
-            writeEmptyElement(writer, QLatin1String("c:crossBetween"), s);
-        }
-        if (d->displayUnits.isValid()) d->displayUnits.write(writer, QLatin1String("c:dispUnits"));
+        if (d->crossesBetween.has_value())
+            writeEmptyElement(writer, QLatin1String("c:crossBetween"), toString(d->crossesBetween.value()));
+        d->displayUnits.write(writer, QLatin1String("c:dispUnits"));
     }
 
     writer.writeEndElement();
@@ -1090,11 +1069,10 @@ void DisplayUnits::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (!isValid()) return;
     writer.writeStartElement(name);
-    if (d->customUnit.has_value()) writeEmptyElement(writer, QLatin1String("c:custUnit"), d->customUnit);
-    else if (d->builtInUnit.has_value()) {
-        QString s; toString(d->builtInUnit.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:builtInUnit"), s);
-    }
+    if (d->customUnit.has_value())
+        writeEmptyElement(writer, QLatin1String("c:custUnit"), d->customUnit);
+    else if (d->builtInUnit.has_value())
+        writeEmptyElement(writer, QLatin1String("c:builtInUnit"), toString(d->builtInUnit.value()));
     if (d->labelVisible && d->title.isValid())
         d->title.write(writer, QLatin1String("c:dispUnitsLbl"));
     writer.writeEndElement();

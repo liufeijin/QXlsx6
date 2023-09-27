@@ -97,13 +97,10 @@ void MarkerFormat::write(QXmlStreamWriter &writer) const
 
     writer.writeStartElement("c:marker");
 
-    if (d->markerType.has_value()) {
-        writer.writeEmptyElement("c:symbol");
-        QString s; toString(d->markerType.value(), s);
-        writer.writeAttribute("val", s);
-    }
+    if (d->markerType.has_value())
+        writeEmptyElement(writer, QLatin1String("c:symbol"), toString(d->markerType.value()));
     writeEmptyElement(writer, QLatin1String("c:size"), d->size);
-    if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
+    d->shape.write(writer, "c:spPr");
     writer.writeEndElement();
 }
 

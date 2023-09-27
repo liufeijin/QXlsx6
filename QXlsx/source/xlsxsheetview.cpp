@@ -155,8 +155,7 @@ void Selection::write(QXmlStreamWriter &writer, const QLatin1String &name) const
     if (!isValid()) return;
     writer.writeEmptyElement(name);
     if (pane.has_value()) {
-        QString s; toString(pane.value(), s);
-        writer.writeAttribute(QLatin1String("pane"), s);
+        writer.writeAttribute(QLatin1String("pane"), toString(pane.value()));
     }
     auto ref = activeCell;
     if (!ref.isValid()) {

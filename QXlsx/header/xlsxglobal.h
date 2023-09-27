@@ -30,4 +30,61 @@
 
 #define QXLSX_USE_NAMESPACE using namespace QXlsx;
 
+//#include <magic_enum_all.hpp>
+
+//using namespace magic_enum::istream_operators;
+//using namespace magic_enum::ostream_operators;
+
+//#if MAGIC_ENUM_SUPPORTED
+//template<typename T>
+//std::optional<T> magic_cast(QStringRef val)
+//{
+//    return magic_enum::enum_cast<T>(val.toString().toStdString());
+//}
+
+//template<typename T>
+//QString magic_name(std::optional<T> val)
+//{
+//    if (val.has_value())
+//        return QString::fromStdString(std::string(magic_enum::enum_name(val.value())));
+//    return {};
+//}
+
+//template<typename T>
+//QString magic_name(T val)
+//{
+//    return QString::fromStdString(std::string(magic_enum::enum_name(val)));
+//}
+//#else
+
+//template<typename T>
+//constexpr std::string_view enum_name(T value) noexcept
+//{
+//    (void)value;
+//    return "";
+//}
+
+//template<typename T>
+//std::optional<T> magic_cast(QStringRef val)
+//{
+//    //return magic_enum::enum_cast<T>(val.toString().toStdString());
+//    return {};
+//}
+
+//template<typename T>
+//QString magic_name(std::optional<T> val)
+//{
+//    if (val.has_value())
+//        return QString::fromStdString(std::string(enum_name<T>(val.value())));
+//    return {};
+//}
+
+//template<typename T>
+//QString magic_name(T val)
+//{
+//    return QString::fromStdString(std::string(enum_name<T>(val)));
+//}
+//#endif
+
+
 #endif // XLSXGLOBAL_H

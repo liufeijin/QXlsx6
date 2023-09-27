@@ -1507,10 +1507,8 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     if (legend.isValid()) legend.write(writer);
 
     writeEmptyElement(writer, QLatin1String("c:plotVisOnly"), plotVisOnly);
-    if (dispBlanksAs.has_value()) {
-        QString s; Chart::toString(dispBlanksAs.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:dispBlanksAs"), s);
-    }
+    if (dispBlanksAs.has_value())
+        writeEmptyElement(writer, QLatin1String("c:dispBlanksAs"), Chart::toString(dispBlanksAs.value()));
     writeEmptyElement(writer, QLatin1String("c:showDLblsOverMax"), showDLblsOverMax);
 
     writer.writeEndElement(); // c:chart
@@ -1573,10 +1571,8 @@ void CT_XXXChart::readDropLines(QXmlStreamReader &reader, ShapeFormat &shape)
 void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Area3D ? QLatin1String("c:area3DChart") : QLatin1String("c:areaChart"));
-    if (grouping.has_value()) {
-        QString s; Chart::toString(grouping.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:grouping"), s);
-    }
+    if (grouping.has_value())
+        writeEmptyElement(writer, QLatin1String("c:grouping"), Chart::toString(grouping.value()));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
@@ -1653,10 +1649,8 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
     if (type == Chart::Type::OfPie) {
         if (gapWidth.has_value())
             writeEmptyElement(writer, QLatin1String("c:gapWidth"), toST_PercentInt(gapWidth.value()));
-        if (splitType.has_value()) {
-            QString s; Chart::toString(splitType.value(), s);
-            writeEmptyElement(writer, QLatin1String("c:splitType"), s);
-        }
+        if (splitType.has_value())
+            writeEmptyElement(writer, QLatin1String("c:splitType"), Chart::toString(splitType.value()));
         if (splitPos.has_value())
             writeEmptyElement(writer, QLatin1String("c:splitPos"), QString::number(splitPos.value()));
         if (!customSplit.isEmpty()) {
@@ -1681,10 +1675,8 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
 void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Line3D ? QLatin1String("c:line3DChart") : QLatin1String("c:lineChart"));
-    if (grouping.has_value()) {
-        QString s; Chart::toString(grouping.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:grouping"), s);
-    }
+    if (grouping.has_value())
+        writeEmptyElement(writer, QLatin1String("c:grouping"), Chart::toString(grouping.value()));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
@@ -1728,10 +1720,8 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:barDir"), QLatin1String("bar"));
     if (barDirection == Chart::BarDirection::Column)
         writeEmptyElement(writer, QLatin1String("c:barDir"), QLatin1String("col"));
-    if (barGrouping.has_value()) {
-        QString s; Chart::toString(barGrouping.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:grouping"), s);
-    }
+    if (barGrouping.has_value())
+        writeEmptyElement(writer, QLatin1String("c:grouping"), Chart::toString(barGrouping.value()));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
@@ -1752,10 +1742,8 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
             }
         }
     }
-    if (type == Chart::Type::Bar3D && barShape.has_value()) {
-        QString s; Series::toString(barShape.value(), s);
-        writeEmptyElement(writer, QLatin1String("c:shape"), s);
-    }
+    if (type == Chart::Type::Bar3D && barShape.has_value())
+        writeEmptyElement(writer, QLatin1String("c:shape"), Series::toString(barShape.value()));
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
@@ -1765,8 +1753,7 @@ void CT_XXXChart::saveScatterChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:scatterChart"));
 
-    QString s; Chart::toString(scatterStyle, s);
-    writeEmptyElement(writer, QLatin1String("c:scatterStyle"), s);
+    writeEmptyElement(writer, QLatin1String("c:scatterStyle"), Chart::toString(scatterStyle));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
@@ -1807,8 +1794,7 @@ void CT_XXXChart::saveRadarChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:radarChart"));
 
-    QString s; Chart::toString(radarStyle, s);
-    writeEmptyElement(writer, QLatin1String("c:radarStyle"), s);
+    writeEmptyElement(writer, QLatin1String("c:radarStyle"), Chart::toString(radarStyle));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);

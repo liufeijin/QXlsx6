@@ -1052,9 +1052,7 @@ void FillFormat::writeGradientFill(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("a:gradFill"));
     if (d->tileFlipMode.has_value()) {
-        QString s;
-        toString(d->tileFlipMode.value(), s);
-        writer.writeAttribute("flip", s);
+        writer.writeAttribute("flip", toString(d->tileFlipMode.value()));
     }
     if (d->rotWithShape.has_value()) writer.writeAttribute("rotWithShape", d->rotWithShape.value() ? "true" : "false");
     writeGradientList(writer);
@@ -1118,11 +1116,8 @@ void FillFormat::writePatternFill(QXmlStreamWriter &writer) const
     }
 
     writer.writeStartElement(QLatin1String("a:pattFill"));
-    if (d->patternType.has_value()) {
-        QString s;
-        toString(d->patternType.value(), s);
-        writer.writeAttribute(QLatin1String("prst"), s);
-    }
+    if (d->patternType.has_value())
+        writer.writeAttribute(QLatin1String("prst"), toString(d->patternType.value()));
     if (d->backgroundColor.isValid()) {
         writer.writeStartElement(QLatin1String("a:bgClr"));
         d->backgroundColor.write(writer);
@@ -1156,10 +1151,8 @@ void FillFormat::writePictureFill(QXmlStreamWriter &writer) const
     writer.writeStartElement(QLatin1String("a:blip"));
     writer.writeAttribute(QLatin1String("xmlns:r"), QLatin1String("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
     writer.writeAttribute(QLatin1String("r:embed"), d->blipID);
-    if (d->blipCompression.has_value()) {
-        QString s; toString(d->blipCompression.value(), s);
-        writer.writeAttribute(QLatin1String("cstate"), s);
-    }
+    if (d->blipCompression.has_value())
+        writer.writeAttribute(QLatin1String("cstate"), toString(d->blipCompression.value()));
     if (d->alpha.has_value()) {
         writer.writeEmptyElement(QLatin1String("a:alphaModFix"));
         writeAttributePercent(writer, QLatin1String("amt"), d->alpha.value());
@@ -1182,14 +1175,10 @@ void FillFormat::writePictureFill(QXmlStreamWriter &writer) const
                 if (d->ty.isValid()) writeAttribute(writer, QLatin1String("ty"), d->ty.toString());
                 writeAttributePercent(writer, QLatin1String("sx"), d->sx);
                 writeAttributePercent(writer, QLatin1String("sy"), d->sy);
-                if (d->tileFlipMode.has_value()) {
-                    QString s; toString(d->tileFlipMode.value(), s);
-                    writeAttribute(writer, QLatin1String("flip"), s);
-                }
-                if (d->tileAlignment.has_value()) {
-                    QString s; toString(d->tileAlignment.value(), s);
-                    writeAttribute(writer, QLatin1String("algn"), s);
-                }
+                if (d->tileFlipMode.has_value())
+                    writeAttribute(writer, QLatin1String("flip"), toString(d->tileFlipMode.value()));
+                if (d->tileAlignment.has_value())
+                    writeAttribute(writer, QLatin1String("algn"), toString(d->tileAlignment.value()));
                 writer.writeEndElement(); //a:tile
                 break;
             }

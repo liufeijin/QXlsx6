@@ -201,11 +201,8 @@ void ShapeFormat::write(QXmlStreamWriter &writer, const QString &name) const
     if (!d) return;
 
     writer.writeStartElement(name);
-    if (d->blackWhiteMode.has_value()) {
-        QString s;
-        toString(d->blackWhiteMode.value(), s);
-        writer.writeAttribute(QLatin1String("bwMode"), s);
-    }
+    if (d->blackWhiteMode.has_value())
+        writer.writeAttribute(QLatin1String("bwMode"), toString(d->blackWhiteMode.value()));
     if (d->xfrm.has_value()) d->xfrm->write(writer, QLatin1String("a:xfrm"));
     if (d->presetGeometry.has_value()) {
         d->presetGeometry->write(writer, QLatin1String("a:prstGeom"));
@@ -316,10 +313,8 @@ QDebug operator<<(QDebug dbg, const ShapeFormat &f)
     QDebugStateSaver saver(dbg);
     dbg.setAutoInsertSpaces(false);
     dbg << "QXlsx::ShapeFormat(";
-    if (f.d->blackWhiteMode.has_value()) {
-        QString s; ShapeFormat::toString(f.d->blackWhiteMode.value(), s);
-        dbg << "blackWhiteMode: "<<s<<",";
-    }
+    if (f.d->blackWhiteMode.has_value())
+        dbg << "blackWhiteMode: "<<ShapeFormat::toString(f.d->blackWhiteMode.value())<<",";
     if (f.d->xfrm.has_value()) dbg << "transform2D: "<< f.d->xfrm.value() << ", ";
     if (f.d->presetGeometry.has_value()) dbg << "presetGeometry: "<< f.d->presetGeometry.value() << ", ";
     if (f.d->fill.isValid()) dbg << "fill: "<<f.d->fill<<", ";

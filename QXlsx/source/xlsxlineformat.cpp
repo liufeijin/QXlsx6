@@ -519,11 +519,8 @@ void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
 
     writer.writeStartElement(name);
     if (d->width.isValid()) writer.writeAttribute("w", d->width.toString());
-    if (d->compoundLineType.has_value()) {
-        QString s;
-        toString(d->compoundLineType.value(), s);
-        writer.writeAttribute("cmpd", s);
-    }
+    if (d->compoundLineType.has_value())
+        writer.writeAttribute("cmpd", toString(d->compoundLineType.value()));
     if (d->lineCap.has_value()) {
         switch (d->lineCap.value()) {
             case LineCap::Flat: writer.writeAttribute("cap", "flat"); break;

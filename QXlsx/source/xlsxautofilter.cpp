@@ -376,8 +376,7 @@ void AutoFilterColumn::write(QXmlStreamWriter &writer, const QString &name, int 
         case Filter::Type::Dynamic: {
             if (filter.dynamicType != Filter::DynamicFilterType::Invalid) {
                 writer.writeEmptyElement(QLatin1String("dynamicFilter"));
-                QString s; Filter::toString(filter.dynamicType, s);
-                writeAttribute(writer, QLatin1String("type"), s);
+                writeAttribute(writer, QLatin1String("type"), Filter::toString(filter.dynamicType));
                 writeAttribute(writer, QLatin1String("val"), filter.val);
                 if (filter.dateTime.has_value()) {
                     double val = datetimeToNumber(filter.dateTime.value());
