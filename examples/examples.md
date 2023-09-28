@@ -1,6 +1,6 @@
 # QXlsx Examples
 
-## [HelloWorld](https://github.com/QtExcel/QXlsx/tree/master/HelloWorld)
+## [HelloWorld](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloWorld)
 
 - Hello world example
 
@@ -53,47 +53,47 @@ int main(int argc, char *argv[])
 }
 ```
 
-## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/TestExcel)
+## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
-    - [calendar](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/calendar.cpp)
-    - [chart](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/chart.cpp)
-    - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
-    - [data validation](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/datavalidation.cpp)
-    - [demo](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/demo.cpp)
-    - [document property](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/documentproperty.cpp)
-    - [extract data](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/extractdata.cpp)
-    - [formula](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/formulas.cpp)
-    - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/hyperlinks.cpp)
-    - [image](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/image.cpp)
-    - [merge cells](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/mergecells.cpp)
-    - [number format](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/numberformat.cpp)
-    - [page margins](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/pageMargins.cpp)
-    - [read style](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/readStyle.cpp)
-    - [richtext](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/richtext.cpp)
-    - [row column](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/rowcolumn.cpp)
-    - [style](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/style.cpp)
-    - [worksheet operations](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/worksheetoperations.cpp)
+    - [calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/calendar.cpp)
+    - [chart](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chart.cpp)
+    - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
+    - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
+    - [demo](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/examples/demo.cpp)
+    - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
+    - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
+    - [formula](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/formulas.cpp)
+    - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/hyperlinks.cpp)
+    - [image](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/image.cpp)
+    - [merge cells](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/mergecells.cpp)
+    - [number format](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/numberformat.cpp)
+    - [page margins](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/pageMargins.cpp)
+    - [read style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/readStyle.cpp)
+    - [richtext](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/richtext.cpp)
+    - [row column](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/rowcolumn.cpp)
+    - [style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/style.cpp)
+    - [worksheet operations](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/examples/worksheetoperations.cpp)
 
-![](markdown.data/testexcel.png)
+![](../markdown.data/testexcel.png)
 
-## [ExcelReading](https://github.com/QtExcel/QXlsx/tree/master/ExcelReading)
+## [ExcelReading](https://github.com/QtExcel/QXlsx/tree/master/examples/ExcelReading)
 
 Loads xlsx file that was created in Excel and writes it back.
 
 The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc.
 
-## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/CombinedChart)
+## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/examples/CombinedChart)
 
 Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
 
-![](markdown.data/combinedchart.png)
+![](../markdown.data/combinedchart.png)
 
-## [ChartLineFill](https://github.com/QtExcel/QXlsx/tree/master/ChartLineFill)
+## [ChartLineFill](https://github.com/QtExcel/QXlsx/tree/master/examples/ChartLineFill)
 
 Demonstrates various line parameters.
 
-## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/HelloAndroid)
+## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloAndroid)
 
 - See 'HelloAndroid' example using QML and native C++.
 
@@ -101,26 +101,26 @@ Demonstrates various line parameters.
 - Android x86 (using Emulator <Android Oreo / API 26>)
 - Android Studio 3.1.3 (Android NDK 17.1)
 
-![](markdown.data/android.jpg)
+![](../markdown.data/android.jpg)
 
-## [WebServer](https://github.com/QtExcel/QXlsx/tree/master/WebServer)
+## [WebServer](https://github.com/QtExcel/QXlsx/tree/master/examples/WebServer)
 - Loads xlsx file and displays on Web.
 	- Connect to `http://127.0.0.1:3001` 
 - C++ 14(17) is required. Old compilers are not supported.
 
-![](markdown.data/webserver.png)
+![](../markdown.data/webserver.png)
 
-## [ShowConsole](https://github.com/QtExcel/QXlsx/tree/master/ShowConsole)
+## [ShowConsole](https://github.com/QtExcel/QXlsx/tree/master/examples/ShowConsole)
 - Loads xlsx file and displays in console.
   - [Usage] ShowConsole *.xlsx
 - C++ 11 is required. Old compilers is not supported.
 
-![](markdown.data/show-console.jpg)
+![](../markdown.data/show-console.jpg)
 
-## [ReadColor](https://github.com/QtExcel/QXlsx/tree/master/ReadColor) 
+## [ReadColor](https://github.com/QtExcel/QXlsx/tree/master/examples/ReadColor) 
 - Read cell color
 
-![](markdown.data/read-color.jpg)
+![](../markdown.data/read-color.jpg)
 
 ## XlsxFactory 
 - Load xlsx file and display on Qt widgets. 
@@ -128,5 +128,5 @@ Demonstrates various line parameters.
 	- https://j2doll.tistory.com/654
 	- The source code of this program cannot be released because it contains a commercial license.
 
-![](markdown.data/copycat.png)
-![](markdown.data/copycat2.jpg)
+![](../markdown.data/copycat.png)
+![](../markdown.data/copycat2.jpg)
