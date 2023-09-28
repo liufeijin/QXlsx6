@@ -11,10 +11,12 @@ CONFIG -= app_bundle
 DEFINES += QT_DEPRECATED_WARNINGS
 
 ##########################################################################
-# NOTE: You can fix value of QXlsx path of source code.
+# NOTE: Here you can change path to QXlsx sources
+
 #  QXLSX_PARENTPATH=./
-#  QXLSX_HEADERPATH=./header/
-#  QXLSX_SOURCEPATH=./source/
-include(../QXlsx/QXlsx.pri)
+#  QXLSX_HEADERPATH=./header/ # should be path to QXlsx/header directory
+#  QXLSX_SOURCEPATH=./source/ # should be path to QXlsx/source directory
+
+include(../../QXlsx/QXlsx.pri)
 
 SOURCES += main.cpp

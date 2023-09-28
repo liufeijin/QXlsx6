@@ -21,27 +21,27 @@ set(EXPORT_NAME QXlsxQt${QT_VERSION_MAJOR})
 
 # the standard required to build the lib
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 if(NOT DEFINED ${QXLSX_PARENTPATH})
-	set(QXLSX_PARENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../)
+    set(QXLSX_PARENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../)
 endif(NOT DEFINED ${QXLSX_PARENTPATH})
 
 if(NOT DEFINED ${QXLSX_HEADERPATH})
-	set(QXLSX_HEADERPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/header/)
+    set(QXLSX_HEADERPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/header/)
 endif(NOT DEFINED ${QXLSX_HEADERPATH})
 
 if(NOT DEFINED ${QXLSX_SOURCEPATH})
-	set(QXLSX_SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/source/)
+    set(QXLSX_SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/source/)
 endif(NOT DEFINED ${QXLSX_SOURCEPATH})
 
 message("Current paths of QXlsx: ")
 message(${QXLSX_PARENTPATH})
 message(${QXLSX_HEADERPATH})
 message(${QXLSX_SOURCEPATH})
+message("QXlsx is built in " ${CMAKE_CURRENT_BINARY_DIR})
 
 # Due to historical reasons this value is kept off
 option(BUILD_SHARED_LIBS "Build in shared lib mode" OFF)
