@@ -4,7 +4,7 @@
 #include <QtCore>
 #include <QDebug>
 
-#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0) // Qt 5.15 or higher
 #include <QRandomGenerator>
 #endif
 
@@ -97,8 +97,10 @@ void writeCustomNumFormatsCell(Document &xlsx, int row, double value, const QStr
     xlsx.write(row, 3, value, format);
 }
 
-int demo()
+int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
+
     Document xlsx;
 
     //---------------------------------------------------------------
@@ -272,24 +274,10 @@ int demo()
 
     //---------------------------------------------------------------
     //Create the fifth sheet.
-    xlsx.addSheet("Merging");
-    xlsx.currentWorksheet()->setTabColor(Qt::red);
-    Format centerAlign;
-    centerAlign.setHorizontalAlignment(Format::AlignHCenter);
-    centerAlign.setVerticalAlignment(Format::AlignVCenter);
-    xlsx.write("B4", "Hello Qt!");
-    xlsx.mergeCells("B4:F6", centerAlign);
-    xlsx.write("B8", 1);
-    xlsx.mergeCells("B8:C21", centerAlign);
-    xlsx.write("E8", 2);
-    xlsx.mergeCells("E8:F21", centerAlign);
-
-    //---------------------------------------------------------------
-    //Create the fifth sheet.
     xlsx.addSheet("Grouping");
     xlsx.currentWorksheet()->setTabColor(Qt::darkBlue);
 
-#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0) // Qt 5.15 or over
     QRandomGenerator rgen;
 #else
     qsrand(QDateTime::currentMSecsSinceEpoch());
@@ -297,7 +285,7 @@ int demo()
 
     for (int row=2; row<31; ++row) {
         for (int col=1; col<=10; ++col) {
-#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0) // Qt 5.15 or over
             xlsx.write(row, col, rgen.generate() % 100);
 #else
             xlsx.write(row, col, qrand() % 100);
@@ -337,6 +325,8 @@ int demo()
     //Make sure that read/write works well.
     Document xlsx2("demo1.xlsx");
     xlsx2.saveAs("demo2.xlsx"); 
+
+    qDebug() << "**** end of main() ****";
 
     return 0;
 }

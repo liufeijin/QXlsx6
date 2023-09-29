@@ -53,14 +53,31 @@ int main(int argc, char *argv[])
 }
 ```
 
+## [Demo](https://github.com/QtExcel/QXlsx/tree/master/examples/Demo)
+
+Demonstrates basic operations in worksheets:
+
+- how to format cells:
+    - text alignment
+    - cell borders
+    - cell fills
+    - text fonts
+    - cell number formats
+- how to merge, group and select cells in a worksheet
+- how to write formulas
+
+## [Calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/Calendar)
+
+Demonstrates how to create a workbook with the current year calendar.
+
+![](../markdown.data/calendar.png)
+
 ## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
-    - [calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/calendar.cpp)
     - [chart](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chart.cpp)
     - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
     - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
-    - [demo](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/examples/demo.cpp)
     - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
     - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
     - [formula](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/formulas.cpp)

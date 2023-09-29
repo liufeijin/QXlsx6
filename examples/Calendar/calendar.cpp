@@ -2,6 +2,7 @@
 
 #include <QtGlobal>
 #include <QtCore>
+#include <QDebug>
 
 #include "xlsxdocument.h"
 #include "xlsxformat.h"
@@ -10,7 +11,7 @@
 
 QXLSX_USE_NAMESPACE
 
-int calendar()
+int main(int argc, char *argv[])
 {
     Document xlsx;
     QDate today(QDate::currentDate());
@@ -159,10 +160,6 @@ int calendar()
     }
 
     xlsx.saveAs("calendar1.xlsx");
-
-    //Make sure that read/write works well.
-    Document xlsx2("calendar1.xlsx");
-    xlsx2.saveAs("calendar2.xlsx");
-
+    qDebug()<<"**** end of main() ****";
     return 0;
 }

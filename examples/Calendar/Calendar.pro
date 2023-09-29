@@ -1,6 +1,6 @@
-# TestExcel.pro
+# Calendar.pro
 
-TARGET = TestExcel
+TARGET = Calendar
 TEMPLATE = app
 
 QT += core
@@ -35,31 +35,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # source code
 
-SOURCES += \
-    autofilter.cpp \
-    barchart.cpp \
-calendar.cpp \
-chart.cpp \
-chartextended.cpp \
-chartsheet.cpp \
-datavalidation.cpp \
-definename.cpp \
-documentproperty.cpp \
-    extlist.cpp \
-extractdata.cpp \
-formulas.cpp \
-hyperlinks.cpp \
-image.cpp \
-main.cpp \
-mergecells.cpp \
-numberformat.cpp \
-richtext.cpp \
-rowcolumn.cpp \
-style.cpp \
-worksheetoperations.cpp \
-readStyle.cpp \
-pageMargins.cpp
-
-RESOURCES += \
-    resource.qrc
-
+SOURCES += calendar.cpp

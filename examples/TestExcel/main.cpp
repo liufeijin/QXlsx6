@@ -8,15 +8,12 @@
 #include <iostream>
 using namespace std;
 
-extern int hello();
-extern int calendar();
 extern int chart();
 extern int chartExtended();
 extern int barChart();
 extern int chartsheet();
 extern int datavalidation();
 extern int definename();
-extern int demo();
 extern int documentproperty();
 extern int extractdata();
 extern int formula();
@@ -37,41 +34,50 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    if ( argc == 2 )
-    {
-        QString strArg1 = argv[1];
-        if ( strArg1 == QString("hello") )
-        {
-            hello();
-            return 0;
-        }
-    }
-
-    hello();
+    qDebug() << "**** readStyle() ****";
     readStyle();
-    calendar();
+    qDebug() << "**** chart() ****";
     chart();
+    qDebug() << "**** chartExtended() ****";
     chartExtended();
+    qDebug() << "**** barChart() ****";
     barChart();
+    qDebug() << "**** chartsheet() ****";
     chartsheet();
+    qDebug() << "**** datavalidation() ****";
     datavalidation();
+    qDebug() << "**** definename() ****";
     definename();
-    demo();
-    documentproperty();
-    extractdata();
-    formula();
-    hyperlink();
-    image();
-    mergecells();
-    numberformat();
-    richtext();
-    rowcolumn();
-    style();
-    worksheetoperations();
-    pages();
-    readextlist();
-    autofilter();
+    qDebug() << "**** documentproperty() ****";
     
+    documentproperty();
+    qDebug() << "**** extractdata() ****";
+    extractdata();
+    qDebug() << "**** formula() ****";
+    formula();
+    qDebug() << "**** hyperlink() ****";
+    hyperlink();
+    qDebug() << "**** image() ****";
+    image();
+    qDebug() << "**** mergecells() ****";
+    mergecells();
+    qDebug() << "**** numberformat() ****";
+    numberformat();
+    qDebug() << "**** richtext() ****";
+    richtext();
+    qDebug() << "**** rowcolumn() ****";
+    rowcolumn();
+    qDebug() << "**** style() ****";
+    style();
+    qDebug() << "**** worksheetoperations() ****";
+    worksheetoperations();
+    qDebug() << "**** pages() ****";
+    pages();
+    qDebug() << "**** readextlist() ****";
+    readextlist();
+    qDebug() << "**** autofilter() ****";
+    autofilter();
+
     qDebug() << "**** end of main() ****";
 
     return 0;

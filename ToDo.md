@@ -111,3 +111,7 @@
 5. Write NumberFormat class to easily create and validate number formats.
 6. Convert to implicitly shareable classes that allow it.
 
+### Examples
+
+1. Separate testing examples from demonstration examples.
+2. Add docs to examples.
