@@ -78,7 +78,7 @@ public:
     std::optional<bool> scaleWithDoc;
     /**
      * @brief Align header footer margins with page margins.
-     * When true, as left/right*  margins grow and shrink, the header and footer
+     * When true, as left/right  margins grow and shrink, the header and footer
      * edges stay aligned with the margins. When false, headers and footers are
      * aligned on the paper edges, regardless of margins.
      */
@@ -887,6 +887,203 @@ public:
     HeaderFooter &headerFooter();
 
     //TODO: add methods to fine-tune header and footer
+    /**
+     * @brief returns whether a sheet has different header/footer for odd and even pages.
+     * @return When true then #oddHeader() / #oddFooter() and #evenHeader() /
+     * #evenFooter() specify the page header and footer values for odd and even
+     * pages, respectively. If false then #oddHeader() / #oddFooter() or #header() / #footer()
+     * are used, even when #evenHeader() / #evenFooter() are not empty.
+     *
+     * The default value is false.
+     *
+     * @sa #header(), #footer(), #oddHeader(), #oddFooter(), #evenHeader(), #evenFooter(),
+     * #setHeader(), #setFooter(), #setOddHeader(), #setOddFooter(), #setEvenHeader(),
+     * #setEvenFooter(), #setHeaders(), #setFooters().
+     */
+    bool differentOddEvenPage() const;
+    /**
+     * @brief sets whether a sheet has different header/footer for odd and even pages.
+     * @param different When true then #oddHeader() / #oddFooter() and #evenHeader() /
+     * #evenFooter() specify the page header and footer values for odd and even
+     * pages, respectively. If false then #oddHeader() / #oddFooter() or #header() / #footer()
+     * are used, even when #evenHeader() / #evenFooter() are not empty.
+     *
+     * If not set, the default value is false.
+     *
+     * @sa #header(), #footer(), #oddHeader(), #oddFooter(), #evenHeader(), #evenFooter(),
+     * #setHeader(), #setFooter(), #setOddHeader(), #setOddFooter(), #setEvenHeader(),
+     * #setEvenFooter(), #setHeaders(), #setFooters().
+     */
+    void setDifferentOddEvenPage(bool different);
+
+    bool differentFirstPage() const; //TODO: doc
+    void setDifferentFirstPage(bool different); //TODO: doc
+    /**
+     * @brief returns the page header.
+     * @return Page header as a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes. The return value is empty if #differentOddEvenPage()
+     * and/or #differentFirstPage() is true. In this case use #oddHeader(), #evenHeader(), #firstHeader().
+     */
+    QString header() const;
+    /**
+     * @brief sets the page header.
+     * @param header a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages and first page to false. If needed, use
+     * #setOddHeader(), #setEvenHeader(), #setFirstHeader().
+     */
+    void setHeader(const QString &header);
+    /**
+     * @brief returns the header of odd pages.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentOddEvenPage()
+     * is false.
+     */
+    QString oddHeader() const;
+    /**
+     * @brief sets the header of odd pages.
+     * @param header a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages to true. Note that if you don't specify
+     * even header and footer, the document is ill-formed.
+     * @sa #setHeaders().
+     */
+    void setOddHeader(const QString &header);
+    /**
+     * @brief returns the header of even pages.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentOddEvenPage()
+     * is false.
+     */
+    QString evenHeader() const;
+    /**
+     * @brief sets the header of even pages.
+     * @param header a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages to true. Note that if you don't specify
+     * odd header and footer, the document is ill-formed.
+     * @sa #setHeaders().
+     */
+    void setEvenHeader(const QString &header);
+    /**
+     * @brief returns the header of the first page.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentFirstPage()
+     * is false.
+     */
+    QString firstHeader() const;
+    /**
+     * @brief sets the header of the first page.
+     * @param header a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets first page to true.
+     * @sa #setHeaders().
+     */
+    void setFirstHeader(const QString &header);
+    /**
+     * @brief sets headers for page
+     * @param oddHeader non-empty string that is used for headers if \a evenHeader is empty,
+     * and for odd page header if \a evenHeader is not empty.
+     * @param evenHeader a string that is used for even page header. If not empty, then
+     * #setDifferentOddEvenPage() is set to true.
+     * @param firstHeader a string that is used for the first page. If not empty,
+     * then #setDifferentFirstPage() is set to true.
+     */
+    void setHeaders(const QString &oddHeader, const QString &evenHeader = QString(), const QString &firstHeader = QString());
+
+    // footers
+    /**
+     * @brief returns the page footer.
+     * @return Page footer as a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes. The return value is empty if #differentOddEvenPage()
+     * and/or #differentFirstPage() is true. In this case use #oddFooter(), #evenFooter(), #firstFooter().
+     */
+    QString footer() const;
+    /**
+     * @brief sets the page footer.
+     * @param footer a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages and first page to false. If needed, use
+     * #setOddFooter(), #setEvenFooter(), #setFirstFooter().
+     */
+    void setFooter(const QString &footer);
+    /**
+     * @brief returns the footer of odd pages.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentOddEvenPage()
+     * is false.
+     */
+    QString oddFooter() const;
+    /**
+     * @brief sets the footer of odd pages.
+     * @param footer a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages to true. Note that if you don't specify
+     * even header and footer, the document is ill-formed.
+     * @sa #setFooters().
+     */
+    void setOddFooter(const QString &footer);
+    /**
+     * @brief returns the footer of even pages.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentOddEvenPage()
+     * is false.
+     */
+    QString evenFooter() const;
+    /**
+     * @brief sets the footer of even pages.
+     * @param footer a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets odd/even pages to true. Note that if you don't specify
+     * odd header and footer, the document is ill-formed.
+     * @sa #setFooters().
+     */
+    void setEvenFooter(const QString &footer);
+    /**
+     * @brief returns the footer of the first page.
+     * @return a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * The return value is empty if #differentFirstPage()
+     * is false.
+     */
+    QString firstFooter() const;
+    /**
+     * @brief sets the footer of the first page.
+     * @param footer a string that may include formatting codes. See HeaderFooter class
+     * for a list of formatting codes.
+     *
+     * This method effectively sets first page to true.
+     * @sa #setFooters().
+     */
+    void setFirstFooter(const QString &footer);
+    /**
+     * @brief sets footers for page
+     * @param oddFooter non-empty string that is used for footers if \a evenFooter is empty,
+     * and for odd page footer if \a evenFooter is not empty.
+     * @param evenFooter a string that is used for even page footer. If not empty, then
+     * #setDifferentOddEvenPage() is set to true.
+     * @param firstFooter a string that is used for the first page. If not empty,
+     * then #setDifferentFirstPage() is set to true.
+     */
+    void setFooters(const QString &oddFooter, const QString &evenFooter = QString(), const QString &firstFooter = QString());
 
     // Page margins methods
     QMap<PageMargins::Position, double> pageMarginsInches() const;

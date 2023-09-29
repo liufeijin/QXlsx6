@@ -125,6 +125,178 @@ HeaderFooter &AbstractSheet::headerFooter()
     return d->headerFooter;
 }
 
+bool AbstractSheet::differentOddEvenPage() const
+{
+    Q_D(const AbstractSheet);
+    return d->headerFooter.differentOddEven.value_or(false);
+}
+
+void AbstractSheet::setDifferentOddEvenPage(bool different)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentOddEven = different;
+}
+
+bool AbstractSheet::differentFirstPage() const
+{
+    Q_D(const AbstractSheet);
+    return d->headerFooter.differentFirst.value_or(false);
+}
+
+void AbstractSheet::setDifferentFirstPage(bool different)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentFirst = different;
+}
+
+QString AbstractSheet::header() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentFirst.value_or(false) || d->headerFooter.differentOddEven.value_or(false))
+        return {};
+    return d->headerFooter.oddHeader;
+}
+
+void AbstractSheet::setHeader(const QString &header)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentFirst = false;
+    d->headerFooter.differentOddEven = false;
+    d->headerFooter.oddHeader = header;
+}
+
+QString AbstractSheet::oddHeader() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentOddEven.value_or(false)) return d->headerFooter.oddHeader;
+    return {};
+}
+
+void AbstractSheet::setOddHeader(const QString &header)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentOddEven = true;
+    d->headerFooter.oddHeader = header;
+}
+
+QString AbstractSheet::evenHeader() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentOddEven.value_or(false)) return d->headerFooter.evenHeader;
+    return {};
+}
+
+void AbstractSheet::setEvenHeader(const QString &header)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentOddEven = true;
+    d->headerFooter.evenHeader = header;
+}
+
+QString AbstractSheet::firstHeader() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentFirst.value_or(false)) return d->headerFooter.firstHeader;
+    return {};
+}
+
+void AbstractSheet::setFirstHeader(const QString &header)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentFirst = true;
+    d->headerFooter.firstHeader = header;
+}
+
+void AbstractSheet::setHeaders(const QString &oddHeader, const QString &evenHeader, const QString &firstHeader)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.oddHeader = oddHeader;
+    if (!evenHeader.isEmpty()) {
+        d->headerFooter.differentOddEven = true;
+        d->headerFooter.evenHeader = evenHeader;
+    }
+    if (!firstHeader.isEmpty()) {
+        d->headerFooter.differentFirst = true;
+        d->headerFooter.firstHeader = firstHeader;
+    }
+}
+
+/// Footers
+///
+///
+
+QString AbstractSheet::footer() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentFirst.value_or(false) || d->headerFooter.differentOddEven.value_or(false))
+        return {};
+    return d->headerFooter.oddFooter;
+}
+
+void AbstractSheet::setFooter(const QString &footer)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentFirst = false;
+    d->headerFooter.differentOddEven = false;
+    d->headerFooter.oddFooter = footer;
+}
+
+QString AbstractSheet::oddFooter() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentOddEven.value_or(false)) return d->headerFooter.oddFooter;
+    return {};
+}
+
+void AbstractSheet::setOddFooter(const QString &footer)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentOddEven = true;
+    d->headerFooter.oddFooter = footer;
+}
+
+QString AbstractSheet::evenFooter() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentOddEven.value_or(false)) return d->headerFooter.evenFooter;
+    return {};
+}
+
+void AbstractSheet::setEvenFooter(const QString &footer)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentOddEven = true;
+    d->headerFooter.evenFooter = footer;
+}
+
+QString AbstractSheet::firstFooter() const
+{
+    Q_D(const AbstractSheet);
+    if (d->headerFooter.differentFirst.value_or(false)) return d->headerFooter.firstFooter;
+    return {};
+}
+
+void AbstractSheet::setFirstFooter(const QString &footer)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.differentFirst = true;
+    d->headerFooter.firstFooter = footer;
+}
+
+void AbstractSheet::setFooters(const QString &oddFooter, const QString &evenFooter, const QString &firstFooter)
+{
+    Q_D(AbstractSheet);
+    d->headerFooter.oddFooter = oddFooter;
+    if (!evenFooter.isEmpty()) {
+        d->headerFooter.differentOddEven = true;
+        d->headerFooter.evenFooter = evenFooter;
+    }
+    if (!firstFooter.isEmpty()) {
+        d->headerFooter.differentFirst = true;
+        d->headerFooter.firstFooter = firstFooter;
+    }
+}
+
 bool AbstractSheet::isPublished() const
 {
     Q_D(const AbstractSheet);
