@@ -94,6 +94,10 @@ Demonstrates how to add bar series and line series on the same chart. Demonstrat
 
 Demonstrates how to add and copy chartsheets, how to use picture fills.
 
+## [Sheets](https://github.com/QtExcel/QXlsx/tree/master/examples/Sheets)
+
+Demonstrates how to set up sheet parameters such as page properties, print properties, view properties etc.
+
 ## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
@@ -102,7 +106,6 @@ Demonstrates how to add and copy chartsheets, how to use picture fills.
     - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
     - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/hyperlinks.cpp)
     - [image](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/image.cpp)
-    - [page margins](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/pageMargins.cpp)
     - [read style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/readStyle.cpp)
     - [richtext](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/richtext.cpp)
     - [row column](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/rowcolumn.cpp)

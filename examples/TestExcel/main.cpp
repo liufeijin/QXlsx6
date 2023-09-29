@@ -19,7 +19,6 @@ extern int rowcolumn();
 extern int style();
 extern int worksheetoperations();
 extern int readStyle();
-extern int pages();
 extern int readextlist();
 extern int autofilter();
 
@@ -52,8 +51,6 @@ int main(int argc, char *argv[])
     style();
     qDebug() << "**** worksheetoperations() ****";
     worksheetoperations();
-    qDebug() << "**** pages() ****";
-    pages();
     qDebug() << "**** readextlist() ****";
     readextlist();
     qDebug() << "**** autofilter() ****";

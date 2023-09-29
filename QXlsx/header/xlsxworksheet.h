@@ -64,6 +64,8 @@ class WorksheetPrivate;
  * Each worksheet can have 1 to infinity 'sheet views', that display a specific portion of
  * the worksheet with specific view parameters.
  *
+ * There's always at least one default sheet view.
+ *
  * The following methods manage sheet views:
  *
  * - AbstractSheet::view(int index) returns a specific view.

@@ -1,6 +1,6 @@
-# TestExcel.pro
+# Sheets.pro
 
-TARGET = TestExcel
+TARGET = Sheets
 TEMPLATE = app
 
 QT += core
@@ -35,22 +35,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # source code
 
-SOURCES += \
-    autofilter.cpp \
-datavalidation.cpp \
-definename.cpp \
-documentproperty.cpp \
-    extlist.cpp \
-extractdata.cpp \
-hyperlinks.cpp \
-image.cpp \
-main.cpp \
-richtext.cpp \
-rowcolumn.cpp \
-style.cpp \
-worksheetoperations.cpp \
-readStyle.cpp
-
-RESOURCES += \
-    resource.qrc
-
+SOURCES += main.cpp \
+    pageMargins.cpp
