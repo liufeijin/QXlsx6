@@ -65,6 +65,9 @@ Demonstrates basic operations in worksheets:
     - cell number formats
 - how to merge, group and select cells in a worksheet
 - how to write formulas
+    - basic functions
+    - array formulas
+    - shared formulas
 
 ## [Calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/Calendar)
 
@@ -97,10 +100,8 @@ Demonstrates how to add and copy chartsheets, how to use picture fills.
     - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
     - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
     - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
-    - [formula](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/formulas.cpp)
     - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/hyperlinks.cpp)
     - [image](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/image.cpp)
-    - [number format](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/numberformat.cpp)
     - [page margins](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/pageMargins.cpp)
     - [read style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/readStyle.cpp)
     - [richtext](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/richtext.cpp)

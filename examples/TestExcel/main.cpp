@@ -12,7 +12,6 @@ extern int datavalidation();
 extern int definename();
 extern int documentproperty();
 extern int extractdata();
-extern int formula();
 extern int hyperlink();
 extern int image();
 extern int richtext();
@@ -41,8 +40,6 @@ int main(int argc, char *argv[])
     documentproperty();
     qDebug() << "**** extractdata() ****";
     extractdata();
-    qDebug() << "**** formula() ****";
-    formula();
     qDebug() << "**** hyperlink() ****";
     hyperlink();
     qDebug() << "**** image() ****";

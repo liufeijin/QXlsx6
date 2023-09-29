@@ -12,6 +12,7 @@
 #include "xlsxformat.h"
 #include "xlsxcellrange.h"
 #include "xlsxworksheet.h"
+#include "xlsxcellformula.h"
 
 QXLSX_USE_NAMESPACE
 
@@ -252,6 +253,20 @@ int main(int argc, char *argv[])
 
     xlsx.write("A33", "HYPERLINK(\"http://qt-project.org\")=", rAlign);
     xlsx.write("B33", "=HYPERLINK(\"http://qt-project.org\")", lAlign);
+
+    // Array formulas
+    xlsx.write(2,4,"Array formulas");
+    for (int row=3; row<21; ++row) {
+        xlsx.write(row, 4, row*2);
+        xlsx.write(row, 5, row*3);
+    }
+    xlsx.currentWorksheet()->writeFormula("F3", CellFormula("D3:D20+E3:E20", "F3:F20", CellFormula::Type::Array));
+    xlsx.currentWorksheet()->writeFormula("G3", CellFormula("=CONCATENATE(\"The total is \",D3:D20,\" units\")", "G3:G20", CellFormula::Type::Array));
+
+    xlsx.write("H2","Shared formulas");
+    xlsx.currentWorksheet()->writeFormula("H3", CellFormula("=D3+E3", "H3:H20", CellFormula::Type::Shared));
+    xlsx.currentWorksheet()->writeFormula("I3", CellFormula("=CONCATENATE(\"The total is \",D3,\" units\")", "I3:I20", CellFormula::Type::Shared));
+
 
     //---------------------------------------------------------------
     //Create the fourth sheet.

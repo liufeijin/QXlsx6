@@ -42,7 +42,6 @@ definename.cpp \
 documentproperty.cpp \
     extlist.cpp \
 extractdata.cpp \
-formulas.cpp \
 hyperlinks.cpp \
 image.cpp \
 main.cpp \
