@@ -15,7 +15,6 @@ extern int extractdata();
 extern int formula();
 extern int hyperlink();
 extern int image();
-extern int numberformat();
 extern int richtext();
 extern int rowcolumn();
 extern int style();
@@ -48,8 +47,6 @@ int main(int argc, char *argv[])
     hyperlink();
     qDebug() << "**** image() ****";
     image();
-    qDebug() << "**** numberformat() ****";
-    numberformat();
     qDebug() << "**** richtext() ****";
     richtext();
     qDebug() << "**** rowcolumn() ****";

@@ -46,7 +46,6 @@ formulas.cpp \
 hyperlinks.cpp \
 image.cpp \
 main.cpp \
-numberformat.cpp \
 richtext.cpp \
 rowcolumn.cpp \
 style.cpp \

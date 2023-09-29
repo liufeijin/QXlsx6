@@ -79,13 +79,13 @@ void writeFontSizeCell(Document &xlsx, const QString &cell, int size)
     xlsx.write(cell, "Qt Xlsx", format);
 }
 
-void writeInternalNumFormatsCell(Document &xlsx, int row, double value, int numFmt)
+void writeInternalNumFormatsCell(Document &xlsx, int row, int col, double value, int numFmt)
 {
     Format format;
     format.setNumberFormatIndex(numFmt);
-    xlsx.write(row, 1, value);
-    xlsx.write(row, 2, QString("Builtin NumFmt %1").arg(numFmt));
-    xlsx.write(row, 3, value, format);
+    xlsx.write(row, col, value);
+    xlsx.write(row, col+1, QString("Builtin NumFmt %1").arg(numFmt));
+    xlsx.write(row, col+2, value, format);
 }
 
 void writeCustomNumFormatsCell(Document &xlsx, int row, double value, const QString &numFmt)
@@ -257,20 +257,32 @@ int main(int argc, char *argv[])
     //Create the fourth sheet.
     xlsx.addSheet("NumFormats");
     xlsx.currentWorksheet()->setTabColor(Qt::darkRed);
-    xlsx.setColumnWidth(2, 40);
-    writeInternalNumFormatsCell(xlsx, 4, 2.5681, 2);
-    writeInternalNumFormatsCell(xlsx, 5, 2500000, 3);
-    writeInternalNumFormatsCell(xlsx, 6, -500, 5);
-    writeInternalNumFormatsCell(xlsx, 7, -0.25, 9);
-    writeInternalNumFormatsCell(xlsx, 8, 890, 11);
-    writeInternalNumFormatsCell(xlsx, 9, 0.75, 12);
-    writeInternalNumFormatsCell(xlsx, 10, 41499, 14);
-    writeInternalNumFormatsCell(xlsx, 11, 41499, 17);
+    xlsx.write(3, 1, "Raw data");
+    xlsx.write(3, 2, "Builtin Format");
+    xlsx.write(3, 3, "Shown value");
+    writeInternalNumFormatsCell(xlsx, 4, 1, 2.5681, 2);
+    writeInternalNumFormatsCell(xlsx, 5, 1, 2500000, 3);
+    writeInternalNumFormatsCell(xlsx, 6, 1, -500, 5);
+    writeInternalNumFormatsCell(xlsx, 7, 1, -0.25, 9);
+    writeInternalNumFormatsCell(xlsx, 8, 1, 890, 11);
+    writeInternalNumFormatsCell(xlsx, 9, 1, 0.75, 12);
+    writeInternalNumFormatsCell(xlsx, 10, 1, 41499, 14);
+    writeInternalNumFormatsCell(xlsx, 11, 1, 41499, 17);
+
+    xlsx.write(3, 5, "Raw data");
+    xlsx.write(3, 6, "Builtin Format");
+    xlsx.write(3, 7, "Shown value");
+    for (int i=0; i<50; ++i) {
+        writeInternalNumFormatsCell(xlsx, i+4, 5, 100, i);
+    }
 
     writeCustomNumFormatsCell(xlsx, 13, 20.5627, "#.###");
     writeCustomNumFormatsCell(xlsx, 14, 4.8, "#.00");
     writeCustomNumFormatsCell(xlsx, 15, 1.23, "0.00 \"RMB\"");
     writeCustomNumFormatsCell(xlsx, 16, 60, "[Red][<=100];[Green][>100]");
+    writeCustomNumFormatsCell(xlsx, 17, 4000, "yyyy-mmm-dd");
+
+    xlsx.autosizeColumnWidth(1,7);
 
     //---------------------------------------------------------------
     //Create the fifth sheet.
