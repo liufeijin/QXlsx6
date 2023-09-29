@@ -15,7 +15,6 @@ extern int extractdata();
 extern int formula();
 extern int hyperlink();
 extern int image();
-extern int mergecells();
 extern int numberformat();
 extern int richtext();
 extern int rowcolumn();
@@ -49,8 +48,6 @@ int main(int argc, char *argv[])
     hyperlink();
     qDebug() << "**** image() ****";
     image();
-    qDebug() << "**** mergecells() ****";
-    mergecells();
     qDebug() << "**** numberformat() ****";
     numberformat();
     qDebug() << "**** richtext() ****";

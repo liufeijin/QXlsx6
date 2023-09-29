@@ -100,7 +100,6 @@ Demonstrates how to add and copy chartsheets, how to use picture fills.
     - [formula](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/formulas.cpp)
     - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/hyperlinks.cpp)
     - [image](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/image.cpp)
-    - [merge cells](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/mergecells.cpp)
     - [number format](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/numberformat.cpp)
     - [page margins](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/pageMargins.cpp)
     - [read style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/readStyle.cpp)

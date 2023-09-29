@@ -46,7 +46,6 @@ formulas.cpp \
 hyperlinks.cpp \
 image.cpp \
 main.cpp \
-mergecells.cpp \
 numberformat.cpp \
 richtext.cpp \
 rowcolumn.cpp \
