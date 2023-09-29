@@ -13,6 +13,7 @@ QXLSX_USE_NAMESPACE
 int chart()
 {
     Document xlsx;
+
     for (int i=1; i<10; ++i)
     {
         xlsx.write(i, 1, i*i*i);   //A1:A9

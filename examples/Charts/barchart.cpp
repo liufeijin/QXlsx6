@@ -32,6 +32,7 @@ int barChart()
         xlsx.write(3, i+1, i*i);    //B2:B10
     }
 
+    // insert a new chart with top-left corner being in cell(5,4) and with size of (300px, 300px)
     Chart *barChart11 = xlsx.insertChart(5, 4, QSize(300, 300));
     barChart11->setType(Chart::Type::Bar);
     barChart11->setLegend(Legend::Position::Right);
@@ -46,7 +47,7 @@ int barChart()
     barChart12->addSeries(CellRange(1,1,3,10), nullptr, true, true, false);
     barChart12->setBarGrouping(Chart::BarGrouping::Clustered);
 
-    //demonstrates how to use Coordinate to set size in pixels
+    //demonstrates how to use Coordinate to set size in mm
     Chart *barChart13 = xlsx.insertChart(5, 16, Coordinate("80mm"), Coordinate("80mm"));
     barChart13->setType(Chart::Type::Bar);
     barChart13->setLegend(Legend::Position::Right);
@@ -170,13 +171,10 @@ int barChart()
     barChart54->addSeries(CellRange(1,1,3,10), nullptr, true, true, false);
     barChart54->series(0)->setBarShape(Series::BarShape::Cylinder);
 
-    //![2]
     xlsx.saveAs("barCharts1.xlsx");
-    //![2]
 
     Document xlsx2("barCharts1.xlsx");
-    if ( xlsx2.isLoaded() )
-    {
+    if (xlsx2.isLoaded()) {
         xlsx2.saveAs("barCharts2.xlsx");
     }
 

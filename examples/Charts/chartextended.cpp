@@ -11,7 +11,7 @@
 QXLSX_USE_NAMESPACE
 
 /*
- * Test Chart with title, gridlines, legends, multiple headers
+ * Test Chart with title, gridlines, multiple headers
  *
  */
 
@@ -146,9 +146,7 @@ int chartExtended()
     chart34->title().shape().line().setColor(Color::SchemeColor::Accent6);
     chart34->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
-    //![2]
     xlsx.saveAs("chartExtended1.xlsx");
-    //![2]
 
     Document xlsx2("chartExtended1.xlsx");
     if ( xlsx2.isLoaded() )

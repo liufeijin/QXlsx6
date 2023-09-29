@@ -72,10 +72,19 @@ Demonstrates how to create a workbook with the current year calendar.
 
 ![](../markdown.data/calendar.png)
 
+## [Charts](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts)
+
+Demonstrates adding various charts to a worksheet.
+
+- [chart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chart.cpp) demonstrates adding charts of different types.
+- [chertextended.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartextended.cpp) demonstrates how to change title and gridlines of a chart.
+- [barchart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/barchart.cpp) demonstrates various bar chart styles.
+- [chartlinefill.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.
+
+
 ## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
-    - [chart](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chart.cpp)
     - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
     - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
     - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
@@ -105,10 +114,6 @@ The file chartsheet1.xlsx contains complex shape and line formatting, data label
 Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
 
 ![](../markdown.data/combinedchart.png)
-
-## [ChartLineFill](https://github.com/QtExcel/QXlsx/tree/master/examples/ChartLineFill)
-
-Demonstrates various line parameters.
 
 ## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloAndroid)
 

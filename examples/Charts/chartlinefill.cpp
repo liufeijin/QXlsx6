@@ -13,10 +13,8 @@ using namespace std;
 #include "xlsxchart.h"
 using namespace QXlsx;
 
-int main(int argc, char *argv[])
+int chartlinefill()
 {
-    QCoreApplication app(argc, argv);
-
     QXlsx::Document xlsx;
     for (int i=1; i<10; ++i) {
         xlsx.write(1, i+1, "Pos " + QString::number(i));
@@ -43,8 +41,7 @@ int main(int argc, char *argv[])
     for (int i=0; i<chart1->seriesCount(); ++i) {
         chart1->series(i)->setMarker(MarkerFormat::MarkerType::None);
         chart1->series(i)->line().setStrokeType(static_cast<LineFormat::StrokeType>(i));
-        QString s; LineFormat::toString(static_cast<LineFormat::StrokeType>(i), s);
-        chart1->series(i)->setName(s);
+        chart1->series(i)->setName(LineFormat::toString(static_cast<LineFormat::StrokeType>(i)));
     }
 
     Chart *chart2 = xlsx.insertChart(13, 11, QSize(600, 600));
@@ -63,24 +60,21 @@ int main(int argc, char *argv[])
         chart2->series(i)->line().setDashPattern(customDashPattern);
         chart2->series(i)->line().setCompoundLineType(static_cast<LineFormat::CompoundLineType>(i));
         chart2->series(i)->line().setWidth(5.0);
-        QString s; LineFormat::toString(static_cast<LineFormat::CompoundLineType>(i), s);
-        chart2->series(i)->setName(s);
+        chart2->series(i)->setName(LineFormat::toString(static_cast<LineFormat::CompoundLineType>(i)));
     }
     for (int i=5; i<8; ++i) {
         chart2->series(i)->setMarker(MarkerFormat::MarkerType::None);
         chart2->series(i)->line().setDashPattern(customDashPattern);
         chart2->series(i)->line().setLineCap(static_cast<LineFormat::LineCap>(i-5));
         chart2->series(i)->line().setWidth(5.0);
-        QString s; LineFormat::toString(static_cast<LineFormat::LineCap>(i-5), s);
-        chart2->series(i)->setName(s);
+        chart2->series(i)->setName(LineFormat::toString(static_cast<LineFormat::LineCap>(i-5)));
     }
     for (int i=8; i<11; ++i) {
         chart2->series(i)->setMarker(MarkerFormat::MarkerType::None);
         chart2->series(i)->line().setDashPattern(customDashPattern);
         chart2->series(i)->line().setLineJoin(static_cast<LineFormat::LineJoin>(i-8));
         chart2->series(i)->line().setWidth(5.0);
-        QString s; LineFormat::toString(static_cast<LineFormat::LineJoin>(i-8), s);
-        chart2->series(i)->setName(s);
+        chart2->series(i)->setName(LineFormat::toString(static_cast<LineFormat::LineJoin>(i-8)));
     }
 
     Chart *chart3 = xlsx.insertChart(13, 21, QSize(600, 600));
@@ -118,6 +112,7 @@ int main(int argc, char *argv[])
     Chart *chart4 = xlsx.insertChart(45, 1, QSize(600, 300));
     chart4->setType(Chart::Type::Bar); //required
     chart4->addDefaultAxes(); //required
+    xlsx.write(44,1,"Linear gradient");
 
     FillFormat f(FillFormat::FillType::GradientFill);
     //the gradient fill is applied to the range [30%..70%] of the gradient path
@@ -135,6 +130,7 @@ int main(int argc, char *argv[])
     Chart *chart5 = xlsx.insertChart(45, 11, QSize(300, 300));
     chart5->setType(Chart::Type::Bar); //required
     chart5->addDefaultAxes(); //required
+    xlsx.write(44,11,"Circle gradient");
 
     //the gradient fill is applied to the range [0%..100%] of the gradient path
     //the first color is red, the last color is blue, so the gradient is from red to blue
@@ -151,6 +147,7 @@ int main(int argc, char *argv[])
     Chart *chart6 = xlsx.insertChart(45, 21, QSize(300, 300));
     chart6->setType(Chart::Type::Bar); //required
     chart6->addDefaultAxes(); //required
+    xlsx.write(44,21,"Preset gradient");
 
     FillFormat f2((QGradient(QGradient::KindSteel)));
     chart6->chartShape().setFill(f2);
@@ -162,8 +159,6 @@ int main(int argc, char *argv[])
     if (xlsx2.isLoaded()) {
         xlsx2.saveAs("LineAndFill2.xlsx");
     }
-
-    qDebug() << "**** end of main() ****";
 
     return 0;
 }

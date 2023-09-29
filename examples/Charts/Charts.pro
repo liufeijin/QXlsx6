@@ -1,6 +1,6 @@
-# TestExcel.pro
+# Charts.pro
 
-TARGET = TestExcel
+TARGET = Charts
 TEMPLATE = app
 
 QT += core
@@ -35,27 +35,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # source code
 
-SOURCES += \
-    autofilter.cpp \
-chartsheet.cpp \
-datavalidation.cpp \
-definename.cpp \
-documentproperty.cpp \
-    extlist.cpp \
-extractdata.cpp \
-formulas.cpp \
-hyperlinks.cpp \
-image.cpp \
-main.cpp \
-mergecells.cpp \
-numberformat.cpp \
-richtext.cpp \
-rowcolumn.cpp \
-style.cpp \
-worksheetoperations.cpp \
-readStyle.cpp \
-pageMargins.cpp
-
-RESOURCES += \
-    resource.qrc
-
+SOURCES += main.cpp \
+    chart.cpp \
+    barchart.cpp \
+    chartextended.cpp \
+    chartlinefill.cpp
