@@ -8,10 +8,6 @@
 #include <iostream>
 using namespace std;
 
-extern int chart();
-extern int chartExtended();
-extern int barChart();
-extern int chartsheet();
 extern int datavalidation();
 extern int definename();
 extern int documentproperty();
@@ -36,14 +32,8 @@ int main(int argc, char *argv[])
 
     qDebug() << "**** readStyle() ****";
     readStyle();
-    qDebug() << "**** chart() ****";
-    chart();
-    qDebug() << "**** chartExtended() ****";
-    chartExtended();
-    qDebug() << "**** barChart() ****";
-    barChart();
-    qDebug() << "**** chartsheet() ****";
-    chartsheet();
+
+
     qDebug() << "**** datavalidation() ****";
     datavalidation();
     qDebug() << "**** definename() ****";

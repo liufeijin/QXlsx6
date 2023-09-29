@@ -30,9 +30,7 @@ int main(int argc, char *argv[])
         xlsx.write(3, i+1, i*i);    //B2:B10
     }
     /**
-
     An example of a chart with series of different types.
-
     */
 
     Chart *chart1 = xlsx.insertChart(4, 3, QSize(600, 600));
@@ -48,10 +46,8 @@ int main(int argc, char *argv[])
     chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true);
 
     /**
-
     An example of a chart with series of different types. The first series is placed 
     on the left axis, the second one is on the right axis.
-
     */
 
     Chart *chart2 = xlsx.insertChart(4, 15, QSize(600, 600));

@@ -81,11 +81,19 @@ Demonstrates adding various charts to a worksheet.
 - [barchart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/barchart.cpp) demonstrates various bar chart styles.
 - [chartlinefill.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.
 
+## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/examples/CombinedChart)
+
+Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
+
+![](../markdown.data/combinedchart.png)
+
+## [Chartsheets](https://github.com/QtExcel/QXlsx/tree/master/examples/Chartsheets)
+
+Demonstrates how to add and copy chartsheets, how to use picture fills.
 
 ## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
-    - [chart sheet](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/chartsheet.cpp) - tests adding chartsheets, copying charsheets, using picture fills.
     - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
     - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
     - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
@@ -103,17 +111,13 @@ Demonstrates adding various charts to a worksheet.
 
 ![](../markdown.data/testexcel.png)
 
+
+
 ## [ExcelReading](https://github.com/QtExcel/QXlsx/tree/master/examples/ExcelReading)
 
 Loads xlsx file that was created in Excel and writes it back.
 
 The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc.
-
-## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/examples/CombinedChart)
-
-Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
-
-![](../markdown.data/combinedchart.png)
 
 ## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloAndroid)
 

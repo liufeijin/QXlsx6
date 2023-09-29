@@ -1,13 +1,15 @@
 # CMakeLists.txt for Console Application
 
-# TODO: Set minumum cmake version 
+# Set minumum cmake version
 cmake_minimum_required(VERSION 3.14)
 
-# TODO: Set project name 
-project(CombinedChart LANGUAGES CXX)
+# Set project name
+project(Chartsheets LANGUAGES CXX)
 
-# TODO: Set Your C++ version
-set(CMAKE_CXX_STANDARD 11) # C++ 17
+# Set Your C++ version
+set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_AUTORCC ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
@@ -19,8 +21,12 @@ message("target is built in " ${CMAKE_BINARY_DIR})
 #########################
 # Console Application {{
 
-add_executable(CombinedChart main.cpp)
-target_link_libraries(CombinedChart PRIVATE QXlsx::QXlsx)
+add_executable(Chartsheets 
+    main.cpp 
+    chartsheets.cpp
+    resource.qrc
+    )
+target_link_libraries(Chartsheets PRIVATE QXlsx::QXlsx)
 
 # Console Application }}
 ########################
