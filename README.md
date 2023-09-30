@@ -6,11 +6,9 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/QtExcel/QXlsx/master/markdown.data/QXlsx-Desktop.png"></p>
 
-- QXlsx is excel file(`*.xlsx`) reader/writer library.
+- QXlsx is an excel files (`*.xlsx`) reader/writer library.
   - Because QtXlsxWriter is no longer supported, I created a new project that is based on QtXlsx. (2017-)
-- Development language of QXlsx is C++. (with Qt)
-- You don't need to use static library or dynamic shared object using QXlsx.
-  - You can also use it as a static library.
+- Development language of QXlsx is C++ (with Qt.)
 
 ## About this fork
 
@@ -18,36 +16,36 @@ This fork was intended to add some features not yet implemented in the original 
 
 Right now there is an ongoing work to fully implement charts, including full documentation.
 
-This fork requires C++17 as it uses std::optional.
+This fork requires C++17 as it uses `std::optional`.
 
 ### The fork concept
 
 THe ECMA-376 specifies that many parts of xlsx charts can be optional, i.e. if not set, they shouldn't appear in the xlsx file.
 The original QXlsx uses enums and maps to implement it: the feature is not set, if the map  has no corresponding key.
 
-This fork utilised another approach. 
+This fork utilises another approach. 
 
-For simple properties (bool, int, enums) it uses std::optional: methods that return a chart feature return std::optional. You can test the feature with std::optional::has_value().
+For simple properties (bool, int, enums) it uses `std::optional`: methods that return a chart feature return `std::optional`. You can test the feature with `std::optional::has_value()`.
 
-For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have isValid() method.
-If the feature is set, isValid() will return true.
+For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have `isValid()` method.
+If the feature is set, `isValid()` will return true.
 
 I try to get rid of the raw pointers. And definitely non-scoped enums shall be replaced with scoped ones. Some parts of the library still need serious overhaul. 
 
-See [what is done up to this moment](WhatIsDone.md).
+See [what is done up to this moment](ToDo.md).
 
 You can find examples of charts here:
 
-- [Simple charts](TestExcel/chart.cpp)
-- [Bar charts](TestExcel/barchart.cpp)
-- [Chart gridlines, titles and legends](TestExcel/chartextended.cpp)
-- [Combined charts, multiple axes](TestExcel/combinedchart.cpp)
+- [Simple charts](examples/Charts/chart.cpp)
+- [Bar charts](examples/Charts/barchart.cpp)
+- [Chart gridlines, titles and legends](examples/Charts/chartextended.cpp)
+- [Combined charts, multiple axes](examples/CombinedChart/main.cpp)
 
 ## How to use
 
-- See [examples](Example.md)
-- See [wiki](https://github.com/QtExcel/QXlsx/wiki)
-- See [FAQ](https://github.com/QtExcel/QXlsx/wiki/FAQ)
+- See [examples](examples/README.md)
+- See [wiki](https://github.com/QtExcel/QXlsx/wiki) - AlexNovichkov: largely outdated! Needs rewriting
+- See [FAQ](https://github.com/QtExcel/QXlsx/wiki/FAQ) - AlexNovichkov: largely outdated! Needs rewriting
 
 ## How to set up (Installation)
 
@@ -80,6 +78,7 @@ You can find examples of charts here:
 	- My native language is not English and my English is not fluent. Please, use EASY English. :-)
 - If you would like to translate README.md into your native language, please contact me.
 	- You can either raise an issue or use a pull request. (such as README.ko.md)
+- For issues on this fork contact me [here](https://github.com/alexnovichkov/QXlsx/issues)
 	
 ## Similar projects
 

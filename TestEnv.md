@@ -11,4 +11,3 @@
 
 
 - As the code is upgraded, old Qt may not be supported.
-- If more funding is raised, we will also support MacOS testing.
