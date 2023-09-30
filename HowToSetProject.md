@@ -1,107 +1,102 @@
 
-## How to setup QXlsx project
+# How to setup QXlsx project
 
-> *Read this in other languages:  :kr: [한국어](HowToSetProject.ko.md)*
+Here's an easy way to add QXlsx to your project. 
 
-- Here's an easy way to apply QXlsx.
-- This works only with qmake, for cmake look at [the other doc](HowToSetProject-cmake.md).
-- Describes when to apply to Windows.
-- The method of applying it on Linux or Mac is similar, and I will write help if there is an additional request.
-- * Hi! I'm j2doll. My native language is not English and my English is not fluent. Please understand. :-)
+This works only with qmake, for cmake look at [the other doc](HowToSetProject-cmake.md).
+
+As QXlsx uses private Qt classes, it is best to statically link QXlsx with your 
+program. Steps below describe adding QXlsx to a qmake project directly (statically).
 
 ## Steps to set
 
 :one: Clone source code from github
 
 ```sh
-git clone https://github.com/j2doll/QXlsx.git
+git clone https://github.com/alexnovichkov/QXlsx.git
 ```
 
-![](markdown.data/01.jpg)
-
-:two: Execute QtCreator
-
-![](markdown.data/02.jpg)
-
-* If you don't know use QtCreator, see Qt Company site. [https://www.qt.io/qt-features-libraries-apis-tools-and-ide/](https://www.qt.io/qt-features-libraries-apis-tools-and-ide/)
-
-:three: Create your own Qt Project.
-
-![](markdown.data/03.jpg)
-
-:four: Sample is console application.
-
-![](markdown.data/04.jpg)
-
-:five: Set project name. Current project name is HelloQXlsx.  
-
-![](markdown.data/05.jpg)
-
-:six: HelloQXlsx project has been created.
-
-![](markdown.data/06.jpg)
-
-:seven: Current directory for project
-
-![](markdown.data/07.jpg)
-
-:eight: Copy QXlsx code to your app project  
-
-![](markdown.data/08.jpg)
-
-```cmd
-xcopy c:\workspace\github\QXlsx\QXlsx c:\workspace\HelloQXlsx /s /e
-```
-
-:nine: Current directories and files for project
-
-![](markdown.data/09.jpg)
-
-:keycap_ten: Append code for QXlxs library on your Qt project(*.pro)
-
-![](markdown.data/10.jpg)
+:two: Add QXlsx to your Qt project (*.pro)
 
 ```qmake
-# QXlsx code for Application Qt project
-QXLSX_PARENTPATH=./         # current QXlsx path is . (. means curret directory)
-QXLSX_HEADERPATH=./header/  # current QXlsx header path is ./header/
-QXLSX_SOURCEPATH=./source/  # current QXlsx source path is ./source/
-include(./QXlsx.pri)
+QXLSX_PARENTPATH=path_to_QXlsx_QXlsx_directory/
+QXLSX_HEADERPATH=path_to_QXlsx_QXlsx_directory/header/ # should be path to QXlsx/header directory
+QXLSX_SOURCEPATH=path_to_QXlsx_QXlsx_directory/source/ # should be path to QXlsx/source directory
+include($${QXLSX_PARENTPATH}/QXlsx.pri)
 ```
-:one::one: Set header files and namespace for sample. Then append hello world code.
 
-![](markdown.data/11.jpg)
+QXlsx.pri automatically adds dependencies on `core` and `gui-private` modules.
+
+:three: Add header file(s). Here is the sample HelloWorld project
 
 ```cpp
 // main.cpp
 
 #include <QCoreApplication>
+#include <QVariant>
+#include <QDir>
+#include <QDebug>
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
+
 using namespace QXlsx;
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QXlsx::Document xlsx;
-    xlsx.write("A1", "Hello Qt!"); // write "Hello Qt!" to cell(A,1). it's shared string.
-    xlsx.saveAs("Test.xlsx"); // save the document as 'Test.xlsx'
+    // Create xlsx document
+
+    QXlsx::Document xlsxW;
+
+    // The default sheet is a worksheet named "Sheet1". It is automatically available.
+
+    //Rows and columns numbering starts with 1.
+    int row = 1; int col = 1;
+
+    QVariant writeValue = QString("Hello Qt!");
+    xlsxW.write(row, col, writeValue); // write "Hello Qt!" to cell(A,1). it's shared string.
+
+    if (xlsxW.saveAs("Test.xlsx")) // save the document as 'Test.xlsx'
+    {
+        qDebug() << "[debug] success to write xlsx file";
+    }
+    else
+    {
+        qDebug() << "[error] failed to write xlsx file";
+        exit(-1);
+    }
+
+    qDebug() << "[debug] current directory is " << QDir::currentPath();
+
+    // Read excel file (*.xlsx)
+
+    Document xlsxR("Test.xlsx"); // Test.xlsx automatically loads in the constructor.
+    if ( xlsxR.isLoaded() ) // returns whether excel file is successfully loaded
+    {
+        qDebug() << "[debug] successfully loaded xlsx file.";
+
+        if (Cell* cell = xlsxR.cellAt(row, col)) // get cell pointer.
+        {
+            QVariant var = cell->readValue(); // read cell value (number(double), QDateTime, QString ...)
+            qDebug() << "[debug] cell(1,1) is " << var; // Display value. It is 'Hello Qt!'.
+        }
+        else
+        {
+            qDebug() << "[error] cell(1,1) is not set.";
+            exit(-2);
+        }
+    }
+    else
+    {
+        qDebug() << "[error] failed to load xlsx file.";
+    }
 
     return 0;
-    // return a.exec();
 }
+
 ```
 
-:one::two: Build and Run a project
+:four: Build and run the project. An xlsx file will be generated in the current 
+build directory.
 
-![](markdown.data/12.jpg)
-
-:one::three: A execute file(*.exe) and a excel file(xlsx) is created.
-
-![](markdown.data/13.jpg)

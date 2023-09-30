@@ -1,6 +1,4 @@
-#include <QtGlobal>
 #include <QCoreApplication>
-#include <QtCore>
 #include <QVariant>
 #include <QDir>
 #include <QDebug>
@@ -13,7 +11,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    // [1]  Create xlsx document
+    // Create xlsx document
 
     QXlsx::Document xlsxW;
 
@@ -25,7 +23,7 @@ int main(int argc, char *argv[])
     QVariant writeValue = QString("Hello Qt!");
     xlsxW.write(row, col, writeValue); // write "Hello Qt!" to cell(A,1). it's shared string.
 
-    if ( xlsxW.saveAs("Test.xlsx") ) // save the document as 'Test.xlsx'
+    if (xlsxW.saveAs("Test.xlsx")) // save the document as 'Test.xlsx'
     {
         qDebug() << "[debug] success to write xlsx file";
     }
@@ -37,7 +35,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "[debug] current directory is " << QDir::currentPath();
 
-    // [2] Read excel file (*.xlsx)
+    // Read excel file (*.xlsx)
 
     Document xlsxR("Test.xlsx"); // Test.xlsx automatically loads in the constructor.
     if ( xlsxR.isLoaded() ) // returns whether excel file is successfully loaded
