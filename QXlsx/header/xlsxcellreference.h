@@ -37,6 +37,7 @@ public:
      */
     CellReference(const char *cell);
     CellReference(const CellReference &other);
+    CellReference &operator=(const CellReference &other);
     /**
      * @brief creates a CellReference from the given cell location and offsets.
      * @param rowOffset row offset to be applied to the @a other row.
@@ -45,7 +46,6 @@ public:
      * @note If the resulting CellReference has non-positive row or column, it is invalid.
      */
     CellReference(int rowOffset, int columnOffset, const CellReference &other);
-    ~CellReference();
     /**
      * @brief returns the string representation of a cell location.
      * @param rowFixed If true, the row number will be prepended with $.
@@ -96,6 +96,6 @@ private:
 
 }
 
-Q_DECLARE_TYPEINFO(QXlsx::CellReference, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QXlsx::CellReference, Q_PRIMITIVE_TYPE);
 
 #endif // QXLSX_XLSXCELLREFERENCE_H

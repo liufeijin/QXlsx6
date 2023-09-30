@@ -90,15 +90,22 @@ CellReference::CellReference(const CellReference &other)
 {
 }
 
+CellReference &CellReference::operator=(const CellReference &other)
+{
+    _row = other._row;
+    _column = other._column;
+    return *this;
+}
+
 CellReference::CellReference(int rowOffset, int columnOffset, const CellReference &other)
 {
     _row = other._row + rowOffset;
     _column = other._column + columnOffset;
 }
 
-CellReference::~CellReference()
-{
-}
+//CellReference::~CellReference()
+//{
+//}
 
 QString CellReference::toString(bool rowFixed, bool colFixed) const
 {

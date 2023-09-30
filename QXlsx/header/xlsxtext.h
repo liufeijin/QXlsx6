@@ -705,6 +705,7 @@ attach an update fieldType to the text field guid for continual updating.
      */
     TextRun();
     TextRun(const TextRun &other);
+    TextRun &operator=(const TextRun &other);
     /**
      * @brief creates a new TextRun of type with text and properties.
      * @param type the type of a text run: Regular, LineBreak, TextField or None (invalid).

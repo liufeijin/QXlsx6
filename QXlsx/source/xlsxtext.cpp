@@ -1973,6 +1973,17 @@ TextRun::TextRun(const TextRun &other) :
 
 }
 
+TextRun &TextRun::operator=(const TextRun &other)
+{
+    type = other.type;
+    text = other.text;
+    characterProperties = other.characterProperties;
+    paragraphProperties = other.paragraphProperties;
+    guid = other.guid;
+    fieldType = other.fieldType;
+    return *this;
+}
+
 TextRun::TextRun(TextRun::Type type, const QString &text, const CharacterProperties &properties)
     : type{type}, text{text}
 {
@@ -2600,14 +2611,4 @@ QDebug operator<<(QDebug dbg, const TextFormat &f)
 }
 
 }
-
-
-
-
-
-
-
-
-
-
 
