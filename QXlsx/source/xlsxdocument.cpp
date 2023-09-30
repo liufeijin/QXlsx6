@@ -1099,21 +1099,40 @@ Cell *Document::cellAt(int row, int col) const
     return 0;
 }
 
-/*!
- * \brief Create a defined name in the workbook with the given \a name, \a formula, \a comment
- *  and \a scope.
- *
- * \param name The defined name.
- * \param formula The cell or range that the defined name refers to.
- * \param comment
- * \param scope The name of one worksheet, or empty which means global scope.
- * \return Return false if the name invalid.
- */
-bool Document::defineName(const QString &name, const QString &formula, const QString &comment, const QString &scope)
+DefinedName * Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
 {
     Q_D(Document);
+    return d->workbook->addDefinedName(name, formula, scope);
+}
 
-    return d->workbook->defineName(name, formula, comment, scope);
+bool Document::removeDefinedName(const QString &name)
+{
+    Q_D(Document);
+    return d->workbook->removeDefinedName(name);
+}
+
+bool Document::removeDefinedName(DefinedName *name)
+{
+    Q_D(Document);
+    return d->workbook->removeDefinedName(name);
+}
+
+bool Document::hasDefinedName(const QString &name) const
+{
+    Q_D(const Document);
+    return d->workbook->hasDefinedName(name);
+}
+
+QStringList Document::definedNames() const
+{
+    Q_D(const Document);
+    return d->workbook->definedNames();
+}
+
+DefinedName *Document::definedName(const QString &name)
+{
+    Q_D(Document);
+    return d->workbook->definedName(name);
 }
 
 /*!

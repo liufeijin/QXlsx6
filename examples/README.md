@@ -69,6 +69,24 @@ Demonstrates basic operations in worksheets:
     - array formulas
     - shared formulas
 
+
+
+## [DefinedNames](https://github.com/QtExcel/QXlsx/blob/master/examples/DefinedNames)
+
+Demonstrates how to add defined names to the workbook and use them in formulas.
+
+Defined names are descriptive names to represent cells, ranges of cells, formulas, or constant values. Defined names can be used to represent a range on any worksheet.
+
+Excerpt from [definedNames.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/DefinedNames/definedNames.cpp)
+
+```cpp
+...
+Document xlsx;
+xlsx.addDefinedName("MyCol_1", "=Sheet1!$A$1:$A$10");
+xlsx.write(11, 1, "=SUM(MyCol_1)");
+...
+```
+
 ## [Calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/Calendar)
 
 Demonstrates how to create a workbook with the current year calendar.
@@ -79,7 +97,7 @@ Demonstrates how to create a workbook with the current year calendar.
 
 Demonstrates adding various charts to a worksheet.
 
-- [chart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chart.cpp) demonstrates adding charts of different types.
+- [chart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chart.cpp) demonstrates how to add charts of different types.
 - [chertextended.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartextended.cpp) demonstrates how to change title and gridlines of a chart.
 - [barchart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/barchart.cpp) demonstrates various bar chart styles.
 - [chartlinefill.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.

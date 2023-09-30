@@ -23,6 +23,7 @@ class ConditionalFormatting;
 class Chart;
 class CellReference;
 class DocumentPrivate;
+class DefinedName;
 
 class QXLSX_EXPORT Document : public QObject
 {
@@ -219,8 +220,71 @@ public:
     Cell *cellAt(const CellReference &cell) const;
     Cell *cellAt(int row, int col) const;
 
-    bool defineName(const QString &name, const QString &formula,
-                    const QString &comment=QString(), const QString &scope=QString());
+    /**
+     * @brief Adds a defined name in the workbook.
+     *
+     * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
+     * constant values. Defined names can be used to represent a range on any worksheet.
+     * @param name The defined name
+     * @param formula The value, the cell or range that the defined name refers to.
+     * @param scope The name of a worksheet which @a formula refers to, or empty which means global scope.
+     * @return pointer to the added defined name. It may be null if @a name or @a formula is empty or there
+     * is already a definedName with @a name.
+     * @note Even if you specify the sheet name in @a scope, Excel will treat @a formula without
+     * the sheet name part as invalid. LibreOffice is OK with that. Example:
+     * @code
+     * xlsx.addDefinedName("MyCol_3", "=Sheet1!$C$1:$C$10", "Sheet1"); //The only way for Excel
+     * //vs
+     * xlsx.addDefinedName("MyCol_3", "=$C$1:$C$10", "Sheet1"); //OK for LibreOffice, error for Excel
+     * @endcode
+     */
+    DefinedName *addDefinedName(const QString &name,
+                                const QString &formula,
+                                const QString &scope = QString());
+    /**
+     * @brief removes a defined name from the workbook.
+     *
+     * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
+     * constant values. Defined names can be used in formulas to represent a range on any worksheet.
+     *
+     * @param name The defined name
+     * @return true if @a name was found and successfully removed, false otherwise.
+     */
+    bool removeDefinedName(const QString &name);
+    /**
+     * @overload
+     * @brief removes a defined name from the workbook.
+     *
+     * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
+     * constant values. Defined names can be used in formulas to represent a range on any worksheet.
+     *
+     * @param name The defined name
+     * @return true if @a name was found and successfully removed, false otherwise.
+     */
+    bool removeDefinedName(DefinedName *name);
+    /**
+     * @brief returns whether the workbook has a specific defined name.
+     *
+     * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
+     * constant values. Defined names can be used in formulas to represent a range on any worksheet.
+     * @param name The defined name
+     * @return true if the workbook has a defined @a name.
+     */
+    bool hasDefinedName(const QString &name) const;
+    /**
+     * @brief returns a list of defined names.
+     * @return a list of defined names.
+     */
+    QStringList definedNames() const;
+    /**
+     * @brief returns a defined name by its name.
+     * @param name A name to search.
+     * @return A pointer to the defined name. May be null if there's no such defined name in the workbook.
+     */
+    DefinedName *definedName(const QString &name);
+
+
+
 
     CellRange dimension() const;
 
