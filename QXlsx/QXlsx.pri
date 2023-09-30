@@ -27,24 +27,24 @@ isEmpty(QXLSX_PARENTPATH) {
     QXLSX_PARENTPATH = $$PWD/../
 } else {
     message( 'QXLSX_PARENTPATH is not empty.' )
-    message( $${QXLSX_PARENTPATH} )
 }
+message( $${QXLSX_PARENTPATH} )
 
 isEmpty(QXLSX_HEADERPATH) {
     message( 'QXLSX_HEADERPATH is empty. use default value.' )
-    QXLSX_HEADERPATH = $$PWD/../QXlsx/header/
+    QXLSX_HEADERPATH = $${QXLSX_PARENTPATH}header/
 } else {
     message( 'QXLSX_HEADERPATH is not empty.' )
-    message( $${QXLSX_HEADERPATH} )
 }
+message( $${QXLSX_HEADERPATH} )
 
 isEmpty(QXLSX_SOURCEPATH) {
     message( 'QXLSX_SOURCEPATH is empty. use default value.' )
-    QXLSX_SOURCEPATH = $$PWD/../QXlsx/source/
+    QXLSX_SOURCEPATH = $${QXLSX_PARENTPATH}source/
 } else {
     message( 'QXLSX_SOURCEPATH is not empty.' )
-    message( $${QXLSX_SOURCEPATH} )
 }
+message( $${QXLSX_SOURCEPATH} )
 
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $${QXLSX_PARENTPATH}

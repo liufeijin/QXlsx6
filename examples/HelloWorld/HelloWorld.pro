@@ -13,10 +13,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # NOTE: Here you can change path to QXlsx sources
 
-#  QXLSX_PARENTPATH=./
-#  QXLSX_HEADERPATH=./header/ # should be path to QXlsx/header directory
-#  QXLSX_SOURCEPATH=./source/ # should be path to QXlsx/source directory
+QXLSX_PARENTPATH=../../QXlsx/
+QXLSX_HEADERPATH=$${QXLSX_PARENTPATH}header/ # should be path to QXlsx/header directory
+QXLSX_SOURCEPATH=$${QXLSX_PARENTPATH}source/ # should be path to QXlsx/source directory
 
-include(../../QXlsx/QXlsx.pri)
+include($${QXLSX_PARENTPATH}QXlsx.pri)
 
 SOURCES += main.cpp

@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 # Set project name
-project(Calendar LANGUAGES CXX)
+project(TestExcel LANGUAGES CXX)
 
 # Set Your C++ version
 set(CMAKE_CXX_STANDARD 17)
@@ -25,10 +25,24 @@ message("target is built in " ${CMAKE_BINARY_DIR})
 #########################
 # Console Application {{
 
-add_executable(Calendar 
-    calendar.cpp
+add_executable(TestExcel 
+    style.cpp
+    worksheetoperations.cpp
+    resource.qrc
+    autofilter.cpp
+    datavalidation.cpp
+    definename.cpp
+    documentproperty.cpp
+    extlist.cpp
+    extractdata.cpp
+    hyperlinks.cpp
+    image.cpp
+    main.cpp
+    readStyle.cpp
+    richtext.cpp
+    rowcolumn.cpp
     )
-target_link_libraries(Calendar PRIVATE QXlsx::QXlsx)
+target_link_libraries(TestExcel PRIVATE QXlsx::QXlsx)
 
 # Console Application }}
 ########################

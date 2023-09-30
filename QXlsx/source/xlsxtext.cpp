@@ -2351,7 +2351,14 @@ CharacterProperties CharacterProperties::from(const QTextCharFormat &format)
             pr.line.setColor(format.property(QTextFormat::OutlinePen).value<QPen>().color());
         if (format.hasProperty(QTextFormat::ForegroundBrush))
             pr.fill.setColor(format.foreground().color());
-        if (format.hasProperty(QTextFormat::FontFamily))
+        int fontFamily =
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+            QTextFormat::FontFamily
+#else
+            QTextFormat::FontFamilies
+#endif
+            ;
+        if (format.hasProperty(fontFamily))
             pr.latinFont = Font(format.font());
         //        Font eastAsianFont;
         //        Font complexScriptFont;

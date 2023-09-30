@@ -14,7 +14,13 @@ set(CMAKE_AUTORCC ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
-add_subdirectory(../../QXlsx ../../build/QXlsx)
+# NOTE: Here you can change path to QXlsx sources
+
+set(QXLSX_PARENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../QXlsx)
+set(QXLSX_HEADERPATH ${QXLSX_PARENTPATH}/header)
+set(QXLSX_SOURCEPATH ${QXLSX_PARENTPATH}/source)
+# specify QXlsx subdirectory and where to build QXlsx
+add_subdirectory(${QXLSX_PARENTPATH} ${QXLSX_PARENTPATH}/../build)
 
 message("target is built in " ${CMAKE_BINARY_DIR})
 
@@ -23,7 +29,7 @@ message("target is built in " ${CMAKE_BINARY_DIR})
 
 add_executable(Chartsheets 
     main.cpp 
-    chartsheets.cpp
+    chartsheet.cpp
     resource.qrc
     )
 target_link_libraries(Chartsheets PRIVATE QXlsx::QXlsx)
