@@ -1,17 +1,13 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    TestExcel \
-    ReadColor \
-    ShowConsole \
-    WebServer \
-    WhatType \
-    ChartLineFill \
-    ChartsQuestions \
-    CombinedChart \
-    DateTime \
-    ExcelReading \
-    HelloAndroid \
-    HelloWorld \
-    IssueTest \
-    Pump
+    QXlsx \
+    examples/Calendar \
+    examples/Charts \
+    examples/Chartsheets \
+    examples/CombinedChart \
+    examples/Demo \
+    examples/HelloWorld \
+    examples/Sheets \
+    examples/TestExcel
+
