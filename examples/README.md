@@ -1,6 +1,6 @@
 # QXlsx Examples
 
-## [HelloWorld](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloWorld)
+## [HelloWorld](HelloWorld)
 
 - Hello world example
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-## [Demo](https://github.com/QtExcel/QXlsx/tree/master/examples/Demo)
+## [Demo](Demo)
 
 Demonstrates basic operations in worksheets:
 
@@ -71,13 +71,13 @@ Demonstrates basic operations in worksheets:
 
 
 
-## [DefinedNames](https://github.com/QtExcel/QXlsx/blob/master/examples/DefinedNames)
+## [DefinedNames](DefinedNames)
 
 Demonstrates how to add defined names to the workbook and use them in formulas.
 
 Defined names are descriptive names to represent cells, ranges of cells, formulas, or constant values. Defined names can be used to represent a range on any worksheet.
 
-Excerpt from [definedNames.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/DefinedNames/definedNames.cpp)
+Excerpt from [definedNames.cpp](DefinedNames/definedNames.cpp)
 
 ```cpp
 ...
@@ -87,60 +87,60 @@ xlsx.write(11, 1, "=SUM(MyCol_1)");
 ...
 ```
 
-## [Calendar](https://github.com/QtExcel/QXlsx/blob/master/examples/Calendar)
+## [Calendar](Calendar)
 
 Demonstrates how to create a workbook with the current year calendar.
 
 ![](../markdown.data/calendar.png)
 
-## [Charts](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts)
+## [Charts](Charts)
 
 Demonstrates adding various charts to a worksheet.
 
-- [chart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chart.cpp) demonstrates how to add charts of different types.
-- [chertextended.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartextended.cpp) demonstrates how to change title and gridlines of a chart.
-- [barchart.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/barchart.cpp) demonstrates various bar chart styles.
-- [chartlinefill.cpp](https://github.com/QtExcel/QXlsx/blob/master/examples/Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.
+- [chart.cpp](Charts/chart.cpp) demonstrates how to add charts of different types.
+- [chertextended.cpp](Charts/chartextended.cpp) demonstrates how to change title and gridlines of a chart.
+- [barchart.cpp](Charts/barchart.cpp) demonstrates various bar chart styles.
+- [chartlinefill.cpp](Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.
 
-## [CombinedChart](https://github.com/QtExcel/QXlsx/tree/master/examples/CombinedChart)
+## [CombinedChart](CombinedChart)
 
 Demonstrates how to add bar series and line series on the same chart. Demonstrates how to move one of the series to the right axis.
 
 ![](../markdown.data/combinedchart.png)
 
-## [Chartsheets](https://github.com/QtExcel/QXlsx/tree/master/examples/Chartsheets)
+## [Chartsheets](Chartsheets)
 
 Demonstrates how to add and copy chartsheets, how to use picture fills.
 
-## [Sheets](https://github.com/QtExcel/QXlsx/tree/master/examples/Sheets)
+## [Sheets](Sheets)
 
 Demonstrates how to set up sheet parameters such as page properties, print properties, view properties etc.
 
-## [TestExcel](https://github.com/QtExcel/QXlsx/tree/master/examples/TestExcel)
+## [TestExcel](TestExcel)
 
 - :zap: Basic examples (based on QtXlsx examples)
-    - [data validation](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/datavalidation.cpp)
-    - [document property](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/documentproperty.cpp)
-    - [extract data](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/extractdata.cpp)
-    - [hyperlink](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/hyperlinks.cpp)
-    - [image](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/image.cpp)
-    - [read style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/readStyle.cpp)
-    - [richtext](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/richtext.cpp)
-    - [row column](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/rowcolumn.cpp)
-    - [style](https://github.com/QtExcel/QXlsx/blob/master/examples/TestExcel/style.cpp)
-    - [worksheet operations](https://github.com/QtExcel/QXlsx/blob/master/TestExcel/examples/worksheetoperations.cpp)
+    - [data validation](TestExcel/datavalidation.cpp)
+    - [document property](TestExcel/documentproperty.cpp)
+    - [extract data](TestExcel/extractdata.cpp)
+    - [hyperlink](TestExcel/hyperlinks.cpp)
+    - [image](TestExcel/image.cpp)
+    - [read style](TestExcel/readStyle.cpp)
+    - [richtext](TestExcel/richtext.cpp)
+    - [row column](TestExcel/rowcolumn.cpp)
+    - [style](TestExcel/style.cpp)
+    - [worksheet operations](TestExcel/worksheetoperations.cpp)
 
 ![](../markdown.data/testexcel.png)
 
 
 
-## [ExcelReading](https://github.com/QtExcel/QXlsx/tree/master/examples/ExcelReading)
+## [ExcelReading](ExcelReading)
 
 Loads xlsx file that was created in Excel and writes it back.
 
 The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc.
 
-## [HelloAndroid](https://github.com/QtExcel/QXlsx/tree/master/examples/HelloAndroid)
+## [HelloAndroid](HelloAndroid)
 
 - See 'HelloAndroid' example using QML and native C++.
 
@@ -150,21 +150,21 @@ The file chartsheet1.xlsx contains complex shape and line formatting, data label
 
 ![](../markdown.data/android.jpg)
 
-## [WebServer](https://github.com/QtExcel/QXlsx/tree/master/examples/WebServer)
+## [WebServer](WebServer)
 - Loads xlsx file and displays on Web.
 	- Connect to `http://127.0.0.1:3001` 
 - C++ 14(17) is required. Old compilers are not supported.
 
 ![](../markdown.data/webserver.png)
 
-## [ShowConsole](https://github.com/QtExcel/QXlsx/tree/master/examples/ShowConsole)
+## [ShowConsole](ShowConsole)
 - Loads xlsx file and displays in console.
   - [Usage] ShowConsole *.xlsx
 - C++ 11 is required. Old compilers is not supported.
 
 ![](../markdown.data/show-console.jpg)
 
-## [ReadColor](https://github.com/QtExcel/QXlsx/tree/master/examples/ReadColor) 
+## [ReadColor](ReadColor) 
 - Read cell color
 
 ![](../markdown.data/read-color.jpg)
