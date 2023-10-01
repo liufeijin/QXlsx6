@@ -148,14 +148,13 @@ bool Workbook::removeDefinedName(const QString &name)
     return d->definedNamesList.removeIf([name](const DefinedName &d) { return d.name == name; })
            > 0;
 #else
-    if (auto it = std::find_if(d->definedNamesList.constBegin(),
-                               d->definedNamesList.constEnd(),
-                               [name](const DefinedName &dn) { return dn.name == name; });
-        it != d->definedNamesList.constEnd()) {
-        d->definedNamesList.erase(it);
-        return false;
+    for (int i = 0; i < d->definedNamesList.size(); ++i) {
+        if (d->definedNamesList.at(i).name == name) {
+            d->definedNamesList.removeAt(i);
+            return true;
+        }
     }
-    return true;
+    return false;
 #endif
 }
 

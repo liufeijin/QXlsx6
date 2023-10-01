@@ -161,6 +161,10 @@ The file chartsheet1.xlsx contains complex shape and line formatting, data label
 
 ## [HelloAndroid](HelloAndroid)
 
+Demonstrates how to create a QML application that uses QXlsx to fill the model.
+
+This example needs rewriting as it compiles only with Qt5.
+
 - See 'HelloAndroid' example using QML and native C++.
 
 - Qt 5.11.1 / gcc 4.9 / QtCreator 4.6.2 
