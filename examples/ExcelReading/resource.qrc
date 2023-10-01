@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>chartsheet1.xlsx</file>
+    </qresource>
+</RCC>

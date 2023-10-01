@@ -153,9 +153,11 @@ Demonstrates a simple GUI application that uses QXlsx to generate a report based
 
 ## [ExcelReading](ExcelReading)
 
-Loads xlsx file that was created in Excel and writes it back.
+Demonstrates that loading xlsx file that was created in Excel and writing it back creates almost identical xlsx file.
 
-The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc.
+The file chartsheet1.xlsx contains complex shape and line formatting, data labels, data table, Excel extension data etc. 
+
+![](../markdown.data/ExcelReading.png)
 
 ## [HelloAndroid](HelloAndroid)
 
