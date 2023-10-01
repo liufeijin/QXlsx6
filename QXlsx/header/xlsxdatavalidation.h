@@ -11,6 +11,7 @@
 #include <QXmlStreamWriter>
 
 #include "xlsxglobal.h"
+#include "xlsxutility_p.h"
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -31,9 +32,9 @@ class QXLSX_EXPORT DataValidation
 {
 public:
     /**
-     * @brief The ValidationType enum defines the type of data that you wish to validate.
+     * @brief The Type enum defines the type of data that you wish to validate.
      */
-    enum ValidationType
+    enum class Type
     {
         None, /**< the type of data is unrestricted. This is the same as not applying a data validation. */
         Whole, /**< restricts the cell to integer values. */
@@ -45,10 +46,10 @@ public:
         Custom /**< restricts the cell based on an external Excel formula that returns a true/false value. */
     };
     /**
-     * @brief The ValidationOperator enum defines the criteria by which the data in the
+     * @brief The Operator enum defines the criteria by which the data in the
      *  cell is validated
      */
-    enum ValidationOperator
+    enum class Operator
     {
         Between,
         NotBetween,
@@ -60,25 +61,32 @@ public:
         GreaterThanOrEqual
     };
     /**
-     * @brief The ErrorStyle enum defines the type of error dialog that
+     * @brief The Error enum defines the type of error dialog that
      *  is displayed.
      */
-    enum ErrorStyle
+    enum class Error
     {
         Stop,
         Warning,
         Information
     };
 
+    /**
+     * @brief creates an invalid DataValidation
+     */
     DataValidation();
-    DataValidation(ValidationType type, ValidationOperator op=Between, const QString &formula1=QString()
+    /*!
+    * creates a DataValidation object with the given \a type, \a op, \a formula1
+    * \a formula2, and \a allowBlank.
+    */
+    DataValidation(Type type, Operator op=Operator::Between, const QString &formula1=QString()
             , const QString &formula2=QString(), bool allowBlank=false);
     DataValidation(const DataValidation &other);
     ~DataValidation();
 
-    ValidationType validationType() const;
-    ValidationOperator validationOperator() const;
-    ErrorStyle errorStyle() const;
+    Type type() const;
+    Operator validationOperator() const;
+    Error errorStyle() const;
     QString formula1() const;
     QString formula2() const;
     bool allowBlank() const;
@@ -90,9 +98,9 @@ public:
     bool isErrorMessageVisible() const;
     QList<CellRange> ranges() const;
 
-    void setValidationType(ValidationType type);
-    void setValidationOperator(ValidationOperator op);
-    void setErrorStyle(ErrorStyle es);
+    void setType(Type type);
+    void setValidationOperator(Operator op);
+    void setErrorStyle(Error es);
     void setFormula1(const QString &formula);
     void setFormula2(const QString &formula);
     void setErrorMessage(const QString &error, const QString &title=QString());
@@ -107,10 +115,37 @@ public:
     void addRange(const CellRange &range);
 
     DataValidation &operator=(const DataValidation &other);
+    bool operator==(const DataValidation &other) const;
+    bool operator!=(const DataValidation &other) const;
+    bool isValid() const;
 
-    bool saveToXml(QXmlStreamWriter &writer) const;
-    static DataValidation loadFromXml(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer) const;
+    void read(QXmlStreamReader &reader);
 private:
+    SERIALIZE_ENUM(Type,
+                   {{Type::None, "none"},
+                    {Type::Whole, "whole"},
+                    {Type::Decimal, "decimal"},
+                    {Type::List, "list"},
+                    {Type::Date, "date"},
+                    {Type::Time, "time"},
+                    {Type::TextLength, "textLength"},
+                    {Type::Custom, "custom"}});
+
+    SERIALIZE_ENUM(Operator,
+                   {{Operator::Between, QStringLiteral("between")},
+                    {Operator::NotBetween, QStringLiteral("notBetween")},
+                    {Operator::Equal, QStringLiteral("equal")},
+                    {Operator::NotEqual, QStringLiteral("notEqual")},
+                    {Operator::LessThan, QStringLiteral("lessThan")},
+                    {Operator::LessThanOrEqual, QStringLiteral("lessThanOrEqual")},
+                    {Operator::GreaterThan, QStringLiteral("greaterThan")},
+                    {Operator::GreaterThanOrEqual, QStringLiteral("greaterThanOrEqual")}});
+
+    SERIALIZE_ENUM(Error,
+                   {{Error::Stop, QStringLiteral("stop")},
+                    {Error::Warning, QStringLiteral("warning")},
+                    {Error::Information, QStringLiteral("information")}});
     QSharedDataPointer<DataValidationPrivate> d;
 };
 

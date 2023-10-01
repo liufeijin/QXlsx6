@@ -2399,7 +2399,9 @@ void WorksheetPrivate::loadXmlDataValidations(QXmlStreamReader &reader)
         reader.readNextStartElement();
         if (reader.tokenType() == QXmlStreamReader::StartElement
                 && reader.name() == QLatin1String("dataValidation")) {
-            dataValidationsList.append(DataValidation::loadFromXml(reader));
+            DataValidation dv;
+            dv.read(reader);
+            dataValidationsList.append(dv);
         }
     }
 

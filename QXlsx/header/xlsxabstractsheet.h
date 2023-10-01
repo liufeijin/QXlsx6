@@ -115,6 +115,9 @@ public:
     };
     /**
      * @brief creates invalid (default) page margins.
+     *
+     * To create valid page margins use #setMarginsInches(), #setMarginsMm() or
+     * static methods #pageMarginsMm(), #pageMarginsInches().
      */
     PageMargins() {}
     /**
