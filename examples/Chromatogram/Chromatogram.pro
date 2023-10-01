@@ -9,17 +9,16 @@ QT += core
 QT += gui
 QT += widgets
 
-TARGET = sat_gui
+TARGET = Chromatogram
 TEMPLATE = app
 
-# NOTE: You can fix value of QXlsx path of source code.
-#  QXLSX_PARENTPATH=./
-#  QXLSX_HEADERPATH=./header/
-#  QXLSX_SOURCEPATH=./source/
-include(../QXlsx/QXlsx.pri)
+# NOTE: Here you can change path to QXlsx sources
 
-# include("D:\resin_example\sat_gui\src\xlsx\qtxlsx.pri")
-# QMAKE_LFLAGS += -static -static-libgcc
+QXLSX_PARENTPATH=../../QXlsx/
+QXLSX_HEADERPATH=$${QXLSX_PARENTPATH}header/ # should be path to QXlsx/header directory
+QXLSX_SOURCEPATH=$${QXLSX_PARENTPATH}source/ # should be path to QXlsx/source directory
+
+include($${QXLSX_PARENTPATH}QXlsx.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

@@ -5,12 +5,6 @@
 #include <QTextStream>
 #include <iostream>
 #include <QColor>
-#include "xlsxdocument.h"
-#include "xlsxformat.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-
-using namespace QXlsx;
 
 class sat_calc
 {

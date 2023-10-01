@@ -8,6 +8,8 @@
 #include <QDebug>
 
 #include "sat_calc.h"
+#include "xlsxdocument.h"
+#include "xlsxchart.h"
 
 sat_calc::sat_calc(): output_line_count(5){}
 sat_calc::~sat_calc(){}
@@ -35,7 +37,7 @@ void sat_calc::get_precision(const double precision){
 void sat_calc::generate_report()
 {
     // Define test parameters
-    chromatogram = ":/Chromatogram_example.txt";
+    chromatogram = ":/Chromatogram.txt";
     report_file = "output.xlsx";
     sheet_name = "hello";
     precision = 0.1;
@@ -49,7 +51,7 @@ void sat_calc::generate_report()
 
 #ifdef QUICK_GUI_DEBUG
         QMessageBox msgBox;
-        msgBox.setText("File is not exist.");
+        msgBox.setText("File does not exist.");
         msgBox.exec();
 #endif
         return;
@@ -97,39 +99,30 @@ void sat_calc::generate_report()
     output.write( output_line_count+2, 1, "volume, ml", title_stile );
     output.write( output_line_count+2, 2, "OD, mAu", title_stile );
 
-    while ( !stream_buffer.atEnd() )
-    {
-        if ( input_line_count % step == 0 )
-        {
-            for ( int j = 0 ; j < 2 ; j++ )
-            {
-                if ( input_line_count > 2 )
-                {
-                    if ( input_line_count == 2 && j == 0 )
-                    {
+    while (!stream_buffer.atEnd())  {
+        if (input_line_count % step == 0) {
+            for (int j = 0; j < 2; j++) {
+                if (input_line_count > 2) {
+                    if (input_line_count == 2 && j == 0) {
                         stream_buffer >> string_buffer;
                     }
 
-                    if ( input_line_count == 3 && j == 0 )
-                    {
+                    if (input_line_count == 3 && j == 0) {
                         stream_buffer >> d1;
                         output.write( output_line_count, j+1, d1, simple_green );
                     }
 
-                    if ( input_line_count == 4 && j == 0 )
-                    {
+                    if (input_line_count == 4 && j == 0) {
                         stream_buffer >> d2;
                         step = (int)(precision / (d2-d1));
                         std::cout << "\nstep  " << step << std::endl;
                         output.write( output_line_count, j+1, d2, simple_green );
                     }
 
-                    if ( j || input_line_count > 4 )
-                    {
+                    if (j || input_line_count > 4) {
                         stream_buffer >> d3;
                         output.write( output_line_count, j+1, d3, row_data );
                     }
-
                 } // if ( input_line_count > 2 ) ...
 
             } // for (int j = 0 ; j < 2 ; j++ )
@@ -139,15 +132,14 @@ void sat_calc::generate_report()
         } // if ( input_line_count % step == 0 )
 
         trash = stream_buffer.readLine();
-
         input_line_count++;
     }
 
     chrom_data_array += ":B" + QString::number(output_line_count - 1);
 
-    Chart * Crom = output.insertChart( 3, 5, QSize(600, 500) );
-    Crom->setType( Chart::Type::Scatter );
-    Crom->addSeries( CellRange(chrom_data_array) );
+    QXlsx::Chart * Crom = output.insertChart( 3, 5, QSize(600, 500) );
+    Crom->setType( QXlsx::Chart::Type::Scatter );
+    Crom->addSeries( QXlsx::CellRange(chrom_data_array) );
     Crom->axis(1)->setTitle( QString("left title") );
     Crom->axis(0)->setTitle( QString("bottom title") );
     Crom->setTitle( QString("hello chart") );
@@ -157,11 +149,9 @@ void sat_calc::generate_report()
     output.saveAs(report_file);
     input.close();
 
-    Document doc2(report_file);
+    QXlsx::Document doc2(report_file);
     if (doc2.isLoaded())
-    {
         doc2.saveAs("doc2.xlsx");
-    }
 
     QMessageBox msgBox;
     msgBox.setText("Success to write a xlsx file.");

@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Chromatogram_example.txt</file>
+        <file>Chromatogram.txt</file>
     </qresource>
 </RCC>

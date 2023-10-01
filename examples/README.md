@@ -69,6 +69,19 @@ Demonstrates basic operations in worksheets:
     - array formulas
     - shared formulas
 
+## [Types](Types)
+
+Demonstrates various numeric types that can be written and read.
+
+This example shows that `Document::read()` method returns values with respect to their type, whereas Cell::value() returns data as it is stored in cells (for numeric data it is usually `double`). Compare:
+
+```cpp 
+Document doc;
+doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
+qDebug() << doc.read(3, 1).type() << doc.read(3, 1); // QVariant::QDate QVariant(QDate, QDate("2019-10-09"))
+qDebug() << doc.cellAt(3, 1)->value().type() << doc.cellAt(3, 1)->value(); // QVariant::double QVariant(double, 43747)
+```
+
 
 
 ## [DefinedNames](DefinedNames)
@@ -115,6 +128,10 @@ Demonstrates how to add and copy chartsheets, how to use picture fills.
 ## [Sheets](Sheets)
 
 Demonstrates how to set up sheet parameters such as page properties, print properties, view properties etc.
+
+## [Chromatogram](Chromatogram)
+
+Demonstrates a simple GUI application that uses QXlsx to generate a report based on a file data.
 
 ## [TestExcel](TestExcel)
 

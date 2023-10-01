@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "sat_calc.h"
 
 namespace Ui {
 class MainWindow;

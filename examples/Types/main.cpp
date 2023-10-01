@@ -1,68 +1,13 @@
-// test.cpp
+// main.cpp
 
-#include <QtGlobal>
 #include <QCoreApplication>
-#include <QtCore>
 #include <QVector>
 #include <QVariant>
-#include <QDebug> 
 #include <QDir>
 
-#include <iostream>
-using namespace std;
-
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
-#include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
 
-int test( QVector<QVariant> params );
-int test1( QVector<QVariant> params );
-int test2( QVector<QVariant> params );
-
-int test( QVector<QVariant> params )
-{
-    // return test1( params );
-    return test2( params );
-}
-
-int test1( QVector<QVariant> params )
-{
-    qDebug() << "[debug] current path : " << QDir::currentPath();
-
-    using namespace QXlsx;
-
-    Document doc;
-
-    doc.write( "A1", QVariant(QDateTime::currentDateTimeUtc()) );
-    doc.write( "A2", QVariant(double(10.5)) );
-    doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
-    doc.write( "A4", QVariant(QTime(10, 9, 5)) );
-    doc.write( "A5", QVariant((int) 40000) );
-
-    qDebug() << "doc.read()";
-    qDebug() << doc.read( 1, 1 ).type() << doc.read( 1, 1 );
-    qDebug() << doc.read( 2, 1 ).type() << doc.read( 2, 1 );
-    qDebug() << doc.read( 3, 1 ).type() << doc.read( 3, 1 );
-    qDebug() << doc.read( 4, 1 ).type() << doc.read( 4, 1 );
-    qDebug() << doc.read( 5, 1 ).type() << doc.read( 5, 1 );
-    qDebug() << "\n";
-
-    qDebug() << "doc.cellAt()->value()";
-    qDebug() << doc.cellAt( 1, 1 )->value().type() << doc.cellAt( 1, 1 )->value();
-    qDebug() << doc.cellAt( 2, 1 )->value().type() << doc.cellAt( 2, 1 )->value();
-    qDebug() << doc.cellAt( 3, 1 )->value().type() << doc.cellAt( 3, 1 )->value();
-    qDebug() << doc.cellAt( 4, 1 )->value().type() << doc.cellAt( 4, 1 )->value();
-    qDebug() << doc.cellAt( 5, 1 )->value().type() << doc.cellAt( 5, 1 )->value();
-
-    doc.saveAs("datetime.xlsx");
-
-    return 0;
-}
-
-int test2( QVector<QVariant> params )
+int main()
 {
     qDebug() << "[debug] current path : " << QDir::currentPath();
 
@@ -78,6 +23,7 @@ int test2( QVector<QVariant> params )
     doc.write( "A4", QVariant(QTime(10, 9, 5)) );
     doc.write( "A5", QVariant((int) 40000) );
 
+    // read() method returns values with respect to their types.
     qDebug() << "doc.read()";
     qDebug() << doc.read( 1, 1 ).type() << doc.read( 1, 1 );
     qDebug() << doc.read( 2, 1 ).type() << doc.read( 2, 1 );
@@ -86,6 +32,7 @@ int test2( QVector<QVariant> params )
     qDebug() << doc.read( 5, 1 ).type() << doc.read( 5, 1 );
     qDebug() << "\n";
 
+    // cellAt()->value() method returns values as they are stored in cells (numerics usually as double).
     qDebug() << "doc.cellAt()->value()";
     qDebug() << doc.cellAt( 1, 1 )->value().type() << doc.cellAt( 1, 1 )->value();
     qDebug() << doc.cellAt( 2, 1 )->value().type() << doc.cellAt( 2, 1 )->value();
@@ -94,14 +41,14 @@ int test2( QVector<QVariant> params )
     qDebug() << doc.cellAt( 5, 1 )->value().type() << doc.cellAt( 5, 1 )->value();
     qDebug() << "\n";
 
-    doc.saveAs("datetime.xlsx");
+    doc.saveAs("types1.xlsx");
 
     qDebug() << "\n\ndoc2\n";
 
-    Document doc2("datetime.xlsx");
+    Document doc2("types1.xlsx");
     if ( !doc2.isLoaded() )
     {
-        qWarning() << "failed to load datetime.xlsx" ;
+        qWarning() << "failed to load types1.xlsx" ;
         return (-1);
     }
     qDebug() << "\n\n";
@@ -136,15 +83,14 @@ int test2( QVector<QVariant> params )
     qDebug() << doc2.cellAt( 8, 1 )->value().type() << doc2.cellAt( 8, 1 )->value();
     qDebug() << doc2.cellAt( 9, 1 )->value().type() << doc2.cellAt( 9, 1 )->value();
     qDebug() << doc2.cellAt(10, 1 )->value().type() << doc2.cellAt(10, 1 )->value();
-    doc2.saveAs("datetime2.xlsx");
+    doc2.saveAs("types2.xlsx");
 
     qDebug() << "\n\ndoc3\n";
 
-    Document doc3("datetime2.xlsx");
-    if ( !doc3.isLoaded() )
-    {
-        qWarning() << "failed to load datetime2.xlsx" ;
-        return (-1);
+    Document doc3("types2.xlsx");
+    if (!doc3.isLoaded()) {
+        qWarning() << "failed to load types2.xlsx" ;
+        return -1;
     }
     qDebug() << "\n\n";
 
@@ -172,8 +118,7 @@ int test2( QVector<QVariant> params )
     qDebug() << doc3.cellAt( 8, 1 )->value().type() << doc3.cellAt( 8, 1 )->value();
     qDebug() << doc3.cellAt( 9, 1 )->value().type() << doc3.cellAt( 9, 1 )->value();
     qDebug() << doc3.cellAt(10, 1 )->value().type() << doc3.cellAt(10, 1 )->value();
-    doc2.saveAs("datetime2.xlsx");
 
-    return 0;
+	return 0; 
 }
 
