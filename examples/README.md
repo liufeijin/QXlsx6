@@ -179,9 +179,12 @@ Serves as a test application that pumps xlsx files through QXlsx (reads files an
 
 Originally the example was a part of [libxlsxwriter](https://github.com/jmcnamara/libxlsxwriter).
 ## [WebServer](WebServer)
-- Loads xlsx file and displays on Web.
-	- Connect to `http://127.0.0.1:3001` 
-- C++ 14(17) is required. Old compilers are not supported.
+Loads xlsx file and displays on Web.
+- Connect to `http://127.0.0.1:3001` 
+
+- C++ 14 is required. Old compilers are not supported.
+
+This example needs rewriting.
 
 ![](../markdown.data/webserver.png)
 

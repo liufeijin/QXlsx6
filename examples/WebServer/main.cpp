@@ -10,13 +10,10 @@
 #include "recurse.hpp"
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
 #include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
 #include "xlsxabstractsheet.h"
-#include "xlsxcell.h"
+
 using namespace QXlsx;
 
 QString getHtml(QString strFilename);
