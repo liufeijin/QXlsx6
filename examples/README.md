@@ -187,11 +187,6 @@ This example needs rewriting as it compiles only with Qt5.
 
 ![](../markdown.data/show-console.jpg)
 
-## [ReadColor](ReadColor) 
-- Read cell color
-
-![](../markdown.data/read-color.jpg)
-
 ## XlsxFactory 
 - Load xlsx file and display on Qt widgets. 
 - Moved to personal repository for advanced app.
