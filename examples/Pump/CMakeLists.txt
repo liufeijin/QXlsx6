@@ -1,86 +1,43 @@
 # CMakeLists.txt for Console Application
 
-# TODO: Set minumum cmake version 
+# Set minumum cmake version
 cmake_minimum_required(VERSION 3.14)
 
-# TODO: Set project name 
+# Set project name
 project(Pump LANGUAGES CXX)
 
-# TODO: Set Your C++ version
-set(CMAKE_CXX_STANDARD 11) # C++ 11
+# Set Your C++ version
+set(CMAKE_CXX_STANDARD 17)
 
-##########################
-# bolier-plate code (1) {{
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets REQUIRED)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
+# NOTE: Here you can change path to QXlsx sources
 
-if(NOT DEFINED ${QXLSX_PARENTPATH})
-	set(QXLSX_PARENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../)
-endif(NOT DEFINED ${QXLSX_PARENTPATH}) 
-	
-if(NOT DEFINED ${QXLSX_HEADERPATH})	
-	set(QXLSX_HEADERPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/header/)
-endif(NOT DEFINED ${QXLSX_HEADERPATH})		
+set(QXLSX_PARENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../QXlsx)
+set(QXLSX_HEADERPATH ${QXLSX_PARENTPATH}/header)
+set(QXLSX_SOURCEPATH ${QXLSX_PARENTPATH}/source)
+# specify QXlsx subdirectory and where to build QXlsx
+add_subdirectory(${QXLSX_PARENTPATH} ${QXLSX_PARENTPATH}/../build)
 
-if(NOT DEFINED ${QXLSX_SOURCEPATH})
-	set(QXLSX_SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}/../QXlsx/source/)
-endif(NOT DEFINED ${QXLSX_SOURCEPATH})	
-
-message("Current Path of QXlsx")
-message(${QXLSX_PARENTPATH})
-message(${QXLSX_HEADERPATH})
-message(${QXLSX_SOURCEPATH})
-
-include_directories(${QXLSX_HEADERPATH})
-
-file(GLOB QXLSX_CPP "${QXLSX_SOURCEPATH}/*.cpp")
-file(GLOB QXLSX_H "${QXLSX_HEADERPATH}/*.h")
-
-set(SRC_FILES ${QXLSX_CPP})
-list(APPEND SRC_FILES ${QXLSX_H})
- 
-# bolier-plate code (1) }}
-###########################
+message("target is built in " ${CMAKE_BINARY_DIR})
 
 #########################
 # Console Application {{
 
-# TODO: set your source code 
-set(APP_SRC_FILES
-  main.cpp
-  test.cpp 
-  pump.qrc
-  ) 
-  
-list(APPEND SRC_FILES ${APP_SRC_FILES})
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(Pump
+    pump.qrc
+    colorprintf.h
+    main.cpp
+    test.cpp
+    )
+target_link_libraries(Pump
+    QXlsx::QXlsx
+)
 
 # Console Application }}
 ########################
- 
-##########################
-# bolier-plate code (2) {{
-
-target_include_directories(${PROJECT_NAME} PRIVATE
- ${QXLSX_HEADERPATH} 
- ${CMAKE_CURRENT_SOURCE_DIR} )
- 
-target_link_libraries(${PROJECT_NAME} 
- Qt${QT_VERSION_MAJOR}::Core
- Qt${QT_VERSION_MAJOR}::GuiPrivate
- )
- 
- set(CMAKE_WIN32_EXECUTABLE OFF)
- 
-# bolier-plate code (2) }}
-##########################
-

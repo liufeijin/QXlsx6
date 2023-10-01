@@ -9,11 +9,13 @@ QT += gui
 CONFIG += console
 CONFIG -= app_bundle
 
-# NOTE: You can fix value of QXlsx path of source code.
-#  QXLSX_PARENTPATH=./
-#  QXLSX_HEADERPATH=./header/
-#  QXLSX_SOURCEPATH=./source/
-include(../QXlsx/QXlsx.pri)
+# NOTE: Here you can change path to QXlsx sources
+
+QXLSX_PARENTPATH=../../QXlsx/
+QXLSX_HEADERPATH=$${QXLSX_PARENTPATH}header/ # should be path to QXlsx/header directory
+QXLSX_SOURCEPATH=$${QXLSX_PARENTPATH}source/ # should be path to QXlsx/source directory
+
+include($${QXLSX_PARENTPATH}QXlsx.pri)
 
 ##########################################################################
 # The following define makes your compiler emit warnings if you use
@@ -30,7 +32,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000   
 # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++14
+CONFIG += c++17
 
 INCLUDEPATH += .
 

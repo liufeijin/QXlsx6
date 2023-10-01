@@ -173,6 +173,11 @@ This example needs rewriting as it compiles only with Qt5.
 
 ![](../markdown.data/android.jpg)
 
+## [Pump](Pump)
+
+Serves as a test application that pumps xlsx files through QXlsx (reads files and writes them back) to test QXlsx features.
+
+Originally the example was a part of [libxlsxwriter](https://github.com/jmcnamara/libxlsxwriter).
 ## [WebServer](WebServer)
 - Loads xlsx file and displays on Web.
 	- Connect to `http://127.0.0.1:3001` 
