@@ -2,14 +2,23 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     QXlsx \
-    examples/Calendar \
-    examples/Charts \
-    examples/Chartsheets \
-    examples/CombinedChart \
-    examples/Demo \
-    examples/HelloWorld \
-    examples/Sheets \
-    examples/TestExcel
+    examples\DefinedNames \
+    examples\Demo \
+    examples\ExcelReading \
+    examples\HelloAndroid \
+    examples\HelloWorld \
+    examples\Pump \
+    examples\Sheets \
+    examples\ShowConsole \
+    examples\TestExcel \
+    examples\Types \
+    examples\WebServer \
+    examples\Autofilter \
+    examples\Calendar \
+    examples\Charts \
+    examples\Chartsheets \
+    examples\Chromatogram \
+    examples\CombinedChart
 
 OTHER_FILES += \
     HowToSetProject.md \

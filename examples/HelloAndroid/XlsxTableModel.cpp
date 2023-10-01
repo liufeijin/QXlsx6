@@ -141,7 +141,7 @@ QHash<int, QByteArray> XlsxTableModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
 
-    for ( int ic = 0 ; ic < m_roleCount ; ic++)
+    for ( uint ic = 0 ; ic < m_roleCount ; ic++)
     {
         QString strRole = m_colNames.at(ic);
         int roleNo = (Qt::UserRole+1) + ic;
