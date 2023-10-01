@@ -186,9 +186,13 @@ Originally the example was a part of [libxlsxwriter](https://github.com/jmcnamar
 ![](../markdown.data/webserver.png)
 
 ## [ShowConsole](ShowConsole)
-- Loads xlsx file and displays in console.
-  - [Usage] ShowConsole *.xlsx
-- C++ 11 is required. Old compilers is not supported.
+Loads xlsx file and displays data in console.
+
+Usage: 
+
+```bat
+ShowConsole *.xlsx
+```
 
 ![](../markdown.data/show-console.jpg)
 
