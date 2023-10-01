@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QVariant>
 #include <QDir>
+#include <QDebug>
 
 #include "xlsxdocument.h"
 
