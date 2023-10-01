@@ -6,7 +6,7 @@
 #include "xlsxdocument.h"
 #include "xlsxformat.h"
 
-int autofilter()
+int main()
 {
     QXlsx::Document xlsx;
 

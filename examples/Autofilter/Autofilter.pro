@@ -1,6 +1,6 @@
-# TestExcel.pro
+# Autofilter.pro
 
-TARGET = TestExcel
+TARGET = Autofilter
 TEMPLATE = app
 
 QT += core
@@ -35,19 +35,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # source code
 
-SOURCES += \
-datavalidation.cpp \
-documentproperty.cpp \
-    extlist.cpp \
-hyperlinks.cpp \
-image.cpp \
-main.cpp \
-richtext.cpp \
-rowcolumn.cpp \
-style.cpp \
-worksheetoperations.cpp \
-readStyle.cpp
-
-RESOURCES += \
-    resource.qrc
-
+SOURCES += autofilter.cpp

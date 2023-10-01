@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>background1.jpg</file>
+        <file>extlist.xlsx</file>
     </qresource>
 </RCC>

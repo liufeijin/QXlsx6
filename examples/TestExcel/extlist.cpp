@@ -9,9 +9,9 @@
 
 int readextlist()
 {
-    //![0]
-    QXlsx::Document xlsx("extlist.xlsx");
-    //![0]
+    
+    QXlsx::Document xlsx(":/extlist.xlsx");
+    xlsx.saveAs("extlist2.xlsx");
 
     return 0;
 }

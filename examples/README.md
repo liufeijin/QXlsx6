@@ -106,6 +106,14 @@ Demonstrates how to create a workbook with the current year calendar.
 
 ![](../markdown.data/calendar.png)
 
+## [Autofilter](Autofilter)
+
+Demonstrates how to use autofiltering and sorting features in a worksheet.
+
+:warning: Excel understands autofilters written with QXlsx, but it doesn't automatically hide the filtered-out rows. So for each worksheet press Data -> Filter -> Reapply.
+
+:arrow_right: TO ADD IN FUTURE RELEASES: when adding autofilter, manually hide rows. It requires reading cell values and actually is not an **autofilter** anymore.
+
 ## [Charts](Charts)
 
 Demonstrates adding various charts to a worksheet.
@@ -135,17 +143,17 @@ Demonstrates a simple GUI application that uses QXlsx to generate a report based
 
 ## [TestExcel](TestExcel)
 
-- :zap: Basic examples (based on QtXlsx examples)
-    - [data validation](TestExcel/datavalidation.cpp)
-    - [document property](TestExcel/documentproperty.cpp)
-    - [extract data](TestExcel/extractdata.cpp)
-    - [hyperlink](TestExcel/hyperlinks.cpp)
-    - [image](TestExcel/image.cpp)
-    - [read style](TestExcel/readStyle.cpp)
-    - [richtext](TestExcel/richtext.cpp)
-    - [row column](TestExcel/rowcolumn.cpp)
-    - [style](TestExcel/style.cpp)
-    - [worksheet operations](TestExcel/worksheetoperations.cpp)
+:zap: Basic examples (based on QtXlsx examples)
+- [data validation](TestExcel/datavalidation.cpp) - tests data validation features
+- [document property](TestExcel/documentproperty.cpp) - tests adding document properties
+- [hyperlink](TestExcel/hyperlinks.cpp) - tests writing hyperlinks of different kinds.
+- [image](TestExcel/image.cpp) - tests adding, reading and removing images from a worksheet
+- [read style](TestExcel/readStyle.cpp) - needs rewriting as now it does nothing useful
+- [richtext](TestExcel/richtext.cpp)
+- [row column](TestExcel/rowcolumn.cpp)
+- [style](TestExcel/style.cpp)
+- [worksheet operations](TestExcel/worksheetoperations.cpp)
+- [extList](TestExcel/extList.cpp) - tests reading Excel extensions from an xlsx file.
 
 ![](../markdown.data/testexcel.png)
 
