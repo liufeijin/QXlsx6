@@ -896,8 +896,6 @@ void ExtensionList::read(QXmlStreamReader &reader)
             reader.readNext();
         }
     }
-
-    qDebug()<<vals;
 }
 
 bool ExtensionList::isValid() const

@@ -41,6 +41,8 @@ public:
     
     QVariant read(const CellReference &cell) const;
     QVariant read(int row, int col) const;
+
+    bool setFormat(const CellRange &range, const Format &format);
     
     /*!
      * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
@@ -215,6 +217,21 @@ public:
     bool groupColumns(int colFirst, int colLast, bool collapsed = true);
     
     bool addDataValidation(const DataValidation &validation);
+    /**
+     * @overload
+     * @brief adds the data validation that allows only a list of specified values.
+     * @param range cells range to apply data validation to.
+     * @param allowableValues cells range that contains all allowable values.
+     * @param strict If true, then error message will be shown if the input cell value
+     * is not allowable.
+     * @return true if validation was successfully added, false otherwise.
+     * @note If you need to customize validation params, f.e. prompt and error messages,
+     * use DataValidation constructor.
+     */
+    bool addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict = true);
+
+
+
     bool addConditionalFormatting(const ConditionalFormatting &cf);
 
     Cell *cellAt(const CellReference &cell) const;

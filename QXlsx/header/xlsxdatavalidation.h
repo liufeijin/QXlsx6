@@ -118,8 +118,11 @@ public:
     * creates a DataValidation object with the given @a type, @a op, @a formula1
     * @a formula2, and @a allowBlank.
     */
-    DataValidation(Type type, Operator op=Operator::Between, const QString &formula1=QString()
-            , const QString &formula2=QString(), bool allowBlank=false);
+    DataValidation(Type type,
+                   const QString &formula1=QString(),
+                   Operator op=Operator::Between,
+                   const QString &formula2=QString());
+    DataValidation(const CellRange &allowableValues);
     DataValidation(const DataValidation &other);
     ~DataValidation();
 

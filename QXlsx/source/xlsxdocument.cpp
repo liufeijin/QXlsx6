@@ -654,6 +654,13 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
+bool Document::setFormat(const CellRange &range, const Format &format)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->setFormat(range, format);
+    return false;
+}
+
 int Document::insertImage(int row, int column, const QImage &image)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1058,6 +1065,13 @@ bool Document::addDataValidation(const DataValidation &validation)
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->addDataValidation(validation);
+    return false;
+}
+
+bool Document::addDataValidation(const CellRange &range, const CellRange &allowableValues)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->addDataValidation(range, allowableValues);
     return false;
 }
 

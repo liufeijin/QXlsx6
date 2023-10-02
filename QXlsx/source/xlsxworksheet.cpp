@@ -560,6 +560,33 @@ bool Worksheet::write(int row, int column, const QVariant &value, const Format &
     return false;
 }
 
+bool Worksheet::setFormat(const CellRange &range, const Format &format)
+{
+    if (!range.isValid() || !format.isValid()) return false;
+    for (int row = range.firstRow(); row <= range.lastRow(); ++row) {
+        for (int col = range.firstColumn(); col <= range.lastColumn(); ++col)
+            setFormat(CellReference(row, col), format);
+    }
+    return true;
+}
+
+bool Worksheet::setFormat(const CellReference &ref, const Format &format)
+{
+    Q_D(Worksheet);
+    auto row = ref.row();
+    auto col = ref.column();
+    if (!d->addRowToDimensions(row)) return false;
+    if (!d->addColumnToDimensions(col)) return false;
+
+    Format fmt = format.isValid() ? format : d->cellFormat(row, col);
+    d->workbook->styles()->addXfFormat(fmt);
+    if (!d->cellTable[row][col])
+        d->cellTable[row][col] = std::make_shared<Cell>(QVariant{}, Cell::Type::Number, fmt, this);
+    else
+        d->cellTable[row][col]->setFormat(fmt);
+    return true;
+}
+
 bool Worksheet::write(const CellReference &row_column, const QVariant &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -985,6 +1012,23 @@ bool Worksheet::addDataValidation(const DataValidation &validation)
 
     d->dataValidationsList.append(validation);
     return true;
+}
+
+bool Worksheet::addDataValidation(const CellRange &range, DataValidation::Type type,
+                                  const QString &formula1, DataValidation::Operator op,
+                                  const QString &formula2)
+{
+    DataValidation v(type, formula1, op, formula2);
+    v.addRange(range);
+    return addDataValidation(v);
+}
+
+bool Worksheet::addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict)
+{
+    DataValidation v(DataValidation::Type::List, allowableValues.toString(true, true));
+    v.setErrorMessageVisible(strict);
+    v.addRange(range);
+    return addDataValidation(v);
 }
 
 bool Worksheet::dataValidationPromptsDisabled() const

@@ -13,8 +13,6 @@ class DataValidationPrivate : public QSharedData
 {
 public:
     DataValidationPrivate();
-    DataValidationPrivate(DataValidation::Type type, DataValidation::Operator op,
-                          const QString &formula1, const QString &formula2, bool allowBlank);
     DataValidationPrivate(const DataValidationPrivate &other);
     ~DataValidationPrivate();
     bool operator==(const DataValidationPrivate &other) const;
@@ -22,7 +20,7 @@ public:
     DataValidation::Type validationType = DataValidation::Type::None;
     DataValidation::Operator validationOperator = DataValidation::Operator::Between;
     DataValidation::Error errorStyle = DataValidation::Error::Stop;
-    bool allowBlank = false;
+    std::optional<bool> allowBlank;
     bool isPromptMessageVisible = false;
     bool isErrorMessageVisible = false;
     bool isDropDownVisible = false;
@@ -37,19 +35,6 @@ public:
 };
 
 DataValidationPrivate::DataValidationPrivate()
-{
-}
-
-DataValidationPrivate::DataValidationPrivate(DataValidation::Type type,
-                                             DataValidation::Operator op,
-                                             const QString &formula1,
-                                             const QString &formula2,
-                                             bool allowBlank)
-    : validationType(type)
-    , validationOperator(op)
-    , allowBlank(allowBlank)
-    , formula1(formula1)
-    , formula2(formula2)
 {
 }
 
@@ -81,7 +66,7 @@ bool DataValidationPrivate::operator==(const DataValidationPrivate &other) const
     if (validationType != other.validationType) return false;
     if (validationOperator != other.validationOperator) return false;
     if (errorStyle != other.errorStyle) return false;
-    if ( allowBlank != other.allowBlank) return false;
+    if (allowBlank != other.allowBlank) return false;
     if (isPromptMessageVisible != other.isPromptMessageVisible) return false;
     if (isErrorMessageVisible != other.isErrorMessageVisible) return false;
     if (formula1 != other.formula1) return false;
@@ -94,9 +79,22 @@ bool DataValidationPrivate::operator==(const DataValidationPrivate &other) const
     return true;
 }
 
-DataValidation::DataValidation(Type type, Operator op, const QString &formula1, const QString &formula2, bool allowBlank)
-    : d(new DataValidationPrivate(type, op, formula1, formula2, allowBlank))
+DataValidation::DataValidation(Type type,
+                               const QString &formula1,
+                               Operator op,
+                               const QString &formula2)
+    : d(new DataValidationPrivate())
 {
+    d->validationType = type;
+    d->formula1 = formula1;
+    d->formula2 = formula2;
+    d->validationOperator = op;
+}
+
+DataValidation::DataValidation(const CellRange &allowableValues) : d(new DataValidationPrivate())
+{
+    d->validationType = Type::List;
+    d->formula1 = allowableValues.toString(true, true);
 }
 
 DataValidation::DataValidation()
@@ -172,7 +170,7 @@ QString DataValidation::formula2() const
 
 bool DataValidation::allowBlank() const
 {
-    if (d) return d->allowBlank;
+    if (d) return d->allowBlank.value_or(false);
     return false; //TODO: check default value
 }
 
@@ -362,8 +360,7 @@ void DataValidation::write(QXmlStreamWriter &writer) const
         writeAttribute(writer, QLatin1String("imeMode"), toString(d->imeMode.value()));
     if (d->validationOperator != DataValidation::Operator::Between)
         writer.writeAttribute(QLatin1String("operator"), toString(d->validationOperator));
-    if (d->allowBlank)
-        writeAttribute(writer, QLatin1String("allowBlank"), d->allowBlank);
+    writeAttribute(writer, QLatin1String("allowBlank"), d->allowBlank);
     //        if (dropDownVisible())
     //            writer.writeAttribute(QStringLiteral("showDropDown"), QStringLiteral("1"));
     if (d->isPromptMessageVisible)

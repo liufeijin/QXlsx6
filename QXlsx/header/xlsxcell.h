@@ -72,6 +72,7 @@ public:
     QVariant value() const;
     QVariant readValue() const;
     Format format() const;
+    void setFormat(const Format &format);
     
     bool hasFormula() const;
     CellFormula formula() const;

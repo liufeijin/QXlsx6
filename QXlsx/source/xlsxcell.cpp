@@ -229,6 +229,12 @@ Format Cell::format() const
     return d->format;
 }
 
+void Cell::setFormat(const Format &format)
+{
+    Q_D(Cell);
+    d->format = format;
+}
+
 /*!
  * Returns true if the cell has one formula.
  */

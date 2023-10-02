@@ -141,6 +141,10 @@ public:
     bool write(const CellReference &row_column, const QVariant &value, const Format &format=Format());
     bool write(int row, int column, const QVariant &value, const Format &format=Format());
 
+    bool setFormat(const CellRange &range, const Format &format);
+    bool setFormat(const CellReference &ref, const Format &format);
+    //TODO: bool clearFormat()
+
     QVariant read(const CellReference &row_column) const;
     QVariant read(int row, int column) const;
 
@@ -185,9 +189,36 @@ public:
      * @return true if @a validation is valid and contains valid range(s), false otherwise.
      */
     bool addDataValidation(const DataValidation &validation);
+    /**
+     * @overload
+     * @brief adds data validation in the sheet.
+     *
+     * This is a low-level method that allows to create a validation in-place.
+     *
+     * @param range cells range to apply data validation to.
+     * @param type type of data validation
+     * @param formula1 the first validation criterion
+     * @param op operation to combine two validation criteria
+     * @param formula2 the second validation criterion
+     * @return true if validation was successfully added, false otherwise.
+     *
+     * You can use overloaded methods to add a specific type of validation.
+     */
     bool addDataValidation(const CellRange &range, DataValidation::Type type, const QString &formula1,
                            DataValidation::Operator op = DataValidation::Operator::Between,
                            const QString &formula2 = QString());
+    /**
+     * @overload
+     * @brief adds the data validation that allows only a list of specified values.
+     * @param range cells range to apply data validation to.
+     * @param allowableValues cells range that contains all allowable values.
+     * @param strict If true, then error message will be shown if the input cell value
+     * is not allowable.
+     * @return true if validation was successfully added, false otherwise.
+     * @note If you need to customize validation params, f.e. prompt and error messages,
+     * use DataValidation constructor.
+     */
+    bool addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict = true);
     /**
      * @brief returns whether all input prompts from the worksheet are disabled.
      * @return if true, then all data validation prompts will not be shown on the worksheet.
