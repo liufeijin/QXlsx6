@@ -1003,7 +1003,6 @@ void Chart::saveToXmlFile(QIODevice *device) const
     if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "c:spPr");
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
-
     writer.writeEndElement();// c:chartSpace
     writer.writeEndDocument();
 }
@@ -1482,7 +1481,9 @@ void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
 void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("c:chart"));
+
     if (title.isValid()) title.write(writer, QLatin1String("c:title"));
+
     writeEmptyElement(writer, QLatin1String("c:autoTitleDeleted"), autoTitleDeleted);
 
     writer.writeStartElement(QStringLiteral("c:plotArea"));

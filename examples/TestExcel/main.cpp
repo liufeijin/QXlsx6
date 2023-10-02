@@ -18,16 +18,11 @@ extern int style();
 extern int worksheetoperations();
 extern int readStyle();
 extern int readextlist();
-extern int autofilter();
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication app(argc, argv);
-
     qDebug() << "**** readStyle() ****";
     readStyle();
-
-
     qDebug() << "**** datavalidation() ****";
     datavalidation();
     qDebug() << "**** documentproperty() ****";

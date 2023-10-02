@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFile>
 #include <QBuffer>
+#include <QDebug>
 
 #include "xlsxrelationships_p.h"
 
@@ -106,7 +107,6 @@ QByteArray Relationships::saveToXmlData() const
     QBuffer buffer(&data);
     buffer.open(QIODevice::WriteOnly);
     saveToXmlFile(&buffer);
-
     return data;
 }
 

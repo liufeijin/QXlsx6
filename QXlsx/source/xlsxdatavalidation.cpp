@@ -23,8 +23,9 @@ public:
     DataValidation::Operator validationOperator = DataValidation::Operator::Between;
     DataValidation::Error errorStyle = DataValidation::Error::Stop;
     bool allowBlank = false;
-    bool isPromptMessageVisible = true;
-    bool isErrorMessageVisible = true;
+    bool isPromptMessageVisible = false;
+    bool isErrorMessageVisible = false;
+    bool isDropDownVisible = false;
     QString formula1;
     QString formula2;
     QString errorMessage;
@@ -32,6 +33,7 @@ public:
     QString promptMessage;
     QString promptMessageTitle;
     QList<CellRange> ranges;
+    std::optional<DataValidation::ImeMode> imeMode;
 };
 
 DataValidationPrivate::DataValidationPrivate()
@@ -130,7 +132,7 @@ bool DataValidation::operator!=(const DataValidation &other) const
 bool DataValidation::isValid() const
 {
     if (!d) return false;
-    return true;
+    return !d->ranges.isEmpty();
 }
 
 
@@ -138,18 +140,12 @@ DataValidation::~DataValidation()
 {
 }
 
-/*!
-    Returns the validation type.
- */
 DataValidation::Type DataValidation::type() const
 {
     if (d) return d->validationType;
     return Type::None;
 }
 
-/*!
-    Returns the validation operator.
- */
 DataValidation::Operator DataValidation::validationOperator() const
 {
     if (d) return d->validationOperator;
@@ -186,7 +182,7 @@ QString DataValidation::errorMessage() const
     return {};
 }
 
-QString DataValidation::errorMessageTitle() const
+QString DataValidation::errorTitle() const
 {
     if (d) return d->errorMessageTitle;
     return {};
@@ -198,7 +194,7 @@ QString DataValidation::promptMessage() const
     return {};
 }
 
-QString DataValidation::promptMessageTitle() const
+QString DataValidation::promptTitle() const
 {
     if (d) return d->promptMessageTitle;
     return {};
@@ -272,6 +268,30 @@ void DataValidation::setPromptMessage(const QString &prompt, const QString &titl
     d->promptMessageTitle = title;
 }
 
+bool DataValidation::isDropDownVisible() const
+{
+    if (d) return d->isDropDownVisible;
+    return false;
+}
+
+void DataValidation::setDropDownVisible(bool visible)
+{
+    if (!d) d = new DataValidationPrivate();
+    d->isDropDownVisible = visible;
+}
+
+DataValidation::ImeMode DataValidation::imeMode() const
+{
+    if (d) return d->imeMode.value_or(ImeMode::NoControl);
+    return ImeMode::NoControl;
+}
+
+void DataValidation::setImeMode(ImeMode mode)
+{
+    if (!d) d = new DataValidationPrivate();
+    d->imeMode = mode;
+}
+
 void DataValidation::setAllowBlank(bool enable)
 {
     if (!d) d = new DataValidationPrivate();
@@ -290,28 +310,39 @@ void DataValidation::setErrorMessageVisible(bool visible)
     d->isErrorMessageVisible = visible;
 }
 
-void DataValidation::addCell(const CellReference &cell)
+bool DataValidation::addCell(const CellReference &cell)
 {
-    if (!d) d = new DataValidationPrivate();
-    d->ranges.append(CellRange(cell, cell));
+    return addRange(CellRange(cell, cell));
 }
 
-void DataValidation::addCell(int row, int col)
+bool DataValidation::addCell(int row, int column)
 {
-    if (!d) d = new DataValidationPrivate();
-    d->ranges.append(CellRange(row, col, row, col));
+    return addRange(CellRange(row, column, row, column));
 }
 
-void DataValidation::addRange(int firstRow, int firstCol, int lastRow, int lastCol)
+bool DataValidation::addRange(int firstRow, int firstColumn, int lastRow, int lastColumn)
 {
-    if (!d) d = new DataValidationPrivate();
-    d->ranges.append(CellRange(firstRow, firstCol, lastRow, lastCol));
+    return addRange(CellRange(firstRow, firstColumn, lastRow, lastColumn));
 }
 
-void DataValidation::addRange(const CellRange &range)
+bool DataValidation::removeRange(const CellRange &range)
 {
+    if (!d) return false;
+    return d->ranges.removeOne(range);
+}
+
+bool DataValidation::removeRange(int firstRow, int firstColumn, int lastRow, int lastColumn)
+{
+    return removeRange(CellRange(firstRow, firstColumn, lastRow, lastColumn));
+}
+
+bool DataValidation::addRange(const CellRange &range)
+{
+    if (!range.isValid()) return false;
     if (!d) d = new DataValidationPrivate();
+    if (d->ranges.contains(range)) return false;
     d->ranges.append(range);
+    return true;
 }
 
 /*!
@@ -327,6 +358,8 @@ void DataValidation::write(QXmlStreamWriter &writer) const
         writer.writeAttribute(QLatin1String("type"), toString(d->validationType));
     if (d->errorStyle != Error::Stop)
         writer.writeAttribute(QLatin1String("errorStyle"), toString(d->errorStyle));
+    if (d->imeMode.has_value())
+        writeAttribute(writer, QLatin1String("imeMode"), toString(d->imeMode.value()));
     if (d->validationOperator != DataValidation::Operator::Between)
         writer.writeAttribute(QLatin1String("operator"), toString(d->validationOperator));
     if (d->allowBlank)
@@ -376,6 +409,11 @@ void DataValidation::read(QXmlStreamReader &reader)
     if (a.hasAttribute(QLatin1String("errorStyle"))) {
         QString es = a.value(QLatin1String("errorStyle")).toString();
         fromString(es, d->errorStyle);
+    }
+    if (a.hasAttribute(QLatin1String("imeMode"))) {
+        ImeMode im;
+        QString es = a.value(QLatin1String("imeMode")).toString();
+        fromString(es, im); d->imeMode = im;
     }
     if (a.hasAttribute(QLatin1String("operator"))) {
         QString op = a.value(QLatin1String("operator")).toString();

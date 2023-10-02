@@ -21,6 +21,7 @@
 #include "xlsxcellreference.h"
 #include "xlsxsheetview.h"
 #include "xlsxautofilter.h"
+#include "xlsxdatavalidation.h"
 
 class WorksheetTest;
 
@@ -115,7 +116,10 @@ class WorksheetPrivate;
  * some rows need to be visible, then #setRowsHiddenByDefault() can come in handy.
  * Rows and columns visibility can be tested with #isRowHidden() and #isColumnHidden().
  *
- * # Data Manipulation
+ * # Data manipulation
+ *
+ *
+ * # Data validation
  *
  *
  */
@@ -173,7 +177,35 @@ public:
     bool writeHyperlink(const CellReference &row_column, const QUrl &url, const Format &format=Format(), const QString &display=QString(), const QString &tip=QString());
     bool writeHyperlink(int row, int column, const QUrl &url, const Format &format=Format(), const QString &display=QString(), const QString &tip=QString());
 
+
+    /// Data Validation methods
+    /**
+     * @brief adds data validation in the sheet.
+     * @param validation A valid DataValidation object.
+     * @return true if @a validation is valid and contains valid range(s), false otherwise.
+     */
     bool addDataValidation(const DataValidation &validation);
+    bool addDataValidation(const CellRange &range, DataValidation::Type type, const QString &formula1,
+                           DataValidation::Operator op = DataValidation::Operator::Between,
+                           const QString &formula2 = QString());
+    /**
+     * @brief returns whether all input prompts from the worksheet are disabled.
+     * @return if true, then all data validation prompts will not be shown on the worksheet.
+     *
+     * The default value is false.
+     */
+    bool dataValidationPromptsDisabled() const;
+    /**
+     * @brief sets whether all input prompts from the worksheet are disabled.
+     * @param disabled if true, then all data validation prompts will not be shown on the worksheet.
+     *
+     * If not set, false is assumed.
+     */
+    void setDataValidationPromptsDisabled(bool disabled);
+
+
+
+
     bool addConditionalFormatting(const ConditionalFormatting &cf);
     /**
      * @brief returns cell by its reference.

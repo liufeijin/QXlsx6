@@ -160,6 +160,9 @@ public:
     QMap<int, QSharedPointer<XlsxRowInfo> > rowsInfo;
     QMap<int, XlsxColumnInfo> colsInfo;
 
+    std::optional<bool> disableValidationPrompts; //default = false;
+    std::optional<int> dataValidationXWindow;
+    std::optional<int> dataValidationYWindow;
     QList<DataValidation> dataValidationsList;
     QList<ConditionalFormatting> conditionalFormattingList;
 

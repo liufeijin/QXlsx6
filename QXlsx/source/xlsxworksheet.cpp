@@ -980,11 +980,23 @@ bool Worksheet::writeHyperlink(int row, int column, const QUrl &url, const Forma
 bool Worksheet::addDataValidation(const DataValidation &validation)
 {
     Q_D(Worksheet);
-    if (validation.ranges().isEmpty() || validation.validationType()==DataValidation::None)
+    if (!validation.isValid() || validation.ranges().isEmpty() || validation.type() == DataValidation::Type::None)
         return false;
 
     d->dataValidationsList.append(validation);
     return true;
+}
+
+bool Worksheet::dataValidationPromptsDisabled() const
+{
+     Q_D(const Worksheet);
+     return d->disableValidationPrompts.value_or(false);
+}
+
+void Worksheet::setDataValidationPromptsDisabled(bool disabled)
+{
+    Q_D(Worksheet);
+    d->disableValidationPrompts = disabled;
 }
 
 bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
@@ -1703,9 +1715,12 @@ void WorksheetPrivate::saveXmlDataValidations(QXmlStreamWriter &writer) const
 
     writer.writeStartElement(QLatin1String("dataValidations"));
     writer.writeAttribute(QLatin1String("count"), QString::number(dataValidationsList.size()));
+    writeAttribute(writer, QLatin1String("disablePrompts"), disableValidationPrompts);
+    writeAttribute(writer, QLatin1String("xWindow"), dataValidationXWindow);
+    writeAttribute(writer, QLatin1String("yWindow"), dataValidationYWindow);
 
     for (const DataValidation &validation : qAsConst(dataValidationsList))
-        validation.saveToXml(writer);
+        validation.write(writer);
 
     writer.writeEndElement(); //dataValidations
 }
@@ -2393,6 +2408,9 @@ void WorksheetPrivate::loadXmlDataValidations(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("dataValidations"));
     QXmlStreamAttributes attributes = reader.attributes();
     int count = attributes.value(QLatin1String("count")).toInt();
+    parseAttributeBool(attributes, QLatin1String("disablePrompts"), disableValidationPrompts);
+    parseAttributeInt(attributes, QLatin1String("xWindow"), dataValidationXWindow);
+    parseAttributeInt(attributes, QLatin1String("yWindow"), dataValidationYWindow);
 
     while (!reader.atEnd() && !(reader.name() == QLatin1String("dataValidations")
             && reader.tokenType() == QXmlStreamReader::EndElement)) {

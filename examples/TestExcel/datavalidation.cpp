@@ -13,10 +13,15 @@ int datavalidation()
     xlsx.write("A1", "A2 and A3:E5 only accept the number between 33 and 99");
 
     //![1]
-    DataValidation validation(DataValidation::Whole, DataValidation::Between, "33", "99");
+    DataValidation validation(DataValidation::Type::Whole, DataValidation::Operator::Between, "33", "99");
     validation.addRange("A2");
     validation.addRange("A3:E5");
-    validation.setPromptMessage("Please Input Integer between 33 and 99");
+    validation.setPromptMessage("Please input integer between 33 and 99", "Validation");
+    validation.setPromptMessageVisible(true);
+    validation.setDropDownVisible(true);
+    validation.setErrorMessage("Your input should be in the range [33, 99]", "Invalid input");
+    validation.setErrorMessageVisible(true);
+
     xlsx.addDataValidation(validation);
     //![1]
 

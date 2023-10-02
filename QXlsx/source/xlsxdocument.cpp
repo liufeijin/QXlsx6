@@ -444,8 +444,7 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
         cf->saveMediaFiles(workbook.get());
         zipWriter.addFile(QStringLiteral("xl/charts/chart%1.xml").arg(i+1), cf->saveToXmlData());
 
-        Relationships *rel = cf->relationships();
-        if (!rel->isEmpty())
+        if (auto rel = cf->relationships(); rel && !rel->isEmpty())
             zipWriter.addFile(QStringLiteral("xl/charts/_rels/chart%1.xml.rels").arg(i+1), rel->saveToXmlData());
     }
 
@@ -469,8 +468,8 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
 
     // save content types xml file
     zipWriter.addFile(QStringLiteral("[Content_Types].xml"), contentTypes->saveToXmlData());
-
     zipWriter.close();
+
     return true;
 }
 

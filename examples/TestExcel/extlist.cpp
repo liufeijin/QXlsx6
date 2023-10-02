@@ -9,7 +9,7 @@
 
 int readextlist()
 {
-    
+    QFile::copy(":/extlist.xlsx", "extlist1.xlsx");
     QXlsx::Document xlsx(":/extlist.xlsx");
     xlsx.saveAs("extlist2.xlsx");
 

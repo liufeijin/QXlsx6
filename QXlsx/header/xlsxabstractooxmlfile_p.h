@@ -21,9 +21,9 @@ public:
 public:
     QString filePathInPackage; //such as "xl/worksheets/sheet1.xml"
 
-    Relationships *relationships;
+    Relationships *relationships = nullptr;
     AbstractOOXmlFile::CreateFlag flag;
-    AbstractOOXmlFile *q_ptr;
+    AbstractOOXmlFile *q_ptr = nullptr;
 };
 
 }
