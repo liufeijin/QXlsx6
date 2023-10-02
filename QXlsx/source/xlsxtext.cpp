@@ -102,13 +102,10 @@ void TextFormat::read(QXmlStreamReader &reader)
 void TextFormat::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (!d) return;
-
     writer.writeStartElement(name);
     d->textProperties.write(writer);
     d->defaultParagraphProperties.write(writer, QLatin1String("a:lstStyle"));
-
     writeParagraphs(writer);
-
     writer.writeEndElement(); // name
 }
 
@@ -474,7 +471,9 @@ void Text::setType(Type type)
 
 Text::Type Text::type() const
 {
-    return d->type;
+    if (d)
+        return d->type;
+    return Type::None;
 }
 
 void Text::setPlainString(const QString &s)

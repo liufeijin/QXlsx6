@@ -303,15 +303,15 @@ bool Title::isValid() const
 
 void Title::write(QXmlStreamWriter &writer, const QString &name) const
 {
+    if (!d) return;
     writer.writeStartElement(name);
     if (d->text.isValid()) d->text.write(writer, "c:tx");
     d->layout.write(writer, "c:layout");
     writeEmptyElement(writer, QLatin1String("c:overlay"), d->overlay);
     if (d->shape.isValid()) d->shape.write(writer, "c:spPr");
-
-    if (d->textProperties.isValid() && d->text.type() == Text::Type::StringRef)
+    if (d->textProperties.isValid() && d->text.type() == Text::Type::StringRef) {
         d->textProperties.write(writer, QLatin1String("c:txPr"));
-
+    }
     writer.writeEndElement();
 }
 
