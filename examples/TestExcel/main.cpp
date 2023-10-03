@@ -8,7 +8,6 @@
 #include <iostream>
 using namespace std;
 
-extern int datavalidation();
 extern int documentproperty();
 extern int hyperlink();
 extern int image();
@@ -23,8 +22,6 @@ int main()
 {
     qDebug() << "**** readStyle() ****";
     readStyle();
-    qDebug() << "**** datavalidation() ****";
-    datavalidation();
     qDebug() << "**** documentproperty() ****";
     documentproperty();
     qDebug() << "**** hyperlink() ****";

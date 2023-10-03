@@ -100,6 +100,12 @@ xlsx.write(11, 1, "=SUM(MyCol_1)");
 ...
 ```
 
+## [DataValidation](DataValidation)
+
+Demonstrates how to add validation to worksheet data.
+
+Data validation is used to specify constraints on the data that can be entered into a cell.
+
 ## [Calendar](Calendar)
 
 Demonstrates how to create a workbook with the current year calendar.
@@ -144,7 +150,6 @@ Demonstrates a simple GUI application that uses QXlsx to generate a report based
 ## [TestExcel](TestExcel)
 
 :zap: Basic examples (based on QtXlsx examples)
-- [data validation](TestExcel/datavalidation.cpp) - tests data validation features
 - [document property](TestExcel/documentproperty.cpp) - tests adding document properties
 - [hyperlink](TestExcel/hyperlinks.cpp) - tests writing hyperlinks of different kinds.
 - [image](TestExcel/image.cpp) - tests adding, reading and removing images from a worksheet

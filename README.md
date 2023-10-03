@@ -25,10 +25,13 @@ The original QXlsx uses enums and maps to implement it: the feature is not set, 
 
 This fork utilises another approach. 
 
-For simple properties (bool, int, enums) it uses `std::optional`: methods that return a chart feature return `std::optional`. You can test the feature with `std::optional::has_value()`.
+For simple properties (bool, int, enums) it uses `std::optional`: methods that return a feature return `std::optional`. You can test the feature with `std::optional::has_value()`.
 
 For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have `isValid()` method.
 If the feature is set, `isValid()` will return true.
+
+For types like `QString`, `QList` if the returned value `isEmpty()` then the feature is not set. In some cases though 
+ECMA-376 allows having empty strings as default values, in this case `std::optional` is used.
 
 I try to get rid of the raw pointers. And definitely non-scoped enums shall be replaced with scoped ones. Some parts of the library still need serious overhaul. 
 

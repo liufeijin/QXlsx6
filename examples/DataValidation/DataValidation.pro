@@ -1,6 +1,6 @@
-# TestExcel.pro
+# DefinedNames.pro
 
-TARGET = TestExcel
+TARGET = DataValidation
 TEMPLATE = app
 
 QT += core
@@ -35,18 +35,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ##########################################################################
 # source code
 
-SOURCES += \
-documentproperty.cpp \
-    extlist.cpp \
-hyperlinks.cpp \
-image.cpp \
-main.cpp \
-richtext.cpp \
-rowcolumn.cpp \
-style.cpp \
-worksheetoperations.cpp \
-readStyle.cpp
-
-RESOURCES += \
-    resource.qrc
-
+SOURCES += dataValidation.cpp
