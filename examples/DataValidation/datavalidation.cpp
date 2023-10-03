@@ -10,14 +10,15 @@ QXLSX_USE_NAMESPACE
 int main()
 {
     Document xlsx;
+    auto sheet = xlsx.currentWorksheet();
 
     // Integer validation
 
     xlsx.write("A1", "A2 and A3:E5 only accept the number between 33 and 99");
     Format f;
     f.setPatternBackgroundColor(Qt::yellow);
-    xlsx.setFormat("A2", f);
-    xlsx.setFormat("A3:E5", f);
+    sheet->setFormat("A2", f);
+    sheet->setFormat("A3:E5", f);
 
     // No specialized constructor, use low-level
     DataValidation validation(DataValidation::Type::Whole, "33", DataValidation::Predicate::Between,  "99");
@@ -28,7 +29,7 @@ int main()
     validation.setDropDownVisible(true);
     validation.setErrorMessage("Your input should be in the range [33, 99]", "Invalid input");
     validation.setErrorMessageVisible(true);
-    xlsx.addDataValidation(validation);
+    sheet->addDataValidation(validation);
 
     // List validation
 
@@ -36,8 +37,8 @@ int main()
     xlsx.write("H6","red");
     xlsx.write("I6","green");
     xlsx.write("J6","blue");
-    xlsx.setFormat("G2:J5",f);
-    xlsx.addDataValidation("G2:J5","H6:J6");
+    sheet->setFormat("G2:J5",f);
+    sheet->addDataValidation("G2:J5","H6:J6");
 
     // Dynamic list validation example
     //dropdown shows values *relative* to the current cell: column G shows all
@@ -51,11 +52,11 @@ int main()
     xlsx.write("I12","green");
     xlsx.write("J12","blue");
     f.setPatternBackgroundColor(Qt::red);
-    xlsx.setFormat("G9:J11", f);
+    sheet->setFormat("G9:J11", f);
     DataValidation validation1(DataValidation::Type::List, "H$12:J$12");
     validation1.addRange("G9:J11");
     validation1.setErrorMessageVisible(true);
-    xlsx.addDataValidation(validation1);
+    sheet->addDataValidation(validation1);
 
     xlsx.saveAs("datavalidation.xlsx"); 
 

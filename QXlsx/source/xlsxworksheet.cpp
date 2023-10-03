@@ -565,25 +565,24 @@ bool Worksheet::setFormat(const CellRange &range, const Format &format)
     if (!range.isValid() || !format.isValid()) return false;
     for (int row = range.firstRow(); row <= range.lastRow(); ++row) {
         for (int col = range.firstColumn(); col <= range.lastColumn(); ++col)
-            setFormat(CellReference(row, col), format);
+            setFormat(row, col, format);
     }
     return true;
 }
 
-bool Worksheet::setFormat(const CellReference &ref, const Format &format)
+bool Worksheet::setFormat(int row, int column, const Format &format)
 {
     Q_D(Worksheet);
-    auto row = ref.row();
-    auto col = ref.column();
-    if (!d->addRowToDimensions(row)) return false;
-    if (!d->addColumnToDimensions(col)) return false;
 
-    Format fmt = format.isValid() ? format : d->cellFormat(row, col);
+    if (!d->addRowToDimensions(row)) return false;
+    if (!d->addColumnToDimensions(column)) return false;
+
+    Format fmt = format.isValid() ? format : d->cellFormat(row, column);
     d->workbook->styles()->addXfFormat(fmt);
-    if (!d->cellTable[row][col])
-        d->cellTable[row][col] = std::make_shared<Cell>(QVariant{}, Cell::Type::Number, fmt, this);
+    if (!d->cellTable[row][column])
+        d->cellTable[row][column] = std::make_shared<Cell>(QVariant{}, Cell::Type::Number, fmt, this);
     else
-        d->cellTable[row][col]->setFormat(fmt);
+        d->cellTable[row][column]->setFormat(fmt);
     return true;
 }
 

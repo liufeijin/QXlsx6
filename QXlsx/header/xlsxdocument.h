@@ -18,7 +18,6 @@ namespace QXlsx {
 class Workbook;
 class Cell;
 class CellRange;
-class DataValidation;
 class ConditionalFormatting;
 class Chart;
 class CellReference;
@@ -42,8 +41,6 @@ public:
     QVariant read(const CellReference &cell) const;
     QVariant read(int row, int col) const;
 
-    bool setFormat(const CellRange &range, const Format &format);
-    
     /*!
      * @brief Inserts an \a image to current active worksheet at the position \a row, \a column.
      * @param row 1-based row number where the image is anchored.
@@ -215,95 +212,6 @@ public:
      * The "group/ungroup" button will appear over the column with index colLast+1.
      */
     bool groupColumns(int colFirst, int colLast, bool collapsed = true);
-    
-    /**
-     * @brief adds data validation in the sheet.
-     * @param validation
-     * @return true if validation was successfully added, false otherwise.
-     */
-    bool addDataValidation(const DataValidation &validation);
-    /**
-     * @overload
-     * @brief adds data validation in the sheet.
-     *
-     * This is a low-level method that allows to create a validation from scratch.
-     *
-     * @param range cells range to apply data validation to.
-     * @param type type of data validation
-     * @param formula1 the first validation criterion
-     * @param predicate operation to combine two validation criteria
-     * @param formula2 the second validation criterion.
-     * @param strict If true, then error message will be shown if the input cell value
-     * is not allowable.
-     * @return true if validation was successfully added, false otherwise.
-     *
-     * You can use overloaded methods to add a specific type of validation.
-     */
-    bool addDataValidation(const CellRange &range, DataValidation::Type type, const QString &formula1,
-                           std::optional<DataValidation::Predicate> predicate = std::nullopt,
-                           const QString &formula2 = QString(), bool strict = true);
-    /**
-     * @overload
-     * @brief adds the data validation that allows only a list of specified values.
-     * @param range cells range to apply data validation to.
-     * @param allowableValues cells range that contains all allowable values.
-     * @param strict If true, then error message will be shown if the input cell value
-     * is not allowable.
-     * @return true if validation was successfully added, false otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
-     */
-    bool addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict = true);
-    /**
-     * @overload
-     * @brief adds the data validation that validates time values.
-     * @param range cells range to apply data validation to.
-     * @param time1 first time value.
-     * @param predicate operation to combine two validation criteria.
-     * @param time2 second time value.
-     * @param strict If true, then error message will be shown if the input cell value
-     * is not allowable.
-     * @return true if validation was successfully added, false otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
-     */
-    bool addDataValidation(const CellRange &range, const QTime &time1,
-                           std::optional<DataValidation::Predicate> predicate = std::nullopt,
-                           const QTime &time2 = QTime(), bool strict = true);
-    /**
-     * @overload
-     * @brief adds the data validation that validates date values.
-     * @param range cells range to apply data validation to.
-     * @param date1 first date value.
-     * @param predicate operation to combine two validation criteria.
-     * @param date2 second date value.
-     * @param strict If true, then error message will be shown if the input cell value
-     * is not allowable.
-     * @return true if validation was successfully added, false otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
-     */
-    bool addDataValidation(const CellRange &range, const QDate &date1,
-                           std::optional<DataValidation::Predicate> predicate = std::nullopt,
-                           const QDate &date2 = QDate(), bool strict = true);
-    /**
-     * @overload
-     * @brief adds data validation that validates text length.
-     * @param range cells range to apply data validation to.
-     * @param len1 First text length
-     * @param predicate operation to combine two validation criteria.
-     * @param len2 Second text length.
-     * @param strict If true, then error message will be shown if the input cell value
-     * is not allowable.
-     * @return true if validation was successfully added, false otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
-     */
-    bool addDataValidation(const CellRange &range, int len1,
-                           std::optional<DataValidation::Predicate> predicate = std::nullopt,
-                           std::optional<int> len2 = std::nullopt, bool strict = true);
-
-
 
     bool addConditionalFormatting(const ConditionalFormatting &cf);
 

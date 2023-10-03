@@ -142,7 +142,7 @@ public:
     bool write(int row, int column, const QVariant &value, const Format &format=Format());
 
     bool setFormat(const CellRange &range, const Format &format);
-    bool setFormat(const CellReference &ref, const Format &format);
+    bool setFormat(int row, int column, const Format &format);
     //TODO: bool clearFormat()
 
     QVariant read(const CellReference &row_column) const;

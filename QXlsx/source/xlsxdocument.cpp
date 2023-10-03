@@ -654,13 +654,6 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
-bool Document::setFormat(const CellRange &range, const Format &format)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setFormat(range, format);
-    return false;
-}
-
 int Document::insertImage(int row, int column, const QImage &image)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -960,61 +953,6 @@ bool Document::groupColumns(int colFirst, int colLast, bool collapsed)
     return false;
 }
 
-bool Document::addDataValidation(const DataValidation &validation)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(validation);
-    return false;
-}
-
-bool Document::addDataValidation(const CellRange &range,
-                                 DataValidation::Type type,
-                                 const QString &formula1,
-                                 std::optional<DataValidation::Predicate> predicate,
-                                 const QString &formula2,
-                                 bool strict)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, type, formula1, predicate, formula2, strict);
-    return false;
-}
-
-bool Document::addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, allowableValues, strict);
-    return false;
-}
-
-bool Document::addDataValidation(const CellRange &range,
-                                 const QTime &time1,
-                                 std::optional<DataValidation::Predicate> predicate,
-                                 const QTime &time2,
-                                 bool strict)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, time1, predicate, time2, strict);
-    return false;
-}
-
-bool Document::addDataValidation(const CellRange &range,
-                                 const QDate &date1,
-                                 std::optional<DataValidation::Predicate> predicate,
-                                 const QDate &date2,
-                                 bool strict)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, date1, predicate, date2, strict);
-    return false;
-}
-
-bool Document::addDataValidation(const CellRange &range, int len1, std::optional<DataValidation::Predicate> predicate, std::optional<int> len2, bool strict)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, len1, predicate, len2, strict);
-    return false;
-}
-
 bool Document::addConditionalFormatting(const ConditionalFormatting &cf)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1172,7 +1110,7 @@ Worksheet *Document::currentWorksheet() const
     if (st && st->type() == AbstractSheet::Type::Worksheet)
         return static_cast<Worksheet *>(st);
     else
-        return 0;
+        return nullptr;
 }
 
 bool Document::selectSheet(const QString &name)
