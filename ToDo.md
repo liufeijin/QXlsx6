@@ -33,6 +33,10 @@
 
 1. Add methods to create simple fills.
 
+### Text 
+
+1. Write method of exporting to html.
+
 ## Sheets
 
 1. Add support for custom sheet views.

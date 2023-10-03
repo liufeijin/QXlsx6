@@ -381,6 +381,7 @@ public:
      */
     void setCategoryData(const DataSource &data);
     /**
+     * @overload
      * @brief sets data reference for the category axis or the X axis.
      * @param reference data range in string form (f.e. "Sheet1!$A$1:$A$10").
      * @param type type of referenced data (StringReference or NumberReference).
@@ -388,11 +389,13 @@ public:
     void setCategoryData(const QString &reference, DataSource::Type type = DataSource::Type::NumberReference);
     //TODO: setters that use CellRange
     /**
+     * @overload
      * @brief sets numerical data for the category axis or the X axis.
      * @param data vector of the same length as value data.
      */
     void setCategoryData(const QVector<double> &data);
     /**
+     * @overload
      * @brief sets string data for the category axis or the X axis.
      * @param data string list of the same length as value data.
      */
@@ -403,12 +406,14 @@ public:
      */
     void setValueData(const DataSource &data);
     /**
+     * @overload
      * @brief sets data reference for the value axis, or Y axis.
      * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10").
      * @warning reference should reference  the numerical data, otherwise the series is ill-formed.
      */
     void setValueData(const QString &reference);
     /**
+     * @overload
      * @brief sets numerical data for the value, or Y axis
      * @param data vector of the same length as category data.
      */
@@ -419,12 +424,14 @@ public:
      */
     void setBubbleSizeData(const DataSource &data);
     /**
+     * @overload
      * @brief sets data reference for the bubble sizes in bubble charts.
      * @param reference data range in string form (f.e. "Sheet1!$B$1:$B$10").
      * @warning reference should reference the numerical data, otherwise the series is ill-formed.
      */
     void setBubbleSizeData(const QString &reference);
     /**
+     * @overload
      * @brief sets numerical data for the bubble sizes in bubble charts.
      * @param data vector of the same length as category data.
      */
@@ -436,6 +443,7 @@ public:
      */
     void setData(const QVector<double> &category, const QVector<double> &value);
     /**
+     * @overload
      * @brief sets string data for the category axis and numerical data
      * for the value axis.
      * @param category

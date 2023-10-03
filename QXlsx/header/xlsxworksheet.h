@@ -864,8 +864,6 @@ public:
     void setSelection(const Selection &selection);
 
 
-    //TODO: test methods to set, add, remove and clear selections.
-
     // Print and page parameters
 
     //TODO: add methods for print and page parameters

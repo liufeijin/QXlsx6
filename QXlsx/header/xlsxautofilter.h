@@ -12,8 +12,10 @@
 
 namespace QXlsx {
 
-// Represents filter in the column
-struct Filter
+/**
+ * @brief The Filter struct represents the filter parameters in a worksheet column.
+ */
+struct QXLSX_EXPORT Filter
 {
     /**
      * @brief The Type enum specifies the type of filter.
@@ -24,9 +26,9 @@ struct Filter
         Top10, /**< Top 10 values */
         Custom, /**< Filter based on predicate(s) */
         Dynamic, /**< Dynamic filter */
-        Color,
-        Icon,
-        Values /**< Filter based on a collection of acceptable values */
+        Color, /**< Filter based on cell color */
+        Icon, /**< Filter based on icon stored in cell. */
+        Values /**< Filter based on a collection of acceptable values. */
     };
     enum class Predicate
     {
@@ -150,9 +152,11 @@ class AutoFilterPrivate;
  * If set, autofilter temporarily hides rows based on a filter criteria, which is
  * applied column by column to a table of data in the worksheet.
  *
- * Autofilter is applied to a range with #setRange() and #range().
+ * Autofilter is applied to a range. See #setRange() and #range().
  * You can set filters to columns within #range() with #setFilter().
  * To remove filter use #removeFilter(). To get current filter use #filter().
+ *
+ * This class is _implicitly shareable_.
  */
 class QXLSX_EXPORT AutoFilter
 {

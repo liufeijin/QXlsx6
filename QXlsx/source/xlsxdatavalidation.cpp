@@ -156,6 +156,17 @@ bool DataValidation::operator!=(const DataValidation &other) const
     return !operator==(other);
 }
 
+DataValidation::operator QVariant() const
+{
+    const auto& cref
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+        = QMetaType::fromType<DataValidation>();
+#else
+        = qMetaTypeId<DataValidation>() ;
+#endif
+    return QVariant(cref, this);
+}
+
 bool DataValidation::isValid() const
 {
     if (!d) return false;

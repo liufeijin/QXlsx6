@@ -437,6 +437,7 @@ public:
     DataValidation &operator=(const DataValidation &other);
     bool operator==(const DataValidation &other) const;
     bool operator!=(const DataValidation &other) const;
+    operator QVariant() const;
     bool isValid() const;
 
     void write(QXmlStreamWriter &writer) const;
@@ -483,5 +484,7 @@ private:
 };
 
 }
+
+Q_DECLARE_METATYPE(QXlsx::DataValidation);
 
 #endif // QXLSX_XLSXDATAVALIDATION_H

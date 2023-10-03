@@ -123,7 +123,8 @@ public:
 
     /**
      * @brief returns legend entry for the series with index index.
-     * @param index the entry index.
+     * @param index the entry index. If no entry with this index is present in legend,
+     * creates a new legend entry.
      * @return reference to the legend entry.
      */
     LegendEntry &entry(int index); //TODO: test this method

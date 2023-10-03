@@ -781,14 +781,6 @@ class AbstractSheetPrivate;
 class QXLSX_EXPORT AbstractSheet : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(AbstractSheet)
-
-public:
-    /**
-     * @brief returns pointer to this sheet's workbook.
-     * @return
-     */
-    Workbook *workbook() const;
-
 public:
     /**
      * @brief The Type enum specifies the sheet type.
@@ -809,7 +801,11 @@ public:
 To set the sheet VeryHidden use #setVisibility() method.*/
     };
 
-public:
+    /**
+     * @brief returns pointer to this sheet's workbook.
+     * @return
+     */
+    Workbook *workbook() const;
     /**
      * @brief returns the sheet's name.
      * @return
@@ -819,7 +815,7 @@ public:
     /**
      * @brief tries to rename the sheet
      * @param newName
-     * @return
+     * @return true if renaming was successful.
      */
     bool rename(const QString &newName);
 
@@ -918,9 +914,20 @@ public:
      * #setEvenFooter(), #setHeaders(), #setFooters().
      */
     void setDifferentOddEvenPage(bool different);
-
-    bool differentFirstPage() const; //TODO: doc
-    void setDifferentFirstPage(bool different); //TODO: doc
+    /**
+     * @brief returns whether a sheet has different header/footer for the first page.
+     * @return When true, then #firstHeader() / #firstFooter() specify the first page
+     * header and footer. If false, then #firstHeader() and #firstFooter() are ignored
+     * even if they are not empty.
+     */
+    bool differentFirstPage() const;
+    /**
+     * @brief sets whether a sheet has different header/footer for the first page.
+     * @param different When true, then #firstHeader() / #firstFooter() specify the first page
+     * header and footer.
+     * @sa #setHeaders(), #setFooters().
+     */
+    void setDifferentFirstPage(bool different);
     /**
      * @brief returns the page header.
      * @return Page header as a string that may include formatting codes. See HeaderFooter class
