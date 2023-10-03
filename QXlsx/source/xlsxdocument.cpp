@@ -811,10 +811,6 @@ bool Document::unmergeCells(const CellRange &range)
     return false;
 }
 
-/*!
-  Sets width in characters of columns with the given \a range and \a width.
-  Returns true on success.
- */
 bool Document::setColumnWidth(const CellRange &range, double width)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -822,10 +818,6 @@ bool Document::setColumnWidth(const CellRange &range, double width)
     return false;
 }
 
-/*!
-  Sets format property of columns with the given \a range and \a format.
-  Returns true on success.
- */
 bool Document::setColumnFormat(const CellRange &range, const Format &format)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -833,11 +825,6 @@ bool Document::setColumnFormat(const CellRange &range, const Format &format)
     return false;
 }
 
-/*!
-  Sets hidden property of columns \a range to \a hidden. Columns are 1-indexed.
-  Hidden columns are not visible.
-  Returns true on success.
- */
 bool Document::setColumnHidden(const CellRange &range, bool hidden)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -845,37 +832,21 @@ bool Document::setColumnHidden(const CellRange &range, bool hidden)
     return false;
 }
 
-/*!
-  Sets width in characters \a column to \a width. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnWidth(int column, double width)
 {
     return setColumnWidth(column,column,width);
 }
 
-/*!
-  Sets format property \a column to \a format. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnFormat(int column, const Format &format)
 {
     return setColumnFormat(column,column,format);
 }
 
-/*!
-  Sets hidden property of a \a column. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnHidden(int column, bool hidden)
 {
     return setColumnHidden(column,column,hidden);
 }
 
-/*!
-  Sets width in characters for columns [\a colFirst, \a colLast]. Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnWidth(int colFirst, int colLast, double width)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -883,11 +854,6 @@ bool Document::setColumnWidth(int colFirst, int colLast, double width)
     return false;
 }
 
-/*!
-  Sets format property of columns [\a colFirst, \a colLast] to \a format.
-  Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnFormat(int colFirst, int colLast, const Format &format)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -895,12 +861,6 @@ bool Document::setColumnFormat(int colFirst, int colLast, const Format &format)
     return false;
 }
 
-
-/*!
-  Sets hidden property of columns [\a colFirst, \a colLast] to \a hidden.
-  Columns are 1-indexed.
-  Returns true on success.
- */
 bool Document::setColumnHidden(int colFirst, int colLast, bool hidden)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -908,11 +868,6 @@ bool Document::setColumnHidden(int colFirst, int colLast, bool hidden)
     return false;
 }
 
-/*!
-  Returns width of the \a column in characters of the normal font.
-  Columns are 1-indexed.
-  Returns true on success.
- */
 double Document::columnWidth(int column)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -920,9 +875,6 @@ double Document::columnWidth(int column)
     return 0.0;
 }
 
-/*!
-  Returns formatting of the \a column. Columns are 1-indexed.
- */
 Format Document::columnFormat(int column)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -930,9 +882,6 @@ Format Document::columnFormat(int column)
     return Format();
 }
 
-/*!
-  Returns true if \a column is hidden. Columns are 1-indexed.
- */
 bool Document::isColumnHidden(int column)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -940,23 +889,11 @@ bool Document::isColumnHidden(int column)
     return false;
 }
 
-/*!
-  Sets the \a format of the \a row.
-  Rows are 1-indexed.
-
-  Returns true if success.
-*/
 bool Document::setRowFormat(int row, const Format &format)
 {
     return setRowFormat(row,row, format);
 }
 
-/*!
-  Sets the \a format of the rows including and between \a rowFirst and \a rowLast.
-  Rows are 1-indexed.
-
-  Returns true if success.
-*/
 bool Document::setRowFormat(int rowFirst, int rowLast, const Format &format)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -964,23 +901,11 @@ bool Document::setRowFormat(int rowFirst, int rowLast, const Format &format)
     return false;
 }
 
-/*!
-  Sets the \a hidden property of the row \a row.
-  Rows are 1-indexed. If hidden is true rows will not be visible.
-
-  Returns true if success.
-*/
 bool Document::setRowHidden(int row, bool hidden)
 {
     return setRowHidden(row,row,hidden);
 }
 
-/*!
-  Sets the \a hidden property of the rows including and between \a rowFirst and \a rowLast.
-  Rows are 1-indexed. If hidden is true rows will not be visible.
-
-  Returns true if success.
-*/
 bool Document::setRowHidden(int rowFirst, int rowLast, bool hidden)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -988,25 +913,11 @@ bool Document::setRowHidden(int rowFirst, int rowLast, bool hidden)
     return false;
 }
 
-/*!
-  Sets the \a height of the row \a row.
-  Row height measured in point size.
-  Rows are 1-indexed.
-
-  Returns true if success.
-*/
 bool Document::setRowHeight(int row, double height)
 {
     return setRowHeight(row,row,height);
 }
 
-/*!
-  Sets the \a height of the rows including and between \a rowFirst and \a rowLast.
-  Row height measured in point size.
-  Rows are 1-indexed.
-
-  Returns true if success.
-*/
 bool Document::setRowHeight(int rowFirst, int rowLast, double height)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1014,9 +925,6 @@ bool Document::setRowHeight(int rowFirst, int rowLast, double height)
     return false;
 }
 
-/*!
- Returns height of \a row in points.
-*/
 double Document::rowHeight(int row)
 {
    if (Worksheet *sheet = currentWorksheet())
@@ -1024,9 +932,6 @@ double Document::rowHeight(int row)
     return 0.0;
 }
 
-/*!
- Returns format of \a row.
-*/
 Format Document::rowFormat(int row)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1034,9 +939,6 @@ Format Document::rowFormat(int row)
      return Format();
 }
 
-/*!
- Returns true if \a row is hidden.
-*/
 bool Document::isRowHidden(int row)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1058,9 +960,6 @@ bool Document::groupColumns(int colFirst, int colLast, bool collapsed)
     return false;
 }
 
-/*!
- *  Add a data \a validation rule for current worksheet. Returns true if successful.
- */
 bool Document::addDataValidation(const DataValidation &validation)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1068,16 +967,54 @@ bool Document::addDataValidation(const DataValidation &validation)
     return false;
 }
 
-bool Document::addDataValidation(const CellRange &range, const CellRange &allowableValues)
+bool Document::addDataValidation(const CellRange &range,
+                                 DataValidation::Type type,
+                                 const QString &formula1,
+                                 std::optional<DataValidation::Predicate> predicate,
+                                 const QString &formula2,
+                                 bool strict)
 {
     if (Worksheet *sheet = currentWorksheet())
-        return sheet->addDataValidation(range, allowableValues);
+        return sheet->addDataValidation(range, type, formula1, predicate, formula2, strict);
     return false;
 }
 
-/*!
- *  Add a  conditional formatting \a cf for current worksheet. Returns true if successful.
- */
+bool Document::addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->addDataValidation(range, allowableValues, strict);
+    return false;
+}
+
+bool Document::addDataValidation(const CellRange &range,
+                                 const QTime &time1,
+                                 std::optional<DataValidation::Predicate> predicate,
+                                 const QTime &time2,
+                                 bool strict)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->addDataValidation(range, time1, predicate, time2, strict);
+    return false;
+}
+
+bool Document::addDataValidation(const CellRange &range,
+                                 const QDate &date1,
+                                 std::optional<DataValidation::Predicate> predicate,
+                                 const QDate &date2,
+                                 bool strict)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->addDataValidation(range, date1, predicate, date2, strict);
+    return false;
+}
+
+bool Document::addDataValidation(const CellRange &range, int len1, std::optional<DataValidation::Predicate> predicate, std::optional<int> len2, bool strict)
+{
+    if (Worksheet *sheet = currentWorksheet())
+        return sheet->addDataValidation(range, len1, predicate, len2, strict);
+    return false;
+}
+
 bool Document::addConditionalFormatting(const ConditionalFormatting &cf)
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1085,31 +1022,18 @@ bool Document::addConditionalFormatting(const ConditionalFormatting &cf)
     return false;
 }
 
-/*!
- * \overload
- * Returns the cell at the position \a pos. If there is no cell at
- * the specified position, the function returns 0.
- *
- * \sa read()
- */
 Cell *Document::cellAt(const CellReference &pos) const
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->cell(pos);
-    return 0;
+    return nullptr;
 }
 
-/*!
- * Returns the cell at the given \a row and \a col. If there
- * is no cell at the specified position, the function returns 0.
- *
- * \sa read()
- */
 Cell *Document::cellAt(int row, int col) const
 {
     if (Worksheet *sheet = currentWorksheet())
         return sheet->cell(row, col);
-    return 0;
+    return nullptr;
 }
 
 DefinedName * Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
@@ -1148,9 +1072,6 @@ DefinedName *Document::definedName(const QString &name)
     return d->workbook->definedName(name);
 }
 
-/*!
-    Return the range that contains cell data.
- */
 CellRange Document::dimension() const
 {
     if (Worksheet *sheet = currentWorksheet())
@@ -1158,9 +1079,6 @@ CellRange Document::dimension() const
     return CellRange();
 }
 
-/*!
- * Returns the value of the document's \a key property.
- */
 QString Document::documentProperty(const QString &key) const
 {
     Q_D(const Document);
@@ -1177,37 +1095,24 @@ void Document::setDocumentProperty(const QString &name, const QString &property)
     d->documentProperties[name] = property;
 }
 
-/*!
- * Returns the names of all properties that were addedusing setDocumentProperty().
- */
 QStringList Document::documentPropertyNames() const
 {
     Q_D(const Document);
     return d->documentProperties.keys();
 }
 
-/*!
- * Return the internal Workbook object.
- */
 Workbook *Document::workbook() const
 {
     Q_D(const Document);
     return d->workbook.data();
 }
 
-/*!
- * Returns the sheet object named \a sheetName.
- */
 AbstractSheet *Document::sheet(const QString &sheetName) const
 {
     Q_D(const Document);
     return d->workbook->sheet(sheetNames().indexOf(sheetName));
 }
 
-/*!
- * Creates and append an sheet with the given \a name and \a type.
- * Return true if success.
- */
 bool Document::addSheet(const QString &name, AbstractSheet::Type type)
 {
     Q_D(Document);
@@ -1220,20 +1125,12 @@ Worksheet *Document::addWorksheet(const QString &name)
     return dynamic_cast<Worksheet*>(d->workbook->addSheet(name));
 }
 
-/*!
- * Creates and inserts an document with the given \a name and \a type at the \a index.
- * Returns false if the \a name already used.
- */
 bool Document::insertSheet(int index, const QString &name, AbstractSheet::Type type)
 {
     Q_D(Document);
     return d->workbook->insertSheet(index, name, type);
 }
 
-/*!
-   Rename the worksheet from \a oldName to \a newName.
-   Returns true if the success.
- */
 bool Document::renameSheet(const QString &oldName, const QString &newName)
 {
     Q_D(Document);
@@ -1242,10 +1139,6 @@ bool Document::renameSheet(const QString &oldName, const QString &newName)
     return d->workbook->renameSheet(sheetNames().indexOf(oldName), newName);
 }
 
-/*!
-   Make a copy of the worksheet \a srcName with the new name \a distName.
-   Returns true if the success.
- */
 bool Document::copySheet(const QString &srcName, const QString &distName)
 {
     Q_D(Document);
@@ -1254,29 +1147,18 @@ bool Document::copySheet(const QString &srcName, const QString &distName)
     return d->workbook->copySheet(sheetNames().indexOf(srcName), distName);
 }
 
-/*!
-   Move the worksheet \a srcName to the new pos \a distIndex.
-   Returns true if the success.
- */
 bool Document::moveSheet(const QString &srcName, int distIndex)
 {
     Q_D(Document);
     return d->workbook->moveSheet(sheetNames().indexOf(srcName), distIndex);
 }
 
-/*!
-   Delete the worksheet \a name.
-   Returns true if current sheet was deleted successfully.
- */
 bool Document::deleteSheet(const QString &name)
 {
     Q_D(Document);
     return d->workbook->deleteSheet(sheetNames().indexOf(name));
 }
 
-/*!
- * \brief Return pointer of current sheet.
- */
 AbstractSheet *Document::currentSheet() const
 {
     Q_D(const Document);
@@ -1284,10 +1166,6 @@ AbstractSheet *Document::currentSheet() const
     return d->workbook->activeSheet();
 }
 
-/*!
- * \brief Return pointer of current worksheet.
- * If the type of sheet is not AbstractSheet::Type::Worksheet, then 0 will be returned.
- */
 Worksheet *Document::currentWorksheet() const
 {
     AbstractSheet *st = currentSheet();
@@ -1297,40 +1175,24 @@ Worksheet *Document::currentWorksheet() const
         return 0;
 }
 
-/*!
- * \brief Set worksheet named \a name to be active sheet.
- * Returns true if success.
- */
 bool Document::selectSheet(const QString &name)
 {
     Q_D(Document);
     return d->workbook->setActiveSheet(sheetNames().indexOf(name));
 }
 
-/*!
- * \brief Set worksheet whose index is \a index to be active sheet.
- * Returns true if success.
- */
 bool Document::selectSheet(int index)
 {
     Q_D(Document);
     return d->workbook->setActiveSheet(index);
 }
 
-/*!
- * Returns the names of worksheets contained in current document.
- */
 QStringList Document::sheetNames() const
 {
     Q_D(const Document);
     return d->workbook->worksheetNames();
 }
 
-/*!
- * Save current document to the filesystem. If no name specified when
- * the document constructed, a default name "book1.xlsx" will be used.
- * Returns true if saved successfully.
- */
 bool Document::save() const
 {
     Q_D(const Document);

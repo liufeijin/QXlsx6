@@ -110,6 +110,31 @@ double datetimeToNumber(const QDateTime &dt, bool is1904)
     return excel_time;
 }
 
+double dateToNumber(const QDate &d, bool is1904)
+{
+    //Note, for number 0, Excel2007 shown as 1900-1-0, which should be 1899-12-31
+    QDateTime epoch(is1904 ? QDate(1904, 1, 1): QDate(1899, 12, 31), QTime(0,0));
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    QDateTime dt = d.startOfDay();
+#else
+    QDateTime dt = QDateTime(d);
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    double excel_time = epoch.msecsTo(dt) / (1000*60*60*24.0);
+#else
+    double excel_time = epoch.msecsTo(dt) / (1000*60*60*24.0);
+#endif
+    if (dt.isDaylightTime())    // Add one hour if the date is Daylight
+        excel_time += 1.0 / 24.0;
+
+    if (!is1904 && excel_time > 59) {//31+28
+        //Account for Excel erroneously treating 1900 as a leap year.
+        excel_time += 1;
+    }
+
+    return excel_time;
+}
+
 double timeToNumber(const QTime &time)
 {
     return QTime(0,0).msecsTo(time) / (1000*60*60*24.0);

@@ -30,8 +30,8 @@ class DataValidationPrivate;
  * Various data types can be selected. See #setType(), DataValidation::Type.
  *
  * Data validation allows to define two formulas which can be combined with the
- * relational operator (e.g., greater than, less than, equal to, etc). See
- * #setFormula1(), #setFormula2(), #setValidationOperator().
+ * predicate (e.g., greater than, less than, equal to, etc). See
+ * #setFormula1(), #setFormula2(), #setPredicate().
  *
  * Data validation applies to a single cell, to a range of cells or to a list of
  * ranges. Use #addCell(), #addRange(), #removeCell(), #removeRange(), #ranges()
@@ -68,10 +68,10 @@ public:
         Custom /**< restricts the cell based on an external Excel formula that returns a true/false value. */
     };
     /**
-     * @brief The Operator enum defines the criteria by which the data in the
+     * @brief The Predicate enum defines the criteria by which the data in the
      *  cell is validated
      */
-    enum class Operator
+    enum class Predicate
     {
         Between,
         NotBetween,
@@ -115,14 +115,56 @@ public:
      */
     DataValidation();
     /**
-    * creates a DataValidation object with the given @a type, @a op, @a formula1
-    * @a formula2, and @a allowBlank.
+    * creates a DataValidation object with the given @a type, @a predicate, @a formula1
+    * @a formula2.
     */
     DataValidation(Type type,
                    const QString &formula1=QString(),
-                   Operator op=Operator::Between,
+                   std::optional<Predicate> predicate = std::nullopt,
                    const QString &formula2=QString());
+    /**
+     * @brief creates a DataValidation object with type Type::List and a range
+     * of @a allowableValues.
+     * @param allowableValues the range that contains allowable values.
+     * @note This constructor creates formula1 from the @a allowableValues
+     * converted into a fixed range. F.e. for a range of CellRange(1,1,4,10)
+     * this constructor assigns "$A$1:$J$4" to formula1.
+     * There is a possibility to create the dynamic list of values by setting formula1
+     * directly. Try `setFormula1("A1:J4")` to see the effects. See also DataValidation
+     * example.
+     */
     DataValidation(const CellRange &allowableValues);
+    /**
+     * @brief creates a DataValidation object with type Type::Time and two QTime values
+     * combined with @a predicate.
+     * @param time1 First time value.
+     * @param predicate Predicate enum
+     * @param time2 Second time value.
+     */
+    DataValidation(const QTime &time1,
+                   std::optional<Predicate> predicate = std::nullopt,
+                   const QTime &time2 = QTime());
+    /**
+     * @brief creates a DataValidation object with type Type::Date and two QDate values
+     * combined with @a predicate.
+     * @param date1 First date value.
+     * @param predicate Predicate enum
+     * @param date2 Second date value.
+     */
+    DataValidation(const QDate &date1,
+                   std::optional<Predicate> predicate = std::nullopt,
+                   const QDate &date2 = QDate());
+    /**
+     * @brief creates a DataValidation object with type Type::TextLength and two
+     * text lengths combined with @a predicate.
+     * @param len1 First text length
+     * @param predicate Predicate enum
+     * @param len2 Second text length
+     */
+    DataValidation(int len1,
+                   std::optional<Predicate> predicate = std::nullopt,
+                   std::optional<int> len2 = std::nullopt);
+
     DataValidation(const DataValidation &other);
     ~DataValidation();
 
@@ -130,29 +172,84 @@ public:
      * @brief returns the type of the validation.
      *
      * Type of the validation specifies the type of data that you wish to validate.
-     * @return Type enum value.
+     * @return Type enum value if type was set, nullopt otherwise.
+     *
+     * The default value is Type::None, which means no validation constraints.
      */
-    Type type() const;
+    std::optional<Type> type() const;
     /**
      * @brief sets the type of the validation.
      *
      * Type of the validation specifies the type of data that you wish to validate.
      * @param type Type enum value.
+     * If not set, Type::None is assumed, which means no validation constraints.
      */
     void setType(Type type);
-
-    Operator validationOperator() const;
-    Error errorStyle() const;
+    /**
+     * @brief returns predicate that defines the criteria by which the data in the
+     * cell is validated.
+     * @return Predicate enum value if predicate was set, nullopt otherwise.
+     * The default value is Predicate::Between.
+     */
+    std::optional<Predicate> predicate() const;
+    /**
+     * @brief sets predicate that defines the criteria by which the data in the
+     * cell is validated.
+     * @param predicate Predicate enum value.
+     *
+     * If not set, Predicate::Between is assumed.
+     */
+    void setPredicate(Predicate predicate);
+    /**
+     * @brief return the type of error message when cell data was disallowed.
+     * @return Error enum value if errorStyle was set, nullopt otherwise.
+     *
+     * The default value is Error::Stop.
+     */
+    std::optional<Error> errorStyle() const;
+    /**
+     * @brief sets the type of error message when cell data was disallowed.
+     * @param errorStyle Error enum value.
+     *
+     * If not set, Error::Stop is assumed.
+     */
+    void setErrorStyle(Error errorStyle);
+    /**
+     * @brief returns the first formula to be used as a validation criterion.
+     * @return Non-empty string if formula1 was set, empty string otherwise.
+     *
+     * By default formula1 is empty.
+     */
     QString formula1() const;
+    /**
+     * @brief returns the second formula to be used as a validation criterion.
+     * @return Non-empty string if formula2 was set, empty string otherwise.
+     *
+     * By default formula2 is empty.
+     */
     QString formula2() const;
     /**
+     * @brief sets the first formula to be used as a validation criterion.
+     * @param formula
+     *
+     * If not set, empty string is assumed.
+     */
+    void setFormula1(const QString &formula);
+    /**
+     * @brief sets the second formula to be used as a validation criterion.
+     * @param formula
+     *
+     * If not set, empty string is assumed.
+     */
+    void setFormula2(const QString &formula);
+    /**
      * @brief returns whether the data validation allows the use of empty or blank
-     * entries. true means empty entries are OK and do not violate the validation constraints.
+     * entries. `true` means empty entries are OK and do not violate the validation constraints.
      * @return If true, blank entries are allowed.
      *
      * The default value is false.
      */
-    bool allowBlank() const;
+    std::optional<bool> allowBlank() const;
     /**
      * @brief sets whether the data validation allows the use of empty or blank
      * entries. true means empty entries are OK and do not violate the validation constraints.
@@ -196,7 +293,7 @@ public:
      * The default value is false.
      * @sa #setPromptMessageVivible(), #setPromptMessage().
      */
-    bool isPromptMessageVisible() const;
+    std::optional<bool> isPromptMessageVisible() const;
     /**
      * @brief returns whether to display the error message.
      * @return If true, then error message is shown.
@@ -204,7 +301,7 @@ public:
      * The default value is false.
      * @sa #setErrorMessageVivible(), #setErrorMessage().
      */
-    bool isErrorMessageVisible() const;
+    std::optional<bool> isErrorMessageVisible() const;
     /**
      * @brief sets whether to display the input prompt message.
      * @param visible If true, then prompt message is shown.
@@ -221,11 +318,6 @@ public:
      * @sa #isErrorMessageVivible(), #setErrorMessage(), #setErrorStyle().
      */
     void setErrorMessageVisible(bool visible);
-    void setErrorStyle(Error es);
-
-    void setValidationOperator(Operator op);
-    void setFormula1(const QString &formula);
-    void setFormula2(const QString &formula);
     /**
      * @brief sets text of the validation error with the optional UI element title.
      * @param error the text of the error message.
@@ -250,7 +342,7 @@ public:
      *
      * The default value is false.
      */
-    bool isDropDownVisible() const;
+    std::optional<bool> isDropDownVisible() const;
     /**
      * @brief sets whether to display a dropdown combo box for a list-type
      * data validation.
@@ -269,7 +361,7 @@ public:
      *
      * The default value is ImeMode::NoControl.
      */
-    ImeMode imeMode() const;
+    std::optional<ImeMode> imeMode() const;
     /**
      * @brief sets the IME (input method editor) mode enforced by this data validation.
      *
@@ -336,7 +428,8 @@ public:
     bool removeRange(int firstRow, int firstColumn, int lastRow, int lastColumn);
     /**
      * @brief returns the list of validated ranges.
-     * @return the list of validated ranges.
+     * @return the list of validated ranges. If the list is empty, the validation
+     * is invalid.
      */
     QList<CellRange> ranges() const;
 
@@ -359,15 +452,15 @@ private:
                     {Type::TextLength, "textLength"},
                     {Type::Custom, "custom"}});
 
-    SERIALIZE_ENUM(Operator,
-                   {{Operator::Between, QStringLiteral("between")},
-                    {Operator::NotBetween, QStringLiteral("notBetween")},
-                    {Operator::Equal, QStringLiteral("equal")},
-                    {Operator::NotEqual, QStringLiteral("notEqual")},
-                    {Operator::LessThan, QStringLiteral("lessThan")},
-                    {Operator::LessThanOrEqual, QStringLiteral("lessThanOrEqual")},
-                    {Operator::GreaterThan, QStringLiteral("greaterThan")},
-                    {Operator::GreaterThanOrEqual, QStringLiteral("greaterThanOrEqual")}});
+    SERIALIZE_ENUM(Predicate,
+                   {{Predicate::Between, QStringLiteral("between")},
+                    {Predicate::NotBetween, QStringLiteral("notBetween")},
+                    {Predicate::Equal, QStringLiteral("equal")},
+                    {Predicate::NotEqual, QStringLiteral("notEqual")},
+                    {Predicate::LessThan, QStringLiteral("lessThan")},
+                    {Predicate::LessThanOrEqual, QStringLiteral("lessThanOrEqual")},
+                    {Predicate::GreaterThan, QStringLiteral("greaterThan")},
+                    {Predicate::GreaterThanOrEqual, QStringLiteral("greaterThanOrEqual")}});
 
     SERIALIZE_ENUM(Error,
                    {{Error::Stop, QStringLiteral("stop")},

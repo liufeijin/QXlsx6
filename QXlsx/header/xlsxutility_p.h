@@ -92,6 +92,14 @@ QStringList splitPath(const QString &path);
 QString getRelFilePath(const QString &filePath);
 
 double datetimeToNumber(const QDateTime &dt, bool is1904=false);
+/**
+ * @brief returns @a d converted to a decimal representation to be written into xlsx.
+ * @param d valid QDate.
+ * @param is1904
+ * @return double value that represents @a d.
+ * @note this function returns the start of the day moment.
+ */
+double dateToNumber(const QDate &d, bool is1904=false);
 QVariant datetimeFromNumber(double num, bool is1904=false);
 double timeToNumber(const QTime &t);
 

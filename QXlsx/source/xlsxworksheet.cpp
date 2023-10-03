@@ -1015,11 +1015,12 @@ bool Worksheet::addDataValidation(const DataValidation &validation)
 }
 
 bool Worksheet::addDataValidation(const CellRange &range, DataValidation::Type type,
-                                  const QString &formula1, DataValidation::Operator op,
-                                  const QString &formula2)
+                                  const QString &formula1, std::optional<DataValidation::Predicate> predicate,
+                                  const QString &formula2, bool strict)
 {
-    DataValidation v(type, formula1, op, formula2);
+    DataValidation v(type, formula1, predicate, formula2);
     v.addRange(range);
+    v.setErrorMessageVisible(strict);
     return addDataValidation(v);
 }
 
@@ -1028,6 +1029,35 @@ bool Worksheet::addDataValidation(const CellRange &range, const CellRange &allow
     DataValidation v(DataValidation::Type::List, allowableValues.toString(true, true));
     v.setErrorMessageVisible(strict);
     v.addRange(range);
+    return addDataValidation(v);
+}
+
+bool Worksheet::addDataValidation(const CellRange &range, const QTime &time1,
+                                  std::optional<DataValidation::Predicate> predicate, const QTime &time2, bool strict)
+{
+    DataValidation v(time1, predicate, time2);
+    v.addRange(range);
+    v.setErrorMessageVisible(strict);
+    return addDataValidation(v);
+}
+
+bool Worksheet::addDataValidation(const CellRange &range, const QDate &date1,
+                                  std::optional<DataValidation::Predicate> predicate,
+                                  const QDate &date2, bool strict)
+{
+    DataValidation v(date1, predicate, date2);
+    v.addRange(range);
+    v.setErrorMessageVisible(strict);
+    return addDataValidation(v);
+}
+
+bool Worksheet::addDataValidation(const CellRange &range, int len1,
+                                  std::optional<DataValidation::Predicate> predicate,
+                                  std::optional<int> len2, bool strict)
+{
+    DataValidation v(len1, predicate, len2);
+    v.addRange(range);
+    v.setErrorMessageVisible(strict);
     return addDataValidation(v);
 }
 
