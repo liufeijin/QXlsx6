@@ -17,29 +17,30 @@ int main()
     qDebug() << "\n\ndoc1\n";
 
     Document doc;
+    auto sheet = doc.activeWorksheet();
 
-    doc.write( "A1", QVariant(QDateTime::currentDateTimeUtc()) );
-    doc.write( "A2", QVariant(double(10.5)) );
-    doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
-    doc.write( "A4", QVariant(QTime(10, 9, 5)) );
-    doc.write( "A5", QVariant((int) 40000) );
+    sheet->write( "A1", QVariant(QDateTime::currentDateTimeUtc()) );
+    sheet->write( "A2", QVariant(double(10.5)) );
+    sheet->write( "A3", QVariant(QDate(2019, 10, 9)) );
+    sheet->write( "A4", QVariant(QTime(10, 9, 5)) );
+    sheet->write( "A5", QVariant((int) 40000) );
 
     // read() method returns values with respect to their types.
     qDebug() << "doc.read()";
-    qDebug() << doc.read( 1, 1 ).type() << doc.read( 1, 1 );
-    qDebug() << doc.read( 2, 1 ).type() << doc.read( 2, 1 );
-    qDebug() << doc.read( 3, 1 ).type() << doc.read( 3, 1 );
-    qDebug() << doc.read( 4, 1 ).type() << doc.read( 4, 1 );
-    qDebug() << doc.read( 5, 1 ).type() << doc.read( 5, 1 );
+    qDebug() << sheet->read( 1, 1 ).type() << sheet->read( 1, 1 );
+    qDebug() << sheet->read( 2, 1 ).type() << sheet->read( 2, 1 );
+    qDebug() << sheet->read( 3, 1 ).type() << sheet->read( 3, 1 );
+    qDebug() << sheet->read( 4, 1 ).type() << sheet->read( 4, 1 );
+    qDebug() << sheet->read( 5, 1 ).type() << sheet->read( 5, 1 );
     qDebug() << "\n";
 
     // cellAt()->value() method returns values as they are stored in cells (numerics usually as double).
-    qDebug() << "doc.cellAt()->value()";
-    qDebug() << doc.cellAt( 1, 1 )->value().type() << doc.cellAt( 1, 1 )->value();
-    qDebug() << doc.cellAt( 2, 1 )->value().type() << doc.cellAt( 2, 1 )->value();
-    qDebug() << doc.cellAt( 3, 1 )->value().type() << doc.cellAt( 3, 1 )->value();
-    qDebug() << doc.cellAt( 4, 1 )->value().type() << doc.cellAt( 4, 1 )->value();
-    qDebug() << doc.cellAt( 5, 1 )->value().type() << doc.cellAt( 5, 1 )->value();
+    qDebug() << "sheet->cell()->value()";
+    qDebug() << sheet->cell( 1, 1 )->value().type() << sheet->cell( 1, 1 )->value();
+    qDebug() << sheet->cell( 2, 1 )->value().type() << sheet->cell( 2, 1 )->value();
+    qDebug() << sheet->cell( 3, 1 )->value().type() << sheet->cell( 3, 1 )->value();
+    qDebug() << sheet->cell( 4, 1 )->value().type() << sheet->cell( 4, 1 )->value();
+    qDebug() << sheet->cell( 5, 1 )->value().type() << sheet->cell( 5, 1 )->value();
     qDebug() << "\n";
 
     doc.saveAs("types1.xlsx");
@@ -53,37 +54,38 @@ int main()
         return (-1);
     }
     qDebug() << "\n\n";
+    sheet = doc2.activeWorksheet();
 
-    doc2.write( "A6", QVariant(QDateTime::currentDateTimeUtc()) );
-    doc2.write( "A7", QVariant(double(10.5)) );
-    doc2.write( "A8", QVariant(QDate(2019, 10, 9)) );
-    doc2.write( "A9", QVariant(QTime(10, 9, 5)) );
-    doc2.write( "A10", QVariant((int) 40000) );
+    sheet->write( "A6", QVariant(QDateTime::currentDateTimeUtc()) );
+    sheet->write( "A7", QVariant(double(10.5)) );
+    sheet->write( "A8", QVariant(QDate(2019, 10, 9)) );
+    sheet->write( "A9", QVariant(QTime(10, 9, 5)) );
+    sheet->write( "A10", QVariant((int) 40000) );
 
     qDebug() << "doc2.read()";
-    qDebug() << doc2.read( 1, 1 ).type() << doc2.read( 1, 1 );
-    qDebug() << doc2.read( 2, 1 ).type() << doc2.read( 2, 1 );
-    qDebug() << doc2.read( 3, 1 ).type() << doc2.read( 3, 1 );
-    qDebug() << doc2.read( 4, 1 ).type() << doc2.read( 4, 1 );
-    qDebug() << doc2.read( 5, 1 ).type() << doc2.read( 5, 1 );
-    qDebug() << doc2.read( 6, 1 ).type() << doc2.read( 6, 1 );
-    qDebug() << doc2.read( 7, 1 ).type() << doc2.read( 7, 1 );
-    qDebug() << doc2.read( 8, 1 ).type() << doc2.read( 8, 1 );
-    qDebug() << doc2.read( 9, 1 ).type() << doc2.read( 9, 1 );
-    qDebug() << doc2.read(10, 1 ).type() << doc2.read(10, 1 );
+    qDebug() << sheet->read( 1, 1 ).type() << sheet->read( 1, 1 );
+    qDebug() << sheet->read( 2, 1 ).type() << sheet->read( 2, 1 );
+    qDebug() << sheet->read( 3, 1 ).type() << sheet->read( 3, 1 );
+    qDebug() << sheet->read( 4, 1 ).type() << sheet->read( 4, 1 );
+    qDebug() << sheet->read( 5, 1 ).type() << sheet->read( 5, 1 );
+    qDebug() << sheet->read( 6, 1 ).type() << sheet->read( 6, 1 );
+    qDebug() << sheet->read( 7, 1 ).type() << sheet->read( 7, 1 );
+    qDebug() << sheet->read( 8, 1 ).type() << sheet->read( 8, 1 );
+    qDebug() << sheet->read( 9, 1 ).type() << sheet->read( 9, 1 );
+    qDebug() << sheet->read(10, 1 ).type() << sheet->read(10, 1 );
     qDebug() << "\n";
 
-    qDebug() << "doc2.cellAt()->value()";
-    qDebug() << doc2.cellAt( 1, 1 )->value().type() << doc2.cellAt( 1, 1 )->value();
-    qDebug() << doc2.cellAt( 2, 1 )->value().type() << doc2.cellAt( 2, 1 )->value();
-    qDebug() << doc2.cellAt( 3, 1 )->value().type() << doc2.cellAt( 3, 1 )->value();
-    qDebug() << doc2.cellAt( 4, 1 )->value().type() << doc2.cellAt( 4, 1 )->value();
-    qDebug() << doc2.cellAt( 5, 1 )->value().type() << doc2.cellAt( 5, 1 )->value();
-    qDebug() << doc2.cellAt( 6, 1 )->value().type() << doc2.cellAt( 6, 1 )->value();
-    qDebug() << doc2.cellAt( 7, 1 )->value().type() << doc2.cellAt( 7, 1 )->value();
-    qDebug() << doc2.cellAt( 8, 1 )->value().type() << doc2.cellAt( 8, 1 )->value();
-    qDebug() << doc2.cellAt( 9, 1 )->value().type() << doc2.cellAt( 9, 1 )->value();
-    qDebug() << doc2.cellAt(10, 1 )->value().type() << doc2.cellAt(10, 1 )->value();
+    qDebug() << "sheet->cellAt()->value()";
+    qDebug() << sheet->cell( 1, 1 )->value().type() << sheet->cell( 1, 1 )->value();
+    qDebug() << sheet->cell( 2, 1 )->value().type() << sheet->cell( 2, 1 )->value();
+    qDebug() << sheet->cell( 3, 1 )->value().type() << sheet->cell( 3, 1 )->value();
+    qDebug() << sheet->cell( 4, 1 )->value().type() << sheet->cell( 4, 1 )->value();
+    qDebug() << sheet->cell( 5, 1 )->value().type() << sheet->cell( 5, 1 )->value();
+    qDebug() << sheet->cell( 6, 1 )->value().type() << sheet->cell( 6, 1 )->value();
+    qDebug() << sheet->cell( 7, 1 )->value().type() << sheet->cell( 7, 1 )->value();
+    qDebug() << sheet->cell( 8, 1 )->value().type() << sheet->cell( 8, 1 )->value();
+    qDebug() << sheet->cell( 9, 1 )->value().type() << sheet->cell( 9, 1 )->value();
+    qDebug() << sheet->cell(10, 1 )->value().type() << sheet->cell(10, 1 )->value();
     doc2.saveAs("types2.xlsx");
 
     qDebug() << "\n\ndoc3\n";
@@ -94,31 +96,32 @@ int main()
         return -1;
     }
     qDebug() << "\n\n";
+    sheet = doc3.activeWorksheet();
 
-    qDebug() << "doc3.read()";
-    qDebug() << doc3.read( 1, 1 ).type() << doc3.read( 1, 1 );
-    qDebug() << doc3.read( 2, 1 ).type() << doc3.read( 2, 1 );
-    qDebug() << doc3.read( 3, 1 ).type() << doc3.read( 3, 1 );
-    qDebug() << doc3.read( 4, 1 ).type() << doc3.read( 4, 1 );
-    qDebug() << doc3.read( 5, 1 ).type() << doc3.read( 5, 1 );
-    qDebug() << doc3.read( 6, 1 ).type() << doc3.read( 6, 1 );
-    qDebug() << doc3.read( 7, 1 ).type() << doc3.read( 7, 1 );
-    qDebug() << doc3.read( 8, 1 ).type() << doc3.read( 8, 1 );
-    qDebug() << doc3.read( 9, 1 ).type() << doc3.read( 9, 1 );
-    qDebug() << doc3.read(10, 1 ).type() << doc3.read(10, 1 );
+    qDebug() << "sheet->read()";
+    qDebug() << sheet->read( 1, 1 ).type() << sheet->read( 1, 1 );
+    qDebug() << sheet->read( 2, 1 ).type() << sheet->read( 2, 1 );
+    qDebug() << sheet->read( 3, 1 ).type() << sheet->read( 3, 1 );
+    qDebug() << sheet->read( 4, 1 ).type() << sheet->read( 4, 1 );
+    qDebug() << sheet->read( 5, 1 ).type() << sheet->read( 5, 1 );
+    qDebug() << sheet->read( 6, 1 ).type() << sheet->read( 6, 1 );
+    qDebug() << sheet->read( 7, 1 ).type() << sheet->read( 7, 1 );
+    qDebug() << sheet->read( 8, 1 ).type() << sheet->read( 8, 1 );
+    qDebug() << sheet->read( 9, 1 ).type() << sheet->read( 9, 1 );
+    qDebug() << sheet->read(10, 1 ).type() << sheet->read(10, 1 );
     qDebug() << "\n";
 
-    qDebug() << "doc3.cellAt()->value()";
-    qDebug() << doc3.cellAt( 1, 1 )->value().type() << doc3.cellAt( 1, 1 )->value();
-    qDebug() << doc3.cellAt( 2, 1 )->value().type() << doc3.cellAt( 2, 1 )->value();
-    qDebug() << doc3.cellAt( 3, 1 )->value().type() << doc3.cellAt( 3, 1 )->value();
-    qDebug() << doc3.cellAt( 4, 1 )->value().type() << doc3.cellAt( 4, 1 )->value();
-    qDebug() << doc3.cellAt( 5, 1 )->value().type() << doc3.cellAt( 5, 1 )->value();
-    qDebug() << doc3.cellAt( 6, 1 )->value().type() << doc3.cellAt( 6, 1 )->value();
-    qDebug() << doc3.cellAt( 7, 1 )->value().type() << doc3.cellAt( 7, 1 )->value();
-    qDebug() << doc3.cellAt( 8, 1 )->value().type() << doc3.cellAt( 8, 1 )->value();
-    qDebug() << doc3.cellAt( 9, 1 )->value().type() << doc3.cellAt( 9, 1 )->value();
-    qDebug() << doc3.cellAt(10, 1 )->value().type() << doc3.cellAt(10, 1 )->value();
+    qDebug() << "sheet->cellAt()->value()";
+    qDebug() << sheet->cell( 1, 1 )->value().type() << sheet->cell( 1, 1 )->value();
+    qDebug() << sheet->cell( 2, 1 )->value().type() << sheet->cell( 2, 1 )->value();
+    qDebug() << sheet->cell( 3, 1 )->value().type() << sheet->cell( 3, 1 )->value();
+    qDebug() << sheet->cell( 4, 1 )->value().type() << sheet->cell( 4, 1 )->value();
+    qDebug() << sheet->cell( 5, 1 )->value().type() << sheet->cell( 5, 1 )->value();
+    qDebug() << sheet->cell( 6, 1 )->value().type() << sheet->cell( 6, 1 )->value();
+    qDebug() << sheet->cell( 7, 1 )->value().type() << sheet->cell( 7, 1 )->value();
+    qDebug() << sheet->cell( 8, 1 )->value().type() << sheet->cell( 8, 1 )->value();
+    qDebug() << sheet->cell( 9, 1 )->value().type() << sheet->cell( 9, 1 )->value();
+    qDebug() << sheet->cell(10, 1 )->value().type() << sheet->cell(10, 1 )->value();
 
 	return 0; 
 }

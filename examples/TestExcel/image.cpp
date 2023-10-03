@@ -23,6 +23,8 @@ int image()
     using namespace QXlsx;
 
     Document xlsx;
+    auto sheet = xlsx.activeWorksheet();
+    if (!sheet) return -1;
 
     for (int i=0; i<10; ++i)
     {
@@ -34,9 +36,9 @@ int image()
 #else
         image.fill( uint(qrand() % 16581375) );
 #endif
-        int index = xlsx.insertImage( 10*i, 5, image );
+        int index = sheet->insertImage( 10*i, 5, image );
 
-       QImage img = xlsx.image( index);
+       QImage img = sheet->image(index);
        if (!img.isNull()) {
            QString filename;
            filename = QString("image %1.png").arg( index+1 );
@@ -46,18 +48,18 @@ int image()
        }
     }
     //testing background images
-    xlsx.setBackgroundImage(":/background1.jpg");
+    sheet->setBackgroundImage(":/background1.jpg");
     xlsx.saveAs("image1.xlsx");
 
 
 
     QXlsx::Document xlsx2("image1.xlsx");
-
+    sheet = xlsx2.activeWorksheet();
     //testing remove images by index and by coords
     //remove 2nd image
-    Q_ASSERT_X(xlsx2.removeImage(1), "image()", "couldn't remove image 2");
-    Q_ASSERT_X(xlsx2.removeImage(30,5), "image()", "couldn't remove image at (30,5)");
-    Q_ASSERT_X(xlsx2.removeBackgroundImage(), "image()", "couldn't remove background image");
+    Q_ASSERT_X(sheet->removeImage(1), "image()", "couldn't remove image 2");
+    Q_ASSERT_X(sheet->removeImage(30,5), "image()", "couldn't remove image at (30,5)");
+    Q_ASSERT_X(sheet->removeBackgroundImage(), "image()", "couldn't remove background image");
 
 
     xlsx2.saveAs("image2.xlsx");

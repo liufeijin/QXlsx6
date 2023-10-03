@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     {
         qDebug() << "[debug] successfully loaded xlsx file.";
 
-        if (Cell* cell = xlsxR.cellAt(row, col)) // get cell pointer.
+        if (Cell* cell = xlsxR.activeWorksheet()->cell(row, col)) // get cell pointer.
         {
             QVariant var = cell->readValue(); // read cell value (number(double), QDateTime, QString ...)
             qDebug() << "[debug] cell(1,1) is " << var; // Display value. It is 'Hello Qt!'.

@@ -430,8 +430,11 @@ public:
     bool setColumnFormat(const CellRange& range, const Format &format);
     bool setColumnHidden(const CellRange& range, bool hidden);
     bool setColumnWidth(int colFirst, int colLast, double width);
+    bool setColumnWidth(int col, double width);
     bool setColumnFormat(int colFirst, int colLast, const Format &format);
+    bool setColumnFormat(int col, const Format &format);
     bool setColumnHidden(int colFirst, int colLast, bool hidden);
+    bool setColumnHidden(int col, bool hidden);
     /**
      * @brief returns the width of @column in characters.
      * @param column column index (1-based).
@@ -448,8 +451,24 @@ public:
      * @param height row height in points.
      * @return true on success.
      */
-    bool setRowHeight(int rowFirst,int rowLast, double height);
-    bool setRowFormat(int rowFirst,int rowLast, const Format &format);
+    bool setRowHeight(int rowFirst, int rowLast, double height);
+    /**
+     * @overload
+     * @brief sets row height for @a row.
+     * @param row the row index (1-based).
+     * @param height row height in points.
+     * @return true on success.
+     */
+    bool setRowHeight(int row, double height);
+    bool setRowFormat(int rowFirst, int rowLast, const Format &format);
+    /**
+     * @overload
+     * @brief sets row format for @a row.
+     * @param row the row index (1-based).
+     * @param format
+     * @return true on success.
+     */
+    bool setRowFormat(int row, const Format &format);
     /**
      * @brief sets @a hidden to rows from @a rowFirst to @a rowLast.
      * @param rowFirst The first row index (1-based) of the range to set @a hidden.
@@ -500,7 +519,7 @@ public:
      * @param lastColumn 1-based index of the last column to autosize.
      * @return true on success.
      */
-    bool autosizeColumnWidths(int firstColumn, int lastColumn);
+    bool autosizeColumnsWidth(int firstColumn, int lastColumn);
     /**
      * @overload
      * @brief autosizes columns widths for columns specified by range.
@@ -508,7 +527,18 @@ public:
      * the rows range to estimate the maximum column width.
      * @return true on success.
      */
-    bool autosizeColumnWidths(const CellRange &range);
+    bool autosizeColumnsWidth(const CellRange &range);
+    /**
+     * @brief autosizes all columns width.
+     * @return true on success.
+     */
+    bool autosizeColumnsWidth();
+    /**
+     * @brief autosizes column width for @a column.
+     * @param column 1-based index of the column to autosize.
+     * @return true on success.
+     */
+    bool autosizeColumnWidth(int column);
 
 
 

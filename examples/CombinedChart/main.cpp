@@ -13,27 +13,27 @@ using namespace std;
 #include "xlsxchart.h"
 using namespace QXlsx;
 
-int main(int argc, char *argv[])
+int main()
 {
-    QCoreApplication app(argc, argv);
-
     QXlsx::Document xlsx;
+    auto sheet = xlsx.activeWorksheet();
+
     for (int i=1; i<10; ++i) {
-        xlsx.write(1, i+1, "Pos " + QString::number(i));
+        sheet->write(1, i+1, "Pos " + QString::number(i));
     }
 
-    xlsx.write(2, 1, "Set 1");
-    xlsx.write(3, 1, "Set 2");
+    sheet->write(2, 1, "Set 1");
+    sheet->write(3, 1, "Set 2");
 
     for (int i=1; i<10; ++i) {
-        xlsx.write(2, i+1, i*i*i);   //A2:A10
-        xlsx.write(3, i+1, i*i);    //B2:B10
+        sheet->write(2, i+1, i*i*i);   //A2:A10
+        sheet->write(3, i+1, i*i);    //B2:B10
     }
     /**
     An example of a chart with series of different types.
     */
 
-    Chart *chart1 = xlsx.insertChart(4, 3, QSize(600, 600));
+    Chart *chart1 = sheet->insertChart(4, 3, QSize(600, 600));
     chart1->setLegend(Legend::Position::Bottom);
     chart1->setTitle("Combined chart");
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     on the left axis, the second one is on the right axis.
     */
 
-    Chart *chart2 = xlsx.insertChart(4, 15, QSize(600, 600));
+    Chart *chart2 = sheet->insertChart(4, 15, QSize(600, 600));
     chart2->setDefaultLegend(); //default legend is positioned on the right outside the chart
     chart2->setTitle("Combined chart with three axes");
     chart2->setAutoTitleDeleted(true);

@@ -74,7 +74,7 @@ void sat_calc::generate_report()
     QXlsx::Document output(report_file);
 
     output.addSheet(sheet_name);
-    output.selectSheet(sheet_name);
+    auto sheet = output.activeWorksheet();
     QString chrom_data_array = "A" + QString::number(output_line_count + 3);
 
     unsigned int input_line_count=0;
@@ -96,8 +96,8 @@ void sat_calc::generate_report()
     title_stile.setPatternBackgroundColor(QColor(225,225,225));
     title_stile.setBorderStyle(QXlsx::Format::BorderMedium);
 
-    output.write( output_line_count+2, 1, "volume, ml", title_stile );
-    output.write( output_line_count+2, 2, "OD, mAu", title_stile );
+    sheet->write( output_line_count+2, 1, "volume, ml", title_stile );
+    sheet->write( output_line_count+2, 2, "OD, mAu", title_stile );
 
     while (!stream_buffer.atEnd())  {
         if (input_line_count % step == 0) {
@@ -109,19 +109,19 @@ void sat_calc::generate_report()
 
                     if (input_line_count == 3 && j == 0) {
                         stream_buffer >> d1;
-                        output.write( output_line_count, j+1, d1, simple_green );
+                        sheet->write( output_line_count, j+1, d1, simple_green );
                     }
 
                     if (input_line_count == 4 && j == 0) {
                         stream_buffer >> d2;
                         step = (int)(precision / (d2-d1));
                         std::cout << "\nstep  " << step << std::endl;
-                        output.write( output_line_count, j+1, d2, simple_green );
+                        sheet->write( output_line_count, j+1, d2, simple_green );
                     }
 
                     if (j || input_line_count > 4) {
                         stream_buffer >> d3;
-                        output.write( output_line_count, j+1, d3, row_data );
+                        sheet->write( output_line_count, j+1, d3, row_data );
                     }
                 } // if ( input_line_count > 2 ) ...
 
@@ -137,7 +137,7 @@ void sat_calc::generate_report()
 
     chrom_data_array += ":B" + QString::number(output_line_count - 1);
 
-    QXlsx::Chart * Crom = output.insertChart( 3, 5, QSize(600, 500) );
+    QXlsx::Chart * Crom = sheet->insertChart( 3, 5, QSize(600, 500) );
     Crom->setType( QXlsx::Chart::Type::Scatter );
     Crom->addSeries( QXlsx::CellRange(chrom_data_array) );
     Crom->axis(1)->setTitle( QString("left title") );

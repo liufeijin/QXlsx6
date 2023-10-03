@@ -11,14 +11,14 @@
 
 QXLSX_USE_NAMESPACE
 
-int main(int argc, char *argv[])
+int main()
 {
     Document xlsx;
     QDate today(QDate::currentDate());
     for (int month=1; month<=12; ++month)
     {
-        xlsx.addSheet(QLocale().monthName(month));
-        xlsx.currentWorksheet()->setGridLinesVisible(false);
+        auto sheet = xlsx.addWorksheet(QLocale().monthName(month));
+        sheet->setGridLinesVisible(false);
 
         //the header row
         Format headerStyle;
@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
         headerStyle.setFontColor(Qt::darkBlue);
         headerStyle.setHorizontalAlignment(Format::AlignHCenter);
         headerStyle.setVerticalAlignment(Format::AlignVCenter);
-        xlsx.setRowHeight(1, 80);
-        xlsx.write("A1", QString("%1 %2").arg(QLocale().monthName(month)).arg(today.year()));
-        xlsx.mergeCells("A1:N1", headerStyle);
+        sheet->setRowHeight(1, 80);
+        sheet->write("A1", QString("%1 %2").arg(QLocale().monthName(month)).arg(today.year()));
+        sheet->mergeCells("A1:N1", headerStyle);
 
         //header with month titles
         for (int day=1; day<=7; ++day) {
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
             monthStyle.setFillPattern(Format::PatternSolid);
             monthStyle.setPatternBackgroundColor(Qt::darkBlue);
 
-            xlsx.setColumnWidth(day*2-1, day*2-1, 5);
-            xlsx.setColumnWidth(day*2, day*2, 13);
-            xlsx.write(2, day*2-1, QLocale().dayName(day));
-            xlsx.mergeCells(CellRange(2, day*2-1, 2, day*2), monthStyle);
+            sheet->setColumnWidth(day*2-1, 5);
+            sheet->setColumnWidth(day*2, 13);
+            sheet->write(2, day*2-1, QLocale().dayName(day));
+            sheet->mergeCells(CellRange(2, day*2-1, 2, day*2), monthStyle);
         }
 
         QColor borderColor = QColor(Qt::gray);
@@ -126,30 +126,30 @@ int main(int argc, char *argv[])
             QDate date(today.year(), month, day);
             if (!date.isValid())
                 break;
-            xlsx.setRowHeight(rownum, 100);
+            sheet->setRowHeight(rownum, 100);
             int dow = date.dayOfWeek(); // 1 = Monday to 7 = Sunday
             int colnum = dow*2-1;
 
             if (dow <= 5) { // 1,2,3,4,5
-                xlsx.write(rownum, colnum, day, workdayLeftStyle);
-                xlsx.write(rownum, colnum+1, QVariant(), workdayRightStyle);
+                sheet->write(rownum, colnum, day, workdayLeftStyle);
+                sheet->write(rownum, colnum+1, QVariant(), workdayRightStyle);
             } else if (dow == 6) {
-                xlsx.write(rownum, colnum, day, weekendLeftStyle);
-                xlsx.write(rownum, colnum+1, QVariant(), weekendRightStyle);
+                sheet->write(rownum, colnum, day, weekendLeftStyle);
+                sheet->write(rownum, colnum+1, QVariant(), weekendRightStyle);
             } else {
-                xlsx.write(rownum, colnum, day, holidayLeftStyle);
-                xlsx.write(rownum, colnum + 1, QVariant(), holidayRightStyle);
+                sheet->write(rownum, colnum, day, holidayLeftStyle);
+                sheet->write(rownum, colnum + 1, QVariant(), holidayRightStyle);
             }
 
             if (day == 1 && dow != 1) {//First day
                 for (int i=1; i<dow; ++i) {
-                    xlsx.write(rownum, i*2-1, QVariant(), greyLeftStyle);
-                    xlsx.write(rownum, i*2, QVariant(), greyRightStyle);
+                    sheet->write(rownum, i*2-1, QVariant(), greyLeftStyle);
+                    sheet->write(rownum, i*2, QVariant(), greyRightStyle);
                 }
             } else if (day == date.daysInMonth() && dow != 7) {//Last day
                 for (int i=dow+1; i<=7; ++i) {
-                    xlsx.write(rownum, i*2-1, QVariant(), greyLeftStyle);
-                    xlsx.write(rownum, i*2, QVariant(), greyRightStyle);
+                    sheet->write(rownum, i*2-1, QVariant(), greyLeftStyle);
+                    sheet->write(rownum, i*2, QVariant(), greyRightStyle);
                 }
             }
 

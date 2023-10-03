@@ -1919,6 +1919,11 @@ bool Worksheet::setColumnWidth(int colFirst, int colLast, double width)
     return true;
 }
 
+bool Worksheet::setColumnWidth(int col, double width)
+{
+    return setColumnWidth(col, col, width);
+}
+
 bool Worksheet::setColumnFormat(int colFirst, int colLast, const Format &format)
 {
     Q_D(Worksheet);
@@ -1933,6 +1938,11 @@ bool Worksheet::setColumnFormat(int colFirst, int colLast, const Format &format)
     return true;
 }
 
+bool Worksheet::setColumnFormat(int col, const Format &format)
+{
+    return setColumnFormat(col, col, format);
+}
+
 bool Worksheet::setColumnHidden(int colFirst, int colLast, bool hidden)
 {
     Q_D(Worksheet);
@@ -1944,6 +1954,11 @@ bool Worksheet::setColumnHidden(int colFirst, int colLast, bool hidden)
         d->colsInfo[i].hidden = hidden;
 
     return true;
+}
+
+bool Worksheet::setColumnHidden(int col, bool hidden)
+{
+    return setColumnHidden(col, col, hidden);
 }
 
 double Worksheet::columnWidth(int column) const
@@ -1993,6 +2008,11 @@ bool Worksheet::setRowHeight(int rowFirst, int rowLast, double height)
     return true;
 }
 
+bool Worksheet::setRowHeight(int row, double height)
+{
+    return setRowHeight(row, row, height);
+}
+
 bool Worksheet::setRowFormat(int rowFirst,int rowLast, const Format &format)
 {
     Q_D(Worksheet);
@@ -2009,6 +2029,11 @@ bool Worksheet::setRowFormat(int rowFirst,int rowLast, const Format &format)
     d->workbook->styles()->addXfFormat(format);
 
     return true;
+}
+
+bool Worksheet::setRowFormat(int row, const Format &format)
+{
+    return setRowFormat(row, row, format);
 }
 
 bool Worksheet::setRowHidden(int rowFirst,int rowLast, bool hidden)
@@ -2689,13 +2714,13 @@ SharedStrings *WorksheetPrivate::sharedStrings() const
     return workbook->sharedStrings();
 }
 
-bool Worksheet::autosizeColumnWidths(int firstColumn, int lastColumn)
+bool Worksheet::autosizeColumnsWidth(int firstColumn, int lastColumn)
 {
     CellRange r(1, firstColumn, INT_MAX, lastColumn);
-    return autosizeColumnWidths(r);
+    return autosizeColumnsWidth(r);
 }
 
-bool Worksheet::autosizeColumnWidths(const CellRange &range)
+bool Worksheet::autosizeColumnsWidth(const CellRange &range)
 {
     bool result = false;
     if (range.isValid()) {
@@ -2708,6 +2733,15 @@ bool Worksheet::autosizeColumnWidths(const CellRange &range)
     }
 
     return result;
+}
+
+bool Worksheet::autosizeColumnsWidth()
+{
+    return autosizeColumnsWidth(1, INT_MAX);
+}
+bool Worksheet::autosizeColumnWidth(int column)
+{
+    return autosizeColumnsWidth(column, column);
 }
 
 QMap<int, double> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)

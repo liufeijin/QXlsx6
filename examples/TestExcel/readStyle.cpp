@@ -41,10 +41,11 @@ int readGoogleSpreadsheet()
     }
 
     // current sheet is default sheet. (Sheet1)
+    auto sheet = xlsx.activeWorksheet();
 
     for (int row = 1; row < 20; ++row)
     {
-        Cell* cell = xlsx.cellAt(row, 1);
+        Cell* cell = sheet->cell(row, 1);
         if ( cell == NULL )
             continue;
         QVariant var = cell->readValue();
@@ -157,10 +158,12 @@ int readMSExcel201xNumber(QXlsx::Document* pXlsx)
     if (NULL == pXlsx)
         return (-1);
 
+    auto sheet = pXlsx->activeWorksheet();
+
     for (int row = 1; row < 10; ++row)
     {
-        Cell* cell = pXlsx->cellAt(row, 1);
-        if (cell == NULL)
+        Cell* cell = sheet->cell(row, 1);
+        if (cell == nullptr)
             continue;
 
         QVariant var = cell->readValue();

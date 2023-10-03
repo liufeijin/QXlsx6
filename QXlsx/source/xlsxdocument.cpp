@@ -545,27 +545,12 @@ bool DocumentPrivate::copyStyle(const QString &from, const QString &to)
     return true;
 }
 
-/*!
-  \class Document
-  \brief The Document class provides a API that is used to handle the contents of .xlsx files.
-
-*/
-
-/*!
- * Creates a new empty xlsx document.
- * The \a parent argument is passed to QObject's constructor.
- */
 Document::Document(QObject *parent) :
     QObject(parent), d_ptr(new DocumentPrivate(this))
 {
     d_ptr->init();
 }
 
-/*!
- * \overload
- * Try to open an existing xlsx document named \a name.
- * The \a parent argument is passed to QObject's constructor.
- */
 Document::Document(const QString &name, 
                     QObject *parent) :
     QObject(parent), 
@@ -606,372 +591,32 @@ Document::Document(QIODevice *device, QObject *parent) :
     d_ptr->init();
 }
 
-/*!
-    \overload
-
-    Write \a value to cell \a row_column with the given \a format.
- */
 bool Document::write(const CellReference &row_column, const QVariant &value, const Format &format)
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (Worksheet *sheet = activeWorksheet())
         return sheet->write(row_column, value, format);
     return false;
 }
 
-/*!
- * Write \a value to cell (\a row, \a col) with the \a format.
- * Returns true on success.
- */
 bool Document::write(int row, int col, const QVariant &value, const Format &format)
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (Worksheet *sheet = activeWorksheet())
         return sheet->write(row, col, value, format);
     return false;
 }
 
-/*!
-    \overload
-    Returns the contents of the cell \a cell.
-
-    \sa cellAt()
-*/
 QVariant Document::read(const CellReference &cell) const
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (Worksheet *sheet = activeWorksheet())
         return sheet->read(cell);
     return QVariant();
 }
 
-/*!
-    Returns the contents of the cell (\a row, \a col).
-
-    \sa cellAt()
- */
 QVariant Document::read(int row, int col) const
 {
-    if (Worksheet *sheet = currentWorksheet())
+    if (Worksheet *sheet = activeWorksheet())
         return sheet->read(row, col);
     return QVariant();
-}
-
-int Document::insertImage(int row, int column, const QImage &image)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->insertImage(row, column, image);
-
-    return -1;
-}
-
-QImage Document::image(int imageIndex)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->image(imageIndex);
-
-    return {};
-}
-
-QImage Document::image(int row, int col)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->image(row, col);
-
-    return  {};
-}
-
-int Document::imageCount()
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->imageCount();
-
-    return 0;
-}
-
-bool Document::removeImage(int row, int column)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->removeImage(row, column);
-
-    return false;
-}
-
-bool Document::removeImage(int index)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->removeImage(index);
-
-    return false;
-}
-
-bool Document::changeImage(int index, const QString &fileName, bool keepSize)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->changeImage(index, fileName, keepSize);
-
-    return false;
-}
-
-void Document::setBackgroundImage(const QImage &image)
-{
-    if (auto sheet = currentSheet())
-        sheet->setBackgroundImage(image);
-}
-
-void Document::setBackgroundImage(const QString &fileName)
-{
-    if (auto sheet = currentSheet())
-        sheet->setBackgroundImage(fileName);
-}
-
-QImage Document::backgroundImage() const
-{
-    if (auto sheet = currentSheet())
-        return sheet->backgroundImage();
-    return {};
-}
-
-bool Document::removeBackgroundImage()
-{
-    if (auto sheet = currentSheet())
-        return sheet->removeBackgroundImage();
-    return false;
-}
-
-
-Chart *Document::insertChart(int row, int col, const QSize &size)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->insertChart(row, col, size);
-    return nullptr;
-}
-
-Chart *Document::insertChart(int row, int column, Coordinate width, Coordinate height)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->insertChart(row, column, width, height);
-    return nullptr;
-}
-
-Chart *Document::chart(int index) const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->chart(index);
-    return nullptr;
-}
-
-Chart *Document::chart(int row, int column) const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->chart(row, column);
-    return nullptr;
-}
-
-bool Document::removeChart(int row, int column)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->removeChart(row, column);
-    return false;
-}
-
-bool Document::removeChart(int index)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->removeChart(index);
-    return false;
-}
-
-int Document::chartCount() const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->chartCount();
-    return 0;
-}
-
-bool Document::mergeCells(const CellRange &range, const Format &format)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->mergeCells(range, format);
-    return false;
-}
-
-/*!
-  Unmerge the cells in the \a range.
-  Returns true on success.
-*/
-bool Document::unmergeCells(const CellRange &range)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->unmergeCells(range);
-    return false;
-}
-
-bool Document::setColumnWidth(const CellRange &range, double width)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnWidth(range, width);
-    return false;
-}
-
-bool Document::setColumnFormat(const CellRange &range, const Format &format)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnFormat(range, format);
-    return false;
-}
-
-bool Document::setColumnHidden(const CellRange &range, bool hidden)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnWidth(range, hidden);
-    return false;
-}
-
-bool Document::setColumnWidth(int column, double width)
-{
-    return setColumnWidth(column,column,width);
-}
-
-bool Document::setColumnFormat(int column, const Format &format)
-{
-    return setColumnFormat(column,column,format);
-}
-
-bool Document::setColumnHidden(int column, bool hidden)
-{
-    return setColumnHidden(column,column,hidden);
-}
-
-bool Document::setColumnWidth(int colFirst, int colLast, double width)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnWidth(colFirst, colLast, width);
-    return false;
-}
-
-bool Document::setColumnFormat(int colFirst, int colLast, const Format &format)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnFormat(colFirst, colLast, format);
-    return false;
-}
-
-bool Document::setColumnHidden(int colFirst, int colLast, bool hidden)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->setColumnHidden(colFirst, colLast, hidden);
-    return false;
-}
-
-double Document::columnWidth(int column)
-{
-    if (Worksheet *sheet = currentWorksheet())
-      return sheet->columnWidth(column);
-    return 0.0;
-}
-
-Format Document::columnFormat(int column)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->columnFormat(column);
-    return Format();
-}
-
-bool Document::isColumnHidden(int column)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->isColumnHidden(column);
-    return false;
-}
-
-bool Document::setRowFormat(int row, const Format &format)
-{
-    return setRowFormat(row,row, format);
-}
-
-bool Document::setRowFormat(int rowFirst, int rowLast, const Format &format)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->setRowFormat(rowFirst, rowLast, format);
-    return false;
-}
-
-bool Document::setRowHidden(int row, bool hidden)
-{
-    return setRowHidden(row,row,hidden);
-}
-
-bool Document::setRowHidden(int rowFirst, int rowLast, bool hidden)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->setRowHidden(rowFirst, rowLast, hidden);
-    return false;
-}
-
-bool Document::setRowHeight(int row, double height)
-{
-    return setRowHeight(row,row,height);
-}
-
-bool Document::setRowHeight(int rowFirst, int rowLast, double height)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->setRowHeight(rowFirst, rowLast, height);
-    return false;
-}
-
-double Document::rowHeight(int row)
-{
-   if (Worksheet *sheet = currentWorksheet())
-      return sheet->rowHeight(row);
-    return 0.0;
-}
-
-Format Document::rowFormat(int row)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->rowFormat(row);
-     return Format();
-}
-
-bool Document::isRowHidden(int row)
-{
-    if (Worksheet *sheet = currentWorksheet())
-       return sheet->isRowHidden(row);
-     return false;
-}
-
-bool Document::groupRows(int rowFirst, int rowLast, bool collapsed)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->groupRows(rowFirst, rowLast, collapsed);
-    return false;
-}
-
-bool Document::groupColumns(int colFirst, int colLast, bool collapsed)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->groupColumns(colFirst, colLast, collapsed);
-    return false;
-}
-
-bool Document::addConditionalFormatting(const ConditionalFormatting &cf)
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->addConditionalFormatting(cf);
-    return false;
-}
-
-Cell *Document::cellAt(const CellReference &pos) const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->cell(pos);
-    return nullptr;
-}
-
-Cell *Document::cellAt(int row, int col) const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->cell(row, col);
-    return nullptr;
 }
 
 DefinedName * Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
@@ -1008,13 +653,6 @@ DefinedName *Document::definedName(const QString &name)
 {
     Q_D(Document);
     return d->workbook->definedName(name);
-}
-
-CellRange Document::dimension() const
-{
-    if (Worksheet *sheet = currentWorksheet())
-        return sheet->dimension();
-    return CellRange();
 }
 
 QString Document::documentProperty(const QString &key) const
@@ -1057,6 +695,12 @@ bool Document::addSheet(const QString &name, AbstractSheet::Type type)
     return d->workbook->addSheet(name, type);
 }
 
+Chartsheet *Document::addChartsheet(const QString &name)
+{
+    Q_D(Document);
+    return dynamic_cast<Chartsheet*>(d->workbook->addSheet(name, AbstractSheet::Type::Chartsheet));
+}
+
 Worksheet *Document::addWorksheet(const QString &name)
 {
     Q_D(Document);
@@ -1097,29 +741,29 @@ bool Document::deleteSheet(const QString &name)
     return d->workbook->deleteSheet(sheetNames().indexOf(name));
 }
 
-AbstractSheet *Document::currentSheet() const
+AbstractSheet *Document::activeSheet() const
 {
     Q_D(const Document);
 
     return d->workbook->activeSheet();
 }
 
-Worksheet *Document::currentWorksheet() const
+Worksheet *Document::activeWorksheet() const
 {
-    AbstractSheet *st = currentSheet();
+    AbstractSheet *st = activeSheet();
     if (st && st->type() == AbstractSheet::Type::Worksheet)
         return static_cast<Worksheet *>(st);
     else
         return nullptr;
 }
 
-bool Document::selectSheet(const QString &name)
+bool Document::setActiveSheet(const QString &name)
 {
     Q_D(Document);
     return d->workbook->setActiveSheet(sheetNames().indexOf(name));
 }
 
-bool Document::selectSheet(int index)
+bool Document::setActiveSheet(int index)
 {
     Q_D(Document);
     return d->workbook->setActiveSheet(index);
@@ -1167,40 +811,5 @@ Document::~Document()
 {
     delete d_ptr;
 }
-
-bool Document::autosizeColumnWidth(const CellRange &range)
-{
-    if (auto sheet = currentWorksheet())
-        return sheet->autosizeColumnWidths(range);
-
-    return false;
-}
-
-
-bool Document::autosizeColumnWidth(int column)
-{
-    if (auto sheet = currentWorksheet())
-        return sheet->autosizeColumnWidths(column, column);
-
-    return false;
-}
-
-
-bool Document::autosizeColumnWidth(int firstColumn, int lastColumn)
-{
-    if (auto sheet = currentWorksheet())
-        return sheet->autosizeColumnWidths(firstColumn, lastColumn);
-
-    return false;
-}
-
-bool Document::autosizeColumnWidth()
-{
-    if (auto sheet = currentWorksheet())
-        return sheet->autosizeColumnWidths(1, INT_MAX);
-
-    return false;
-}
-
 
 }

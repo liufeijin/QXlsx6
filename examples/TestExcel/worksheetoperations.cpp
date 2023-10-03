@@ -23,7 +23,7 @@ int worksheetoperations()
     xlsx.write(3, 3, "This will be deleted...");
 
     xlsx.addSheet("HiddenSheet");
-    xlsx.currentSheet()->setHidden(true);
+    xlsx.activeWorksheet()->setHidden(true);
     xlsx.write("A1", "This sheet is hidden.");
 
     xlsx.addSheet("VeryHiddenSheet");
@@ -39,7 +39,7 @@ int worksheetoperations()
 
     xlsx2.copySheet("TheFirstSheet", "CopyOfTheFirst");
 
-    xlsx2.selectSheet("CopyOfTheFirst");
+    xlsx2.setActiveSheet("CopyOfTheFirst");
     xlsx2.write(25, 2, "On the Copy Sheet");
 
     xlsx2.deleteSheet("Sheet3");

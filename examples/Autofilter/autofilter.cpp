@@ -11,7 +11,7 @@ int main()
     QXlsx::Document xlsx;
 
     // 1. Filtering by values
-    auto sheet = xlsx.currentWorksheet();
+    auto sheet = xlsx.activeWorksheet();
     sheet->rename("Filter by values"); //rename default sheet
 
     for (int i=1; i<=10; ++i) {
@@ -50,7 +50,7 @@ int main()
         dt = now.addDays(i*2);
         sheet->write(i+7, 2, dt);
     }
-    sheet->autosizeColumnWidths(1,2);
+    sheet->autosizeColumnsWidth(1,2);
     sheet->autofilter().setRange(QXlsx::CellRange(1,1,12,2));
     sheet->autofilter().setDynamicFilter(0, QXlsx::Filter::DynamicFilterType::LastQuarter);
     sheet->autofilter().setDynamicFilter(1, QXlsx::Filter::DynamicFilterType::LastWeek);

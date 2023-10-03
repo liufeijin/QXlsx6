@@ -15,18 +15,18 @@ QXLSX_USE_NAMESPACE
 int pages()
 {
     Document xlsx;
+    auto sheet = xlsx.activeWorksheet();
 
     // Set page margins of 5 mm each, no header / footer
 
-    xlsx.write("A1", "Hello QtXlsx!");
-    xlsx.write("A2", 12345);
-    xlsx.write("A3", "=44+33"); // cell value is 77.
-    xlsx.write("A4", true);
-    xlsx.write("A5", "http://qt-project.org");
-    xlsx.write("A6", QDate(2013, 12, 27));
-    xlsx.write("A7", QTime(6, 30));
+    sheet->write("A1", "Hello QtXlsx!");
+    sheet->write("A2", 12345);
+    sheet->write("A3", "=44+33"); // cell value is 77.
+    sheet->write("A4", true);
+    sheet->write("A5", "http://qt-project.org");
+    sheet->write("A6", QDate(2013, 12, 27));
+    sheet->write("A7", QTime(6, 30));
 
-    auto sheet = xlsx.currentWorksheet();
     sheet->setPageMarginsMm(5,5,5,5);
 
     // Set zero page margins

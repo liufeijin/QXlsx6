@@ -17,8 +17,7 @@ int chartsheet()
 
 
     //Add the first chartsheet
-    xlsx.addSheet("Chart1", AbstractSheet::Type::Chartsheet);
-    Chartsheet *sheet = static_cast<Chartsheet*>(xlsx.currentSheet());
+    Chartsheet *sheet = xlsx.addChartsheet("Chart1");
     Chart *barChart = sheet->chart();
     barChart->setType(Chart::Type::Bar);
     barChart->addSeries(CellRange("A1:A9"), xlsx.sheet("Sheet1"));
