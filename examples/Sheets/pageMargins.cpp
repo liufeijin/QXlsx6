@@ -73,6 +73,10 @@ int pages()
     sheet2->setPaperSize(PageSetup::PaperSize::A5);
     sheet2->setPageOrientation(PageSetup::Orientation::Portrait);
 
+    sheet2->setFitToWidth(2);
+    sheet2->setPrintCellComments(PageSetup::CellComments::AsDisplayed);
+    sheet2->setFirstPageNumber(300);
+
     sheet2->setViewType(SheetView::Type::PageLayout);
     sheet2->setShowAutoPageBreaks(true);
 
@@ -83,6 +87,14 @@ int pages()
         qDebug() << "[PageMargins] failed to save excel file";
         return (-2);
     }
+
+    Document xlsx2;
+    for (int i=0; i<=64; ++i) {
+        auto sheet = xlsx2.addWorksheet(QString("color %1").arg(i));
+        sheet->setViewColorIndex(i);
+        sheet->setDefaultGridColorUsed(false);
+    }
+    xlsx2.saveAs("colors.xlsx");
 
     return 0;
 }

@@ -73,7 +73,7 @@ Demonstrates basic operations in worksheets:
 
 Demonstrates various numeric types that can be written and read.
 
-This example shows that `Document::read()` method returns values with respect to their type, whereas Cell::value() returns data as it is stored in cells (for numeric data it is usually `double`). Compare:
+This example shows that `Worksheet::read()` method returns values with respect to their type, whereas Cell::value() returns data as it is stored in cells (for numeric data it is usually `double`). Compare:
 
 ```cpp 
 Document doc;

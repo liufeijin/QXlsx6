@@ -395,7 +395,7 @@ void Worksheet::setViewColorIndex(int index)
 {
     Q_D(Worksheet);
     if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().colorId = index;
+    if (index >=0 && index <= 64) d->sheetViews.last().colorId = index;
 }
 
 

@@ -928,7 +928,58 @@ public:
     /**
      * @brief sets the index to the color value for row/column text headings
      * and gridlines.
-     * @param index an 'index color value' (ICV) rather than rgb value.
+     * @param index an 'index color value' from 0 to 64.
+     *
+     * ICV | color & style
+     * ----|----
+     * 0 or 8 | black #000000
+     * 1 or 9 | white #FFFFFF
+     * 2 or 10 | red #FF0000
+     * 3 or 11 | green #00FF00
+     * 4 or 12 or 39 | blue #0000FF
+     * 5 or 13 or 34 | yellow #FFFF00
+     * 6 or 14 or 33 | magenta (fuchsia) #FF00FF
+     * 7 or 15 or 35 | cyan #00FFFF
+     * 16 or 37 | dark red #800000
+     * 17 | dark green #008000
+     * 18 or 32 | dark blue (navy) #000080
+     * 19 | dark yellow #808000
+     * 20 or 36 | dark magenta (purple) #800080
+     * 21 or 38 | dark cyan (teal) #008080
+     * 22 | gray 25% #C0C0C0
+     * 23 | gray 50% #808080
+     * 24 | #9999FF
+     * 25 | #993366
+     * 26 | ivory #FFFFCC
+     * 27 or 41 | light cyan #CCFFFF
+     * 28 | #660066
+     * 29 | #FF8080
+     * 30 | #0066CC
+     * 31 | #CCCCFF
+     * 40 | #00CCFF
+     * 42 | #CCFFCC
+     * 43 | #FFFF99
+     * 44 | #99CCFF
+     * 45 | #FF99CC
+     * 46 | #CC99FF
+     * 47 | #FFCC99
+     * 48 | #3366FF
+     * 49 | #33CCCC
+     * 50 | #99CC00
+     * 51 | #FFCC00
+     * 52 | #FF9900
+     * 53 | #FF6600
+     * 54 | #666699
+     * 55 | gray 40% #969696
+     * 56 | #003366
+     * 57 | #339966
+     * 58 | #003300
+     * 59 | #333300
+     * 60 | #993300
+     * 61 | #993366
+     * 62 | #333399
+     * 63 | dark gray #333333
+     * 64 | default
      *
      * If not set, 64 is assumed.
      */
