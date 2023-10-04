@@ -328,14 +328,14 @@ void Worksheet::setOutlineSymbolsVisible(bool visible)
     d->sheetViews.last().showOutlineSymbols = visible;
 }
 
-bool Worksheet::isWhiteSpaceVisible() const
+bool Worksheet::isPageMarginsVisible() const
 {
     Q_D(const Worksheet);
     if (d->sheetViews.isEmpty()) return true;
     return d->sheetViews.last().showWhiteSpace.value_or(true);
 }
 
-void Worksheet::setWhiteSpaceVisible(bool visible)
+void Worksheet::setPageMarginsVisible(bool visible)
 {
     Q_D(Worksheet);
     if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
@@ -493,6 +493,54 @@ void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
 {
     Q_D(Worksheet);
     d->pageSetup.pageOrder = pageOrder;
+}
+
+int Worksheet::fitToWidth() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.fitToWidth.value_or(1);
+}
+
+void Worksheet::setFitToWidth(int pages)
+{
+    Q_D(Worksheet);
+    if (pages > 0) d->pageSetup.fitToWidth = pages;
+}
+
+int Worksheet::fitToHeight() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.fitToHeight.value_or(1);
+}
+
+void Worksheet::setFitToHeight(int pages)
+{
+    Q_D(Worksheet);
+    if (pages > 0) d->pageSetup.fitToHeight = pages;
+}
+
+PageSetup::PrintError Worksheet::printErrors() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.errors.value_or(PageSetup::PrintError::Displayed);
+}
+
+void Worksheet::setPrintErrors(PageSetup::PrintError mode)
+{
+    Q_D(Worksheet);
+    d->pageSetup.errors = mode;
+}
+
+PageSetup::CellComments Worksheet::printCellComments() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.cellComments.value_or(PageSetup::CellComments::DoNotPrint);
+}
+
+void Worksheet::setPrintCellComments(PageSetup::CellComments mode)
+{
+    Q_D(Worksheet);
+    d->pageSetup.cellComments = mode;
 }
 
 AutoFilter &Worksheet::autofilter()

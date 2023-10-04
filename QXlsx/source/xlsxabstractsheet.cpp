@@ -467,6 +467,91 @@ void AbstractSheet::setPageOrientation(PageSetup::Orientation orientation)
     d->pageSetup.orientation = orientation;
 }
 
+int AbstractSheet::firstPageNumber() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.firstPageNumber.value_or(1);
+}
+
+void AbstractSheet::setFirstPageNumber(int number)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.firstPageNumber = number;
+    d->pageSetup.useFirstPageNumber = true;
+}
+
+bool AbstractSheet::useFirstPageNumber() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.useFirstPageNumber.value_or(false);
+}
+
+void AbstractSheet::setUseFirstPageNumber(bool use)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.useFirstPageNumber = use;
+}
+
+bool AbstractSheet::printerDefaultsUsed() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.usePrinterDefaults.value_or(true);
+}
+
+void AbstractSheet::setPrinterDefaultsUsed(bool value)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.usePrinterDefaults = value;
+}
+
+bool AbstractSheet::printBlackAndWhite() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.blackAndWhite.value_or(false);
+}
+
+void AbstractSheet::setPrintBlackAndWhite(bool value)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.blackAndWhite = value;
+}
+
+bool AbstractSheet::printDraft() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.draft.value_or(false);
+}
+
+void AbstractSheet::setPrintDraft(bool draft)
+{
+    Q_D(AbstractSheet);
+    d->pageSetup.draft = draft;
+}
+
+int AbstractSheet::horizontalDpi() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.horizontalDpi.value_or(600);
+}
+
+void AbstractSheet::setHorizontalDpi(int dpi)
+{
+    Q_D(AbstractSheet);
+    if (dpi > 0) d->pageSetup.horizontalDpi = dpi;
+}
+
+int AbstractSheet::verticalDpi() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.verticalDpi.value_or(600);
+}
+
+void AbstractSheet::setVerticalDpi(int dpi)
+{
+    Q_D(AbstractSheet);
+    if (dpi > 0) d->pageSetup.verticalDpi = dpi;
+}
+
 void AbstractSheet::setBackgroundImage(const QImage &image)
 {
     Q_D(AbstractSheet);
@@ -575,9 +660,20 @@ SheetView AbstractSheet::view(int index) const
 SheetView &AbstractSheet::view(int index)
 {
     Q_D(AbstractSheet);
-    if (index < 0 || index >= d->sheetViews.size())
-        throw std::out_of_range("AbstractSheet::view(): view index is out of range.");
     return d->sheetViews[index];
+}
+
+SheetView AbstractSheet::lastView() const
+{
+    Q_D(const AbstractSheet);
+    return d->sheetViews.last();
+}
+
+SheetView &AbstractSheet::lastView()
+{
+    Q_D(AbstractSheet);
+    if(d->sheetViews.isEmpty()) d->sheetViews << SheetView();
+    return d->sheetViews.last();
 }
 
 int AbstractSheet::viewsCount() const

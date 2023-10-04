@@ -1110,11 +1110,20 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      */
     void setDefaultPageMargins();
 
-    // Page setup methods
+    /// Page setup methods
+
+    /**
+     * @brief returns the page setup and printing parameters of the sheet.
+     * @return a copy of PageSetup object.
+     */
     PageSetup pageSetup() const;
+    /**
+     * @brief returns the page setup and printing parameters of the sheet.
+     * @return reference to the PageSetup object.
+     */
     PageSetup &pageSetup();
     /**
-     * @brief sets the sheet's page parameters.
+     * @brief sets the sheet's page setup and printing parameters.
      * @param pageSetup page parameters as a PageSetup object.
      * @note To clear all page parameters and set them to their default values use ```sheet->setPageSetup(PageSetup());```
      */
@@ -1179,8 +1188,139 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     /**
      * @brief sets the sheet's paper orientation.
      * @param orientation PageSetup::Orientation value.
+     *
+     * If not set, PageSetup::Orientation::Default is assumed.
      */
     void setPageOrientation(PageSetup::Orientation orientation);
+    /**
+     * @brief returns the page number for first printed page.
+     * @return integer value starting from 1.
+     *
+     * The default value is 1.
+     */
+    int firstPageNumber() const;
+    /**
+     * @brief sets the page number for first printed page.
+     * @param number integer value starting from 1.
+     * @note This method also invokes `setUseFirstPageNumber(true);`
+     *
+     * If not set, 1 is assumed.
+     */
+    void setFirstPageNumber(int number);
+    /**
+     * @brief returns whether to use #firstPageNumber value for first page number,
+     * and do not auto number the pages.
+     * @return If true, then #firstPageNumber() value is used.
+     *
+     * The default value is false.
+     */
+    bool useFirstPageNumber() const;
+    /**
+     * @brief sets whether to use #firstPageNumber value for first page number,
+     * and do not auto number the pages.
+     * @param use If true, then #firstPageNumber() value is used.
+     *
+     * If not set, then false is assumed.
+     */
+    void setUseFirstPageNumber(bool use);
+    /**
+     * @brief returns whether to use the printer default parameters.
+     *
+     * Use the printer’s defaults settings for page setup values and don't use the
+     * default values of the file. Example: if dpi is not present or specified in
+     * the file, the application must not assume 600dpi as specified as a default
+     * and instead must let the printer specify the default dpi.
+     *
+     * If no value is specified, then true is assumed.
+     *
+     * @return If true, then the sheet's default parameters are ignored and printer
+     * parameters are used.
+     */
+    bool printerDefaultsUsed() const;
+    /**
+     * @brief sets whether to use the printer default parameters.
+     *
+     * Use the printer’s defaults settings for page setup values and don't use the
+     * default values of the file. Example: if dpi is not present or specified in
+     * the file, the application must not assume 600dpi as specified as a default
+     * and instead must let the printer specify the default dpi.
+     *
+     * If no value is specified, then true is assumed.
+     * @param value If true, then the sheet's default parameters are ignored and printer
+     * parameters are used.
+     */
+    void setPrinterDefaultsUsed(bool value);
+    /**
+     * @brief returns whether to print in black and white.
+     * @return If true, then the sheet is printed in black and white.
+     *
+     * The default value is false.
+     */
+    bool printBlackAndWhite() const;
+    /**
+     * @brief sets whether to print in black and white.
+     * @param value If true, then the sheet is printed in black and white.
+     *
+     * If not set, then false is assumed.
+     */
+    void setPrintBlackAndWhite(bool value);
+    /**
+     * @brief returns whether to print the page as a draft (i.e. without graphics).
+     * @return
+     *
+     * If no value is specified, then false is assumed.
+     */
+    bool printDraft() const;
+    /**
+     * @brief sets whether to print the page as a draft (i.e. without graphics).
+     * @param draft
+     *
+     * If no value is specified, then false is assumed.
+     */
+    void setPrintDraft(bool draft);
+    /**
+     * @brief returns the horizontal print resolution of the device.
+     * @return print resolution in DPI.
+     *
+     * The default value is 600.
+     */
+    int horizontalDpi() const;
+    /**
+     * @brief sets the horizontal print resolution of the device.
+     * @param dpi print resolution in DPI.
+     *
+     * If not set, then 600 is assumed.
+     */
+    void setHorizontalDpi(int dpi);
+    /**
+     * @brief returns the vertical print resolution of the device.
+     * @param dpi print resolution in DPI.
+     *
+     * The default value is 600.
+     */
+    int verticalDpi() const;
+    /**
+     * @brief sets the vertical print resolution of the device.
+     * @param dpi print resolution in DPI.
+     *
+     * If not set, then 600 is assumed.
+     */
+    void setVerticalDpi(int dpi);
+    /**
+     * @brief returns how many copies to print.
+     * @return
+     *
+     * The default value is 1.
+     */
+    int copies() const;
+    /**
+     * @brief sets how many copies to print.
+     * @param count
+     *
+     * If not set, 1 is assumed.
+     */
+    void setCopies(int count);
+
 
 
     //Sheet properties, common to both chartsheets and worksheets
@@ -1262,17 +1402,17 @@ To set the sheet VeryHidden use #setVisibility() method.*/
 
     /**
      * @brief returns the sheet protection parameters
-     * @return
+     * @return a copy of SheetProtection object.
      */
     SheetProtection sheetProtection() const;
     /**
      * @brief returns the sheet protection parameters.
-     * @return
+     * @return a reference to the SheetProtection object.
      */
     SheetProtection &sheetProtection();
     /**
      * @brief sets the sheet protection parameters.
-     * @param sheetProtection
+     * @param sheetProtection a SheetProtection object.
      */
     void setSheetProtection(const SheetProtection &sheetProtection);
     /**
@@ -1310,7 +1450,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      */
     void setDefaultSheetProtection();
     /**
-     * @brief deletes any sheet protection parameters that has been set, including the
+     * @brief deletes any sheet protection parameters that have been set, including the
      * default ones.
      */
     void removeSheetProtection();
@@ -1362,13 +1502,22 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @overload
      * @brief returns the sheet view with the (zero-based) @a index.
      * @param index non-negative index of the view. If the index is invalid,
-     * throws std::out_of_range exception.
+     * the behaviour is undefined.
      * @return reference to the sheet view with the (zero-based) @a index.
-     * @note The newly inserted view will point to the workbook view with
-     * id 0. See SheetView::workbookViewId.
-     *
      */
     SheetView &view(int index);
+    /**
+     * @brief returns the last added sheet view.
+     * @return A copy of SheetView, that can be invalid if no view was defined in the  sheet.
+     */
+    SheetView lastView() const;
+    /**
+     * @brief returns the last added sheet view.
+     * @return a reference to the SheetView object.
+     *
+     * In no view was defined in the sheet, this method creates and adds one.
+     */
+    SheetView &lastView();
     /**
      * @brief returns the count of sheet views defined in the worksheet.
      * @return

@@ -69,7 +69,8 @@ class WorksheetPrivate;
  *
  * The following methods manage sheet views:
  *
- * - AbstractSheet::view(int index) returns a specific view.
+ * - AbstractSheet::view(int index) returns the specific view.
+ * - AbstractSheet::lastView() returns the last added view.
  * - AbstractSheet::viewsCount() returns the count of views in the sheet.
  * - AbstractSheet::addView() adds a view.
  * - AbstractSheet::removeView(int index) removes the view.
@@ -85,7 +86,7 @@ class WorksheetPrivate;
  * - AbstractSheet::isSelected(), AbstractSheet::setSelected(bool select) manage the selection of the sheet tab.
  * - #isRulerVisible(), #setRulerVisible(bool visible) manage the ruler visibility.
  * - #isOutlineSymbolsVisible(), #setOutlineSymbolsVisible(bool visible) manage the outline symbols visibility.
- * - #isWhiteSpaceVisible(), #setWhiteSpaceVisible(bool visible) manage visibility of whitespaces in the sheet's cells.
+ * - #isPageMarginsVisible(), #setPageMarginsVisible(bool visible) manage visibility of the page layout margins.
  * - #isDefaultGridColorUsed(), #setDefaultGridColorUsed(bool value) manage using the default/custom grid lines color.
  * - #viewType(), #setViewType(SheetView::Type type) manage the type of the sheet view.
  * - #viewTopLeftCell(), #setViewTopLeftCell(const CellReference &ref) manage the reference to the view's top left cell.
@@ -96,8 +97,37 @@ class WorksheetPrivate;
  * The above-mentioned methods return the default values if the corresponding parameters were not set.
  * See SheetView and Selection documentation on the default values.
  *
- * # Sheet Printing Parameters
+ * # Sheet printing parameters and page setup parameters.
  *
+ * Both chartsheets and worksheets may have page setup parameters specified. See
+ * PageSetup class for the description of all parameters.
+ *
+ * You can access all page setup parameters via AbstractSheet::pageSetup() and
+ * AbstractSheet::setPageSetup() methods.
+ *
+ * These are parameters that are applicable to all sheets:
+ * - AbstractSheet::paperSize(), AbstractSheet::setPaperSize(), AbstractSheet::setPaperSizeMM(),
+ * AbstractSheet::setPaperSizeInches(), AbstractSheet::paperWidth(), AbstractSheet::setPaperWidth(),
+ * AbstractSheet::paperHeight(), AbstractSheet::setPaperHeight() manage paper size.
+ * - AbstractSheet::pageOrientation(), AbstractSheet::setPageOrientation() manage page orientation.
+ * - AbstractSheet::firstPageNumber(), AbstractSheet::setFirstPageNumber(),
+ * AbstractSheet::useFirstPageNumber(), AbstractSheet::setUseFirstPageNumber() manage
+ * the page number for first printed page.
+ * - AbstractSheet::printerDefaultsUsed(), AbstractSheet::setPrinterDefaultsUsed() manage the default parameters.
+ * AbstractSheet::printBlackAndWhite(), AbstractSheet::setPrintBlackAndWhite(),
+ * AbstractSheet::printDraft(), AbstractSheet::setPrintDraft(), AbstractSheet::horizontalDpi(),
+ * AbstractSheet::setHorizontalDpi(), AbstractSheet::verticalDpi(), AbstractSheet::setVerticalDpi() manage quality of printing.
+ * AbstractSheet::copies(), AbstractSheet::setCopies() manage how many copies to print.
+ *
+ * The following parameters are applicable only to worksheets:
+ * - #printScale(), #setPrintScale(), #fitToWidth(), #setFitToWidth(),
+ * #fitToHeight(), #setFitToHeight() manage the scale of the printed worksheet.
+ * - #pageOrder(), #setPageOrder() manage the order in which worksheet pages are printed.
+ * - #printErrors(), #setPrintErrors(), #printCellComments(), #setPrintCellComments()
+ * manage how to print additional cell info.
+ *
+ * All these methods return the default values if the corresponding parameters were not set.
+ * See PageSetup class documentation on the default values.
  *
  * # Rows and columns
  *
@@ -792,27 +822,117 @@ public:
      * left of Column A, and so on. Also, information in cells is displayed in
      * the Right to Left format.
      *
-     * If not set, the default value is false.
+     * If not set, false is assumed.
      */
     void setRightToLeft(bool enable);
-    bool isRulerVisible() const;//TODO: doc
-    void setRulerVisible(bool visible);//TODO: doc
-    bool isOutlineSymbolsVisible() const;//TODO: doc
-    void setOutlineSymbolsVisible(bool visible);//TODO: doc
-    bool isWhiteSpaceVisible() const;//TODO: doc
-    void setWhiteSpaceVisible(bool visible);//TODO: doc
-    bool isDefaultGridColorUsed() const;//TODO: doc
-    void setDefaultGridColorUsed(bool value);//TODO: doc
-    SheetView::Type viewType() const;//TODO: doc
-    void setViewType(SheetView::Type type);//TODO: doc
     /**
-     * @brief returns the location of the last added view's top left cell.
+     * @brief returns whether ruler is visible in the worksheet.
+     * @return If true, then the ruler is visible.
+     *
+     * The default value is false.
+     */
+    bool isRulerVisible() const;
+    /**
+     * @brief sets whether ruler is visible in the last added sheet view.
+     * @param visible If true, then the ruler is visible.
+     *
+     * If not set, false is assumed.
+     */
+    void setRulerVisible(bool visible);
+    /**
+     * @brief returns whether the outline symbols are visible in the last added sheet view.
+     * @return If true, then the outline symbols are visible.
+     *
+     * The default value is true.
+     */
+    bool isOutlineSymbolsVisible() const;
+    /**
+     * @brief sets whether the outline symbols are visible in the last added sheet view.
+     * @param visible If true, then the outline symbols are visible.
+     *
+     * If not set, true is assumed.
+     */
+    void setOutlineSymbolsVisible(bool visible);
+    /**
+     * @brief returns whether page layout view shall display margins.
+     *
+     * @return False means do not display left, right, top (header), and bottom (footer)
+     * margins (even when there is data in the header or footer).
+     *
+     * The default value is true.
+     */
+    bool isPageMarginsVisible() const;
+    /**
+     * @brief sets whether page layout view shall display margins.
+     * @param visible False means do not display left, right, top (header), and bottom (footer)
+     * margins (even when there is data in the header or footer).
+     *
+     * If not set, true is assumed.
+     */
+    void setPageMarginsVisible(bool visible);
+    /**
+     * @brief returns whether the application uses the default grid
+     * lines color (system dependent).
+     *
+     * If not set, the default value is true.
+     * @return If false, then #viewColorIndex() is used to set the grid color.
+     */
+    bool isDefaultGridColorUsed() const;
+    /**
+     * @brief sets whether the application uses the default grid
+     * lines color (system dependent).
+     * @param value If false, then #viewColorIndex() is used to set the grid color.
+     * If true, then overrides any color specified in #setViewColorIndex().
+     *
+     * If not set, true is assumed.
+     */
+    void setDefaultGridColorUsed(bool value);
+    /**
+     * @brief returns the type of the last added view.
+     * @return One of SheetView::Type enum values.
+     *
+     * The default value is SheetView::Type::Normal.
+     */
+    SheetView::Type viewType() const;
+    /**
+     * @brief sets the type of the last added view.
+     * @param type One of SheetView::Type enum values.
+     *
+     * If not set, SheetView::Type::Normal is assumed.
+     */
+    void setViewType(SheetView::Type type);
+    /**
+     * @brief returns the location of the last added view's top left visible cell.
      * @return Valid location if it was set, invalid one otherwise.
+     *
+     * The default value is invalid CellReference, that means A1 is used as the
+     * top left visible cell.
      */
     CellReference viewTopLeftCell() const;
-    void setViewTopLeftCell(const CellReference &ref);//TODO: doc
-    int viewColorIndex() const;//TODO: doc
-    void setViewColorIndex(int index);//TODO: doc
+    /**
+     * @brief sets the location of the last added view's top left visible cell.
+     * @param ref valid CellReference.
+     *
+     * If not set, invalid CellReference is assumed, that means A1 is used as the
+     * top left visible cell.
+     */
+    void setViewTopLeftCell(const CellReference &ref);
+    /**
+     * @brief returns the index to the color value for row/column text headings
+     * and gridlines.
+     * @return an 'index color value' (ICV) rather than rgb value.
+     *
+     * If not set, the default value is 64.
+     */
+    int viewColorIndex() const;
+    /**
+     * @brief sets the index to the color value for row/column text headings
+     * and gridlines.
+     * @param index an 'index color value' (ICV) rather than rgb value.
+     *
+     * If not set, 64 is assumed.
+     */
+    void setViewColorIndex(int index);
     /**
      * @brief returns the last defined sheet view's active cell.
      * @return copy of CellReference object.
@@ -820,12 +940,12 @@ public:
     CellReference activeCell() const;
     /**
      * @brief sets active cell to the last added sheet view.
-     * @param activeCell
+     * @param activeCell Valid CellReference object.
      */
     void setActiveCell(const CellReference &activeCell);
     /**
      * @brief returns a list of cell ranges selected in the last added sheet view.
-     * @return
+     * @return a list of cell ranges.
      */
     QList<CellRange> selectedRanges() const;
     /**
@@ -864,13 +984,14 @@ public:
     void setSelection(const Selection &selection);
 
 
-    // Print and page parameters
-
-    //TODO: add methods for print and page parameters
+    /// Print and page parameters valid for worksheets only. Rest of parameters see in AbstractSheet.
 
     /**
      * @brief sets the worksheet's print scale in percents.
      * @param scale value from 10 to 400. The value of 100 equals 100% scaling.
+     *
+     * If not set, value of 100 is assumed.
+     * @note If #fitToWidth() and/or #fitToHeight() are specified, #printScale() is ignored.
      */
     void setPrintScale(int scale);
     /**
@@ -881,14 +1002,74 @@ public:
     int printScale() const;
     /**
      * @brief returns the order of printing the worksheet pages.
-     * @return
+     * @return one of PageSetup::PageOrder enum values.
+     *
+     * The default value is PageSetup::PageOrder::DownThenOver.
      */
     PageSetup::PageOrder pageOrder() const;
     /**
      * @brief sets the order of printing the worksheet pages.
-     * @param pageOrder
+     * @param pageOrder one of PageSetup::PageOrder enum values.
+     *
+     * If not set, PageSetup::PageOrder::DownThenOver is assumed.
      */
     void setPageOrder(PageSetup::PageOrder pageOrder);
+    /**
+     * @brief returns the number of horizontal pages to fit on when printing.
+     * @return number of pages.
+     *
+     * The default value is 1.
+     */
+    int fitToWidth() const;
+    /**
+     * @brief sets the number of horizontal pages to fit on when printing.
+     * @param pages number of pages starting from 1.
+     *
+     * If not set, 1 is assumed.
+     */
+    void setFitToWidth(int pages);
+    /**
+     * @brief returns the number of vertical pages to fit on when printing.
+     * @return number of pages.
+     *
+     * The default value is 1.
+     */
+    int fitToHeight() const;
+    /**
+     * @brief sets the number of vertical pages to fit on when printing.
+     * @param pages number of pages starting from 1.
+     *
+     * If not set, 1 is assumed.
+     */
+    void setFitToHeight(int pages);
+    /**
+     * @brief returns how to display cells with errors when printing the worksheet.
+     * @return A PageSetup::PrintError enum value.
+     *
+     * The default value is PageSetup::PrintError::Displayed.
+     */
+    PageSetup::PrintError printErrors() const;
+    /**
+     * @brief sets how to display cells with errors when printing the worksheet.
+     * @param mode A PageSetup::PrintError enum value.
+     *
+     * If not set, PageSetup::PrintError::Displayed is assumed.
+     */
+    void setPrintErrors(PageSetup::PrintError mode);
+    /**
+     * @brief returns how cell comments shall be printed.
+     * @return
+     *
+     * The default value is PageSetup::CellComments::DoNotPrint.
+     */
+    PageSetup::CellComments printCellComments() const;
+    /**
+     * @brief sets how cell comments shall be printed.
+     * @param mode A PageSetup::CellComments enum value.
+     *
+     * If not set, PageSetup::CellComments::DoNotPrint is assumed.
+     */
+    void setPrintCellComments(PageSetup::CellComments mode);
 
 
     // Autofilter parameters
