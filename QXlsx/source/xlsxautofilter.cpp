@@ -12,9 +12,6 @@ struct AutoFilterColumn
     bool operator==(const AutoFilterColumn &other) const;
     bool isValid() const;
 
-    void setFilterTop10();
-    void setCriteria();
-
     void readFilters(QXmlStreamReader &reader);
     void readCustomFilters(QXmlStreamReader &reader);
 
@@ -34,8 +31,9 @@ struct SortParameters
     bool isValid() const;
 };
 
-struct AutoFilterPrivate : public QSharedData
+class AutoFilterPrivate : public QSharedData
 {
+public:
     AutoFilterPrivate();
     AutoFilterPrivate(const AutoFilterPrivate& other);
     ~AutoFilterPrivate();
@@ -119,22 +117,22 @@ void AutoFilter::setRange(const CellRange &range)
     d->range = range;
 }
 
-bool AutoFilter::filterButtonHidden(int column) const
+bool AutoFilter::showFilterButton(int column) const
 {
-    if (d) return d->columns.value(column).filterButtonHidden.value_or(false);
-    return false;
+    if (d) return !d->columns.value(column).filterButtonHidden.value_or(false);
+    return true;
 }
 
-void AutoFilter::setFilterButtonHidden(int column, bool hidden)
+void AutoFilter::setShowFilterButton(int column, bool show)
 {
     if (!d) d = new AutoFilterPrivate;
-    d->columns[column].filterButtonHidden = hidden;
+    d->columns[column].filterButtonHidden = !show;
 }
-void AutoFilter::setFilterButtonHidden(bool hidden)
+void AutoFilter::setShowFilterButton(bool show)
 {
     if (!d) d = new AutoFilterPrivate;
     for (int col = d->range.firstColumn(); col <= d->range.lastColumn(); ++col)
-        d->columns[col].filterButtonHidden = hidden;
+        d->columns[col].filterButtonHidden = !show;
 }
 
 bool AutoFilter::showFilterOptions(int column) const
@@ -154,14 +152,29 @@ void AutoFilter::setShowFilterOptions(bool show)
         d->columns[col].showFilterOptions = show;
 }
 
-void AutoFilter::setFilterByTopN(int column, double value, double filterBy, bool usePercents)
+void AutoFilter::setFilterByTopN(int column, double value, std::optional<double> filterBy, bool usePercents)
 {
-    //TODO
+    if (!d) d = new AutoFilterPrivate;
+    if (column < 0) return;
+    AutoFilterColumn c;
+    c.filter.type = Filter::Type::Top10;
+    c.filter.usePercents = usePercents;
+    c.filter.top10val = value;
+    c.filter.top10filterVal = filterBy;
+    d->columns.insert(column, c);
 }
 
-void AutoFilter::setFilterByBottomN(int column, double value, double filterBy, bool usePercents)
+void AutoFilter::setFilterByBottomN(int column, double value, std::optional<double> filterBy, bool usePercents)
 {
-    //TODO
+    if (!d) d = new AutoFilterPrivate;
+    if (column < 0) return;
+    AutoFilterColumn c;
+    c.filter.type = Filter::Type::Top10;
+    c.filter.usePercents = usePercents;
+    c.filter.top10val = value;
+    c.filter.top10filterVal = filterBy;
+    c.filter.top = false;
+    d->columns.insert(column, c);
 }
 
 void AutoFilter::setFilterByValues(int column, const QVariantList &values)
@@ -235,6 +248,13 @@ Filter &AutoFilter::filter(int column)
     if (!d) d = new AutoFilterPrivate;
     auto &col = d->columns[column];
     return col.filter;
+}
+
+void AutoFilter::setFilter(int column, const Filter &filter)
+{
+    if (!d) d = new AutoFilterPrivate;
+    auto &col = d->columns[column];
+    col.filter = filter;
 }
 
 void AutoFilter::write(QXmlStreamWriter &writer, const QString &name) const
@@ -389,6 +409,16 @@ void AutoFilterColumn::write(QXmlStreamWriter &writer, const QString &name, int 
             }
             break;
         }
+        case Filter::Type::Top10: {
+            if (filter.top10val.has_value()) {
+                writer.writeEmptyElement(QLatin1String("top10"));
+                writeAttribute(writer, QLatin1String("top"), filter.top);
+                writeAttribute(writer, QLatin1String("percent"), filter.usePercents);
+                writeAttribute(writer, QLatin1String("val"), filter.top10val);
+                writeAttribute(writer, QLatin1String("filterVal"), filter.top10filterVal);
+            }
+            break;
+        }
         default: break;
     }
 
@@ -407,13 +437,17 @@ void AutoFilterColumn::read(QXmlStreamReader &reader)
     while (!reader.atEnd()) {
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("filters")) {
                 filter.type = Filter::Type::Values;
                 readFilters(reader);
             }
             else if (reader.name() == QLatin1String("top10")) {
-                //TODO:
-                reader.skipCurrentElement();
+                filter.type = Filter::Type::Top10;
+                parseAttributeBool(a, QLatin1String("top"), filter.top);
+                parseAttributeBool(a, QLatin1String("percent"), filter.usePercents);
+                parseAttributeDouble(a, QLatin1String("val"), filter.top10val);
+                parseAttributeDouble(a, QLatin1String("filterVal"), filter.top10filterVal);
             }
             else if (reader.name() == QLatin1String("customFilters")) {
                 filter.type = Filter::Type::Custom;
@@ -421,7 +455,7 @@ void AutoFilterColumn::read(QXmlStreamReader &reader)
             }
             else if (reader.name() == QLatin1String("dynamicFilter")) {
                 filter.type = Filter::Type::Dynamic;
-                const auto &a = reader.attributes();
+
                 Filter::fromString(a.value(QLatin1String("type")).toString(), filter.dynamicType);
                 parseAttributeDouble(a, QLatin1String("val"), filter.val);
                 if (a.hasAttribute(QLatin1String("valIso"))) {
@@ -510,7 +544,9 @@ void AutoFilterColumn::readCustomFilters(QXmlStreamReader &reader)
 
 bool AutoFilterColumn::operator==(const AutoFilterColumn &other) const
 {
-    //TODO
+    if (filterButtonHidden != other.filterButtonHidden) return false;
+    if (showFilterOptions != other.showFilterOptions) return false;
+    if (filter != other.filter) return false;
     return true;
 }
 
@@ -522,6 +558,7 @@ bool AutoFilterColumn::isValid() const
         case Filter::Type::Values: return !filter.filters.isEmpty();
         case Filter::Type::Custom: return (filter.val1.isValid() || filter.val2.isValid());
         case Filter::Type::Dynamic: return (filter.dynamicType != Filter::DynamicFilterType::Invalid);
+        case Filter::Type::Top10: return filter.top10val.has_value();
         default:
             break;
     }
@@ -552,6 +589,34 @@ bool SortParameters::isValid() const
     return true;
 }
 
+bool Filter::operator==(const Filter &other) const
+{
+    if (type != other.type) return false;
+    if (filters != other.filters) return false;
+    if (val1 != other.val1) return false;
+    if (val2 != other.val2) return false;
+    if (op1 != other.op1) return false;
+    if (op2 != other.op2) return false;
+    if (op != other.op) return false;
+    if (dynamicType != other.dynamicType) return false;
+    if (maxDateTime != other.maxDateTime) return false;
+    if (dateTime != other.dateTime) return false;
+    if (val != other.val) return false;
+    if (top != other.top) return false;
+    if (usePercents != other.usePercents) return false;
+    if (top10val != other.top10val) return false;
+    if (top10filterVal != other.top10filterVal) return false;
 
+    //TODO: icon filter
+
+    //TODO: color filter
+
+    return true;
+}
+
+bool Filter::operator!=(const Filter &other) const
+{
+    return !operator==(other);
+}
 
 }

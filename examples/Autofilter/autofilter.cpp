@@ -50,7 +50,7 @@ int main()
         dt = now.addDays(i*2);
         sheet->write(i+7, 2, dt);
     }
-    sheet->autosizeColumnsWidth(1,2);
+    sheet->autosizeColumnsWidth();
     sheet->autofilter().setRange(QXlsx::CellRange(1,1,12,2));
     sheet->autofilter().setDynamicFilter(0, QXlsx::Filter::DynamicFilterType::LastQuarter);
     sheet->autofilter().setDynamicFilter(1, QXlsx::Filter::DynamicFilterType::LastWeek);

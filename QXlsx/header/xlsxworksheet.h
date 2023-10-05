@@ -152,6 +152,19 @@ class WorksheetPrivate;
  * # Data validation
  *
  *
+ *
+ * # Autofiltering
+ *
+ * If set, autofilter temporarily hides rows based on a filter criteria, which is
+ * applied column by column to a range of data in the worksheet.
+ *
+ * These methods help you to set up the autofiltering options for the worksheet:
+ *
+ * - #autofilter(), #setAutofilter(), #clearAutofilter().
+ *
+ * See AutoFilter class description on how to set up autofiltering. See also
+ * [Autofilter](examples/Autofilter/autofilter.cpp) example.
+ *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
 {
@@ -1125,8 +1138,28 @@ public:
 
     // Autofilter parameters
 
+    /**
+     * @brief returns the autofilter parameters.
+     * @return Reference to the AutoFilter class.
+     */
     AutoFilter &autofilter();
+    /**
+     * @brief returns the autofilter parameters.
+     * @return copy of the AutoFilter class.
+     */
+    AutoFilter autofilter() const;
+    /**
+     * @brief clears all autofilter parameters, effectively removing autofiltering
+     * from the sheet. Equivalent to `setAutofilter(Autofilter());`
+     */
     void clearAutofilter();
+    /**
+     * @brief sets the autofilter parameters.
+     * @param autofilter the AutoFilter object.
+     *
+     * If @a autofilter is invalid, setting it is equivalent to `clearAutofilter();`.
+     */
+    void setAutofilter(const AutoFilter &autofilter);
 
 private:
     QMap<int, double> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);

@@ -549,10 +549,22 @@ AutoFilter &Worksheet::autofilter()
     return d->autofilter;
 }
 
+AutoFilter Worksheet::autofilter() const
+{
+    Q_D(const Worksheet);
+    return d->autofilter;
+}
+
 void Worksheet::clearAutofilter()
 {
     Q_D(Worksheet);
     d->autofilter = {};
+}
+
+void Worksheet::setAutofilter(const AutoFilter &autofilter)
+{
+    Q_D(Worksheet);
+    d->autofilter = autofilter;
 }
 
 bool Worksheet::write(int row, int column, const QVariant &value, const Format &format)

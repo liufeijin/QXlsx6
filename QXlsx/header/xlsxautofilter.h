@@ -87,10 +87,12 @@ struct QXLSX_EXPORT Filter
     };
 
     bool operator==(const Filter &other) const;
+    bool operator!=(const Filter &other) const;
 
     Type type = Type::Invalid;
 
-    QList<QVariant> filters; //filter by values
+    //filter by values
+    QList<QVariant> filters;
 
     //custom filters
     QVariant val1;
@@ -141,6 +143,13 @@ struct QXLSX_EXPORT Filter
         {DynamicFilterType::M11, "m11"},
         {DynamicFilterType::M12, "m12"},
     });
+
+    //top 10 filters
+    std::optional<bool> top; //default = true;
+    std::optional<bool> usePercents; //default = false;
+    std::optional<double> top10val;
+    std::optional<double> top10filterVal;
+
 };
 
 
@@ -153,8 +162,14 @@ class AutoFilterPrivate;
  * applied column by column to a table of data in the worksheet.
  *
  * Autofilter is applied to a range. See #setRange() and #range().
- * You can set filters to columns within #range() with #setFilter().
+ * You can set filters to columns within #range() with #setFilter(). Or you can
+ * use specialized methods like #setFilterByValues(), #setPredicate() etc.
+ *
  * To remove filter use #removeFilter(). To get current filter use #filter().
+ * To check if filtering was set for specific column use `filterType(column) != Filter::Type::Invalid`.
+ *
+ * #setShowFilterButton() and #setShowFilterOptions() let you to change the visibility
+ * of UI elements in the column header.
  *
  * This class is _implicitly shareable_.
  */
@@ -163,6 +178,7 @@ class QXLSX_EXPORT AutoFilter
 public:
     /**
      * @brief creates invalid autofilter.
+     * @note
      */
     AutoFilter();
     /**
@@ -185,6 +201,10 @@ public:
 
     /**
      * @brief returns the cell range the autofilter is applied to.
+     *
+     * The range defines columns that will get the autofilter options and rows
+     * that will be subjected to autofiltering.
+     *
      * @return the cell range the filter is applied to. Can be invalid, this means that
      * autofilter is applied to the first column starting from the first row,
      * and all filters except for the first one will be ignored.
@@ -192,24 +212,90 @@ public:
     CellRange range() const;
     /**
      * @brief sets the cell range the autofilter is applied to.
+     *
+     * The range defines columns that will get the autofilter options and rows
+     * that will be subjected to autofiltering.
+     *
      * @param range the cell range the filter is applied to. Can be invalid, this means that
      * autofilter is applied to the first column starting from the first row.
      * @note Column headers should also be included into the range, as they will get
      * autofilter option buttons.
      */
     void setRange(const CellRange &range);
-
-    bool filterButtonHidden(int column) const; //default = false
-    void setFilterButtonHidden(int column, bool hidden);
-    void setFilterButtonHidden(bool hidden);
-
-    bool showFilterOptions(int column) const; //default = true
+    /**
+     * @brief returns whether to show the filtering button in the column header.
+     * @param column zero-based column index in the autofilter #range().
+     * @return true if filtering button is shown.
+     *
+     * The defualt value is true.
+     */
+    bool showFilterButton(int column) const; //default = true
+    /**
+     * @brief sets whether to show the filtering button in the column header.
+     * @param column zero-based column index in the autofilter #range().
+     * @param show If true, then filtering button is shown.
+     *
+     * If not set, true is assumed.
+     */
+    void setShowFilterButton(int column, bool show);
+    /**
+     * @overload
+     * @brief sets whether to show the filtering button in the headers of all columns
+     * in the #range().
+     * @param show If true, then filtering button is shown.
+     *
+     * If not set, true is assumed.
+     */
+    void setShowFilterButton(bool show);
+    /**
+     * @brief returns whether to show filtering options in the UI element.
+     * @param column zero-based column index in the autofilter #range().
+     * @return true if filtering options are shown.
+     *
+     * The default value is true.
+     */
+    bool showFilterOptions(int column) const;
+    /**
+     * @brief sets whether to show filtering options in the UI element.
+     * @param column zero-based column index in the autofilter #range().
+     * @param show If true, then filtering options are shown.
+     *
+     * If not set, true is assumed.
+     */
     void setShowFilterOptions(int column, bool show);
+    /**
+     * @brief sets whether to show filtering options in the UI element of all columns
+     * in the #range().
+     * @param show If true, then filtering options are shown.
+     *
+     * If not set, true is assumed.
+     */
     void setShowFilterOptions(bool show);
 
-
-    void setFilterByTopN(int column, double value, double filterBy, bool usePercents = false); //0-based index in range
-    void setFilterByBottomN(int column, double value, double filterBy, bool usePercents = false); //0-based index in range
+    /**
+     * @brief sets @a column filtering by top N (percent or number of items).
+     * @param column zero-based column index in the autofilter #range().
+     * @param value If @a usePercents is true, sets N persents to filter by. If
+     * @a usePercents is false, sets N items to filter by.
+     * @param filterBy The actual cell value in the #range() which is used to
+     * perform the comparison for this filter. Allows to narrow down the filtering criterion.
+     * @param usePercents If true, then filters by top @a value percents. If false,
+     * then filters by top @a value items.
+     */
+    void setFilterByTopN(int column, double value, std::optional<double> filterBy = std::nullopt,
+                         bool usePercents = false);
+    /**
+     * @brief sets @a column filtering by bottom N (percent or number of items).
+     * @param column zero-based column index in the autofilter #range().
+     * @param value If @a usePercents is true, sets N persents to filter by. If
+     * @a usePercents is false, sets N items to filter by.
+     * @param filterBy The actual cell value in the #range() which is used to
+     * perform the comparison for this filter. Allows to narrow down the filtering criterion.
+     * @param usePercents If true, then filters by bottom @a value percents.
+     * If false, then filters by bottom @a value items.
+     */
+    void setFilterByBottomN(int column, double value, std::optional<double> filterBy = std::nullopt,
+                            bool usePercents = false);
 
     /**
      * @brief sets @a column filtering by @a values.
@@ -290,11 +376,18 @@ public:
      * @return Reference to the column filter.
      * @note If no filter were set, inserts an invalid filter into @a column.
      * @note This is a low-level method. It is recommended to use hi-level methods
-     * such as #setFilterByTopN(), #setFilterByBottomN(), #setFilterByValues(), #removeFilter()
+     * such as #setFilterByTopN(), #setFilterByBottomN(), #setFilterByValues()
      * etc.
      */
     Filter &filter(int column);
-
+    /**
+     * @brief sets filter for @a column.
+     * @param column zero-based index of a column in the autofilter #range().
+     * @param filter Filter object.
+     * @note This is a low-level method. It is easier to use the specialized methods
+     * like #setPredicate(), #setFilterByValues() etc.
+     */
+    void setFilter(int column, const Filter &filter);
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);
