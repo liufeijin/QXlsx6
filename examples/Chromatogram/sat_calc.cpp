@@ -138,7 +138,7 @@ void sat_calc::generate_report()
     chrom_data_array += ":B" + QString::number(output_line_count - 1);
 
     QXlsx::Chart * Crom = sheet->insertChart( 3, 5, QSize(600, 500) );
-    Crom->setType( QXlsx::Chart::Type::Scatter );
+    Crom->addSubchart( QXlsx::Chart::Type::Scatter );
     Crom->addSeries( QXlsx::CellRange(chrom_data_array) );
     Crom->axis(1)->setTitle( QString("left title") );
     Crom->axis(0)->setTitle( QString("bottom title") );

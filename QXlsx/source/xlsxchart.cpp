@@ -23,124 +23,6 @@
 
 namespace QXlsx {
 
-    class CT_XXXChart
-    {
-    public:
-        CT_XXXChart(Chart::Type type);
-
-        Chart::Type type = Chart::Type::None;
-
-        /* Below are CT_XXXChart properties */
-
-        //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
-        //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
-        QList<Series> seriesList;
-        //+area, +area3d, +line, +line3d
-        std::optional<Chart::Grouping> grouping;
-        //+bar, +bar3d
-        std::optional<Chart::BarGrouping> barGrouping;
-
-        //+line, +line3d, +scatter, +radar, +bar, +bar3d, +area, +area3d,
-        //+pie, +pie3d, +doughnut, +ofpie, +bubble
-        std::optional<bool> varyColors;
-
-        //+line, +line3d, +stock, +scatter, +radar, +bar, +bar3d, +area, +area3d,
-        //+pie, +pie3d, +doughnut, +ofpie, +bubble
-        Labels labels;
-
-        //+line, +line3d, +stock, +area, +area3d,
-        std::optional<ShapeFormat> dropLines; //drop lines can be default
-
-        //+line, +stock,
-        std::optional<ShapeFormat> hiLowLines; //can be default
-
-        //+line, +stock
-        UpDownBar upDownBars; //optional
-
-        //+line
-        std::optional<bool> marker;
-        std::optional<bool> smooth;
-
-        //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
-        //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
-        QList<int> axesIds;
-
-        //+line3d, +bar3d, +area3d
-        std::optional<int> gapDepth;
-
-        //+scatter
-        Chart::ScatterStyle scatterStyle = Chart::ScatterStyle::Marker;
-
-        //+radar
-        Chart::RadarStyle radarStyle = Chart::RadarStyle::Standard;
-
-        //+bar, +bar3d
-        Chart::BarDirection barDirection = Chart::BarDirection::Column;
-
-        //+bar, +bar3d, +ofpie,
-        std::optional<int> gapWidth;
-
-        //+bar
-        std::optional<int> overlap; //in %
-
-        //+bar, +ofpie
-        QList<ShapeFormat> serLines;
-
-        //+bar3D
-        std::optional<Series::BarShape> barShape;
-
-        //+pie, +doughnut
-        std::optional<int> firstSliceAng; // [0..360] ? why not Angle?
-
-        //+doughnut
-        std::optional<int> holeSize; // in %, 1..90
-
-        //+ofpie
-        Chart::OfPieType ofPieType = Chart::OfPieType::Pie;
-        std::optional<Chart::SplitType> splitType;
-        std::optional<double> splitPos;
-        QList<int> customSplit;
-        std::optional<int> secondPieSize; // in %, 5..200
-
-        //+bubble
-        std::optional<bool> bubble3D;
-        std::optional<bool> showNegBubbles;
-        std::optional<int> bubbleScale; // in % [0..300]
-        std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
-
-        //+surface, +surface3d
-        std::optional<bool> wireframe;
-        QMap<int, ShapeFormat> bandFormats;
-
-        Series *addSeries(int index);
-        bool read(QXmlStreamReader &reader);
-        void write(QXmlStreamWriter &writer) const;
-        friend class Chart;
-    private:
-        void loadAreaChart(QXmlStreamReader &reader);
-        void loadSurfaceChart(QXmlStreamReader &reader);
-        void loadBubbleChart(QXmlStreamReader &reader);
-        void loadPieChart(QXmlStreamReader &reader);
-        void loadLineChart(QXmlStreamReader &reader);
-        void loadBarChart(QXmlStreamReader &reader);
-        void loadScatterChart(QXmlStreamReader &reader);
-        void loadStockChart(QXmlStreamReader &reader);
-        void loadRadarChart(QXmlStreamReader &reader);
-        void readBandFormats(QXmlStreamReader &reader);
-        void readDropLines(QXmlStreamReader &reader, ShapeFormat &shape);
-
-        void saveAreaChart(QXmlStreamWriter &writer) const;
-        void saveSurfaceChart(QXmlStreamWriter &writer) const;
-        void saveBubbleChart(QXmlStreamWriter &writer) const;
-        void savePieChart(QXmlStreamWriter &writer) const;
-        void saveLineChart(QXmlStreamWriter &writer) const;
-        void saveBarChart(QXmlStreamWriter &writer) const;
-        void saveScatterChart(QXmlStreamWriter &writer) const;
-        void saveStockChart(QXmlStreamWriter &writer) const;
-        void saveRadarChart(QXmlStreamWriter &writer) const;
-        void saveBandFormats(QXmlStreamWriter &writer) const;
-    };
-
     class ChartPrivate : public AbstractOOXmlFilePrivate
     {
         Q_DECLARE_PUBLIC(Chart)
@@ -149,7 +31,6 @@ namespace QXlsx {
         ChartPrivate(Chart *q, Chart::CreateFlag flag);
         ~ChartPrivate();
         ChartPrivate &operator=(const ChartPrivate &other);
-
     public:
         bool loadXmlChart(QXmlStreamReader &reader);
         bool loadXmlPlotArea(QXmlStreamReader &reader);
@@ -157,10 +38,7 @@ namespace QXlsx {
         void addAxis(const Axis &axis);
     public:
         void saveXmlChart(QXmlStreamWriter &writer) const;
-
     public:
-        Chart::Type chartType;
-
         ///CT_ChartSpace properties
         std::optional<bool> date1904;
         QString language;
@@ -192,7 +70,7 @@ namespace QXlsx {
 
         ///CT_PlotArea properties
         Layout layout;
-        QList<CT_XXXChart> subcharts;
+        QList<SubChart> subcharts;
         QList<Axis> axisList;
         std::optional<DataTable> dTable;
         ShapeFormat plotAreaShape;
@@ -204,7 +82,7 @@ namespace QXlsx {
     };
 
 ChartPrivate::ChartPrivate(Chart *q, Chart::CreateFlag flag)
-    : AbstractOOXmlFilePrivate(q, flag), chartType(Chart::Type::None)
+    : AbstractOOXmlFilePrivate(q, flag)
 {
 
 }
@@ -215,7 +93,6 @@ ChartPrivate::~ChartPrivate()
 
 ChartPrivate &ChartPrivate::operator=(const ChartPrivate &other)
 {
-    chartType = other.chartType;
     date1904 = other.date1904;
     language = other.language;
     roundedCorners = other.roundedCorners;
@@ -274,17 +151,11 @@ Chart::~Chart()
 {
 }
 
-Chart::Type Chart::type() const
-{
-    Q_D(const Chart);
-
-    return d->chartType;
-}
-
 void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
                       bool firstRowContainsHeaders,
                       bool firstColumnContainsCategoryData,
-                      bool columnBased)
+                      bool columnBased,
+                      int subchart)
 {
     Q_D(Chart);
 
@@ -300,7 +171,8 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
     sheetName = escapeSheetName(sheetName);
 
     if (range.columnCount() == 1 || range.rowCount() == 1) {
-        auto series = addSeries();
+        auto series = addSeries(subchart);
+        if (!series) return;
         series->setValueData(sheetName + QLatin1String("!") + range.toString(true, true));
     }
     else if (columnBased) {
@@ -321,7 +193,7 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             firstDataColumn += 1;
         for (int col = firstDataColumn; col <= range.lastColumn(); ++col) {
             CellRange subRange(firstDataRow, col, range.lastRow(), col);
-            auto series = addSeries();
+            auto series = addSeries(subchart);
             if (firstColumnContainsCategoryData)
                 series->setCategoryData(categoryReference);
             series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
@@ -346,7 +218,8 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             firstDataRow += 1;
         for (int row = firstDataRow; row <= range.lastRow(); ++row) {
             CellRange subRange(row, firstDataColumn, row, range.lastColumn());
-            auto series = addSeries();
+            auto series = addSeries(subchart);
+            if (!series) return;
             if (firstColumnContainsCategoryData)
                 series->setCategoryData(categoryReference);
             series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
@@ -360,7 +233,7 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
 }
 
 QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valRange,
-                                AbstractSheet *sheet, bool keyRangeIncludesHeader)
+                                AbstractSheet *sheet, bool keyRangeIncludesHeader, int subchart)
 {
     Q_D(Chart);
 
@@ -380,7 +253,8 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
     if (!(valRange.columnCount() == 1 || valRange.rowCount() == 1))
         return {};
 
-    auto series = addSeries();
+    auto series = addSeries(subchart);
+    if (!series) return nullptr;
 
     CellRange subRange = keyRange;
     if (keyRange.columnCount() == 1) {
@@ -410,14 +284,13 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
     return series;
 }
 
-Series *Chart::addSeries()
+Series *Chart::addSeries(int subchart)
 {
     Q_D(Chart);
 
-    //create default axes
-    addDefaultAxes();
+    if (subchart < 0 || subchart >= d->subcharts.size()) return nullptr;
 
-    return d->subcharts.last().addSeries(seriesCount());
+    return d->subcharts[subchart].addSeries(seriesCount());
 }
 
 Series* Chart::series(int index)
@@ -510,17 +383,7 @@ bool Chart::removeSeries(const Series &series)
 void Chart::removeAllSeries()
 {
     Q_D(Chart);
-
-    d->subcharts.clear();
-
-    addDefaultAxes();
-}
-
-void Chart::setType(Type type)
-{
-    Q_D(Chart);
-
-    d->chartType = type;
+    for (auto &sub: d->subcharts) sub.seriesList.clear();
 }
 
 void Chart::setChartLineFormat(const LineFormat &format)
@@ -621,6 +484,15 @@ QList<Axis> Chart::axes() const
     return d->axisList;
 }
 
+QList<int> Chart::axesIDs() const
+{
+    Q_D(const Chart);
+    QList<int> result;
+
+    for (const auto &axis: qAsConst(d->axisList)) result << axis.id();
+    return result;
+}
+
 Axis *Chart::axis(Axis::Type type)
 {
     Q_D(Chart);
@@ -655,7 +527,7 @@ bool Chart::removeAxis(int axisID)
 
     //search for the axis in series
 
-    auto ser = std::find_if(d->subcharts.begin(), d->subcharts.end(), [axisID](const CT_XXXChart &c){
+    auto ser = std::find_if(d->subcharts.begin(), d->subcharts.end(), [axisID](const SubChart &c){
         return c.axesIds.contains(axisID);
     });
     if (ser != d->subcharts.end()) return false;
@@ -775,18 +647,6 @@ void Chart::setShowDataLabelsOverMaximum(bool value)
     d->showDLblsOverMax = value;
 }
 
-void Chart::setSeriesAxesIDs(const QList<int> &axesIds)
-{
-    Q_D(Chart);
-
-    if (d->subcharts.isEmpty()) return;
-
-    if (d->subcharts.size() > 1)
-        qDebug() << "[warning] The chart has more than one subchart. The axesIDs "
-                    "will be set to the last subchart.";
-    d->subcharts.last().axesIds = axesIds;
-}
-
 void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
 {
     Q_D(Chart);
@@ -794,7 +654,7 @@ void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
     if (d->subcharts.isEmpty()) return;
 
     //first we need to find a subchart with the exact axes
-    CT_XXXChart *subchart = nullptr;
+    SubChart *subchart = nullptr;
     for (auto &sub: d->subcharts) {
         if (sub.axesIds == axesIds) {
             subchart = &sub;
@@ -803,7 +663,7 @@ void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
     }
 
     //second we need to find the series in subcharts
-    CT_XXXChart *oldSubchart = nullptr;
+    SubChart *oldSubchart = nullptr;
     for (auto &sub: d->subcharts) {
         if (sub.seriesList.contains(*series)) {
             oldSubchart = &sub;
@@ -819,7 +679,7 @@ void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
 
     //create new subchart if necessary
     if (!subchart) {
-        CT_XXXChart sub(d->chartType);
+        SubChart sub(oldSubchart->type);
         d->subcharts << sub;
         sub.axesIds = axesIds;
         subchart = &sub;
@@ -828,15 +688,6 @@ void Chart::setSeriesAxesIDs(Series *series, const QList<int> &axesIds)
     //move the series from the old subchart to the new one
     subchart->seriesList << *series;
     oldSubchart->seriesList.removeOne(*series);
-}
-
-void Chart::setSeriesDefaultAxes()
-{
-    Q_D(Chart);
-
-    QList<int> axesIds;
-    for (const auto &ax: qAsConst(d->axisList)) axesIds << ax.id();
-    setSeriesAxesIDs(axesIds);
 }
 
 void Chart::moveSeries(int oldOrder, int newOrder)
@@ -848,75 +699,118 @@ void Chart::moveSeries(int oldOrder, int newOrder)
     s2->setOrder(oldOrder);
 }
 
-QList<int> Chart::addDefaultAxes()
+QList<Axis> Chart::addDefaultAxes(Type type)
+{
+    QList<Axis> result;
+    switch (type) {
+    case Type::Pie:
+    case Type::Pie3D:
+    case Type::Doughnut:
+    case Type::OfPie:
+    case Type::None: break;
+    case Type::Line:
+    case Type::Area:
+    case Type::Bubble:
+    case Type::Bar:
+    case Type::Radar:
+    case Type::Stock: {
+        auto &ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
+        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        ax1.setCrossAxis(&ax2);
+        ax2.setCrossAxis(&ax1);
+        result << ax1;
+        result << ax2;
+        break;
+    }
+    case Type::Scatter: {
+        auto &ax1 = addAxis(Axis::Type::Value, Axis::Position::Bottom);
+        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        ax1.setCrossAxis(&ax2);
+        ax2.setCrossAxis(&ax1);
+        result << ax1;
+        result << ax2;
+        break;
+    }
+    case Type::Area3D:
+    case Type::Line3D:
+    case Type::Bar3D:
+    case Type::Surface:
+    case Type::Surface3D: {
+        auto &ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
+        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        auto &ax3 = addAxis(Axis::Type::Series, Axis::Position::Bottom);
+        ax1.setCrossAxis(&ax2);
+        ax2.setCrossAxis(&ax1);
+        ax3.setCrossAxis(&ax2);
+        result << ax1;
+        result << ax2;
+        result << ax3;
+        break;
+    }
+    }
+    return result;
+}
+
+void Chart::addSubchart(Type type, QList<int> axesIDs)
+{
+    Q_D(Chart);
+    SubChart sub(type);
+    if (axesIDs.isEmpty()) {
+        auto axes = addDefaultAxes(type);
+        for (auto &ax: axes) axesIDs << ax.id();
+    }
+    sub.axesIds = axesIDs;
+    d->subcharts << sub;
+}
+
+void Chart::setSubchartAxes(int subchartIndex, const QList<int> &axesIDs)
+{
+    Q_D(Chart);
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].axesIds = axesIDs;
+}
+
+QList<int> Chart::subchartAxes(int subchartIndex) const
+{
+    Q_D(const Chart);
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].axesIds;
+}
+
+bool Chart::subchartHasSeries(int subchartIndex) const
+{
+    Q_D(const Chart);
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return false;
+    return !d->subcharts[subchartIndex].seriesList.isEmpty();
+}
+
+bool Chart::removeSubchart(int subchartIndex)
 {
     Q_D(Chart);
 
-    QList<int> ids;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return false;
+    d->subcharts.removeAt(subchartIndex);
+    return true;
+}
 
-    switch (d->chartType) {
-        case Type::Pie:
-        case Type::Pie3D:
-        case Type::Doughnut:
-        case Type::OfPie:
-        case Type::None: break;
-        case Type::Line:
-        case Type::Area:
-        case Type::Bubble:
-        case Type::Bar:
-        case Type::Radar:
-        case Type::Stock: {
-            auto ax1 = axis(Axis::Type::Category, Axis::Position::Bottom);
-            if (!ax1) ax1 = &addAxis(Axis::Type::Category, Axis::Position::Bottom);
-            ids << ax1->id();
-            auto ax2 = axis(Axis::Type::Value, Axis::Position::Left);
-            if (!ax2) ax2 = &addAxis(Axis::Type::Value, Axis::Position::Left);
-            ids << ax2->id();
-            ax1->setCrossAxis(ax2);
-            ax2->setCrossAxis(ax1);
-            break;
-        }
-        case Type::Scatter: {
-            auto ax1 = axis(Axis::Type::Value, Axis::Position::Bottom);
-            if (!ax1) ax1 = &addAxis(Axis::Type::Value, Axis::Position::Bottom);
-            ids << ax1->id();
-            auto ax2 = axis(Axis::Type::Value, Axis::Position::Left);
-            if (!ax2) ax2 = &addAxis(Axis::Type::Value, Axis::Position::Left);
-            ids << ax2->id();
-            ax1->setCrossAxis(ax2);
-            ax2->setCrossAxis(ax1);
-            break;
-        }
-        case Type::Area3D:
-        case Type::Line3D:
-        case Type::Bar3D:
-        case Type::Surface:
-        case Type::Surface3D: {
-            auto ax1 = axis(Axis::Type::Category, Axis::Position::Bottom);
-            if (!ax1) ax1 = &addAxis(Axis::Type::Category, Axis::Position::Bottom);
-            ids << ax1->id();
-            auto ax2 = axis(Axis::Type::Value, Axis::Position::Left);
-            if (!ax2) ax2 = &addAxis(Axis::Type::Value, Axis::Position::Left);
-            ids << ax2->id();
-            auto ax3 = axis(Axis::Type::Series, Axis::Position::Bottom);
-            if (!ax3) ax3 = &addAxis(Axis::Type::Series, Axis::Position::Bottom);
-            ids << ax3->id();
-            ax1->setCrossAxis(ax2);
-            ax2->setCrossAxis(ax1);
-            ax3->setCrossAxis(ax2);
-            break;
-        }
-    }
+int Chart::subchartsCount() const
+{
+    Q_D(const Chart);
+    return d->subcharts.size();
+}
 
-    if (d->subcharts.isEmpty() || d->subcharts.last().type != d->chartType) {
-        CT_XXXChart sub(d->chartType);
-        d->subcharts << sub;
-    }
+Chart::Type Chart::subchartType(int subchartIndex) const
+{
+    Q_D(const Chart);
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return Chart::Type::None;
+    return d->subcharts[subchartIndex].type;
+}
 
-    if (d->subcharts.last().axesIds.size() < ids.size())
-        d->subcharts.last().axesIds = ids;
-
-    return ids;
+void Chart::setSubchartType(int subchartIndex, Type type)
+{
+    Q_D(Chart);
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].type = type;
 }
 
 void Chart::setDefaultLegend()
@@ -1148,11 +1042,11 @@ bool ChartPrivate::loadXmlPlotArea(QXmlStreamReader &reader)
                 layout.read(reader);
             }
             else if (reader.name().endsWith(QLatin1String("Chart"))) {
-                CT_XXXChart c(chartType);
+                SubChart c(Chart::Type::None);
                 if (c.read(reader))
                     subcharts << c;
                 else {
-                    qDebug() << "[debug] failed to load chart";
+                    qDebug() << "[debug] failed to load subchart";
                     return false;
                 }
             }
@@ -1211,7 +1105,7 @@ void ChartPrivate::addAxis(const Axis &axis)
     axisList.last().setId(axisId);
 }
 
-void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
+void SubChart::loadAreaChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("grouping")) {
@@ -1238,7 +1132,7 @@ void CT_XXXChart::loadAreaChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadSurfaceChart(QXmlStreamReader &reader)
+void SubChart::loadSurfaceChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("wireframe"))
@@ -1254,7 +1148,7 @@ void CT_XXXChart::loadSurfaceChart(QXmlStreamReader &reader)
     else  reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadBubbleChart(QXmlStreamReader &reader)
+void SubChart::loadBubbleChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("varyColors"))
@@ -1281,7 +1175,7 @@ void CT_XXXChart::loadBubbleChart(QXmlStreamReader &reader)
     else  reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadPieChart(QXmlStreamReader &reader)
+void SubChart::loadPieChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("varyColors"))
@@ -1329,7 +1223,7 @@ void CT_XXXChart::loadPieChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
+void SubChart::loadLineChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("grouping")) {
@@ -1367,7 +1261,7 @@ void CT_XXXChart::loadLineChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadBarChart(QXmlStreamReader &reader)
+void SubChart::loadBarChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("grouping")) {
@@ -1410,7 +1304,7 @@ void CT_XXXChart::loadBarChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadScatterChart(QXmlStreamReader &reader)
+void SubChart::loadScatterChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("scatterStyle")) {
@@ -1430,7 +1324,7 @@ void CT_XXXChart::loadScatterChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
+void SubChart::loadStockChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("ser")) {
@@ -1456,7 +1350,7 @@ void CT_XXXChart::loadStockChart(QXmlStreamReader &reader)
     else reader.skipCurrentElement();
 }
 
-void CT_XXXChart::loadRadarChart(QXmlStreamReader &reader)
+void SubChart::loadRadarChart(QXmlStreamReader &reader)
 {
     const auto &a = reader.attributes();
     if (reader.name() == QLatin1String("radarStyle")) {
@@ -1515,7 +1409,7 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     writer.writeEndElement(); // c:chart
 }
 
-void CT_XXXChart::readBandFormats(QXmlStreamReader &reader)
+void SubChart::readBandFormats(QXmlStreamReader &reader)
 {
     reader.readNextStartElement();
 
@@ -1554,7 +1448,7 @@ void CT_XXXChart::readBandFormats(QXmlStreamReader &reader)
     }
 }
 
-void CT_XXXChart::readDropLines(QXmlStreamReader &reader, ShapeFormat &shape)
+void SubChart::readDropLines(QXmlStreamReader &reader, ShapeFormat &shape)
 {
     const auto &name = reader.name();
     while (!reader.atEnd()) {
@@ -1569,7 +1463,7 @@ void CT_XXXChart::readDropLines(QXmlStreamReader &reader, ShapeFormat &shape)
     }
 }
 
-void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
+void SubChart::saveAreaChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Area3D ? QLatin1String("c:area3DChart") : QLatin1String("c:areaChart"));
     if (grouping.has_value())
@@ -1591,7 +1485,7 @@ void CT_XXXChart::saveAreaChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveSurfaceChart(QXmlStreamWriter &writer) const
+void SubChart::saveSurfaceChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Surface3D ? QLatin1String("c:surface3DChart") : QLatin1String("c:surfaceChart"));
     writeEmptyElement(writer, QLatin1String("c:wireframe"), wireframe);
@@ -1601,7 +1495,7 @@ void CT_XXXChart::saveSurfaceChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveBubbleChart(QXmlStreamWriter &writer) const
+void SubChart::saveBubbleChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:bubbleChart"));
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
@@ -1622,7 +1516,7 @@ void CT_XXXChart::saveBubbleChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
+void SubChart::savePieChart(QXmlStreamWriter &writer) const
 {
     switch (type) {
         case Chart::Type::Pie: writer.writeStartElement(QLatin1String("c:pieChart")); break;
@@ -1673,7 +1567,7 @@ void CT_XXXChart::savePieChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
+void SubChart::saveLineChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(type == Chart::Type::Line3D ? QLatin1String("c:line3DChart") : QLatin1String("c:lineChart"));
     if (grouping.has_value())
@@ -1709,7 +1603,7 @@ void CT_XXXChart::saveLineChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
+void SubChart::saveBarChart(QXmlStreamWriter &writer) const
 {
     switch (type) {
         case Chart::Type::Bar: writer.writeStartElement(QLatin1String("c:barChart")); break;
@@ -1750,7 +1644,7 @@ void CT_XXXChart::saveBarChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveScatterChart(QXmlStreamWriter &writer) const
+void SubChart::saveScatterChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:scatterChart"));
 
@@ -1763,7 +1657,7 @@ void CT_XXXChart::saveScatterChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
+void SubChart::saveStockChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:stockChart"));
 
@@ -1791,7 +1685,7 @@ void CT_XXXChart::saveStockChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveRadarChart(QXmlStreamWriter &writer) const
+void SubChart::saveRadarChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QLatin1String("c:radarChart"));
 
@@ -1804,7 +1698,7 @@ void CT_XXXChart::saveRadarChart(QXmlStreamWriter &writer) const
     writer.writeEndElement();
 }
 
-void CT_XXXChart::saveBandFormats(QXmlStreamWriter &writer) const
+void SubChart::saveBandFormats(QXmlStreamWriter &writer) const
 {
     if (bandFormats.isEmpty()) return;
     writer.writeStartElement(QLatin1String("c:bandFmts"));
@@ -1869,7 +1763,7 @@ bool UpDownBar::isValid() const
     return gapWidth.has_value() || upBar.isValid() || downBar.isValid();
 }
 
-CT_XXXChart::CT_XXXChart(Chart::Type type) : type{type}
+SubChart::SubChart(Chart::Type type) : type{type}
 {
     if (type == Chart::Type::Pie || type == Chart::Type::Pie3D ||
         type == Chart::Type::Doughnut || type == Chart::Type::OfPie ||
@@ -1877,7 +1771,7 @@ CT_XXXChart::CT_XXXChart(Chart::Type type) : type{type}
     varyColors = true;
 }
 
-Series *CT_XXXChart::addSeries(int index)
+Series *SubChart::addSeries(int index)
 {
     auto series = Series(index, index);
     switch (type) {
@@ -1918,7 +1812,7 @@ Series *CT_XXXChart::addSeries(int index)
     return &seriesList.last();
 }
 
-bool CT_XXXChart::read(QXmlStreamReader &reader)
+bool SubChart::read(QXmlStreamReader &reader)
 {
     const auto& name = reader.name();
     Chart::fromString(name.toString(), type);
@@ -1966,7 +1860,7 @@ bool CT_XXXChart::read(QXmlStreamReader &reader)
     return true;
 }
 
-void CT_XXXChart::write(QXmlStreamWriter &writer) const
+void SubChart::write(QXmlStreamWriter &writer) const
 {
     if (type == Chart::Type::None) {
         qDebug() << "[undefined chart type] ";
@@ -2003,508 +1897,501 @@ void CT_XXXChart::write(QXmlStreamWriter &writer) const
     }
 }
 
-std::optional<Chart::Grouping> Chart::grouping() const
+std::optional<Chart::Grouping> Chart::grouping(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().grouping;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].grouping;
 }
 
-void Chart::setGrouping(Chart::Grouping grouping)
+void Chart::setGrouping(int subchartIndex, Chart::Grouping grouping)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) {
-        d->subcharts << CT_XXXChart(d->chartType);
-    }
-    d->subcharts.last().grouping = grouping;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].grouping = grouping;
 }
 
-std::optional<Chart::BarGrouping> Chart::barGrouping() const
+std::optional<Chart::BarGrouping> Chart::barGrouping(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().barGrouping;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].barGrouping;
 }
 
-void Chart::setBarGrouping(Chart::BarGrouping grouping)
+void Chart::setBarGrouping(int subchartIndex, Chart::BarGrouping grouping)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) {
-        d->subcharts << CT_XXXChart(d->chartType);
-    }
-    d->subcharts.last().barGrouping = grouping;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+
+    d->subcharts[subchartIndex].barGrouping = grouping;
 }
 
-std::optional<bool> Chart::varyColors() const
+std::optional<bool> Chart::varyColors(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().varyColors;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].varyColors;
 }
 
-void Chart::setVaryColors(bool varyColors)
+void Chart::setVaryColors(int subchartIndex, bool varyColors)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().varyColors = varyColors;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].varyColors = varyColors;
 }
 
-Labels Chart::labels() const
+Labels Chart::labels(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().labels;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].labels;
 }
 
-Labels &Chart::labels()
+Labels &Chart::labels(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    return d->subcharts.last().labels;
+    return d->subcharts[subchartIndex].labels;
 }
 
-void Chart::setLabels(const Labels &labels)
+void Chart::setLabels(int subchartIndex, const Labels &labels)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().labels = labels;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].labels = labels;
 }
 
-ShapeFormat Chart::dropLines() const
+ShapeFormat Chart::dropLines(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().dropLines.value_or(ShapeFormat());
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].dropLines.value_or(ShapeFormat());
 }
 
-ShapeFormat &Chart::dropLines()
+ShapeFormat &Chart::dropLines(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    if (!d->subcharts.last().dropLines.has_value())
-        d->subcharts.last().dropLines = ShapeFormat();
-    return d->subcharts.last().dropLines.value();
+    if (!d->subcharts[subchartIndex].dropLines.has_value())
+        d->subcharts[subchartIndex].dropLines = ShapeFormat();
+    return d->subcharts[subchartIndex].dropLines.value();
 }
 
-void Chart::setDropLines(const ShapeFormat &dropLines)
+void Chart::setDropLines(int subchartIndex, const ShapeFormat &dropLines)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().dropLines = dropLines;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].dropLines = dropLines;
 }
 
-void  Chart::removeDropLines()
+void  Chart::removeDropLines(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) return;
-    d->subcharts.last().dropLines.reset();
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].dropLines.reset();
 }
 
-ShapeFormat Chart::hiLowLines() const
+ShapeFormat Chart::hiLowLines(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().hiLowLines.value_or(ShapeFormat());
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].hiLowLines.value_or(ShapeFormat());
 }
 
-ShapeFormat &Chart::hiLowLines()
+ShapeFormat &Chart::hiLowLines(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    if (!d->subcharts.last().hiLowLines.has_value())
-        d->subcharts.last().hiLowLines = ShapeFormat();
-    return d->subcharts.last().hiLowLines.value();
+    if (!d->subcharts[subchartIndex].hiLowLines.has_value())
+        d->subcharts[subchartIndex].hiLowLines = ShapeFormat();
+    return d->subcharts[subchartIndex].hiLowLines.value();
 }
 
-void Chart::setHiLowLines(const ShapeFormat &hiLowLines)
+void Chart::setHiLowLines(int subchartIndex, const ShapeFormat &hiLowLines)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().hiLowLines = hiLowLines;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].hiLowLines = hiLowLines;
 }
 
-void Chart::removeHiLowLines()
+void Chart::removeHiLowLines(int subchartIndex)
 {
     Q_D(Chart);
-    if (!d->subcharts.isEmpty()) d->subcharts.last().hiLowLines.reset();
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].hiLowLines.reset();
 }
 
-UpDownBar Chart::upDownBars() const
+UpDownBar Chart::upDownBars(int subchartIndex) const
 {
     Q_D(const Chart);
 
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().upDownBars;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].upDownBars;
 }
 
-UpDownBar &Chart::upDownBars()
+UpDownBar &Chart::upDownBars(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    return d->subcharts.last().upDownBars;
+    return d->subcharts[subchartIndex].upDownBars;
 }
 
-void Chart::setUpDownBars(const UpDownBar &upDownBars)
+void Chart::setUpDownBars(int subchartIndex, const UpDownBar &upDownBars)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().upDownBars = upDownBars;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].upDownBars = upDownBars;
 }
 
-std::optional<bool> Chart::markerShown() const
+std::optional<bool> Chart::markerShown(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().marker;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].marker;
 }
 
-void Chart::setMarkerShown(bool markerShown)
+void Chart::setMarkerShown(int subchartIndex, bool markerShown)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().marker = markerShown;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].marker = markerShown;
 }
 
-std::optional<int> Chart::gapDepth() const
+std::optional<int> Chart::gapDepth(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().gapDepth;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].gapDepth;
 }
 
-void Chart::setGapDepth(int gapDepth)
+void Chart::setGapDepth(int subchartIndex, int gapDepth)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().gapDepth = gapDepth;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].gapDepth = gapDepth;
 }
 
-Chart::ScatterStyle Chart::scatterStyle() const
+Chart::ScatterStyle Chart::scatterStyle(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().scatterStyle;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].scatterStyle;
 }
 
-void Chart::setScatterStyle(Chart::ScatterStyle scatterStyle)
+void Chart::setScatterStyle(int subchartIndex, Chart::ScatterStyle scatterStyle)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().scatterStyle = scatterStyle;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].scatterStyle = scatterStyle;
 }
 
-Chart::RadarStyle Chart::radarStyle() const
+Chart::RadarStyle Chart::radarStyle(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().radarStyle;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].radarStyle;
 }
 
-void Chart::setRadarStyle(Chart::RadarStyle radarStyle)
+void Chart::setRadarStyle(int subchartIndex, Chart::RadarStyle radarStyle)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().radarStyle = radarStyle;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].radarStyle = radarStyle;
 }
 
-Chart::BarDirection Chart::barDirection() const
+Chart::BarDirection Chart::barDirection(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().barDirection;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].barDirection;
 }
 
-void Chart::setBarDirection(Chart::BarDirection barDirection)
+void Chart::setBarDirection(int subchartIndex, Chart::BarDirection barDirection)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().barDirection = barDirection;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].barDirection = barDirection;
 }
 
-std::optional<int> Chart::gapWidth() const
+std::optional<int> Chart::gapWidth(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().gapWidth;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].gapWidth;
 }
 
-void Chart::setGapWidth(int gapWidth)
+void Chart::setGapWidth(int subchartIndex, int gapWidth)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().gapWidth = gapWidth;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].gapWidth = gapWidth;
 }
 
-std::optional<int> Chart::overlap() const
+std::optional<int> Chart::overlap(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().overlap;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].overlap;
 }
 
-void Chart::setOverlap(int overlap)
+void Chart::setOverlap(int subchartIndex, int overlap)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().overlap = overlap;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].overlap = overlap;
 }
 
-QList<ShapeFormat> Chart::seriesLines() const
+QList<ShapeFormat> Chart::seriesLines(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().serLines;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].serLines;
 }
 
-QList<ShapeFormat> &Chart::seriesLines()
+QList<ShapeFormat> &Chart::seriesLines(int subchartIndex)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    return d->subcharts.last().serLines;
+    return d->subcharts[subchartIndex].serLines;
 }
 
-void Chart::setSeriesLines(const QList<ShapeFormat> &seriesLines)
+void Chart::setSeriesLines(int subchartIndex, const QList<ShapeFormat> &seriesLines)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().serLines = seriesLines;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].serLines = seriesLines;
 }
 
-std::optional<Series::BarShape> Chart::barShape() const
+std::optional<Series::BarShape> Chart::barShape(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().barShape;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].barShape;
 }
 
-void Chart::setBarShape(Series::BarShape barShape)
+void Chart::setBarShape(int subchartIndex, Series::BarShape barShape)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().barShape = barShape;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].barShape = barShape;
 }
 
-std::optional<int> Chart::firstSliceAngle() const
+std::optional<int> Chart::firstSliceAngle(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().firstSliceAng;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].firstSliceAng;
 }
 
-void Chart::setFirstSliceAngle(int angle)
+void Chart::setFirstSliceAngle(int subchartIndex, int angle)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().firstSliceAng = angle;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].firstSliceAng = angle;
 }
 
-std::optional<int> Chart::holeSize() const
+std::optional<int> Chart::holeSize(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().holeSize;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].holeSize;
 }
 
-void Chart::setHoleSise(int holeSize)
+void Chart::setHoleSise(int subchartIndex, int holeSize)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().holeSize = holeSize;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].holeSize = holeSize;
 }
 
-Chart::OfPieType Chart::ofPieType() const
+Chart::OfPieType Chart::ofPieType(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().ofPieType;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].ofPieType;
 }
 
-void Chart::setOfPieType(OfPieType type)
+void Chart::setOfPieType(int subchartIndex, OfPieType type)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().ofPieType = type;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].ofPieType = type;
 }
 
-std::optional<Chart::SplitType> Chart::splitType() const
+std::optional<Chart::SplitType> Chart::splitType(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().splitType;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].splitType;
 }
 
-void Chart::setSplitType(SplitType splitType)
+void Chart::setSplitType(int subchartIndex, SplitType splitType)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().splitType = splitType;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].splitType = splitType;
 }
 
-std::optional<double> Chart::splitPos() const
+std::optional<double> Chart::splitPos(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().splitPos;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].splitPos;
 }
 
-void Chart::setSplitPos(double value)
+void Chart::setSplitPos(int subchartIndex, double value)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().splitPos = value;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].splitPos = value;
 }
 
-QList<int> Chart::customSplit() const
+QList<int> Chart::customSplit(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().customSplit;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].customSplit;
 }
 
-void Chart::setCustomSplit(const QList<int> &indexes)
+void Chart::setCustomSplit(int subchartIndex, const QList<int> &indexes)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().customSplit = indexes;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].customSplit = indexes;
 }
 
-std::optional<int> Chart::secondPieSize() const
+std::optional<int> Chart::secondPieSize(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().secondPieSize;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].secondPieSize;
 }
 
-void Chart::setSecondPieSize(int size)
+void Chart::setSecondPieSize(int subchartIndex, int size)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().secondPieSize = size;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].secondPieSize = size;
 }
 
-std::optional<bool> Chart::bubble3D() const
+std::optional<bool> Chart::bubble3D(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().bubble3D;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].bubble3D;
 }
 
-void Chart::setBubble3D(bool bubble3D)
+void Chart::setBubble3D(int subchartIndex, bool bubble3D)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().bubble3D = bubble3D;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].bubble3D = bubble3D;
 }
 
-std::optional<bool> Chart::showNegativeBubbles() const
+std::optional<bool> Chart::showNegativeBubbles(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().showNegBubbles;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].showNegBubbles;
 }
 
-void Chart::setShowNegativeBubbles(bool show)
+void Chart::setShowNegativeBubbles(int subchartIndex, bool show)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().showNegBubbles = show;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].showNegBubbles = show;
 }
 
-std::optional<int> Chart::bubbleScale() const
+std::optional<int> Chart::bubbleScale(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().bubbleScale;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].bubbleScale;
 }
 
-void Chart::setBubbleScale(int scale)
+void Chart::setBubbleScale(int subchartIndex, int scale)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().bubbleScale = scale;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].bubbleScale = scale;
 }
 
-std::optional<Chart::BubbleSizeRepresents> Chart::bubbleSizeRepresents() const
+std::optional<Chart::BubbleSizeRepresents> Chart::bubbleSizeRepresents(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().bubbleSizeRepresents;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].bubbleSizeRepresents;
 }
 
-void Chart::setBubbleSizeRepresents(BubbleSizeRepresents value)
+void Chart::setBubbleSizeRepresents(int subchartIndex, BubbleSizeRepresents value)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().bubbleSizeRepresents = value;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].bubbleSizeRepresents = value;
 }
 
-std::optional<bool> Chart::wireframe() const
+std::optional<bool> Chart::wireframe(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().wireframe;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].wireframe;
 }
 
-void Chart::setWireframe(bool wireframe)
+void Chart::setWireframe(int subchartIndex, bool wireframe)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().wireframe = wireframe;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].wireframe = wireframe;
 }
 
-QMap<int, ShapeFormat> Chart::bandFormats() const
+QMap<int, ShapeFormat> Chart::bandFormats(int subchartIndex) const
 {
     Q_D(const Chart);
-    if (d->subcharts.isEmpty()) return {};
-    return d->subcharts.last().bandFormats;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return {};
+    return d->subcharts[subchartIndex].bandFormats;
 }
 
-void Chart::setBandFormats(QMap<int, ShapeFormat> bandFormats)
+void Chart::setBandFormats(int subchartIndex, QMap<int, ShapeFormat> bandFormats)
 {
     Q_D(Chart);
 
-    if (d->subcharts.isEmpty()) d->subcharts << CT_XXXChart(d->chartType);
-    d->subcharts.last().bandFormats = bandFormats;
+    if (subchartIndex < 0 || subchartIndex >= d->subcharts.size()) return;
+    d->subcharts[subchartIndex].bandFormats = bandFormats;
 }
 
 
@@ -2730,3 +2617,7 @@ void Chart::saveMediaFiles(Workbook *workbook)
 }
 
 }
+
+
+
+

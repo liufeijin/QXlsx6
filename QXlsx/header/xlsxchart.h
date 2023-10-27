@@ -57,6 +57,74 @@ private:
     ExtensionList extension;
 };
 
+class SubChart;
+
+
+/**
+ * @brief The Chart class represents a chart in the worksheet or the chartsheet.
+ *
+ * ## Subcharts and axes
+ *
+ * Though the chart can have as many axes as you wish, only a subset of them can be used
+ * to display the chart series. So a notion of subchart is used.
+ *
+ * Each subchart has a type (see Chart::Type enum), a number of axes references (see
+ * #addSubchart(), #setSubchartAxes(), #addDefaultAxes()), a number of associated
+ * series (see #addSeries() overloads) and parameters specific to the chart (f.e. #bubbleScale()).
+ *
+ * The easiest way of adding chart is to use only one subchart:
+ * @code
+ * Chart *chart = sheet->insertChart(3, 3, QSize(300, 300));
+ * chart->addSubchart(Chart::Type::Line);
+ * chart->addSeries(CellRange("A1:A9"));
+ * chart->addSeries(CellRange("B1:B9"));
+ * chart->addSeries(CellRange("C1:C9"));
+ * @endcode
+ *
+ * The code above also creates default axes that are needed for the line chart (category axis
+ * and value axis). You can access these axes via #axis() and #axes() methods.
+ *
+ * If more than one subchart is needed, f.e. if you need to move some series to the right/top axis
+ * or to place series of different types on the same chart, then adding a new subchart comes in handy.
+ *
+ * This code creates two subcharts of different types.
+ *
+ * @code
+ * Chart *chart = sheet->insertChart(3, 3, QSize(300, 300));
+ * // Create the first subchart
+ * chart->addSubchart(Chart::Type::Line);
+ * chart->addSeries(CellRange("A1:A9"));
+ *
+ * // Create the second subchart
+ *
+ * // the second subchart has different type, but uses the same axes as the first one.
+ * chart->addSubchart(Chart::Type::Bar, chart->axesIDs()); //axesIDs() returns ids of all previously defined axes
+ * chart->addSeries(CellRange("B1:B9"), nullptr, false, false, true, 1);
+ * @endcode
+ *
+ * The code below adds right axis to the chart
+ *
+ * @code
+ * Chart *chart = sheet->insertChart(3, 3, QSize(300, 300));
+ * // Create the first subchart
+ * chart->addSubchart(Chart::Type::Line);
+ *
+ * // Create the second subchart of the same type, but with different set of axes
+ *
+ * // wee need the second bottom axis
+ * auto bottomAxis = chart->addAxis(QXlsx::Axis::Type::Category, QXlsx::Axis::Position::Bottom);
+ * auto rightAxis = chart->addAxis(QXlsx::Axis::Type::Value, QXlsx::Axis::Position::Right);
+ * rightAxis.setCrossAxis(bottomAxis); // required
+ * rightAxis.setCrossesType(QXlsx::Axis::CrossesType::Maximum); //this actually moves rightAxis to the right
+ * bottomAxis->setVisible(false); // two subcharts cannot use the same axis, so we have
+ * // two bottom axes (the default one and bottomAxis), but we need only the default one.
+ * chart->addSubchart(QXlsx::Chart::Type::Line, {bottomAxis.id(), rightAxis.id()});
+ *
+ * // Add series
+ * chart->addSeries(CellRange("A1:A9"), nullptr, false, false, true, 0);
+ * chart->addSeries(CellRange("B1:B9"), nullptr, false, false, true, 1);
+ * @endcode
+ */
 class QXLSX_EXPORT Chart : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(Chart)
@@ -79,7 +147,7 @@ public:
         Doughnut, /**< Doughnut chart */
         Bar, /**< Bar chart */
         Bar3D, /**< Bar3D chart*/
-        OfPie, /**< @brief Pie of pie chart (or bar of pie based on the ofPieChart parameter.) */
+        OfPie, /**< Pie of pie chart (or bar of pie based on the ofPieChart parameter.) */
         Surface, /**< Surface chart */
         Surface3D, /**< Surface3D chart*/
         Bubble, /**< Bubble chart */
@@ -255,35 +323,59 @@ public:
     ~Chart();
 public:
     /**
-     * @brief sets type to the chart.
-     * @warning This method does not change the previous subcharts type nor the
-     * previous series type.
-     * @note OOXML schema allows having as many subcharts of different types
-     * as you need. Each subchart is used to group series of the same type.
-     * If you need to add both bar series and line series to the chart, you can do it this way:
-     * @code
-     * //set Type::Bar to the chart
-     * chart->setType(Chart::Type::Bar);
-     * //add bar series
-     * chart.addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("B1:B10"),
-     *     xlsx.sheet("Sheet1"), true);
-     * //set Type::Line to the chart
-     * chart->setType(Chart::Type::Line);
-     * //add line series
-     * chart->addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("C1:C10"),
-     *     xlsx.sheet("Sheet1"), true);
-     * @endcode
-     * @note All parameters of the chart are applied only to the last subchart that was
-     * added with #setType() method. Right now there is no possibility to change
-     * parameters of previous subcharts.
-     * @param type Chart type. If set to Type::None the chart is ill-formed.
+     * @brief Add new subchart of @a type and with axes specified with @a axesIDs.
+     * @param type subchart type.
+     * @param axesIDs ids of axes for this subchart. Each subchart must have a
+     * subset of axes defined in the chart. If axesIDs is empty, then new set of default
+     * axes are created for the new subchart.
      */
-    void setType(Type type);
+    void addSubchart(Type type, QList<int> axesIDs = {});
     /**
-     * @brief returns the chart type.
-     * @return the type
+     * @brief sets @a axesIDs to the subchart with index @a subchartIndex.
+     * @param subchartIndex zero-based subchart index.
+     * @param axesIDs a list of required axes IDs.
+     * @sa #addDefaultAxes().
      */
-    Type type() const;
+    void setSubchartAxes(int subchartIndex, const QList<int> &axesIDs);
+    /**
+     * @brief returns axes associated with a subchart
+     * @param subchartIndex zero-based subchart index.
+     * @return a list of axes IDs.
+     * @sa #setSubchartAxes(), #addDefaultAxes(), #addSubchart().
+     */
+    QList<int> subchartAxes(int subchartIndex) const;
+    /**
+     * @brief returns whether subchart with @a subchartIndex has series added to it.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return true if series were added to the subchart. False if subchart has no
+     * series or @a subchartIndex is invalid.
+     */
+    bool subchartHasSeries(int subchartIndex) const;
+    /**
+     * @brief removes subchart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return true if removal was successful, false if @a subchartIndex is invalid.
+     * @note After that the chart may have no subcharts. See #subchartsCount(). This method
+     * also removes any series that were added to the subchart.
+     */
+    bool removeSubchart(int subchartIndex);
+    /**
+     * @brief returns the subcharts count.
+     */
+    int subchartsCount() const;
+    /**
+     * @brief returns the subchart type
+     * @param subchartIndex zero-based index of a subchart.
+     * @return Type enum value. If no subcharts were added, returns Type::None.
+     */
+    Type subchartType(int subchartIndex) const;
+    /**
+     * @brief sets the subchart type
+     * @param subchartIndex zero-based index of a subchart.
+     * @param type Type enum value.
+     */
+    void setSubchartType(int subchartIndex, Type type);
+
     /**
      * @brief sets line format to the chart space (the outer area of the chart).
      *
@@ -344,9 +436,10 @@ public:
 
     /**
      * @brief adds an empty series.
-     * @return pointer to the added series
+     * @param @param subchart zero-based index of a subchart into which the series are being added.
+     * @return pointer to the added series.
      */
-    Series *addSeries();
+    Series *addSeries(int subchart = 0);
 
     /**
      * @overload
@@ -364,13 +457,15 @@ public:
      * (if @a firstColumnContainsCategoryData is set to true),
      * other columns are value data for new series. If @a columnBased is false, the
      * first row is category data, other rows are value data for new series.
-     * @note the series will have the type specified by the most recently set chart type.
-     * So it is possible to have series of different types on the same chart.
+     * @param subchart zero-based index of a subchart into which the series are being added.
+     * @note the series will have the type specified by the subchart type.
+     * @return pointer to the added series or nullptr if no series was added.
      */
-    void addSeries(const CellRange &range, AbstractSheet *sheet = NULL,
+    void addSeries(const CellRange &range, AbstractSheet *sheet = nullptr,
                    bool firstRowContainsHeaders = false,
                    bool firstColumnContainsCategoryData = false,
-                   bool columnBased = true);
+                   bool columnBased = true,
+                   int subchart = 0);
     /**
      * @overload
      * @brief adds series defined by keyRange and valRange.
@@ -378,15 +473,16 @@ public:
      * @param valRange value range or y axis range.
      * @param sheet data sheet reference.
      * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference.
+     * @param @param subchart zero-based index of a subchart into which the series are being added.
      * @return pointer to the added series or nullptr if no series was added.
-     * @note The series will have the type specifies by the most recently set chart type.
-     * So it is possible to have series of different types on the same chart.
+     * @note The series will have the type specifies by the subchart type.
      *
      * @note To set bubbleSizeDataSource to the BubbleChart series (the 3rd range)
      * use #addSeries() method and manually set all three ranges.
      */
     Series* addSeries(const CellRange &keyRange, const CellRange &valRange,
-                       AbstractSheet *sheet = NULL, bool keyRangeIncludesHeader = false);
+                      AbstractSheet *sheet = NULL, bool keyRangeIncludesHeader = false,
+                      int subchart = 0);
     /**
      * @brief returns the chart series by its index.
      * @param index the series index starting from 0.
@@ -415,65 +511,19 @@ public:
     bool removeSeries(const Series &series);
     /**
      * @brief removes all series from the chart.
-     * @note This method will also remove all subcharts and create a new subchart of type
-     * equal to the last set chart type. This method does not remove chart axes.
      */
     void removeAllSeries();
 
     /**
-     * @brief sets axes for all series on the chart.
-     *
-     * The method doesn't check for the axes availability and sets axesIds for all series
-     * added to the chart. To set specific axes for some series (f.e. to move the series to the
-     * right axis) use setSeriesAxesIDs(Series *series, const QList<int> &axesIds) method.
-     *
-     * @param axesIds a list of 0, 2 or 3 items.
-     * @note axesIds are ids, not indexes. \see Axis::id()
-     */
-    void setSeriesAxesIDs(const QList<int> &axesIds);
-    /**
-     * @overload
      * @brief sets axes for the specific series
      * @param series pointer to the series
      * @param axesIds a list of 0, 2 or 3 items.
-     * @note axesIds are ids, not indexes. \see Axis::id()
+     * @note @a axesIds are ids, not indexes. @see Axis::id().
+     * This method also adds a new subchart if no subchart with @a axesIds was found.
      *
-     * @note Each series (except for Pie) shall be attached to at least two axes.
-     * If no axes are specified, then the file is ill-formed. The best way to set
-     * axes is as follows:
-     *
-     * @code
-     * //first add axes to the chart
-     * auto bottom = chart.addAxis(QXlsx::Axis::Type::Val, QXlsx::Axis::Position::Bottom);
-     * auto left = chart.addAxis(QXlsx::Axis::Type::Val, QXlsx::Axis::Position::Left);
-     * left->setCrossAxis(bottom); //also sets bottom to cross left
-     * QList<int> axesIds {b->id(), l->id()};
-     *
-     * //or create default axes:
-     * QList<int> axesIds = chart.addDefaultAxes();
-     *
-     * //then add series and specify its axes
-     * auto series = chart.addSeries(QXlsx::CellRange("A1:A10"), QXlsx::CellRange("B1:B10"),
-     * xlsx.sheet("Sheet1"), true);
-     * chart.setSeriesAxesIDs(series, axesIds);
-     *
-     * @endcode
      */
     void setSeriesAxesIDs(Series *series, const QList<int> &axesIds);
 
-    /**
-     * @brief sets all available axes for all series added to the chart.
-     *
-     * The method doesn't check for the axes availability and sets _all_ available
-     * axes for _all_ series added to the chart. To set specific axes for some
-     * series (f.e. to move the series to the right axis) use
-     * setSeriesAxesIDs() method.
-     *
-     * @note invoke this method after you have added all the series and all the
-     * axes if all the series share the same axes.
-     * @sa setSeriesAxesIDs
-     */
-    void setSeriesDefaultAxes();
     /**
      * @brief changes the series order in which it is drawn on the chart.
      * @param oldOrder
@@ -482,15 +532,13 @@ public:
     void moveSeries(int oldOrder, int newOrder);
 
     /**
-     * @brief adds all necessary axes to the chart.
+     * @brief adds default axes required for the chart @a type.
      *
-     * You can use this method to create all default axes. If you want to later fine-tune them,
-     * use axis(int idx) method.
+     * If you want to later fine-tune them, use axis(int idx) method.
      *
-     * @warning A chart without the required axes is considered ill-formed. Here is the table of
-     * axes requirements for each chart type
+     * Here is the table of axes requirements for each chart type
      *
-     * Chart type | axes count and default axes
+     * Chart type | axes count and types
      * -----------|---------------------
      * Line, Bar, Area, Radar, Stock, Bubble | 2: Category (bottom) and Value (left)
      * Line3D, Surface3D | 3: Category (bottom), Value (left) and Series (bottom)
@@ -498,11 +546,11 @@ public:
      * Scatter | 2: Value (bottom) and Value (left)
      * Pie, Pie3D, Doughnut, OfPie | 0 (no axes required)
      *
-     * @note this method does not delete axes already present in the chart.
-     *
-     * @return a list of axes ids, that can later be used to set them for series
+     * @param type chart type
+     * @return list of axes. Can be empty.
      */
-    QList<int> addDefaultAxes();
+    QList<Axis> addDefaultAxes(Type type);
+
     /**
      * @brief adds new axis with specified parameters.
      * @param type axis type: Cat, Val, Date or Ser.
@@ -562,6 +610,11 @@ public:
      * of axes occurs. @see Axis.
      */
     QList<QXlsx::Axis> axes() const;
+    /**
+     * @brief returns the list of axes ids defined in the chart.
+     * @return a list of axes IDs.
+     */
+    QList<int> axesIDs() const;
 
     /**
      * @brief tries to remove axis and returns true if axis has been removed.
@@ -724,6 +777,7 @@ public:
      */
     void setLayout(const Layout &layout);
 
+    // Parameters specific to the subcharts
 
     /**
      * @brief returns the kind of grouping for a line or area chart.
@@ -732,7 +786,7 @@ public:
      *
      * @return valid Chart::Grouping if property is set, nullopt otherwise.
      */
-    std::optional<Chart::Grouping> grouping() const;
+    std::optional<Chart::Grouping> grouping(int subchartIndex) const;
     /**
      * @brief sets the kind of grouping for a line or area chart.
      *
@@ -740,7 +794,7 @@ public:
      *
      * @param grouping Chart::Grouping
      */
-    void setGrouping(Chart::Grouping grouping);
+    void setGrouping(int subchartIndex, Chart::Grouping grouping);
 
     /**
      * @brief returns the kind of grouping for a bar chart.
@@ -749,7 +803,7 @@ public:
      *
      * @return valid Chart::BarGrouping if property is set, nullopt otherwise.
      */
-    std::optional<Chart::BarGrouping> barGrouping() const;
+    std::optional<Chart::BarGrouping> barGrouping(int subchartIndex) const;
     /**
      * @brief sets the kind of grouping for a bar chart.
      *
@@ -757,7 +811,7 @@ public:
      *
      * @param grouping Chart::BarGrouping
      */
-    void setBarGrouping(Chart::BarGrouping grouping);
+    void setBarGrouping(int subchartIndex, Chart::BarGrouping grouping);
 
     /**
      * @brief specifies that each data marker in the series has a different color.
@@ -771,7 +825,7 @@ public:
      * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to true.
      *
      */
-    std::optional<bool> varyColors() const;
+    std::optional<bool> varyColors(int subchartIndex) const;
     /**
      * @brief sets that each data marker in the series has a different color.
      *
@@ -781,7 +835,7 @@ public:
      * @param varyColors true if each data marker in the series has a different color, false
      * if every data markers in the series have the same color.
      */
-    void setVaryColors(bool varyColors);
+    void setVaryColors(int subchartIndex, bool varyColors);
 
     /**
      * @brief returns the entire chart labels properties.
@@ -798,7 +852,7 @@ public:
      * @return a copy of the chart labels.
      *
      */
-    Labels labels() const;
+    Labels labels(int subchartIndex) const;
     /**
      * @brief returns the entire chart labels properties.
      *
@@ -813,7 +867,7 @@ public:
      *
      * @return reference to the chart labels.
      */
-    Labels &labels();
+    Labels &labels(int subchartIndex);
     /**
      * @brief sets the entire chart labels properties.
      *
@@ -828,7 +882,7 @@ public:
      *
      * @param labels
      */
-    void setLabels(const Labels &labels);
+    void setLabels(int subchartIndex, const Labels &labels);
 
     /**
      * @brief returns the chart drop lines.
@@ -837,7 +891,7 @@ public:
      *
      * @return a copy of the chart dropLines.
      */
-    ShapeFormat dropLines() const;
+    ShapeFormat dropLines(int subchartIndex) const;
     /**
      * @brief returns the chart drop lines.
      *
@@ -845,7 +899,7 @@ public:
      *
      * @return a reference to the chart dropLines.
      */
-    ShapeFormat &dropLines();
+    ShapeFormat &dropLines(int subchartIndex);
     /**
      * @brief sets the chart drop lines.
      *
@@ -854,13 +908,13 @@ public:
      * @param dropLines If not valid, sets default drop lines.
      * @note To remove drop lines use #removeDropLines().
      */
-    void setDropLines(const ShapeFormat &dropLines);
+    void setDropLines(int subchartIndex, const ShapeFormat &dropLines);
     /**
      * @brief removes the chart drop lines.
      *
      * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
      */
-    void removeDropLines();
+    void removeDropLines(int subchartIndex);
 
     /**
      * @brief returns the chart high-low lines.
@@ -869,7 +923,7 @@ public:
      *
      * @return a copy of the chart hiLowLines.
      */
-    ShapeFormat hiLowLines() const;
+    ShapeFormat hiLowLines(int subchartIndex) const;
     /**
      * @brief returns the chart high-low lines.
      *
@@ -877,7 +931,7 @@ public:
      *
      * @return a reference to the chart hiLowLines.
      */
-    ShapeFormat &hiLowLines();
+    ShapeFormat &hiLowLines(int subchartIndex);
     /**
      * @brief sets the chart high-low lines.
      *
@@ -886,8 +940,8 @@ public:
      * @param hiLowLines If not valid, sets default hi-low lines.
      * @note to remove hi-low lines use #removeHiLowLines().
      */
-    void setHiLowLines(const ShapeFormat &hiLowLines);
-    void removeHiLowLines();
+    void setHiLowLines(int subchartIndex, const ShapeFormat &hiLowLines);
+    void removeHiLowLines(int subchartIndex);
 
     /**
      * @brief returns the chart up-dow lines.
@@ -896,7 +950,7 @@ public:
      *
      * @return a copy of the chart upDownBars.
      */
-    UpDownBar upDownBars() const;
+    UpDownBar upDownBars(int subchartIndex) const;
     /**
      * @brief returns the chart up-down lines.
      *
@@ -904,7 +958,7 @@ public:
      *
      * @return a reference to the chart upDownBars.
      */
-    UpDownBar &upDownBars();
+    UpDownBar &upDownBars(int subchartIndex);
     /**
      * @brief sets the chart up-down lines.
      *
@@ -912,7 +966,7 @@ public:
      *
      * @param upDownBars
      */
-    void setUpDownBars(const UpDownBar &upDownBars);
+    void setUpDownBars(int subchartIndex, const UpDownBar &upDownBars);
 
     /**
      * @brief if true, the chart series marker is shown.
@@ -921,7 +975,7 @@ public:
      *
      * @return valid boolean value if property is set, nullopt otherwise.
      */
-    std::optional<bool> markerShown() const;
+    std::optional<bool> markerShown(int subchartIndex) const;
     /**
      * @brief sets that the chart series marker shall be shown.
      *
@@ -929,7 +983,7 @@ public:
      *
      * @param markerShown
      */
-    void setMarkerShown(bool markerShown);
+    void setMarkerShown(int subchartIndex, bool markerShown);
 
     /**
      * @brief returns smoothing of the chart series. If true, the line
@@ -939,7 +993,7 @@ public:
      *
      * @return valid boolean value if property is set, nullopt otherwise.
      */
-    std::optional<bool> smooth() const;
+    std::optional<bool> smooth(int subchartIndex) const;
     /**
      * @brief sets smoothing of the chart series. If true, the line
      * connecting the points on the chart shall be smoothed using Catmull-Rom splines.
@@ -949,7 +1003,7 @@ public:
      * @param smooth if true, the line
      * connecting the points on the chart is smoothed using Catmull-Rom splines.
      */
-    void setSmooth(bool smooth);
+    void setSmooth(int subchartIndex, bool smooth);
 
     /**
      * @brief specifies the space between bar or column clusters, as a
@@ -959,7 +1013,7 @@ public:
      *
      * @return valid double ([0..]) value if property is set, nullopt otherwise.
      */
-    std::optional<int> gapDepth() const;
+    std::optional<int> gapDepth(int subchartIndex) const;
     /**
      * @brief sets the space between bar or column clusters, as a
      * percentage of the bar or column width.
@@ -970,7 +1024,7 @@ public:
      *
      * @param gapDepth value of the gap depth, in percents (100 equals the bar width).
      */
-    void setGapDepth(int gapDepth);
+    void setGapDepth(int subchartIndex, int gapDepth);
 
     /**
      * @brief returns the style of the scatter chart.
@@ -979,7 +1033,7 @@ public:
      *
      * @return Chart::ScatterStyle
      */
-    ScatterStyle scatterStyle() const;
+    ScatterStyle scatterStyle(int subchartIndex) const;
     /**
      * @brief sets the style of the scatter chart.
      *
@@ -987,7 +1041,7 @@ public:
      *
      * @param scatterStyle
      */
-    void setScatterStyle(ScatterStyle scatterStyle);
+    void setScatterStyle(int subchartIndex, ScatterStyle scatterStyle);
 
     /**
      * @brief returns the style of the radar chart.
@@ -996,7 +1050,7 @@ public:
      *
      * @return RadarStyle
      */
-    RadarStyle radarStyle() const;
+    RadarStyle radarStyle(int subchartIndex) const;
     /**
      * @brief sets the style of the radar chart.
      *
@@ -1004,7 +1058,7 @@ public:
      *
      * @param radarStyle
      */
-    void setRadarStyle(RadarStyle radarStyle);
+    void setRadarStyle(int subchartIndex, RadarStyle radarStyle);
 
     /**
      * @brief returns whether the series form a bar (horizontal)
@@ -1016,7 +1070,7 @@ public:
      *
      * @return
      */
-    BarDirection barDirection() const;
+    BarDirection barDirection(int subchartIndex) const;
     /**
      * @brief sets whether the series form a bar (horizontal)
      * chart or a column (vertical) chart.
@@ -1027,7 +1081,7 @@ public:
      *
      * @param barDirection
      */
-    void setBarDirection(BarDirection barDirection);
+    void setBarDirection(int subchartIndex, BarDirection barDirection);
 
     /**
      * @brief returns the space between bar or column clusters, as a
@@ -1037,7 +1091,7 @@ public:
      *
      * @return valid % ([0..500]) value if property is set, nullopt otherwise.
      */
-    std::optional<int> gapWidth() const;
+    std::optional<int> gapWidth(int subchartIndex) const;
     /**
      * @brief sets the space between bar or column clusters, as a
      * percentage of the bar or column width.
@@ -1048,7 +1102,7 @@ public:
      *
      * @param gapWidth gap width in percents (0..500).
      */
-    void setGapWidth(int gapWidth);
+    void setGapWidth(int subchartIndex, int gapWidth);
 
     /**
      * @brief specifies how much bars and columns shall overlap on 2-D charts.
@@ -1057,7 +1111,7 @@ public:
      *
      * @return valid int value (percentage) if property is set, nullopt otherwise.
      */
-    std::optional<int> overlap() const;
+    std::optional<int> overlap(int subchartIndex) const;
     /**
      * @brief sets how much bars and columns shall overlap on 2-D charts.
      *
@@ -1067,7 +1121,7 @@ public:
      *
      * @param overlap overlap percentage in the range [-100..100].
      */
-    void setOverlap(int overlap);
+    void setOverlap(int subchartIndex, int overlap);
 
     /**
      * @brief seriesLines returns the series lines of the chart.
@@ -1076,7 +1130,7 @@ public:
      *
      * @return A list of the series lines formats.
      */
-    QList<ShapeFormat> seriesLines() const;
+    QList<ShapeFormat> seriesLines(int subchartIndex) const;
     /**
      * @brief seriesLines returns the series lines of the chart.
      *
@@ -1084,7 +1138,7 @@ public:
      *
      * @return a reference to the series lines formats.
      */
-    QList<ShapeFormat> &seriesLines();
+    QList<ShapeFormat> &seriesLines(int subchartIndex);
     /**
      * @brief setSeriesLines sets the series lines of the chart.
      *
@@ -1092,7 +1146,7 @@ public:
      *
      * @param seriesLines
      */
-    void setSeriesLines(const QList<ShapeFormat> &seriesLines);
+    void setSeriesLines(int subchartIndex, const QList<ShapeFormat> &seriesLines);
 
     /**
      * @brief barShape returns the shape of a series or a 3-D bar chart.
@@ -1101,7 +1155,7 @@ public:
      *
      * @return valid Series::BarShape value or nullopt if the property is not set.
      */
-    std::optional<Series::BarShape> barShape() const;
+    std::optional<Series::BarShape> barShape(int subchartIndex) const;
     /**
      * @brief setBarShape sets the shape of a series or a 3-D bar chart.
      *
@@ -1109,7 +1163,7 @@ public:
      *
      * @param barShape Series::BarShape
      */
-    void setBarShape(Series::BarShape barShape);
+    void setBarShape(int subchartIndex, Series::BarShape barShape);
 
     /**
      * @brief firstSliceAngle returns the angle of the first pie or doughnut
@@ -1119,7 +1173,7 @@ public:
      *
      * @return valid int value if the property is set, nullopt otherwise.
      */
-    std::optional<int> firstSliceAngle() const;
+    std::optional<int> firstSliceAngle(int subchartIndex) const;
     /**
      * @brief setFirstSliceAngle sets  the angle of the first pie or doughnut
      * chart slice, in degrees (clockwise from up).
@@ -1128,7 +1182,7 @@ public:
      *
      * @param angle value in degrees in the range [0..360].
      */
-    void setFirstSliceAngle(int angle);
+    void setFirstSliceAngle(int subchartIndex, int angle);
 
     /**
      * @brief returns the size, in percents, of the hole in a doughnut chart.
@@ -1137,7 +1191,7 @@ public:
      *
      * @return valid int value if the property is set (in the range [1..90]), nullopt otherwise.
      */
-    std::optional<int> holeSize() const;
+    std::optional<int> holeSize(int subchartIndex) const;
     /**
      * @brief sets the size, in percents, of the hole in a doughnut chart.
      *
@@ -1147,7 +1201,7 @@ public:
      *
      * @param holeSize the hole size in percents in the range [1..90]
      */
-    void setHoleSise(int holeSize);
+    void setHoleSise(int subchartIndex, int holeSize);
 
     //+ofpie
     /**
@@ -1157,12 +1211,12 @@ public:
      *
      * @return OfPieType::Bar or OfPieType::Pie enum value.
      */
-    Chart::OfPieType ofPieType() const;
+    Chart::OfPieType ofPieType(int subchartIndex) const;
     /**
      * @brief sets the OfPie chart type.
      * @param type OfPieType::Bar or OfPieType::Pie enum value.
      */
-    void setOfPieType(OfPieType type);
+    void setOfPieType(int subchartIndex, OfPieType type);
 
     /**
      * @brief returns the OfPie chart split type (how to split the data points
@@ -1170,13 +1224,13 @@ public:
      *
      * The default value is SplitType::Auto
      */
-    std::optional<SplitType> splitType() const;
+    std::optional<SplitType> splitType(int subchartIndex) const;
     /**
      * @brief sets the OfPie chart split type (how to split the data points
      * between the first pie and second pie or bar.)
      * @param splitType SplitType enum.
      */
-    void setSplitType(SplitType splitType);
+    void setSplitType(int subchartIndex, SplitType splitType);
     /**
      * @brief returns a value used to determine which data points are in the
      * second pie on an OfPie chart.
@@ -1186,7 +1240,7 @@ public:
      * with value less than splitPos go to the second pie.
      * If Value, splitPos is the value below which data points go to the second pie.
      */
-    std::optional<double> splitPos() const;
+    std::optional<double> splitPos(int subchartIndex) const;
     /**
      * @brief sets the value that shall be used to determine which data points are in the
      * second pie on an OfPie chart.
@@ -1197,26 +1251,26 @@ public:
      *
      * Applicable to chart types: OfPie.
      */
-    void setSplitPos(double value);
+    void setSplitPos(int subchartIndex, double value);
     /**
      * @brief returns the list of data points indexes (starting from 1) that go to
      * the second pie on an OfPie chart.
      *
      * This parameter is valid only if splitType() is SplitType::Custom.
      */
-    QList<int> customSplit() const;
+    QList<int> customSplit(int subchartIndex) const;
     /**
      * @brief sets the list of data points indexes (starting from 1) that go to
      * the second pie on an OfPie chart.
      * @param indexes the list of valid data points indexes (starting from 1).
      */
-    void setCustomSplit(const QList<int> &indexes);
+    void setCustomSplit(int subchartIndex, const QList<int> &indexes);
     /**
      * @brief returns the second pie size of an OfPie chart, as a percentage
      * of the size of the first pie.
      * @return valid percentage value (5..200%) or nullopt if the parameter is not set.
      */
-    std::optional<int> secondPieSize() const;
+    std::optional<int> secondPieSize(int subchartIndex) const;
     /**
      * @brief sets the second pie size of an OfPie chart, as a percentage
      * of the size of the first pie.
@@ -1225,7 +1279,7 @@ public:
      *
      * @param size percentage value (5..200).
      */
-    void setSecondPieSize(int size);
+    void setSecondPieSize(int subchartIndex, int size);
 
     /**
      * @brief returns whether the Bubble chart has a 3-D effect applied to series.
@@ -1233,14 +1287,14 @@ public:
      *
      * Applicable to char types: Bubble.
      */
-    std::optional<bool> bubble3D() const;
+    std::optional<bool> bubble3D(int subchartIndex) const;
     /**
      * @brief sets whether the Bubble chart has a 3-D effect applied to series.
      * @param bubble3D
      *
      * Applicable to char types: Bubble.
      */
-    void setBubble3D(bool bubble3D);
+    void setBubble3D(int subchartIndex, bool bubble3D);
     /**
      * @brief returns whether negative sized bubbles shall be shown on a bubble chart.
      * @return valid optional value if bubble3D property is set, nullopt otherwise.
@@ -1249,7 +1303,7 @@ public:
      *
      * Applicable to char types: Bubble.
      */
-    std::optional<bool> showNegativeBubbles() const;
+    std::optional<bool> showNegativeBubbles(int subchartIndex) const;
     /**
      * @brief sets whether negative sized bubbles shall be shown on a bubble chart.
      * @param show
@@ -1258,7 +1312,7 @@ public:
      *
      * Applicable to char types: Bubble.
      */
-    void setShowNegativeBubbles(bool show);
+    void setShowNegativeBubbles(int subchartIndex, bool show);
 
     /**
      * @brief returns the scale factor for a bubble chart.
@@ -1266,14 +1320,14 @@ public:
      *
      * Applicable to char types: Bubble.
      */
-    std::optional<int> bubbleScale() const;
+    std::optional<int> bubbleScale(int subchartIndex) const;
     /**
      * @brief sets the scale factor for a bubble chart.
      * @param scale a percentage value from 0 to 300, corresponding to a percentage of the default size.
      *
      * Applicable to char types: Bubble.
      */
-    void setBubbleScale(int scale);
+    void setBubbleScale(int subchartIndex, int scale);
 
     /**
      * @brief returns how the bubble size values are represented on the chart.
@@ -1281,14 +1335,14 @@ public:
      *
      * Applicable to char types: Bubble.
      */
-    std::optional<BubbleSizeRepresents> bubbleSizeRepresents() const;
+    std::optional<BubbleSizeRepresents> bubbleSizeRepresents(int subchartIndex) const;
     /**
      * @brief sets how the bubble size values are represented on the bubble chart.
      * @param value
      *
      * Applicable to char types: Bubble.
      */
-    void setBubbleSizeRepresents(BubbleSizeRepresents value);
+    void setBubbleSizeRepresents(int subchartIndex, BubbleSizeRepresents value);
 
     /**
      * @brief returns whether the surface chart is drawn as a wireframe.
@@ -1298,7 +1352,7 @@ public:
      *
      * Applicable to chart types: Surface, Surface3D.
      */
-    std::optional<bool> wireframe() const;
+    std::optional<bool> wireframe(int subchartIndex) const;
     /**
      * @brief sets whether the surface chart is drawn as a wireframe.
      * @param wireframe
@@ -1307,7 +1361,7 @@ public:
      *
      * Applicable to chart types: Surface, Surface3D
      */
-    void setWireframe(bool wireframe);
+    void setWireframe(int subchartIndex, bool wireframe);
 
     /**
      * @brief returns a map of formatting bands for a surface chart indexed from low to high.
@@ -1315,14 +1369,14 @@ public:
      *
      * Applicable to chart types: Surface, Surface3D.
      */
-    QMap<int, ShapeFormat> bandFormats() const;
+    QMap<int, ShapeFormat> bandFormats(int subchartIndex) const;
     /**
      * @brief sets a map of formatting bands for a surface chart.
      * @param bandFormats
      *
      * Applicable to chart types: Surface, Surface3D.
      */
-    void setBandFormats(QMap<int, ShapeFormat> bandFormats);
+    void setBandFormats(int subchartIndex, QMap<int, ShapeFormat> bandFormats);
 
     /**
      * @brief sets the visibility of the chart data table
@@ -1419,11 +1473,128 @@ public:
     void loadMediaFiles(Workbook *workbook);
 
 private:
-    friend class CT_XXXChart;
+    friend class SubChart;
     Series* seriesByOrder(int order);
     bool hasAxis(int id) const;
 };
 
+class SubChart
+{
+public:
+    SubChart(Chart::Type type);
+
+    Chart::Type type = Chart::Type::None;
+
+    /* Below are SubChart properties */
+
+    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
+    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
+    QList<Series> seriesList;
+    //+area, +area3d, +line, +line3d
+    std::optional<Chart::Grouping> grouping;
+    //+bar, +bar3d
+    std::optional<Chart::BarGrouping> barGrouping;
+
+    //+line, +line3d, +scatter, +radar, +bar, +bar3d, +area, +area3d,
+    //+pie, +pie3d, +doughnut, +ofpie, +bubble
+    std::optional<bool> varyColors;
+
+    //+line, +line3d, +stock, +scatter, +radar, +bar, +bar3d, +area, +area3d,
+    //+pie, +pie3d, +doughnut, +ofpie, +bubble
+    Labels labels;
+
+    //+line, +line3d, +stock, +area, +area3d,
+    std::optional<ShapeFormat> dropLines; //drop lines can be default
+
+    //+line, +stock,
+    std::optional<ShapeFormat> hiLowLines; //can be default
+
+    //+line, +stock
+    UpDownBar upDownBars; //optional
+
+    //+line
+    std::optional<bool> marker;
+    std::optional<bool> smooth;
+
+    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
+    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
+    QList<int> axesIds;
+
+    //+line3d, +bar3d, +area3d
+    std::optional<int> gapDepth;
+
+    //+scatter
+    Chart::ScatterStyle scatterStyle = Chart::ScatterStyle::Marker;
+
+    //+radar
+    Chart::RadarStyle radarStyle = Chart::RadarStyle::Standard;
+
+    //+bar, +bar3d
+    Chart::BarDirection barDirection = Chart::BarDirection::Column;
+
+    //+bar, +bar3d, +ofpie,
+    std::optional<int> gapWidth;
+
+    //+bar
+    std::optional<int> overlap; //in %
+
+    //+bar, +ofpie
+    QList<ShapeFormat> serLines;
+
+    //+bar3D
+    std::optional<Series::BarShape> barShape;
+
+    //+pie, +doughnut
+    std::optional<int> firstSliceAng; // [0..360] ? why not Angle?
+
+    //+doughnut
+    std::optional<int> holeSize; // in %, 1..90
+
+    //+ofpie
+    Chart::OfPieType ofPieType = Chart::OfPieType::Pie;
+    std::optional<Chart::SplitType> splitType;
+    std::optional<double> splitPos;
+    QList<int> customSplit;
+    std::optional<int> secondPieSize; // in %, 5..200
+
+    //+bubble
+    std::optional<bool> bubble3D;
+    std::optional<bool> showNegBubbles;
+    std::optional<int> bubbleScale; // in % [0..300]
+    std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
+
+    //+surface, +surface3d
+    std::optional<bool> wireframe;
+    QMap<int, ShapeFormat> bandFormats;
+
+    Series *addSeries(int index);
+    bool read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer) const;
+    friend class Chart;
+private:
+    void loadAreaChart(QXmlStreamReader &reader);
+    void loadSurfaceChart(QXmlStreamReader &reader);
+    void loadBubbleChart(QXmlStreamReader &reader);
+    void loadPieChart(QXmlStreamReader &reader);
+    void loadLineChart(QXmlStreamReader &reader);
+    void loadBarChart(QXmlStreamReader &reader);
+    void loadScatterChart(QXmlStreamReader &reader);
+    void loadStockChart(QXmlStreamReader &reader);
+    void loadRadarChart(QXmlStreamReader &reader);
+    void readBandFormats(QXmlStreamReader &reader);
+    void readDropLines(QXmlStreamReader &reader, ShapeFormat &shape);
+
+    void saveAreaChart(QXmlStreamWriter &writer) const;
+    void saveSurfaceChart(QXmlStreamWriter &writer) const;
+    void saveBubbleChart(QXmlStreamWriter &writer) const;
+    void savePieChart(QXmlStreamWriter &writer) const;
+    void saveLineChart(QXmlStreamWriter &writer) const;
+    void saveBarChart(QXmlStreamWriter &writer) const;
+    void saveScatterChart(QXmlStreamWriter &writer) const;
+    void saveStockChart(QXmlStreamWriter &writer) const;
+    void saveRadarChart(QXmlStreamWriter &writer) const;
+    void saveBandFormats(QXmlStreamWriter &writer) const;
+};
 }
 
 #endif // QXLSX_CHART_H

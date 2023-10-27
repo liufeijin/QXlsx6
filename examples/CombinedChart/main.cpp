@@ -38,15 +38,15 @@ int main()
     chart1->setTitle("Combined chart");
 
     //The first series - bar series
-    chart1->setType(Chart::Type::Bar);
-    chart1->addSeries(CellRange(1,1,2,10), NULL, true, true, false);
+    chart1->addSubchart(Chart::Type::Bar);
+    chart1->addSeries(CellRange(1,1,2,10), NULL, true, true, false, 0);
 
     //The second series - line chart
-    chart1->setType(Chart::Type::Line);
-    chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true);
+    chart1->addSubchart(Chart::Type::Line, chart1->axesIDs());
+    chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true, 1);
 
     /**
-    An example of a chart with series of different types. The first series is placed 
+    An example of a chart with series of different types. The first series is placed
     on the left axis, the second one is on the right axis.
     */
 
@@ -70,14 +70,12 @@ int main()
     chart2->title().textProperties().textShape = TextShapeType::textChevron;
 
     //The first series - bar series
-    chart2->setType(Chart::Type::Bar);
-    chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false);
-    chart2->setSeriesAxesIDs({bottomAxis.id(), leftAxis.id()});
+    chart2->addSubchart(Chart::Type::Bar, {bottomAxis.id(), leftAxis.id()});
+    chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false, 0);
 
     //The second series - line chart
-    chart2->setType(Chart::Type::Line);
-    chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true);
-    chart2->setSeriesAxesIDs({bottom2Axis.id(), rightAxis.id()});
+    chart2->addSubchart(Chart::Type::Line, {bottom2Axis.id(), rightAxis.id()});
+    chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true, 1);
 
     //right now both left and right axes are plotted on the left. We need to properly
     //position the right axis.

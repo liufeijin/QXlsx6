@@ -19,7 +19,7 @@ int chartsheet()
     //Add the first chartsheet
     Chartsheet *sheet = xlsx.addChartsheet("Chart1");
     Chart *barChart = sheet->chart();
-    barChart->setType(Chart::Type::Bar);
+    barChart->addSubchart(Chart::Type::Bar);
     barChart->addSeries(CellRange("A1:A9"), xlsx.sheet("Sheet1"));
     barChart->setTitle("Chart #1");
 

@@ -38,7 +38,7 @@ int chartlinefill()
     chart1->setLegend(Legend::Position::Right);
     chart1->setTitle("Line stroke style");
 
-    chart1->setType(Chart::Type::Line);
+    chart1->addSubchart(Chart::Type::Line);
     chart1->addSeries(CellRange(1,1,11,10), NULL, true, true, false);
     for (int i=0; i<chart1->seriesCount(); ++i) {
         chart1->series(i)->setMarker(MarkerFormat::MarkerType::None);
@@ -50,7 +50,7 @@ int chartlinefill()
     chart2->setLegend(Legend::Position::Right);
     chart2->setTitle("custom dash pattern");
 
-    chart2->setType(Chart::Type::Line);
+    chart2->addSubchart(Chart::Type::Line);
     chart2->addSeries(CellRange(1,1,12,10), NULL, true, true, false);
     //dashes and spaces lengths are in %
     QVector<double> customDashPattern {300,100,100,100,300,100,100,100,100,100,
@@ -83,7 +83,7 @@ int chartlinefill()
     chart3->setLegend(Legend::Position::Right);
     chart3->setTitle("Line ending");
 
-    chart3->setType(Chart::Type::Line);
+    chart3->addSubchart(Chart::Type::Line);
     chart3->addSeries(CellRange(1,1,13,10), NULL, true, true, false);
     for (int i=0; i<9; ++i) {
         chart3->series(i)->setMarker(MarkerFormat::MarkerType::None);
@@ -112,8 +112,7 @@ int chartlinefill()
     }
 
     Chart *chart4 = sheet->insertChart(45, 1, QSize(600, 300));
-    chart4->setType(Chart::Type::Bar); //required
-    chart4->addDefaultAxes(); //required
+    chart4->addSubchart(Chart::Type::Bar); //required
     xlsx.write(44,1,"Linear gradient");
 
     FillFormat f(FillFormat::FillType::GradientFill);
@@ -130,8 +129,7 @@ int chartlinefill()
 
     //Chart 5 will have path gradient fill
     Chart *chart5 = sheet->insertChart(45, 11, QSize(300, 300));
-    chart5->setType(Chart::Type::Bar); //required
-    chart5->addDefaultAxes(); //required
+    chart5->addSubchart(Chart::Type::Bar); //required
     xlsx.write(44,11,"Circle gradient");
 
     //the gradient fill is applied to the range [0%..100%] of the gradient path
@@ -147,8 +145,7 @@ int chartlinefill()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     //Chart 6 will use QGradient preset
     Chart *chart6 = sheet->insertChart(45, 21, QSize(300, 300));
-    chart6->setType(Chart::Type::Bar); //required
-    chart6->addDefaultAxes(); //required
+    chart6->addSubchart(Chart::Type::Bar); //required
     xlsx.write(44,21,"Preset gradient");
 
     FillFormat f2((QGradient(QGradient::KindSteel)));

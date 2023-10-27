@@ -43,7 +43,6 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
         anchor->ext = qMakePair(Coordinate(9293679ll), Coordinate(6068786ll));
 
         QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, flag));
-        chart->setType(Chart::Type::Bar);
         anchor->setObjectGraphicFrame(chart);
 
         d_func()->chart = chart.data();

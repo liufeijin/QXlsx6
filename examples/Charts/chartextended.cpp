@@ -39,14 +39,14 @@ int chartExtended()
     /// Gridlines
     // no gridlines
     Chart *chart11 = sheet->insertChart(4, 3, QSize(300, 300));
-    chart11->setType(Chart::Type::Scatter);
+    chart11->addSubchart(Chart::Type::Scatter);
     chart11->setLegend(Legend::Position::Right);
     chart11->setTitle("No gridlines");
     chart11->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
     // standarg gridlines
     Chart *chart12 = sheet->insertChart(4, 9, QSize(300, 300));
-    chart12->setType(Chart::Type::Scatter);
+    chart12->addSubchart(Chart::Type::Scatter);
     chart12->setLegend(Legend::Position::Right);
     chart12->setTitle("Standard major gridlines");
     chart12->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
@@ -55,7 +55,7 @@ int chartExtended()
 
     // custom gridlines
     Chart *chart13 = sheet->insertChart(4, 15, QSize(300, 300));
-    chart13->setType(Chart::Type::Scatter);
+    chart13->addSubchart(Chart::Type::Scatter);
     chart13->setLegend(Legend::Position::Right);
     chart13->setTitle("Custom major gridlines");
     chart13->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
@@ -64,7 +64,7 @@ int chartExtended()
 
     // standard gridlines
     Chart *chart14 = sheet->insertChart(4, 21, QSize(300, 300));
-    chart14->setType(Chart::Type::Scatter);
+    chart14->addSubchart(Chart::Type::Scatter);
     chart14->setLegend(Legend::Position::Right);
     chart14->setTitle("Major and minor gridlines");
     chart14->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
@@ -77,7 +77,7 @@ int chartExtended()
 
     // plain string title
     Chart *chart21 = sheet->insertChart(20, 3, QSize(300, 300));
-    chart21->setType(Chart::Type::Scatter);
+    chart21->addSubchart(Chart::Type::Scatter);
     chart21->setLegend(Legend::Position::Right);
     chart21->setTitle("Plain title");
     chart21->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
@@ -85,21 +85,21 @@ int chartExtended()
     // referenced title
     //note that the reference range includes 2 rows
     Chart *chart22 = sheet->insertChart(20, 9, QSize(300, 300));
-    chart22->setType(Chart::Type::Scatter);
+    chart22->addSubchart(Chart::Type::Scatter);
     chart22->setLegend(Legend::Position::Right);
     chart22->title().setStringReference(CellRange(4,1,5,1), xlsx.activeWorksheet());
     chart22->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
     // rich formatted title
     Chart *chart23 = sheet->insertChart(20, 15, QSize(300, 300));
-    chart23->setType(Chart::Type::Scatter);
+    chart23->addSubchart(Chart::Type::Scatter);
     chart23->setLegend(Legend::Position::Right);
     chart23->title().setHtml("<i>Rich</i> <b><font color=\"red\">formatted</font> title");
     chart23->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
     // referenced title with some custom formatting
     Chart *chart24 = sheet->insertChart(20, 21, QSize(300, 300));
-    chart24->setType(Chart::Type::Scatter);
+    chart24->addSubchart(Chart::Type::Scatter);
     chart24->setLegend(Legend::Position::Right);
     chart24->title().setStringReference(CellRange(4,1,5,1), xlsx.activeWorksheet());
     chart24->title().defaultCharacterProperties().underline = CharacterProperties::UnderlineType::Double;
@@ -111,7 +111,7 @@ int chartExtended()
 
     // title moved to the top-right corner
     Chart *chart31 = sheet->insertChart(36, 3, QSize(300, 300));
-    chart31->setType(Chart::Type::Scatter);
+    chart31->addSubchart(Chart::Type::Scatter);
     chart31->setLegend(Legend::Position::Right);
     chart31->setTitle("Title right-aligned");
     chart31->title().moveTo({1,0});
@@ -120,7 +120,7 @@ int chartExtended()
     // referenced title
     //note that the reference range includes 2 rows
     Chart *chart32 = sheet->insertChart(36, 9, QSize(300, 300));
-    chart32->setType(Chart::Type::Scatter);
+    chart32->addSubchart(Chart::Type::Scatter);
     chart32->setLegend(Legend::Position::Right);
     chart32->setTitle("Title overlayed");
     chart32->title().setOverlay(true);
@@ -128,7 +128,7 @@ int chartExtended()
 
     // rich formatted title
     Chart *chart33 = sheet->insertChart(36, 15, QSize(300, 300));
-    chart33->setType(Chart::Type::Scatter);
+    chart33->addSubchart(Chart::Type::Scatter);
     chart33->setLegend(Legend::Position::Right);
     chart33->setTitle("Title with line and fill");
     chart33->title().shape().line().setStrokeType(LineFormat::StrokeType::Solid);
@@ -140,7 +140,7 @@ int chartExtended()
 
     // referenced title with some custom formatting
     Chart *chart34 = sheet->insertChart(36, 21, QSize(300, 300));
-    chart34->setType(Chart::Type::Scatter);
+    chart34->addSubchart(Chart::Type::Scatter);
     chart34->setLegend(Legend::Position::Right);
     chart34->title().setStringReference(CellRange(4,1,5,1), xlsx.activeWorksheet());
     chart34->title().shape().setPresetGeometry(ShapeType::can);
