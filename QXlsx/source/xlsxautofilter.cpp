@@ -23,14 +23,6 @@ struct AutoFilterColumn
 
 };
 
-struct SortParameters
-{
-    void write(QXmlStreamWriter &writer, const QString &name) const;
-    void read(QXmlStreamReader &reader);
-    bool operator==(const SortParameters &other) const;
-    bool isValid() const;
-};
-
 class AutoFilterPrivate : public QSharedData
 {
 public:
@@ -41,7 +33,7 @@ public:
 
     CellRange range;
     QMap<int, AutoFilterColumn> columns;
-    SortParameters sort;
+    SortState sort;
     ExtensionList extLst;
 };
 
@@ -566,29 +558,6 @@ bool AutoFilterColumn::isValid() const
     return true;
 }
 
-void SortParameters::write(QXmlStreamWriter &writer, const QString &name) const
-{
-    if (!isValid()) return;
-    //TODO
-}
-
-void SortParameters::read(QXmlStreamReader &reader)
-{
-
-}
-
-bool SortParameters::operator==(const SortParameters &other) const
-{
-    //TODO
-    return true;
-}
-
-bool SortParameters::isValid() const
-{
-    //TODO
-    return true;
-}
-
 bool Filter::operator==(const Filter &other) const
 {
     if (type != other.type) return false;
@@ -619,4 +588,98 @@ bool Filter::operator!=(const Filter &other) const
     return !operator==(other);
 }
 
+bool SortState::isValid() const
+{
+    return ref.isValid();
 }
+
+bool SortState::operator==(const SortState &other) const
+{
+    if (columnSort != other.columnSort) return false;
+    if (caseSensitive != other.caseSensitive) return false;
+    if (sortMethod != other.sortMethod) return false;
+    if (ref != other.ref) return false;
+    if (extLst != other.extLst) return false;
+    if (sortConditions != other.sortConditions) return false;
+    return true;
+}
+
+bool SortState::operator!=(const SortState &other) const
+{
+    return !operator==(other);
+}
+void SortState::write(QXmlStreamWriter &writer, const QString &name) const
+{
+    if (!isValid()) return;
+    writer.writeStartElement(name);
+    writeAttribute(writer, QLatin1String("columnSort"), columnSort);
+    writeAttribute(writer, QLatin1String("caseSensitive"), caseSensitive);
+    if (sortMethod.has_value())
+        writeAttribute(writer, QLatin1String("sortMethod"), toString(sortMethod.value()));
+    writeAttribute(writer, QLatin1String("ref"), ref.toString());
+    for (int i=0; i<sortConditions.size() && i<64; i++) {
+        auto &s = sortConditions.at(i);
+        writer.writeEmptyElement(QLatin1String("sortCondition"));
+        writeAttribute(writer, QLatin1String("descending"), s.descending);
+        if (s.sortBy.has_value())
+            writeAttribute(writer, QLatin1String("sortBy"), toString(s.sortBy.value()));
+        writeAttribute(writer, QLatin1String("ref"), s.ref.toString());
+        writeAttribute(writer, QLatin1String("customList"), s.customList);
+        writeAttribute(writer, QLatin1String("dxfId"), s.dxfId);
+//        writeAttribute(writer, QLatin1String("iconSet"), s.iconSet); //TODO
+//        writeAttribute(writer, QLatin1String("iconId"), s.iconId); //TODO
+    }
+    extLst.write(writer, QLatin1String("extLst"));
+    writer.writeEndElement();
+}
+
+void SortState::read(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    auto a = reader.attributes();
+    parseAttributeBool(a, QLatin1String("columnSort"), columnSort);
+    parseAttributeBool(a, QLatin1String("caseSensitive"), caseSensitive);
+    if (a.hasAttribute(QLatin1String("sortMethod"))) {
+        SortMethod t; fromString(a.value(QLatin1String("sortMethod")).toString(), t);
+        sortMethod = t;
+    }
+    ref = CellReference::fromString(a.value(QLatin1String("ref")).toString());
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            a = reader.attributes();
+            if (reader.name() == QLatin1String("sortCondition")) {
+                SortCondition s;
+                parseAttributeBool(a, QLatin1String("descending"), s.descending);
+                if (a.hasAttribute(QLatin1String("sortBy"))) {
+                    SortBy t; fromString(a.value(QLatin1String("sortBy")).toString(), t);
+                    s.sortBy = t;
+                }
+                s.ref = CellReference::fromString(a.value(QLatin1String("ref")).toString());
+                parseAttributeString(a, QLatin1String("customList"), s.customList);
+                parseAttributeInt(a, QLatin1String("dxfId"), s.dxfId);
+            }
+            else if (reader.name() == QLatin1String("extLst")) extLst.read(reader);
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+bool SortState::SortCondition::operator==(const SortCondition &other) const
+{
+    if (descending != other.descending) return false;
+    if (sortBy != other.sortBy) return false;
+    if (ref != other.ref) return false;
+    if (customList != other.customList) return false;
+    if (dxfId != other.dxfId) return false;
+    //TODO: if (iconSet != other.) return false;
+    //TODO: if (iconId != other.) return false;
+    return true;
+}
+
+}
+
+
+

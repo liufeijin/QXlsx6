@@ -8,7 +8,7 @@
 #include "xlsxglobal.h"
 #include "xlsxcellrange.h"
 #include "xlsxutility_p.h"
-
+#include "xlsxmain.h"
 
 namespace QXlsx {
 
@@ -152,7 +152,59 @@ struct QXLSX_EXPORT Filter
 
 };
 
+class SortState
+{
+public:
+    enum class SortBy
+    {
+        Value,
+        CellColor,
+        FontColor,
+        Icon
+    };
+    enum class SortMethod
+    {
+        None,
+        Stroke,
+        PinYin,
+        };
+    struct SortCondition
+    {
+        std::optional<bool> descending;// default="false"/>
+        std::optional<SortBy> sortBy;// default="value"/>
+        CellReference ref; //required"/>
+        QString customList;
+        std::optional<int> dxfId;
+        bool operator==(const SortCondition &other) const;
+        //TODO: std::optional<IconSet> iconSet;// default="3Arrows"/>
+        //TODO: std::optional<int> iconId;
+    };
 
+    std::optional<bool> columnSort; // default="false"/>
+    std::optional<bool> caseSensitive; // default="false"/>
+    std::optional<SortMethod> sortMethod; // default="none"/>
+    CellReference ref; //required
+    ExtensionList extLst;
+    QList<SortCondition> sortConditions;
+
+    SERIALIZE_ENUM(SortMethod, {
+       {SortMethod::None,   "none"},
+       {SortMethod::PinYin, "pinYin"},
+       {SortMethod::Stroke, "stroke"}
+    });
+    SERIALIZE_ENUM(SortBy, {
+        {SortBy::CellColor, "cellColor"},
+        {SortBy::FontColor, "fontColor"},
+        {SortBy::Icon, "icon"},
+        {SortBy::Value, "value"}
+    });
+
+    bool operator==(const SortState &other) const;
+    bool operator!=(const SortState &other) const;
+    bool isValid() const;
+    void write(QXmlStreamWriter &writer, const QString &name) const;
+    void read(QXmlStreamReader &reader);
+};
 
 class AutoFilterPrivate;
 /**
@@ -395,8 +447,6 @@ public:
     bool operator==(const AutoFilter &other) const;
     bool operator!=(const AutoFilter &other) const;
     operator QVariant() const;
-
-
 private:
     QSharedDataPointer<AutoFilterPrivate> d;
 #ifndef QT_NO_DEBUG_STREAM
