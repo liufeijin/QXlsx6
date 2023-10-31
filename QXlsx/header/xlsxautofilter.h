@@ -461,5 +461,6 @@ QDebug operator<<(QDebug, const AutoFilter &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::AutoFilter)
+Q_DECLARE_TYPEINFO(QXlsx::AutoFilter, Q_MOVABLE_TYPE);
 
 #endif // XLSXAUTOFILTER_H

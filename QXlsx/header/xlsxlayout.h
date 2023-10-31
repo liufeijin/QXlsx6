@@ -118,5 +118,6 @@ QDebug operator<<(QDebug dbg, const Layout &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::Layout)
+Q_DECLARE_TYPEINFO(QXlsx::Layout, Q_MOVABLE_TYPE);
 
 #endif // XLSXLAYOUT_H

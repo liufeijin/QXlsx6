@@ -670,4 +670,6 @@ private:
 
 }
 
+Q_DECLARE_TYPEINFO(QXlsx::Series, Q_MOVABLE_TYPE);
+
 #endif // XLSXSERIES_H

@@ -321,5 +321,6 @@ QDebug operator<<(QDebug dbg, const LineFormat &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::LineFormat)
+Q_DECLARE_TYPEINFO(QXlsx::LineFormat, Q_MOVABLE_TYPE);
 
 #endif

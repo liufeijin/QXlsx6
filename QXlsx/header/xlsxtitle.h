@@ -285,5 +285,6 @@ QDebug operator<<(QDebug dbg, const Title &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::Title)
+Q_DECLARE_TYPEINFO(QXlsx::Title, Q_MOVABLE_TYPE);
 
 #endif // XLSXTITLE_H

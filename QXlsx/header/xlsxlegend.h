@@ -151,4 +151,6 @@ private:
 
 }
 
+Q_DECLARE_TYPEINFO(QXlsx::Legend, Q_MOVABLE_TYPE);
+
 #endif // XLSXLEGEND_H

@@ -755,6 +755,8 @@ QDebug operator<<(QDebug dbg, const Axis &axis);
 
 }
 
+Q_DECLARE_TYPEINFO(QXlsx::DisplayUnits, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QXlsx::Axis, Q_MOVABLE_TYPE);
 
 
 #endif // XLSXAXIS_H

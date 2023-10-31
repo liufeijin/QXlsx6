@@ -17,6 +17,8 @@ class SheetProtectionPrivate;
  * Not all parameters are applicable to chartsheets. See the description of parameters.
  * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
  * when saving the document.
+ *
+ * The class is _implicitly shared_: the deep copy occurs only in the non-const methods.
  */
 class QXLSX_EXPORT SheetProtection
 {
@@ -440,5 +442,6 @@ QDebug operator<<(QDebug dbg, const SheetProtection &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::SheetProtection)
+Q_DECLARE_TYPEINFO(QXlsx::SheetProtection, Q_MOVABLE_TYPE);
 
 #endif // XLSXSHEETPROTECTION_H

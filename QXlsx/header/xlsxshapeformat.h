@@ -107,5 +107,6 @@ QDebug operator<<(QDebug dbg, const ShapeFormat &f);
 }
 
 Q_DECLARE_METATYPE(QXlsx::ShapeFormat)
+Q_DECLARE_TYPEINFO(QXlsx::ShapeFormat, Q_MOVABLE_TYPE);
 
 #endif // XLSXSHAPEPROPERTIES_H

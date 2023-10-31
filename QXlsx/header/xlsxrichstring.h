@@ -88,5 +88,6 @@ private:
 }
 
 Q_DECLARE_METATYPE(QXlsx::RichString)
+Q_DECLARE_TYPEINFO(QXlsx::RichString, Q_MOVABLE_TYPE);
 
 #endif // XLSXRICHSTRING_H

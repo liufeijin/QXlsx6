@@ -137,5 +137,6 @@ QDebug operator<<(QDebug dbg, const Font &c);
 }
 
 Q_DECLARE_METATYPE(QXlsx::Font)
+Q_DECLARE_TYPEINFO(QXlsx::Font, Q_MOVABLE_TYPE);
 
 #endif // XLSXFONT_H

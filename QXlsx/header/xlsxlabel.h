@@ -218,6 +218,8 @@ QDebug operator<<(QDebug dbg, const Labels &f);
 
 Q_DECLARE_METATYPE(QXlsx::Labels)
 Q_DECLARE_METATYPE(QXlsx::Label)
+Q_DECLARE_TYPEINFO(QXlsx::Label, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QXlsx::Labels, Q_MOVABLE_TYPE);
 
 
 #endif // XLSXLABEL_H

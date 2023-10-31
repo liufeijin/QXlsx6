@@ -486,5 +486,6 @@ private:
 }
 
 Q_DECLARE_METATYPE(QXlsx::DataValidation);
+Q_DECLARE_TYPEINFO(QXlsx::DataValidation, Q_MOVABLE_TYPE);
 
 #endif // QXLSX_XLSXDATAVALIDATION_H

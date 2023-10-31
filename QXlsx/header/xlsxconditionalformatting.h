@@ -122,4 +122,6 @@ private:
 
 }
 
+Q_DECLARE_TYPEINFO(QXlsx::ConditionalFormatting, Q_MOVABLE_TYPE);
+
 #endif // QXLSX_XLSXCONDITIONALFORMATTING_H

@@ -1115,5 +1115,7 @@ QDebug operator<<(QDebug dbg, const TextFormat &f);
 
 Q_DECLARE_METATYPE(QXlsx::Text)
 Q_DECLARE_METATYPE(QXlsx::TextFormat)
+Q_DECLARE_TYPEINFO(QXlsx::Text, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QXlsx::TextFormat, Q_MOVABLE_TYPE);
 
 #endif // XLSXTEXT_H

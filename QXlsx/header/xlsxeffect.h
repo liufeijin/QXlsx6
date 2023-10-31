@@ -257,6 +257,6 @@ QDebug operator<<(QDebug dbg, const Effect &e);
 //}
 //#endif
 
-
+Q_DECLARE_TYPEINFO(QXlsx::Effect, Q_MOVABLE_TYPE);
 
 #endif // XLSXEFFECT_H

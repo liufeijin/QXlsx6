@@ -108,4 +108,6 @@ private:
 
 }
 
+Q_DECLARE_TYPEINFO(QXlsx::MarkerFormat, Q_MOVABLE_TYPE);
+
 #endif // XLSXMARKERFORMAT_H
