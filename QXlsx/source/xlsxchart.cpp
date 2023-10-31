@@ -699,9 +699,9 @@ void Chart::moveSeries(int oldOrder, int newOrder)
     s2->setOrder(oldOrder);
 }
 
-QList<Axis> Chart::addDefaultAxes(Type type)
+QList<int> Chart::addDefaultAxes(Type type)
 {
-    QList<Axis> result;
+    QList<int> result;
     switch (type) {
     case Type::Pie:
     case Type::Pie3D:
@@ -718,8 +718,8 @@ QList<Axis> Chart::addDefaultAxes(Type type)
         auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
         ax1.setCrossAxis(&ax2);
         ax2.setCrossAxis(&ax1);
-        result << ax1;
-        result << ax2;
+        result << ax1.id();
+        result << ax2.id();
         break;
     }
     case Type::Scatter: {
@@ -727,8 +727,8 @@ QList<Axis> Chart::addDefaultAxes(Type type)
         auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
         ax1.setCrossAxis(&ax2);
         ax2.setCrossAxis(&ax1);
-        result << ax1;
-        result << ax2;
+        result << ax1.id();
+        result << ax2.id();
         break;
     }
     case Type::Area3D:
@@ -742,24 +742,24 @@ QList<Axis> Chart::addDefaultAxes(Type type)
         ax1.setCrossAxis(&ax2);
         ax2.setCrossAxis(&ax1);
         ax3.setCrossAxis(&ax2);
-        result << ax1;
-        result << ax2;
-        result << ax3;
+        result << ax1.id();
+        result << ax2.id();
+        result << ax3.id();
         break;
     }
     }
     return result;
 }
 
-void Chart::addSubchart(Type type, QList<int> axesIDs)
+void Chart::addSubchart(Type type, const QList<int> &axesIDs)
 {
     Q_D(Chart);
     SubChart sub(type);
     if (axesIDs.isEmpty()) {
         auto axes = addDefaultAxes(type);
-        for (auto &ax: axes) axesIDs << ax.id();
+        sub.axesIds = axes;
     }
-    sub.axesIds = axesIDs;
+
     d->subcharts << sub;
 }
 

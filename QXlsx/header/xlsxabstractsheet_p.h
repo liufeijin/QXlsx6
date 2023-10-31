@@ -59,7 +59,7 @@ public:
     PageMargins pageMargins;
     PageSetup pageSetup;
     QSharedPointer<MediaFile> pictureFile;
-    std::optional<SheetProtection> sheetProtection; //using optional allows adding default protection
+    SheetProtection sheetProtection;
     QList<SheetView> sheetViews;
     ExtensionList extLst;
     SheetProperties sheetProperties;

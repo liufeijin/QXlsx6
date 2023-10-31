@@ -59,22 +59,18 @@ int main()
     auto &bottomAxis = chart2->addAxis(Axis::Type::Category, Axis::Position::Bottom, "bottom axis");
     auto &leftAxis = chart2->addAxis(Axis::Type::Value, Axis::Position::Left, "left axis");
     auto &rightAxis = chart2->addAxis(Axis::Type::Value, Axis::Position::Right, "right axis");
-    //we need the 2nd bottom axis as Excel requires each subchart have its own subset of axes
-    auto &bottom2Axis = chart2->addAxis(Axis::Type::Category, Axis::Position::Bottom);
-    //hide the second bottom axis
-    bottom2Axis.setVisible(false);
     //link axes together
     bottomAxis.setCrossAxis(&leftAxis);
-    rightAxis.setCrossAxis(&bottom2Axis);
+    rightAxis.setCrossAxis(&bottomAxis);
 
-    chart2->title().textProperties().textShape = TextShapeType::textChevron;
+    //chart2->title().textProperties().textShape = TextShapeType::textChevron;
 
     //The first series - bar series
     chart2->addSubchart(Chart::Type::Bar, {bottomAxis.id(), leftAxis.id()});
     chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false, 0);
 
     //The second series - line chart
-    chart2->addSubchart(Chart::Type::Line, {bottom2Axis.id(), rightAxis.id()});
+    chart2->addSubchart(Chart::Type::Line, {bottomAxis.id(), rightAxis.id()});
     chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true, 1);
 
     //right now both left and right axes are plotted on the left. We need to properly

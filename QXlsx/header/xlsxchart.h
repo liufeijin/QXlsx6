@@ -72,6 +72,16 @@ class SubChart;
  * #addSubchart(), #setSubchartAxes(), #addDefaultAxes()), a number of associated
  * series (see #addSeries() overloads) and parameters specific to the chart (f.e. #bubbleScale()).
  *
+ * Each subchart type requires different count and types of axes. Here is the table of requirements:
+ *
+ * Chart type | axes count and types
+ * -----------|---------------------
+ * Line, Bar, Area, Radar, Stock, Bubble | 2: Category and Value
+ * Line3D, Surface3D | 3: Category, Value and Series
+ * Bar3D, Area3D, Surface | 2-3: Category, Value and optionally Series
+ * Scatter | 2: Value and Value
+ * Pie, Pie3D, Doughnut, OfPie | 0 (no axes required)
+ *
  * The easiest way of adding chart is to use only one subchart:
  * @code
  * Chart *chart = sheet->insertChart(3, 3, QSize(300, 300));
@@ -98,11 +108,11 @@ class SubChart;
  * // Create the second subchart
  *
  * // the second subchart has different type, but uses the same axes as the first one.
- * chart->addSubchart(Chart::Type::Bar, chart->axesIDs()); //axesIDs() returns ids of all previously defined axes
+ * chart->addSubchart(Chart::Type::Bar, chart->subchartAxes(0));
  * chart->addSeries(CellRange("B1:B9"), nullptr, false, false, true, 1);
  * @endcode
  *
- * The code below adds right axis to the chart
+ * The code below adds the right axis to the chart
  *
  * @code
  * Chart *chart = sheet->insertChart(3, 3, QSize(300, 300));
@@ -110,15 +120,11 @@ class SubChart;
  * chart->addSubchart(Chart::Type::Line);
  *
  * // Create the second subchart of the same type, but with different set of axes
- *
- * // wee need the second bottom axis
- * auto bottomAxis = chart->addAxis(QXlsx::Axis::Type::Category, QXlsx::Axis::Position::Bottom);
  * auto rightAxis = chart->addAxis(QXlsx::Axis::Type::Value, QXlsx::Axis::Position::Right);
- * rightAxis.setCrossAxis(bottomAxis); // required
+ * auto bottomAxis = chart->axis(QXlsx::Axis::Position::Bottom);
+ * rightAxis.setCrossAxis(bottomAxis->id()); // required
  * rightAxis.setCrossesType(QXlsx::Axis::CrossesType::Maximum); //this actually moves rightAxis to the right
- * bottomAxis->setVisible(false); // two subcharts cannot use the same axis, so we have
- * // two bottom axes (the default one and bottomAxis), but we need only the default one.
- * chart->addSubchart(QXlsx::Chart::Type::Line, {bottomAxis.id(), rightAxis.id()});
+ * chart->addSubchart(QXlsx::Chart::Type::Line, {bottomAxis->id(), rightAxis.id()});
  *
  * // Add series
  * chart->addSeries(CellRange("A1:A9"), nullptr, false, false, true, 0);
@@ -323,13 +329,13 @@ public:
     ~Chart();
 public:
     /**
-     * @brief Add new subchart of @a type and with axes specified with @a axesIDs.
+     * @brief Adds new subchart of @a type and with axes specified with @a axesIDs.
      * @param type subchart type.
      * @param axesIDs ids of axes for this subchart. Each subchart must have a
      * subset of axes defined in the chart. If axesIDs is empty, then new set of default
      * axes are created for the new subchart.
      */
-    void addSubchart(Type type, QList<int> axesIDs = {});
+    void addSubchart(Type type, const QList<int> &axesIDs = {});
     /**
      * @brief sets @a axesIDs to the subchart with index @a subchartIndex.
      * @param subchartIndex zero-based subchart index.
@@ -373,6 +379,7 @@ public:
      * @brief sets the subchart type
      * @param subchartIndex zero-based index of a subchart.
      * @param type Type enum value.
+     * @note Check axes that this subchart associated with after invoking this method.
      */
     void setSubchartType(int subchartIndex, Type type);
 
@@ -385,7 +392,7 @@ public:
     void setChartLineFormat(const LineFormat &format);
     /**
      * @brief sets line format to the plot area (the inner area of the chart
-     * where actual plotting occurs).
+     * where actual series plotting occurs).
      *
      * This is a convenience method, equivalent to ```plotAreaShape()->setLineFormat(format)```
      * @param format
@@ -546,10 +553,12 @@ public:
      * Scatter | 2: Value (bottom) and Value (left)
      * Pie, Pie3D, Doughnut, OfPie | 0 (no axes required)
      *
-     * @param type chart type
-     * @return list of axes. Can be empty.
+     * @param type chart type.
+     * @return list of axes IDs. Can be empty.
+     * @note This method does not check if the required axes are already added to the chart,
+     * it simply creates a new set of axes.
      */
-    QList<Axis> addDefaultAxes(Type type);
+    QList<int> addDefaultAxes(Type type);
 
     /**
      * @brief adds new axis with specified parameters.
@@ -640,7 +649,7 @@ public:
     void removeAxes();
     /**
      * @brief returns the list of series that use axis with @a axisID.
-     * @param axisID axis ID (_not axis index!_). @see Axis::id().
+     * @param axisID axis ID. @see Axis::id().
      * @return
      */
     QList<Series> seriesThatUseAxis(int axisID) const;
@@ -674,6 +683,7 @@ public:
      */
     Title &title();
     /**
+     * @overload
      * @brief returns a copy of the chart's title
      * @return shallow copy of the Title object.
      */
@@ -693,7 +703,7 @@ public:
     void setAutoTitleDeleted(bool value);
 
     /**
-     * @brief return whether only visible cells should be plotted on the chart.
+     * @brief returns whether only visible cells should be plotted on the chart.
      * @return
      *
      * If not set, the default value is true.
@@ -767,6 +777,7 @@ public:
      */
     Layout layout() const;
     /**
+     * @overload
      * @brief returns the chart's plot area layout.
      * @return reference to the Layout object.
      */
@@ -776,607 +787,6 @@ public:
      * @param layout
      */
     void setLayout(const Layout &layout);
-
-    // Parameters specific to the subcharts
-
-    /**
-     * @brief returns the kind of grouping for a line or area chart.
-     *
-     * Applicable to: Area, Area3D, Line, Line3D.
-     *
-     * @return valid Chart::Grouping if property is set, nullopt otherwise.
-     */
-    std::optional<Chart::Grouping> grouping(int subchartIndex) const;
-    /**
-     * @brief sets the kind of grouping for a line or area chart.
-     *
-     * Applicable to: Area, Area3D, Line, Line3D.
-     *
-     * @param grouping Chart::Grouping
-     */
-    void setGrouping(int subchartIndex, Chart::Grouping grouping);
-
-    /**
-     * @brief returns the kind of grouping for a bar chart.
-     *
-     * Applicable to: Bar, Bar3D.
-     *
-     * @return valid Chart::BarGrouping if property is set, nullopt otherwise.
-     */
-    std::optional<Chart::BarGrouping> barGrouping(int subchartIndex) const;
-    /**
-     * @brief sets the kind of grouping for a bar chart.
-     *
-     * Applicable to chart types: Bar, Bar3D.
-     *
-     * @param grouping Chart::BarGrouping
-     */
-    void setBarGrouping(int subchartIndex, Chart::BarGrouping grouping);
-
-    /**
-     * @brief specifies that each data marker in the series has a different color.
-     *
-     * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
-     * Pie, Pie3D, Doughnut, OfPie, Bubble.
-     *
-     * @return valid bool value if property is set, nullopt otherwise.
-     *
-     * @note by default varyColors is not set. But in order to get sensible charts
-     * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to true.
-     *
-     */
-    std::optional<bool> varyColors(int subchartIndex) const;
-    /**
-     * @brief sets that each data marker in the series has a different color.
-     *
-     * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
-     * Pie, Pie3D, Doughnut, OfPie, Bubble.
-     *
-     * @param varyColors true if each data marker in the series has a different color, false
-     * if every data markers in the series have the same color.
-     */
-    void setVaryColors(int subchartIndex, bool varyColors);
-
-    /**
-     * @brief returns the entire chart labels properties.
-     *
-     * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
-     *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
-     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
-     *
-     * @return a copy of the chart labels.
-     *
-     */
-    Labels labels(int subchartIndex) const;
-    /**
-     * @brief returns the entire chart labels properties.
-     *
-     * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
-     *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
-     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
-     *
-     * @return reference to the chart labels.
-     */
-    Labels &labels(int subchartIndex);
-    /**
-     * @brief sets the entire chart labels properties.
-     *
-     * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
-     *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
-     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
-     *
-     * @param labels
-     */
-    void setLabels(int subchartIndex, const Labels &labels);
-
-    /**
-     * @brief returns the chart drop lines.
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
-     *
-     * @return a copy of the chart dropLines.
-     */
-    ShapeFormat dropLines(int subchartIndex) const;
-    /**
-     * @brief returns the chart drop lines.
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
-     *
-     * @return a reference to the chart dropLines.
-     */
-    ShapeFormat &dropLines(int subchartIndex);
-    /**
-     * @brief sets the chart drop lines.
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
-     *
-     * @param dropLines If not valid, sets default drop lines.
-     * @note To remove drop lines use #removeDropLines().
-     */
-    void setDropLines(int subchartIndex, const ShapeFormat &dropLines);
-    /**
-     * @brief removes the chart drop lines.
-     *
-     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
-     */
-    void removeDropLines(int subchartIndex);
-
-    /**
-     * @brief returns the chart high-low lines.
-     *
-     * Applicable to chart types: Line, Stock.
-     *
-     * @return a copy of the chart hiLowLines.
-     */
-    ShapeFormat hiLowLines(int subchartIndex) const;
-    /**
-     * @brief returns the chart high-low lines.
-     *
-     * Applicable to chart types: Line, Stock
-     *
-     * @return a reference to the chart hiLowLines.
-     */
-    ShapeFormat &hiLowLines(int subchartIndex);
-    /**
-     * @brief sets the chart high-low lines.
-     *
-     * Applicable to chart types: Line, Stock.
-     *
-     * @param hiLowLines If not valid, sets default hi-low lines.
-     * @note to remove hi-low lines use #removeHiLowLines().
-     */
-    void setHiLowLines(int subchartIndex, const ShapeFormat &hiLowLines);
-    void removeHiLowLines(int subchartIndex);
-
-    /**
-     * @brief returns the chart up-dow lines.
-     *
-     * Applicable to chart types: Line, Stock.
-     *
-     * @return a copy of the chart upDownBars.
-     */
-    UpDownBar upDownBars(int subchartIndex) const;
-    /**
-     * @brief returns the chart up-down lines.
-     *
-     * Applicable to chart types: Line, Stock
-     *
-     * @return a reference to the chart upDownBars.
-     */
-    UpDownBar &upDownBars(int subchartIndex);
-    /**
-     * @brief sets the chart up-down lines.
-     *
-     * Applicable to chart types: Line, Stock
-     *
-     * @param upDownBars
-     */
-    void setUpDownBars(int subchartIndex, const UpDownBar &upDownBars);
-
-    /**
-     * @brief if true, the chart series marker is shown.
-     *
-     * Applicable to chart types: Line.
-     *
-     * @return valid boolean value if property is set, nullopt otherwise.
-     */
-    std::optional<bool> markerShown(int subchartIndex) const;
-    /**
-     * @brief sets that the chart series marker shall be shown.
-     *
-     * Applicable to chart types: Line.
-     *
-     * @param markerShown
-     */
-    void setMarkerShown(int subchartIndex, bool markerShown);
-
-    /**
-     * @brief returns smoothing of the chart series. If true, the line
-     * connecting the points on the chart is smoothed using Catmull-Rom splines.
-     *
-     * Applicable to chart types: Line.
-     *
-     * @return valid boolean value if property is set, nullopt otherwise.
-     */
-    std::optional<bool> smooth(int subchartIndex) const;
-    /**
-     * @brief sets smoothing of the chart series. If true, the line
-     * connecting the points on the chart shall be smoothed using Catmull-Rom splines.
-     *
-     * Applicable to chart types: Line.
-     *
-     * @param smooth if true, the line
-     * connecting the points on the chart is smoothed using Catmull-Rom splines.
-     */
-    void setSmooth(int subchartIndex, bool smooth);
-
-    /**
-     * @brief specifies the space between bar or column clusters, as a
-     * percentage of the bar or column width.
-     *
-     * Applicable to chart types: Line3D, Bar3D, Area3D.
-     *
-     * @return valid double ([0..]) value if property is set, nullopt otherwise.
-     */
-    std::optional<int> gapDepth(int subchartIndex) const;
-    /**
-     * @brief sets the space between bar or column clusters, as a
-     * percentage of the bar or column width.
-     *
-     * Applicable to chart types: Line3D, Bar3D, Area3D.
-     *
-     * The default value is 100.
-     *
-     * @param gapDepth value of the gap depth, in percents (100 equals the bar width).
-     */
-    void setGapDepth(int subchartIndex, int gapDepth);
-
-    /**
-     * @brief returns the style of the scatter chart.
-     *
-     * The default value is ScatterStyle::Marker.
-     *
-     * @return Chart::ScatterStyle
-     */
-    ScatterStyle scatterStyle(int subchartIndex) const;
-    /**
-     * @brief sets the style of the scatter chart.
-     *
-     * If not set, the default value is ScatterStyle::Marker.
-     *
-     * @param scatterStyle
-     */
-    void setScatterStyle(int subchartIndex, ScatterStyle scatterStyle);
-
-    /**
-     * @brief returns the style of the radar chart.
-     *
-     * The default value is RadarStyle::Standard.
-     *
-     * @return RadarStyle
-     */
-    RadarStyle radarStyle(int subchartIndex) const;
-    /**
-     * @brief sets the style of the radar chart.
-     *
-     * If not set, the default value is RadarStyle::Standard.
-     *
-     * @param radarStyle
-     */
-    void setRadarStyle(int subchartIndex, RadarStyle radarStyle);
-
-    /**
-     * @brief returns whether the series form a bar (horizontal)
-     * chart or a column (vertical) chart.
-     *
-     * The default value is BarDirection::Column.
-     *
-     * Applicable to chart types: Bar, Bar3D.
-     *
-     * @return
-     */
-    BarDirection barDirection(int subchartIndex) const;
-    /**
-     * @brief sets whether the series form a bar (horizontal)
-     * chart or a column (vertical) chart.
-     *
-     * If not set, the default value is BarDirection::Column.
-     *
-     * Applicable to chart types: Bar, Bar3D.
-     *
-     * @param barDirection
-     */
-    void setBarDirection(int subchartIndex, BarDirection barDirection);
-
-    /**
-     * @brief returns the space between bar or column clusters, as a
-     * percentage of the bar or column width.
-     *
-     * Applicable to chart types: Bar, Bar3D, OfPie.
-     *
-     * @return valid % ([0..500]) value if property is set, nullopt otherwise.
-     */
-    std::optional<int> gapWidth(int subchartIndex) const;
-    /**
-     * @brief sets the space between bar or column clusters, as a
-     * percentage of the bar or column width.
-     *
-     * Applicable to chart types: Bar, Bar3D, OfPie.
-     *
-     * The default value is 150.
-     *
-     * @param gapWidth gap width in percents (0..500).
-     */
-    void setGapWidth(int subchartIndex, int gapWidth);
-
-    /**
-     * @brief specifies how much bars and columns shall overlap on 2-D charts.
-     *
-     * Applicable to chart types: Bar.
-     *
-     * @return valid int value (percentage) if property is set, nullopt otherwise.
-     */
-    std::optional<int> overlap(int subchartIndex) const;
-    /**
-     * @brief sets how much bars and columns shall overlap on 2-D charts.
-     *
-     * If not set, the default value is 0.
-     *
-     * Applicable to chart types: Bar.
-     *
-     * @param overlap overlap percentage in the range [-100..100].
-     */
-    void setOverlap(int subchartIndex, int overlap);
-
-    /**
-     * @brief seriesLines returns the series lines of the chart.
-     *
-     * Applicable to chart types: Bar, OfPie.
-     *
-     * @return A list of the series lines formats.
-     */
-    QList<ShapeFormat> seriesLines(int subchartIndex) const;
-    /**
-     * @brief seriesLines returns the series lines of the chart.
-     *
-     * Applicable to chart types: Bar, OfPie.
-     *
-     * @return a reference to the series lines formats.
-     */
-    QList<ShapeFormat> &seriesLines(int subchartIndex);
-    /**
-     * @brief setSeriesLines sets the series lines of the chart.
-     *
-     * Applicable to chart types: Bar, OfPie.
-     *
-     * @param seriesLines
-     */
-    void setSeriesLines(int subchartIndex, const QList<ShapeFormat> &seriesLines);
-
-    /**
-     * @brief barShape returns the shape of a series or a 3-D bar chart.
-     *
-     * Applicable to chart types: Bar3D.
-     *
-     * @return valid Series::BarShape value or nullopt if the property is not set.
-     */
-    std::optional<Series::BarShape> barShape(int subchartIndex) const;
-    /**
-     * @brief setBarShape sets the shape of a series or a 3-D bar chart.
-     *
-     * Applicable to chart types: Bar3D.
-     *
-     * @param barShape Series::BarShape
-     */
-    void setBarShape(int subchartIndex, Series::BarShape barShape);
-
-    /**
-     * @brief firstSliceAngle returns the angle of the first pie or doughnut
-     * chart slice, in degrees (clockwise from up).
-     *
-     * Applicable to chart types: Pie, Doughnut.
-     *
-     * @return valid int value if the property is set, nullopt otherwise.
-     */
-    std::optional<int> firstSliceAngle(int subchartIndex) const;
-    /**
-     * @brief setFirstSliceAngle sets  the angle of the first pie or doughnut
-     * chart slice, in degrees (clockwise from up).
-     *
-     * Applicable to chart types: Pie, Doughnut.
-     *
-     * @param angle value in degrees in the range [0..360].
-     */
-    void setFirstSliceAngle(int subchartIndex, int angle);
-
-    /**
-     * @brief returns the size, in percents, of the hole in a doughnut chart.
-     *
-     * Applicable to chart types: Doughnut.
-     *
-     * @return valid int value if the property is set (in the range [1..90]), nullopt otherwise.
-     */
-    std::optional<int> holeSize(int subchartIndex) const;
-    /**
-     * @brief sets the size, in percents, of the hole in a doughnut chart.
-     *
-     * Applicable to chart types: Doughnut.
-     *
-     * The default value is 10.
-     *
-     * @param holeSize the hole size in percents in the range [1..90]
-     */
-    void setHoleSise(int subchartIndex, int holeSize);
-
-    //+ofpie
-    /**
-     * @brief returns the OfPie chart type.
-     *
-     * The default value is OfPieType::Pie.
-     *
-     * @return OfPieType::Bar or OfPieType::Pie enum value.
-     */
-    Chart::OfPieType ofPieType(int subchartIndex) const;
-    /**
-     * @brief sets the OfPie chart type.
-     * @param type OfPieType::Bar or OfPieType::Pie enum value.
-     */
-    void setOfPieType(int subchartIndex, OfPieType type);
-
-    /**
-     * @brief returns the OfPie chart split type (how to split the data points
-     * between the first pie and second pie or bar.)
-     *
-     * The default value is SplitType::Auto
-     */
-    std::optional<SplitType> splitType(int subchartIndex) const;
-    /**
-     * @brief sets the OfPie chart split type (how to split the data points
-     * between the first pie and second pie or bar.)
-     * @param splitType SplitType enum.
-     */
-    void setSplitType(int subchartIndex, SplitType splitType);
-    /**
-     * @brief returns a value used to determine which data points are in the
-     * second pie on an OfPie chart.
-     *
-     * If splitType() is Position, splitPos equals to the number of last data points.
-     * If Percent, splitPos is the percentage of the data points sum, and data points
-     * with value less than splitPos go to the second pie.
-     * If Value, splitPos is the value below which data points go to the second pie.
-     */
-    std::optional<double> splitPos(int subchartIndex) const;
-    /**
-     * @brief sets the value that shall be used to determine which data points are in the
-     * second pie on an OfPie chart.
-     * @param value If splitType() is Position, value equals to the number of last data points.
-     * If Percent, value is the percentage of the data points sum, and data points
-     * with value less than that go to the second pie.
-     * If Value, value is the value below which data points go to the second pie.
-     *
-     * Applicable to chart types: OfPie.
-     */
-    void setSplitPos(int subchartIndex, double value);
-    /**
-     * @brief returns the list of data points indexes (starting from 1) that go to
-     * the second pie on an OfPie chart.
-     *
-     * This parameter is valid only if splitType() is SplitType::Custom.
-     */
-    QList<int> customSplit(int subchartIndex) const;
-    /**
-     * @brief sets the list of data points indexes (starting from 1) that go to
-     * the second pie on an OfPie chart.
-     * @param indexes the list of valid data points indexes (starting from 1).
-     */
-    void setCustomSplit(int subchartIndex, const QList<int> &indexes);
-    /**
-     * @brief returns the second pie size of an OfPie chart, as a percentage
-     * of the size of the first pie.
-     * @return valid percentage value (5..200%) or nullopt if the parameter is not set.
-     */
-    std::optional<int> secondPieSize(int subchartIndex) const;
-    /**
-     * @brief sets the second pie size of an OfPie chart, as a percentage
-     * of the size of the first pie.
-     *
-     * If not set, the default value is 75.
-     *
-     * @param size percentage value (5..200).
-     */
-    void setSecondPieSize(int subchartIndex, int size);
-
-    /**
-     * @brief returns whether the Bubble chart has a 3-D effect applied to series.
-     * @return valid optional value if bubble3D property is set, nullopt otherwise.
-     *
-     * Applicable to char types: Bubble.
-     */
-    std::optional<bool> bubble3D(int subchartIndex) const;
-    /**
-     * @brief sets whether the Bubble chart has a 3-D effect applied to series.
-     * @param bubble3D
-     *
-     * Applicable to char types: Bubble.
-     */
-    void setBubble3D(int subchartIndex, bool bubble3D);
-    /**
-     * @brief returns whether negative sized bubbles shall be shown on a bubble chart.
-     * @return valid optional value if bubble3D property is set, nullopt otherwise.
-     *
-     * If the parameter is not set, the default value is true.
-     *
-     * Applicable to char types: Bubble.
-     */
-    std::optional<bool> showNegativeBubbles(int subchartIndex) const;
-    /**
-     * @brief sets whether negative sized bubbles shall be shown on a bubble chart.
-     * @param show
-     *
-     * The default value is true.
-     *
-     * Applicable to char types: Bubble.
-     */
-    void setShowNegativeBubbles(int subchartIndex, bool show);
-
-    /**
-     * @brief returns the scale factor for a bubble chart.
-     * @return a percentage value from 0 to 300, corresponding to a percentage of the default size.
-     *
-     * Applicable to char types: Bubble.
-     */
-    std::optional<int> bubbleScale(int subchartIndex) const;
-    /**
-     * @brief sets the scale factor for a bubble chart.
-     * @param scale a percentage value from 0 to 300, corresponding to a percentage of the default size.
-     *
-     * Applicable to char types: Bubble.
-     */
-    void setBubbleScale(int subchartIndex, int scale);
-
-    /**
-     * @brief returns how the bubble size values are represented on the chart.
-     * @return valid optional value if parameter is set, nullopt otherwise.
-     *
-     * Applicable to char types: Bubble.
-     */
-    std::optional<BubbleSizeRepresents> bubbleSizeRepresents(int subchartIndex) const;
-    /**
-     * @brief sets how the bubble size values are represented on the bubble chart.
-     * @param value
-     *
-     * Applicable to char types: Bubble.
-     */
-    void setBubbleSizeRepresents(int subchartIndex, BubbleSizeRepresents value);
-
-    /**
-     * @brief returns whether the surface chart is drawn as a wireframe.
-     * @return valid optional value if the parameter is set, nullopt otherwise.
-     *
-     * The default value is true.
-     *
-     * Applicable to chart types: Surface, Surface3D.
-     */
-    std::optional<bool> wireframe(int subchartIndex) const;
-    /**
-     * @brief sets whether the surface chart is drawn as a wireframe.
-     * @param wireframe
-     *
-     * The default value is true.
-     *
-     * Applicable to chart types: Surface, Surface3D
-     */
-    void setWireframe(int subchartIndex, bool wireframe);
-
-    /**
-     * @brief returns a map of formatting bands for a surface chart indexed from low to high.
-     * @return
-     *
-     * Applicable to chart types: Surface, Surface3D.
-     */
-    QMap<int, ShapeFormat> bandFormats(int subchartIndex) const;
-    /**
-     * @brief sets a map of formatting bands for a surface chart.
-     * @param bandFormats
-     *
-     * Applicable to chart types: Surface, Surface3D.
-     */
-    void setBandFormats(int subchartIndex, QMap<int, ShapeFormat> bandFormats);
 
     /**
      * @brief sets the visibility of the chart data table
@@ -1466,6 +876,628 @@ public:
      * @param rounded
      */
     void setRoundedCorners(bool rounded);
+
+    // Parameters specific to the subcharts
+
+    /**
+     * @brief returns the kind of grouping for a line or area chart.
+     *
+     * Applicable to: Area, Area3D, Line, Line3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid Chart::Grouping if property is set, nullopt otherwise.
+     */
+    std::optional<Chart::Grouping> grouping(int subchartIndex) const;
+    /**
+     * @brief sets the kind of grouping for a line or area chart.
+     *
+     * Applicable to: Area, Area3D, Line, Line3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param grouping Chart::Grouping
+     */
+    void setGrouping(int subchartIndex, Chart::Grouping grouping);
+
+    /**
+     * @brief returns the kind of grouping for a bar chart.
+     *
+     * Applicable to: Bar, Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid Chart::BarGrouping if property is set, nullopt otherwise.
+     */
+    std::optional<Chart::BarGrouping> barGrouping(int subchartIndex) const;
+    /**
+     * @brief sets the kind of grouping for a bar chart.
+     *
+     * Applicable to chart types: Bar, Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param grouping Chart::BarGrouping
+     */
+    void setBarGrouping(int subchartIndex, Chart::BarGrouping grouping);
+
+    /**
+     * @brief specifies that each data marker in the series has a different color.
+     *
+     * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
+     * Pie, Pie3D, Doughnut, OfPie, Bubble.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid bool value if property is set, nullopt otherwise.
+     *
+     * @note by default varyColors is not set. But in order to get sensible charts
+     * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to true.
+     *
+     */
+    std::optional<bool> varyColors(int subchartIndex) const;
+    /**
+     * @brief sets that each data marker in the series has a different color.
+     *
+     * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
+     * Pie, Pie3D, Doughnut, OfPie, Bubble.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param varyColors true if each data marker in the series has a different color, false
+     * if every data markers in the series have the same color.
+     */
+    void setVaryColors(int subchartIndex, bool varyColors);
+
+    /**
+     * @brief returns the entire chart labels properties.
+     *
+     * This element serves as a root element that specifies the settings for the
+     * data labels for an entire series or the entire chart.  It contains child
+     * elements that specify the specific formatting and positioning settings.
+     *
+     * To set the series specific labels use Series::labels() and Series::setLabels().
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
+     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a copy of the chart labels.
+     *
+     */
+    Labels labels(int subchartIndex) const;
+    /**
+     * @brief returns the entire chart labels properties.
+     *
+     * This element serves as a root element that specifies the settings for the
+     * data labels for an entire series or the entire chart.  It contains child
+     * elements that specify the specific formatting and positioning settings.
+     *
+     * To set the series specific labels use Series::labels() and Series::setLabels().
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
+     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return reference to the chart labels.
+     */
+    Labels &labels(int subchartIndex);
+    /**
+     * @brief sets the entire chart labels properties.
+     *
+     * This element serves as a root element that specifies the settings for the
+     * data labels for an entire series or the entire chart.  It contains child
+     * elements that specify the specific formatting and positioning settings.
+     *
+     * To set the series specific labels use Series::labels() and Series::setLabels().
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
+     * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param labels Labels properties object.
+     */
+    void setLabels(int subchartIndex, const Labels &labels);
+
+    /**
+     * @brief returns the chart drop lines.
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a copy of the chart dropLines.
+     */
+    ShapeFormat dropLines(int subchartIndex) const;
+    /**
+     * @brief returns the chart drop lines.
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a reference to the chart dropLines.
+     */
+    ShapeFormat &dropLines(int subchartIndex);
+    /**
+     * @brief sets the chart drop lines.
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param dropLines If not valid, sets default drop lines.
+     * @note To remove drop lines use #removeDropLines().
+     */
+    void setDropLines(int subchartIndex, const ShapeFormat &dropLines);
+    /**
+     * @brief removes the chart drop lines.
+     *
+     * Applicable to chart types: Line, Line3D, Stock, Area, Area3D.
+     * @param subchartIndex zero-based index of a subchart.
+     */
+    void removeDropLines(int subchartIndex);
+
+    /**
+     * @brief returns the chart high-low lines.
+     *
+     * Applicable to chart types: Line, Stock.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a copy of the chart hiLowLines.
+     */
+    ShapeFormat hiLowLines(int subchartIndex) const;
+    /**
+     * @overload
+     * @brief returns the chart high-low lines.
+     *
+     * Applicable to chart types: Line, Stock
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a reference to the chart hiLowLines.
+     */
+    ShapeFormat &hiLowLines(int subchartIndex);
+    /**
+     * @brief sets the chart high-low lines.
+     *
+     * Applicable to chart types: Line, Stock.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param hiLowLines If not valid, sets default hi-low lines.
+     * @note to remove hi-low lines use #removeHiLowLines().
+     */
+    void setHiLowLines(int subchartIndex, const ShapeFormat &hiLowLines);
+    /**
+     * @brief removes the chart high-low lines.
+     * @param subchartIndex zero-based index of a subchart.
+     */
+    void removeHiLowLines(int subchartIndex);
+
+    /**
+     * @brief returns the chart up-dow lines.
+     *
+     * Applicable to chart types: Line, Stock.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a copy of the chart upDownBars.
+     */
+    UpDownBar upDownBars(int subchartIndex) const;
+    /**
+     * @brief returns the chart up-down lines.
+     *
+     * Applicable to chart types: Line, Stock
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a reference to the chart upDownBars.
+     */
+    UpDownBar &upDownBars(int subchartIndex);
+    /**
+     * @brief sets the chart up-down lines.
+     *
+     * Applicable to chart types: Line, Stock
+     * @param subchartIndex zero-based index of a subchart.
+     * @param upDownBars UpDownBar object.
+     */
+    void setUpDownBars(int subchartIndex, const UpDownBar &upDownBars);
+
+    /**
+     * @brief if true, the chart series marker is shown.
+     *
+     * Applicable to chart types: Line.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid boolean value if property is set, nullopt otherwise.
+     */
+    std::optional<bool> markerShown(int subchartIndex) const;
+    /**
+     * @brief sets that the chart series marker shall be shown.
+     *
+     * Applicable to chart types: Line.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param markerShown
+     */
+    void setMarkerShown(int subchartIndex, bool markerShown);
+
+    /**
+     * @brief returns smoothing of the chart series. If true, the line
+     * connecting the points on the chart is smoothed using Catmull-Rom splines.
+     *
+     * Applicable to chart types: Line.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid boolean value if property is set, nullopt otherwise.
+     */
+    std::optional<bool> smooth(int subchartIndex) const;
+    /**
+     * @brief sets smoothing of the chart series. If true, the line
+     * connecting the points on the chart shall be smoothed using Catmull-Rom splines.
+     *
+     * Applicable to chart types: Line.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param smooth if true, the line
+     * connecting the points on the chart is smoothed using Catmull-Rom splines.
+     */
+    void setSmooth(int subchartIndex, bool smooth);
+
+    /**
+     * @brief specifies the space between bar or column clusters, as a
+     * percentage of the bar or column width.
+     *
+     * Applicable to chart types: Line3D, Bar3D, Area3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid double ([0..]) value if property is set, nullopt otherwise.
+     */
+    std::optional<int> gapDepth(int subchartIndex) const;
+    /**
+     * @brief sets the space between bar or column clusters, as a
+     * percentage of the bar or column width.
+     *
+     * Applicable to chart types: Line3D, Bar3D, Area3D.
+     *
+     * The default value is 100.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param gapDepth value of the gap depth, in percents (100 equals the bar width).
+     */
+    void setGapDepth(int subchartIndex, int gapDepth);
+
+    /**
+     * @brief returns the style of the scatter chart.
+     *
+     * The default value is ScatterStyle::Marker.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return Chart::ScatterStyle
+     */
+    ScatterStyle scatterStyle(int subchartIndex) const;
+    /**
+     * @brief sets the style of the scatter chart.
+     *
+     * If not set, the default value is ScatterStyle::Marker.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param scatterStyle
+     */
+    void setScatterStyle(int subchartIndex, ScatterStyle scatterStyle);
+
+    /**
+     * @brief returns the style of the radar chart.
+     *
+     * The default value is RadarStyle::Standard.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return RadarStyle
+     */
+    RadarStyle radarStyle(int subchartIndex) const;
+    /**
+     * @brief sets the style of the radar chart.
+     *
+     * If not set, the default value is RadarStyle::Standard.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param radarStyle
+     */
+    void setRadarStyle(int subchartIndex, RadarStyle radarStyle);
+
+    /**
+     * @brief returns whether the series form a bar (horizontal)
+     * chart or a column (vertical) chart.
+     *
+     * The default value is BarDirection::Column.
+     *
+     * Applicable to chart types: Bar, Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return
+     */
+    BarDirection barDirection(int subchartIndex) const;
+    /**
+     * @brief sets whether the series form a bar (horizontal)
+     * chart or a column (vertical) chart.
+     *
+     * If not set, the default value is BarDirection::Column.
+     *
+     * Applicable to chart types: Bar, Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param barDirection
+     */
+    void setBarDirection(int subchartIndex, BarDirection barDirection);
+
+    /**
+     * @brief returns the space between bar or column clusters, as a
+     * percentage of the bar or column width.
+     *
+     * Applicable to chart types: Bar, Bar3D, OfPie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid % ([0..500]) value if property is set, nullopt otherwise.
+     */
+    std::optional<int> gapWidth(int subchartIndex) const;
+    /**
+     * @brief sets the space between bar or column clusters, as a
+     * percentage of the bar or column width.
+     *
+     * Applicable to chart types: Bar, Bar3D, OfPie.
+     *
+     * The default value is 150.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param gapWidth gap width in percents (0..500).
+     */
+    void setGapWidth(int subchartIndex, int gapWidth);
+
+    /**
+     * @brief specifies how much bars and columns shall overlap on 2-D charts.
+     *
+     * Applicable to chart types: Bar.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid int value (percentage) if property is set, nullopt otherwise.
+     */
+    std::optional<int> overlap(int subchartIndex) const;
+    /**
+     * @brief sets how much bars and columns shall overlap on 2-D charts.
+     *
+     * If not set, the default value is 0.
+     *
+     * Applicable to chart types: Bar.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param overlap overlap percentage in the range [-100..100].
+     */
+    void setOverlap(int subchartIndex, int overlap);
+
+    /**
+     * @brief seriesLines returns the series lines of the chart.
+     *
+     * Applicable to chart types: Bar, OfPie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return A list of the series lines formats.
+     */
+    QList<ShapeFormat> seriesLines(int subchartIndex) const;
+    /**
+     * @brief seriesLines returns the series lines of the chart.
+     *
+     * Applicable to chart types: Bar, OfPie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a reference to the series lines formats.
+     */
+    QList<ShapeFormat> &seriesLines(int subchartIndex);
+    /**
+     * @brief setSeriesLines sets the series lines of the chart.
+     *
+     * Applicable to chart types: Bar, OfPie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param seriesLines
+     */
+    void setSeriesLines(int subchartIndex, const QList<ShapeFormat> &seriesLines);
+
+    /**
+     * @brief barShape returns the shape of a series or a 3-D bar chart.
+     *
+     * Applicable to chart types: Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid Series::BarShape value or nullopt if the property is not set.
+     */
+    std::optional<Series::BarShape> barShape(int subchartIndex) const;
+    /**
+     * @brief setBarShape sets the shape of a series or a 3-D bar chart.
+     *
+     * Applicable to chart types: Bar3D.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param barShape Series::BarShape
+     */
+    void setBarShape(int subchartIndex, Series::BarShape barShape);
+
+    /**
+     * @brief firstSliceAngle returns the angle of the first pie or doughnut
+     * chart slice, in degrees (clockwise from up).
+     *
+     * Applicable to chart types: Pie, Doughnut.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid int value if the property is set, nullopt otherwise.
+     */
+    std::optional<int> firstSliceAngle(int subchartIndex) const;
+    /**
+     * @brief setFirstSliceAngle sets  the angle of the first pie or doughnut
+     * chart slice, in degrees (clockwise from up).
+     *
+     * Applicable to chart types: Pie, Doughnut.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param angle value in degrees in the range [0..360].
+     */
+    void setFirstSliceAngle(int subchartIndex, int angle);
+
+    /**
+     * @brief returns the size, in percents, of the hole in a doughnut chart.
+     *
+     * Applicable to chart types: Doughnut.
+     *
+     * @return valid int value if the property is set (in the range [1..90]), nullopt otherwise.
+     */
+    std::optional<int> holeSize(int subchartIndex) const;
+    /**
+     * @brief sets the size, in percents, of the hole in a doughnut chart.
+     *
+     * Applicable to chart types: Doughnut.
+     *
+     * The default value is 10.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param holeSize the hole size in percents in the range [1..90]
+     */
+    void setHoleSise(int subchartIndex, int holeSize);
+
+    //+ofpie
+    /**
+     * @brief returns the OfPie chart type.
+     *
+     * The default value is OfPieType::Pie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return OfPieType::Bar or OfPieType::Pie enum value.
+     */
+    Chart::OfPieType ofPieType(int subchartIndex) const;
+    /**
+     * @brief sets the OfPie chart type.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param type OfPieType::Bar or OfPieType::Pie enum value.
+     */
+    void setOfPieType(int subchartIndex, OfPieType type);
+
+    /**
+     * @brief returns the OfPie chart split type (how to split the data points
+     * between the first pie and second pie or bar.)
+     *
+     * The default value is SplitType::Auto.
+     * @param subchartIndex zero-based index of a subchart.
+     */
+    std::optional<SplitType> splitType(int subchartIndex) const;
+    /**
+     * @brief sets the OfPie chart split type (how to split the data points
+     * between the first pie and second pie or bar.)
+     * @param subchartIndex zero-based index of a subchart.
+     * @param splitType SplitType enum.
+     */
+    void setSplitType(int subchartIndex, SplitType splitType);
+    /**
+     * @brief returns a value used to determine which data points are in the
+     * second pie on an OfPie chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return If splitType() is Position, splitPos equals to the number of last data points.
+     * If Percent, splitPos is the percentage of the data points sum, and data points
+     * with value less than splitPos go to the second pie.
+     * If Value, splitPos is the value below which data points go to the second pie.
+     */
+    std::optional<double> splitPos(int subchartIndex) const;
+    /**
+     * @brief sets the value that shall be used to determine which data points are in the
+     * second pie on an OfPie chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param value If splitType() is Position, value equals to the number of last data points.
+     * If Percent, value is the percentage of the data points sum, and data points
+     * with value less than that go to the second pie.
+     * If Value, value is the value below which data points go to the second pie.
+     */
+    void setSplitPos(int subchartIndex, double value);
+    /**
+     * @brief returns the list of data points indexes (starting from 1) that go to
+     * the second pie on an OfPie chart.
+     *
+     * This parameter is valid only if splitType() is SplitType::Custom.
+     * @param subchartIndex zero-based index of a subchart.
+     */
+    QList<int> customSplit(int subchartIndex) const;
+    /**
+     * @brief sets the list of data points indexes (starting from 1) that go to
+     * the second pie on an OfPie chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param indexes the list of valid data points indexes (starting from 1).
+     */
+    void setCustomSplit(int subchartIndex, const QList<int> &indexes);
+    /**
+     * @brief returns the second pie size of an OfPie chart, as a percentage
+     * of the size of the first pie.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid percentage value (5..200%) or nullopt if the parameter is not set.
+     */
+    std::optional<int> secondPieSize(int subchartIndex) const;
+    /**
+     * @brief sets the second pie size of an OfPie chart, as a percentage
+     * of the size of the first pie.
+     *
+     * If not set, the default value is 75.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param size percentage value (5..200).
+     */
+    void setSecondPieSize(int subchartIndex, int size);
+
+    /**
+     * @brief returns whether the Bubble chart has a 3-D effect applied to series.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     */
+    std::optional<bool> bubble3D(int subchartIndex) const;
+    /**
+     * @brief sets whether the Bubble chart has a 3-D effect applied to series.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param bubble3D
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubble3D(int subchartIndex, bool bubble3D);
+    /**
+     * @brief returns whether negative sized bubbles shall be shown on a bubble chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     *
+     * If the parameter is not set, the default value is true.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<bool> showNegativeBubbles(int subchartIndex) const;
+    /**
+     * @brief sets whether negative sized bubbles shall be shown on a bubble chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param show
+     *
+     * The default value is true.
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setShowNegativeBubbles(int subchartIndex, bool show);
+
+    /**
+     * @brief returns the scale factor for a bubble chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return a percentage value from 0 to 300, corresponding to a percentage of the default size.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<int> bubbleScale(int subchartIndex) const;
+    /**
+     * @brief sets the scale factor for a bubble chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param scale a percentage value from 0 to 300, corresponding to a percentage of the default size.
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubbleScale(int subchartIndex, int scale);
+
+    /**
+     * @brief returns how the bubble size values are represented on the chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid optional value if parameter is set, nullopt otherwise.
+     *
+     * Applicable to char types: Bubble.
+     */
+    std::optional<BubbleSizeRepresents> bubbleSizeRepresents(int subchartIndex) const;
+    /**
+     * @brief sets how the bubble size values are represented on the bubble chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param value
+     *
+     * Applicable to char types: Bubble.
+     */
+    void setBubbleSizeRepresents(int subchartIndex, BubbleSizeRepresents value);
+
+    /**
+     * @brief returns whether the surface chart is drawn as a wireframe.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return valid optional value if the parameter is set, nullopt otherwise.
+     *
+     * The default value is true.
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    std::optional<bool> wireframe(int subchartIndex) const;
+    /**
+     * @brief sets whether the surface chart is drawn as a wireframe.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param wireframe
+     *
+     * The default value is true.
+     *
+     * Applicable to chart types: Surface, Surface3D
+     */
+    void setWireframe(int subchartIndex, bool wireframe);
+
+    /**
+     * @brief returns a map of formatting bands for a surface chart indexed from low to high.
+     * @param subchartIndex zero-based index of a subchart.
+     * @return
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    QMap<int, ShapeFormat> bandFormats(int subchartIndex) const;
+    /**
+     * @brief sets a map of formatting bands for a surface chart.
+     * @param subchartIndex zero-based index of a subchart.
+     * @param bandFormats
+     *
+     * Applicable to chart types: Surface, Surface3D.
+     */
+    void setBandFormats(int subchartIndex, QMap<int, ShapeFormat> bandFormats);
 
     bool loadFromXmlFile(QIODevice *device) override;
     void saveToXmlFile(QIODevice *device) const override;

@@ -216,11 +216,11 @@ Worksheet::~Worksheet()
 {
 }
 
-bool Worksheet::isWindowProtected() const
+std::optional<bool> Worksheet::isWindowProtected() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().windowProtection.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().windowProtection;
 }
 
 void Worksheet::setWindowProtected(bool protect)
@@ -230,11 +230,11 @@ void Worksheet::setWindowProtected(bool protect)
     d->sheetViews.last().windowProtection = protect;
 }
 
-bool Worksheet::isFormulasVisible() const
+std::optional<bool> Worksheet::isFormulasVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().showFormulas.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showFormulas;
 }
 
 void Worksheet::setFormulasVisible(bool visible)
@@ -244,11 +244,11 @@ void Worksheet::setFormulasVisible(bool visible)
     d->sheetViews.last().showFormulas = visible;
 }
 
-bool Worksheet::isGridLinesVisible() const
+std::optional<bool> Worksheet::isGridLinesVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().showGridLines.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showGridLines;
 }
 
 void Worksheet::setGridLinesVisible(bool visible)
@@ -258,11 +258,11 @@ void Worksheet::setGridLinesVisible(bool visible)
     d->sheetViews.last().showGridLines = visible;
 }
 
-bool Worksheet::isRowColumnHeadersVisible() const
+std::optional<bool> Worksheet::isRowColumnHeadersVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().showRowColHeaders.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showRowColHeaders;
 }
 
 void Worksheet::setRowColumnHeadersVisible(bool visible)
@@ -272,11 +272,11 @@ void Worksheet::setRowColumnHeadersVisible(bool visible)
     d->sheetViews.last().showRowColHeaders = visible;
 }
 
-bool Worksheet::isRightToLeft() const
+std::optional<bool> Worksheet::isRightToLeft() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().rightToLeft.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().rightToLeft;
 }
 
 void Worksheet::setRightToLeft(bool enable)
@@ -286,11 +286,11 @@ void Worksheet::setRightToLeft(bool enable)
     d->sheetViews.last().rightToLeft = enable;
 }
 
-bool Worksheet::isZerosVisible() const
+std::optional<bool> Worksheet::isZerosVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().showZeros.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showZeros;
 }
 
 void Worksheet::setZerosVisible(bool visible)
@@ -300,11 +300,11 @@ void Worksheet::setZerosVisible(bool visible)
     d->sheetViews.last().showZeros = visible;
 }
 
-bool Worksheet::isRulerVisible() const
+std::optional<bool> Worksheet::isRulerVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().showRuler.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showRuler;
 }
 
 void Worksheet::setRulerVisible(bool visible)
@@ -314,11 +314,11 @@ void Worksheet::setRulerVisible(bool visible)
     d->sheetViews.last().showRuler = visible;
 }
 
-bool Worksheet::isOutlineSymbolsVisible() const
+std::optional<bool> Worksheet::isOutlineSymbolsVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().showOutlineSymbols.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showOutlineSymbols;
 }
 
 void Worksheet::setOutlineSymbolsVisible(bool visible)
@@ -328,11 +328,11 @@ void Worksheet::setOutlineSymbolsVisible(bool visible)
     d->sheetViews.last().showOutlineSymbols = visible;
 }
 
-bool Worksheet::isPageMarginsVisible() const
+std::optional<bool> Worksheet::isPageMarginsVisible() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().showWhiteSpace.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().showWhiteSpace;
 }
 
 void Worksheet::setPageMarginsVisible(bool visible)
@@ -342,11 +342,11 @@ void Worksheet::setPageMarginsVisible(bool visible)
     d->sheetViews.last().showWhiteSpace = visible;
 }
 
-bool Worksheet::isDefaultGridColorUsed() const
+std::optional<bool> Worksheet::isDefaultGridColorUsed() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return true;
-    return d->sheetViews.last().defaultGridColor.value_or(true);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().defaultGridColor;
 }
 
 void Worksheet::setDefaultGridColorUsed(bool value)
@@ -356,11 +356,11 @@ void Worksheet::setDefaultGridColorUsed(bool value)
     d->sheetViews.last().defaultGridColor = value;
 }
 
-SheetView::Type Worksheet::viewType() const
+std::optional<SheetView::Type> Worksheet::viewType() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return SheetView::Type::Normal;
-    return d->sheetViews.last().type.value_or(SheetView::Type::Normal);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().type;
 }
 
 void Worksheet::setViewType(SheetView::Type type)
@@ -384,11 +384,11 @@ void Worksheet::setViewTopLeftCell(const CellReference &ref)
     d->sheetViews.last().topLeftCell = ref;
 }
 
-int Worksheet::viewColorIndex() const
+std::optional<int> Worksheet::viewColorIndex() const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return 64;
-    return d->sheetViews.last().colorId.value_or(64);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().colorId;
 }
 
 void Worksheet::setViewColorIndex(int index)
@@ -477,16 +477,16 @@ void Worksheet::setPrintScale(int scale)
     d->pageSetup.scale = scale;
 }
 
-int Worksheet::printScale() const
+std::optional<int> Worksheet::printScale() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.scale.value_or(100);
+    return d->pageSetup.scale;
 }
 
-PageSetup::PageOrder Worksheet::pageOrder() const
+std::optional<PageSetup::PageOrder> Worksheet::pageOrder() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.pageOrder.value_or(PageSetup::PageOrder::DownThenOver);
+    return d->pageSetup.pageOrder;
 }
 
 void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
@@ -495,10 +495,10 @@ void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
     d->pageSetup.pageOrder = pageOrder;
 }
 
-int Worksheet::fitToWidth() const
+std::optional<int> Worksheet::fitToWidth() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.fitToWidth.value_or(1);
+    return d->pageSetup.fitToWidth;
 }
 
 void Worksheet::setFitToWidth(int pages)
@@ -507,10 +507,10 @@ void Worksheet::setFitToWidth(int pages)
     if (pages > 0) d->pageSetup.fitToWidth = pages;
 }
 
-int Worksheet::fitToHeight() const
+std::optional<int> Worksheet::fitToHeight() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.fitToHeight.value_or(1);
+    return d->pageSetup.fitToHeight;
 }
 
 void Worksheet::setFitToHeight(int pages)
@@ -519,10 +519,10 @@ void Worksheet::setFitToHeight(int pages)
     if (pages > 0) d->pageSetup.fitToHeight = pages;
 }
 
-PageSetup::PrintError Worksheet::printErrors() const
+std::optional<PageSetup::PrintError> Worksheet::printErrors() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.errors.value_or(PageSetup::PrintError::Displayed);
+    return d->pageSetup.errors;
 }
 
 void Worksheet::setPrintErrors(PageSetup::PrintError mode)
@@ -531,10 +531,10 @@ void Worksheet::setPrintErrors(PageSetup::PrintError mode)
     d->pageSetup.errors = mode;
 }
 
-PageSetup::CellComments Worksheet::printCellComments() const
+std::optional<PageSetup::CellComments> Worksheet::printCellComments() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.cellComments.value_or(PageSetup::CellComments::DoNotPrint);
+    return d->pageSetup.cellComments;
 }
 
 void Worksheet::setPrintCellComments(PageSetup::CellComments mode)
@@ -1120,10 +1120,10 @@ bool Worksheet::addDataValidation(const CellRange &range, int len1,
     return addDataValidation(v);
 }
 
-bool Worksheet::dataValidationPromptsDisabled() const
+std::optional<bool> Worksheet::dataValidationPromptsDisabled() const
 {
      Q_D(const Worksheet);
-     return d->disableValidationPrompts.value_or(false);
+     return d->disableValidationPrompts;
 }
 
 void Worksheet::setDataValidationPromptsDisabled(bool disabled)
@@ -1212,7 +1212,7 @@ QImage Worksheet::image(int row, int column) const
     return {};
 }
 
-int Worksheet::imageCount() const
+int Worksheet::imagesCount() const
 {
     Q_D(const Worksheet);
     int count = 0;
@@ -1440,7 +1440,7 @@ bool Worksheet::removeChart(int index)
     return false;
 }
 
-int Worksheet::chartCount() const
+int Worksheet::chartsCount() const
 {
     Q_D(const Worksheet);
     int count = 0;
@@ -1570,7 +1570,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //7. sheetCalcPr
 
     //8. sheet protection
-    if (d->sheetProtection.has_value()) d->sheetProtection->write(writer);
+    d->sheetProtection.write(writer);
 
     //9. protectedRanges
 
@@ -2021,14 +2021,14 @@ bool Worksheet::setColumnHidden(int col, bool hidden)
     return setColumnHidden(col, col, hidden);
 }
 
-double Worksheet::columnWidth(int column) const
+std::optional<double> Worksheet::columnWidth(int column) const
 {
     Q_D(const Worksheet);
 
     if (d->colsInfo.contains(column))
-        return d->colsInfo.value(column).width.value_or(d->sheetFormatProperties.defaultColumnWidth());
+        return d->colsInfo.value(column).width;
 
-    return d->sheetFormatProperties.defaultColumnWidth();
+    return {};
 }
 
 Format Worksheet::columnFormat(int column) const
@@ -2041,14 +2041,14 @@ Format Worksheet::columnFormat(int column) const
     return Format();
 }
 
-bool Worksheet::isColumnHidden(int column) const
+std::optional<bool> Worksheet::isColumnHidden(int column) const
 {
     Q_D (const Worksheet);
 
     if (d->colsInfo.contains(column))
-        return d->colsInfo.value(column).hidden.value_or(false);
+        return d->colsInfo.value(column).hidden;
 
-    return false;
+    return {};
 }
 
 bool Worksheet::setRowHeight(int rowFirst, int rowLast, double height)
@@ -2114,13 +2114,13 @@ bool Worksheet::setRowHidden(int rowFirst,int rowLast, bool hidden)
 }
 
 
-double Worksheet::rowHeight(int row) const
+std::optional<double> Worksheet::rowHeight(int row) const
 {
     Q_D(const Worksheet);
 
     if (d->rowsInfo.contains(row))
-        return d->rowsInfo.value(row)->height.value_or(d->sheetFormatProperties.defaultRowHeight);
-    return d->sheetFormatProperties.defaultRowHeight; //return default on invalid row
+        return d->rowsInfo.value(row)->height;
+    return {};
 }
 
 Format Worksheet::rowFormat(int row) const
@@ -2132,12 +2132,12 @@ Format Worksheet::rowFormat(int row) const
     return {};
 }
 
-bool Worksheet::isRowHidden(int row) const
+std::optional<bool> Worksheet::isRowHidden(int row) const
 {
     Q_D(const Worksheet);
     if (d->rowsInfo.contains(row))
-        return d->rowsInfo.value(row)->hidden.value_or(false);
-    return false;
+        return d->rowsInfo.value(row)->hidden;
+    return {};
 }
 
 bool Worksheet::groupRows(int rowFirst, int rowLast, bool collapsed)
@@ -2228,10 +2228,10 @@ CellRange Worksheet::dimension() const
     return d->dimension;
 }
 
-bool Worksheet::isFormatConditionsCalculationEnabled() const
+std::optional<bool> Worksheet::isFormatConditionsCalculationEnabled() const
 {
     Q_D(const Worksheet);
-    return d->sheetProperties.enableFormatConditionsCalculation.value_or(true);
+    return d->sheetProperties.enableFormatConditionsCalculation;
 }
 
 void Worksheet::setFormatConditionsCalculationEnabled(bool enabled)
@@ -2239,11 +2239,10 @@ void Worksheet::setFormatConditionsCalculationEnabled(bool enabled)
     Q_D(Worksheet);
     d->sheetProperties.enableFormatConditionsCalculation = enabled;
 }
-
-bool Worksheet::isSyncedHorizontal() const
+std::optional<bool> Worksheet::isSyncedHorizontal() const
 {
     Q_D(const Worksheet);
-    return d->sheetProperties.syncHorizontal.value_or(false);
+    return d->sheetProperties.syncHorizontal;
 }
 
 void Worksheet::setSyncedHorizontal(bool sync)
@@ -2252,10 +2251,10 @@ void Worksheet::setSyncedHorizontal(bool sync)
     d->sheetProperties.syncHorizontal = sync;
 }
 
-bool Worksheet::isSyncedVertical() const
+std::optional<bool> Worksheet::isSyncedVertical() const
 {
     Q_D(const Worksheet);
-    return d->sheetProperties.syncVertical.value_or(false);
+    return d->sheetProperties.syncVertical;
 }
 
 void Worksheet::setSyncedVertical(bool sync)
@@ -2276,10 +2275,10 @@ void Worksheet::setTopLeftAnchor(const CellReference &ref)
     d->sheetProperties.syncRef = ref;
 }
 
-bool Worksheet::showAutoPageBreaks() const
+std::optional<bool> Worksheet::showAutoPageBreaks() const
 {
     Q_D(const Worksheet);
-    return d->sheetProperties.autoPageBreaks.value_or(true);
+    return d->sheetProperties.autoPageBreaks;
 }
 
 void Worksheet::setShowAutoPageBreaks(bool show)
@@ -2288,10 +2287,10 @@ void Worksheet::setShowAutoPageBreaks(bool show)
     d->sheetProperties.autoPageBreaks = show;
 }
 
-bool Worksheet::fitToPage() const
+std::optional<bool> Worksheet::fitToPage() const
 {
     Q_D(const Worksheet);
-    return d->sheetProperties.fitToPage.value_or(false);
+    return d->sheetProperties.fitToPage;
 }
 
 void Worksheet::setFitToPage(bool value)
@@ -2300,10 +2299,10 @@ void Worksheet::setFitToPage(bool value)
     d->sheetProperties.fitToPage = value;
 }
 
-bool Worksheet::thickBottomBorder() const
+std::optional<bool> Worksheet::thickBottomBorder() const
 {
     Q_D(const Worksheet);
-    return d->sheetFormatProperties.thickBottom.value_or(false);
+    return d->sheetFormatProperties.thickBottom;
 }
 
 void Worksheet::setThickBottomBorder(bool thick)
@@ -2312,10 +2311,10 @@ void Worksheet::setThickBottomBorder(bool thick)
     d->sheetFormatProperties.thickBottom = thick;
 }
 
-bool Worksheet::thickTopBorder() const
+std::optional<bool> Worksheet::thickTopBorder() const
 {
     Q_D(const Worksheet);
-    return d->sheetFormatProperties.thickTop.value_or(false);
+    return d->sheetFormatProperties.thickTop;
 }
 
 void Worksheet::setThickTopBorder(bool thick)
@@ -2324,10 +2323,10 @@ void Worksheet::setThickTopBorder(bool thick)
     d->sheetFormatProperties.thickTop = thick;
 }
 
-bool Worksheet::rowsHiddenByDefault() const
+std::optional<bool> Worksheet::rowsHiddenByDefault() const
 {
     Q_D(const Worksheet);
-    return d->sheetFormatProperties.zeroHeight.value_or(false);
+    return d->sheetFormatProperties.zeroHeight;
 }
 
 void Worksheet::setRowsHiddenByDefault(bool hidden)

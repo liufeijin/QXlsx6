@@ -7,6 +7,7 @@
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxmain.h"
 #include "xlsxsheetview.h"
+#include "xlsxsheetprotection.h"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -553,223 +554,8 @@ public:
 private:
     void readPaperSize(QXmlStreamReader &reader);
 };
+//TODO: move it to separate file
 
-/**
- * @brief The SheetProtection class specifies the sheet protection parameters for worksheets
- * and chartsheets.
- *
- * Not all parameters are applicable to chartsheets. See the description of parameters.
- * If a non-applicable parameter is set for a chartsheet protection, it will be ignored
- * when saving the document.
- */
-class QXLSX_EXPORT SheetProtection
-{
-public:
-    /**
-     * @brief Specifies the specific cryptographic hashing algorithm which shall
-     * be used along with the salt attribute and input password in order to
-     * compute the hash value.
-     *
-     * This is an optional parameter. If algorithmName is empty, it will not be stored in the doc.
-     *
-     * The following names are reserved:
-     *
-     * Algorithm | Description
-     * ----|----
-     * MD2   |Specifies that the MD2 algorithm, as defined by RFC 1319, shall be used.
-     * MD4 |  Specifies that the MD4 algorithm, as defined by RFC 1320, shall be used.
-     * MD5 | Specifies that the MD5 algorithm, as defined by RFC 1321, shall be used.
-     * RIPEMD-128 | Specifies that the RIPEMD-128 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * RIPEMD-160 | Specifies that the RIPEMD-160 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-1 | Specifies that the SHA-1 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-256 | Specifies that the SHA-256 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-384 | Specifies that the SHA-384 algorithm, as defined by ISO/IEC 10118-3:2004  shall be used.
-     * SHA-512 | Specifies that the SHA-512 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * WHIRLPOOL | Specifies that the WHIRLPOOL algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     */
-    QString algorithmName;
-    /**
-     * @brief Specifies the hash value for the password required to edit this
-     * worksheet.
-     *
-     * This value shall be compared with the resulting hash value after hashing
-     * the user-supplied password using the #algorithmName, and if the two values
-     * match, the protection shall no longer be enforced.
-     *
-     * hashValue is specified as a base64 string.
-     *
-     * This is an optional parameter. If hashValue is empty, it will not be stored in the doc.
-     */
-    QString hashValue;
-    /**
-     * @brief Specifies the salt which was prepended to the user-supplied
-     * password before it was hashed using #algorithmName to generate #hashValue,
-     * and which shall also be prepended to the user-supplied password before
-     * attempting to generate a hash value for comparison.
-     *
-     * A salt is a random string which is added to a user-supplied password
-     * before it is hashed in order to prevent a malicious party from
-     * pre-calculating all possible password/hash combinations and simply using
-     * those pre-calculated values (often referred to as a "dictionary attack").
-     *
-     * saltValue is specified as a base64 string.
-     *
-     * This is an optional parameter. If saltValue is empty, it will not be stored in the doc.
-     */
-    QString saltValue;
-    /**
-     * @brief Specifies the number of times the hashing function shall be
-     * iteratively run (runs using each iteration's result plus a 4 byte value
-     * (0-based, little endian) containing the number of the iteration as the
-     * input for the next iteration) when attempting to compare a user-supplied
-     * password with the value stored in #hashValue.
-     */
-    std::optional<int> spinCount;
-    /**
-     * @brief Specifies whether editing of sheet content should not be allowed when the chartsheet is protected.
-     *
-     * If not set, the default value is false.
-     * @note This parameter is only applicable to chartsheets.
-     */
-    std::optional<bool> protectContent;
-    /**
-     * @brief Specifies whether editing of objects should not be allowed when the sheet is protected.
-     *
-     * If not set, the default value is false.
-     */
-    std::optional<bool> protectObjects;
-    /**
-     * @brief This parameter dictates whether the other attributes of
-     * SheetProtection should be applied.
-     *
-     * If true then the other parameters of SheetProtection should be applied.
-     * If false then the other parameters of SheetProtection should not be applied.
-     *
-     * If not set, the default value is false.
-     * @note This parameter is not applicable to chartsheets.
-     *
-     */
-    std::optional<bool> protectSheet;
-    /**
-     * @brief Specifies whether editing of scenarios should not be allowed when
-     * the sheet is protected.
-     *
-     * If not set, the default value is false.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectScenarios;
-    /**
-     * @brief Specifies whether editing of cells formattins should not be
-     * allowed when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectFormatCells;
-    /**
-     * @brief Specifies whether editing of columns formatting should not be
-     * allowed when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectFormatColumns;
-    /**
-     * @brief Specifies whether editing of rows formatting should not be allowed
-     * when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectFormatRows;
-    /**
-     * @brief Specifies whether inserting of columns should not be allowed when
-     * the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectInsertColumns;
-    /**
-     * @brief Specifies whether inserting of rows should not be allowed when the
-     * sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectInsertRows;
-    /**
-     * @brief Specifies whether inserting of hyperlinks should not be allowed
-     * when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectInsertHyperlinks;
-    /**
-     * @brief Specifies whether deleting of columns should not be allowed when
-     * the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectDeleteColumns;
-    /**
-     * @brief Specifies whether deleting of rows should not be allowed when the
-     * sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectDeleteRows;
-    /**
-     * @brief Specifies whether selection of locked cells should not be allowed
-     * when the sheet is protected.
-     *
-     * If not set, the default value is false.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectSelectLockedCells;
-    /**
-     * @brief Specifies whether sorting should not be allowed when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectSort;
-    /**
-     * @brief Specifies whether applying autofilters should not be allowed when
-     * the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectAutoFilter;
-    /**
-     * @brief Specifies whether operating pivot tables should not be allowed
-     * when the sheet is protected.
-     *
-     * If not set, the default value is true.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectPivotTables;
-    /**
-     * @brief Specifies whether selection of unlocked cells should not be
-     * allowed when the sheet is protected.
-     *
-     * If not set, the default value is false.
-     * @note This parameter is not applicable to chartsheets.
-     */
-    std::optional<bool> protectSelectUnlockedCells;
-
-    /**
-     * @brief returns whether any of protection parameters are set.
-     * @return
-     */
-    bool isValid() const;
-    void write(QXmlStreamWriter &writer, bool chartsheet = false) const;
-    void read(QXmlStreamReader &reader);
-};
 
 class Workbook;
 class Drawing;
@@ -899,7 +685,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * #setHeader(), #setFooter(), #setOddHeader(), #setOddFooter(), #setEvenHeader(),
      * #setEvenFooter(), #setHeaders(), #setFooters().
      */
-    bool differentOddEvenPage() const;
+    std::optional<bool> differentOddEvenPage() const;
     /**
      * @brief sets whether a sheet has different header/footer for odd and even pages.
      * @param different When true then #oddHeader() / #oddFooter() and #evenHeader() /
@@ -920,7 +706,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * header and footer. If false, then #firstHeader() and #firstFooter() are ignored
      * even if they are not empty.
      */
-    bool differentFirstPage() const;
+    std::optional<bool> differentFirstPage() const;
     /**
      * @brief sets whether a sheet has different header/footer for the first page.
      * @param different When true, then #firstHeader() / #firstFooter() specify the first page
@@ -1140,7 +926,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * then this method returns PageSetup::PaperSize::Unknown.
      * @sa PageSetup::paperSize.
      */
-    PageSetup::PaperSize paperSize() const;
+    std::optional<PageSetup::PaperSize> paperSize() const;
     /**
      * @brief sets the sheet's paper size in millimeters.
      * @param width width in millimeters.
@@ -1184,7 +970,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @return PageSetup::Orientation value. If no orientation was set, returns
      * the default value of PageSetup::Orientation::Default.
      */
-    PageSetup::Orientation pageOrientation() const;
+    std::optional<PageSetup::Orientation> pageOrientation() const;
     /**
      * @brief sets the sheet's paper orientation.
      * @param orientation PageSetup::Orientation value.
@@ -1198,7 +984,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is 1.
      */
-    int firstPageNumber() const;
+    std::optional<int> firstPageNumber() const;
     /**
      * @brief sets the page number for first printed page.
      * @param number integer value starting from 1.
@@ -1214,7 +1000,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is false.
      */
-    bool useFirstPageNumber() const;
+    std::optional<bool> useFirstPageNumber() const;
     /**
      * @brief sets whether to use #firstPageNumber value for first page number,
      * and do not auto number the pages.
@@ -1236,7 +1022,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @return If true, then the sheet's default parameters are ignored and printer
      * parameters are used.
      */
-    bool printerDefaultsUsed() const;
+    std::optional<bool> printerDefaultsUsed() const;
     /**
      * @brief sets whether to use the printer default parameters.
      *
@@ -1256,7 +1042,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is false.
      */
-    bool printBlackAndWhite() const;
+    std::optional<bool> printBlackAndWhite() const;
     /**
      * @brief sets whether to print in black and white.
      * @param value If true, then the sheet is printed in black and white.
@@ -1270,7 +1056,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * If no value is specified, then false is assumed.
      */
-    bool printDraft() const;
+    std::optional<bool> printDraft() const;
     /**
      * @brief sets whether to print the page as a draft (i.e. without graphics).
      * @param draft
@@ -1284,7 +1070,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is 600.
      */
-    int horizontalDpi() const;
+    std::optional<int> horizontalDpi() const;
     /**
      * @brief sets the horizontal print resolution of the device.
      * @param dpi print resolution in DPI.
@@ -1298,7 +1084,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is 600.
      */
-    int verticalDpi() const;
+    std::optional<int> verticalDpi() const;
     /**
      * @brief sets the vertical print resolution of the device.
      * @param dpi print resolution in DPI.
@@ -1312,10 +1098,10 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * The default value is 1.
      */
-    int copies() const;
+    std::optional<int> copies() const;
     /**
      * @brief sets how many copies to print.
-     * @param count
+     * @param count a positive integer value.
      *
      * If not set, 1 is assumed.
      */
@@ -1330,7 +1116,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * If not set, the default value is true.
      */
-    bool isPublished() const;
+    std::optional<bool> isPublished() const;
     /**
      * @brief sets whether the sheet is published.
      * @param published
@@ -1413,6 +1199,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     /**
      * @brief sets the sheet protection parameters.
      * @param sheetProtection a SheetProtection object.
+     * @note This method also invokes ```SheetProtection::setProtectSheet(true)```
      */
     void setSheetProtection(const SheetProtection &sheetProtection);
     /**

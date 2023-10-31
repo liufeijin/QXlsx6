@@ -125,10 +125,10 @@ HeaderFooter &AbstractSheet::headerFooter()
     return d->headerFooter;
 }
 
-bool AbstractSheet::differentOddEvenPage() const
+std::optional<bool> AbstractSheet::differentOddEvenPage() const
 {
     Q_D(const AbstractSheet);
-    return d->headerFooter.differentOddEven.value_or(false);
+    return d->headerFooter.differentOddEven;
 }
 
 void AbstractSheet::setDifferentOddEvenPage(bool different)
@@ -137,10 +137,10 @@ void AbstractSheet::setDifferentOddEvenPage(bool different)
     d->headerFooter.differentOddEven = different;
 }
 
-bool AbstractSheet::differentFirstPage() const
+std::optional<bool> AbstractSheet::differentFirstPage() const
 {
     Q_D(const AbstractSheet);
-    return d->headerFooter.differentFirst.value_or(false);
+    return d->headerFooter.differentFirst;
 }
 
 void AbstractSheet::setDifferentFirstPage(bool different)
@@ -297,10 +297,10 @@ void AbstractSheet::setFooters(const QString &oddFooter, const QString &evenFoot
     }
 }
 
-bool AbstractSheet::isPublished() const
+std::optional<bool> AbstractSheet::isPublished() const
 {
     Q_D(const AbstractSheet);
-    return d->sheetProperties.published.value_or(true);
+    return d->sheetProperties.published;
 }
 
 void AbstractSheet::setPublished(bool published)
@@ -411,10 +411,10 @@ void AbstractSheet::setPaperSize(PageSetup::PaperSize paperSize)
     d->pageSetup.paperSize = paperSize;
 }
 
-PageSetup::PaperSize AbstractSheet::paperSize() const
+std::optional<PageSetup::PaperSize> AbstractSheet::paperSize() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.paperSize.value_or(PageSetup::PaperSize::Unknown);
+    return d->pageSetup.paperSize;
 }
 
 void AbstractSheet::setPaperSizeMM(double width, double height)
@@ -455,10 +455,10 @@ void AbstractSheet::setPaperHeight(const QString &height)
     d->pageSetup.paperHeight = height;
 }
 
-PageSetup::Orientation AbstractSheet::pageOrientation() const
+std::optional<PageSetup::Orientation> AbstractSheet::pageOrientation() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.orientation.value_or(PageSetup::Orientation::Default);
+    return d->pageSetup.orientation;
 }
 
 void AbstractSheet::setPageOrientation(PageSetup::Orientation orientation)
@@ -467,10 +467,10 @@ void AbstractSheet::setPageOrientation(PageSetup::Orientation orientation)
     d->pageSetup.orientation = orientation;
 }
 
-int AbstractSheet::firstPageNumber() const
+std::optional<int> AbstractSheet::firstPageNumber() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.firstPageNumber.value_or(1);
+    return d->pageSetup.firstPageNumber;
 }
 
 void AbstractSheet::setFirstPageNumber(int number)
@@ -480,10 +480,10 @@ void AbstractSheet::setFirstPageNumber(int number)
     d->pageSetup.useFirstPageNumber = true;
 }
 
-bool AbstractSheet::useFirstPageNumber() const
+std::optional<bool> AbstractSheet::useFirstPageNumber() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.useFirstPageNumber.value_or(false);
+    return d->pageSetup.useFirstPageNumber;
 }
 
 void AbstractSheet::setUseFirstPageNumber(bool use)
@@ -492,10 +492,10 @@ void AbstractSheet::setUseFirstPageNumber(bool use)
     d->pageSetup.useFirstPageNumber = use;
 }
 
-bool AbstractSheet::printerDefaultsUsed() const
+std::optional<bool> AbstractSheet::printerDefaultsUsed() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.usePrinterDefaults.value_or(true);
+    return d->pageSetup.usePrinterDefaults;
 }
 
 void AbstractSheet::setPrinterDefaultsUsed(bool value)
@@ -504,10 +504,10 @@ void AbstractSheet::setPrinterDefaultsUsed(bool value)
     d->pageSetup.usePrinterDefaults = value;
 }
 
-bool AbstractSheet::printBlackAndWhite() const
+std::optional<bool> AbstractSheet::printBlackAndWhite() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.blackAndWhite.value_or(false);
+    return d->pageSetup.blackAndWhite;
 }
 
 void AbstractSheet::setPrintBlackAndWhite(bool value)
@@ -516,10 +516,10 @@ void AbstractSheet::setPrintBlackAndWhite(bool value)
     d->pageSetup.blackAndWhite = value;
 }
 
-bool AbstractSheet::printDraft() const
+std::optional<bool> AbstractSheet::printDraft() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.draft.value_or(false);
+    return d->pageSetup.draft;
 }
 
 void AbstractSheet::setPrintDraft(bool draft)
@@ -528,10 +528,10 @@ void AbstractSheet::setPrintDraft(bool draft)
     d->pageSetup.draft = draft;
 }
 
-int AbstractSheet::horizontalDpi() const
+std::optional<int> AbstractSheet::horizontalDpi() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.horizontalDpi.value_or(600);
+    return d->pageSetup.horizontalDpi;
 }
 
 void AbstractSheet::setHorizontalDpi(int dpi)
@@ -540,16 +540,28 @@ void AbstractSheet::setHorizontalDpi(int dpi)
     if (dpi > 0) d->pageSetup.horizontalDpi = dpi;
 }
 
-int AbstractSheet::verticalDpi() const
+std::optional<int> AbstractSheet::verticalDpi() const
 {
     Q_D(const AbstractSheet);
-    return d->pageSetup.verticalDpi.value_or(600);
+    return d->pageSetup.verticalDpi;
 }
 
 void AbstractSheet::setVerticalDpi(int dpi)
 {
     Q_D(AbstractSheet);
     if (dpi > 0) d->pageSetup.verticalDpi = dpi;
+}
+
+std::optional<int> AbstractSheet::copies() const
+{
+    Q_D(const AbstractSheet);
+    return d->pageSetup.copies;
+}
+
+void AbstractSheet::setCopies(int count)
+{
+    Q_D(AbstractSheet);
+    if (count > 0) d->pageSetup.copies = count;
 }
 
 void AbstractSheet::setBackgroundImage(const QImage &image)
@@ -700,35 +712,33 @@ bool AbstractSheet::removeView(int index)
 SheetProtection AbstractSheet::sheetProtection() const
 {
     Q_D(const AbstractSheet);
-    return d->sheetProtection.value_or(SheetProtection());
+    return d->sheetProtection;
 }
 
 SheetProtection &AbstractSheet::sheetProtection()
 {
     Q_D(AbstractSheet);
-    if (!d->sheetProtection.has_value()) d->sheetProtection = SheetProtection();
-    return d->sheetProtection.value();
+    return d->sheetProtection;
 }
 
 void AbstractSheet::setSheetProtection(const SheetProtection &sheetProtection)
 {
     Q_D(AbstractSheet);
     d->sheetProtection = sheetProtection;
-    d->sheetProtection->protectSheet = true;
+    d->sheetProtection.setProtectSheet(true);
 }
 
 bool AbstractSheet::isSheetProtected() const
 {
     Q_D(const AbstractSheet);
-    return d->sheetProtection.has_value() && d->sheetProtection.value().isValid();
+    return d->sheetProtection.isValid();
 }
 
 bool AbstractSheet::isPasswordProtectionSet() const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetProtection.has_value()) {
-        const auto &s = d->sheetProtection.value();
-        return !s.algorithmName.isEmpty() and !s.hashValue.isEmpty();
+    if (d->sheetProtection.isValid()) {
+        return !d->sheetProtection.algorithmName().isEmpty() and !d->sheetProtection.hashValue().isEmpty();
     }
     return false;
 }
@@ -736,25 +746,24 @@ bool AbstractSheet::isPasswordProtectionSet() const
 void AbstractSheet::setPassword(const QString &algorithm, const QString &hash, const QString &salt, int spinCount)
 {
     Q_D(AbstractSheet);
-    if (!d->sheetProtection.has_value()) d->sheetProtection = SheetProtection();
-    d->sheetProtection->algorithmName = algorithm;
-    d->sheetProtection->hashValue = hash;
-    d->sheetProtection->protectSheet = true;
-    d->sheetProtection->saltValue = salt;
-    d->sheetProtection->spinCount = spinCount;
+    d->sheetProtection.setAlgorithmName(algorithm);
+    d->sheetProtection.setHashValue(hash);
+    d->sheetProtection.setProtectSheet(true);
+    d->sheetProtection.setSaltValue(salt);
+    d->sheetProtection.setSpinCount(spinCount);
 }
 
 void AbstractSheet::setDefaultSheetProtection()
 {
     Q_D(AbstractSheet);
     d->sheetProtection = SheetProtection();
-    d->sheetProtection->protectSheet = true;
+    d->sheetProtection.setProtectSheet(true);
 }
 
 void AbstractSheet::removeSheetProtection()
 {
     Q_D(AbstractSheet);
-    d->sheetProtection.reset();
+    d->sheetProtection = SheetProtection();
 }
 
 /*!
@@ -1176,84 +1185,6 @@ void PageSetup::readPaperSize(QXmlStreamReader &reader)
         else
             paperSize = PaperSize::Unknown;
     }
-}
-
-bool SheetProtection::isValid() const
-{
-    if (!algorithmName.isEmpty()) return true;
-    if (!hashValue.isEmpty()) return true;
-    if (!saltValue.isEmpty()) return true;
-    if (spinCount.has_value()) return true;
-    if (protectContent.has_value()) return true;
-    if (protectObjects.has_value()) return true;
-    if (protectSheet.has_value()) return true;
-    if (protectScenarios.has_value()) return true;
-    if (protectFormatCells.has_value()) return true;
-    if (protectFormatColumns.has_value()) return true;
-    if (protectFormatRows.has_value()) return true;
-    if (protectInsertColumns.has_value()) return true;
-    if (protectInsertRows.has_value()) return true;
-    if (protectInsertHyperlinks.has_value()) return true;
-    if (protectDeleteColumns.has_value()) return true;
-    if (protectDeleteRows.has_value()) return true;
-    if (protectSelectLockedCells.has_value()) return true;
-    if (protectSort.has_value()) return true;
-    if (protectAutoFilter.has_value()) return true;
-    if (protectPivotTables.has_value()) return true;
-    if (protectSelectUnlockedCells.has_value()) return true;
-    return false;
-}
-
-void SheetProtection::write(QXmlStreamWriter &writer, bool chartsheet) const
-{
-    writer.writeEmptyElement(QLatin1String("sheetProtection"));
-    writeAttribute(writer, QLatin1String("algorithmName"), algorithmName);
-    writeAttribute(writer, QLatin1String("hashValue"), hashValue);
-    writeAttribute(writer, QLatin1String("saltValue"), saltValue);
-    writeAttribute(writer, QLatin1String("spinCount"), spinCount);
-    if (chartsheet) writeAttribute(writer, QLatin1String("content"), protectContent);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("sheet"), protectSheet);
-    writeAttribute(writer, QLatin1String("objects"), protectObjects);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("scenarios"), protectScenarios);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("formatCells"), protectFormatCells);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("formatColumns"), protectFormatColumns);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("formatRows"), protectFormatRows);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("insertColumns"), protectInsertColumns);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("insertRows"), protectInsertRows);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("insertHyperlinks"), protectInsertHyperlinks);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("deleteColumns"), protectDeleteColumns);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("deleteRows"), protectDeleteRows);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("selectLockedCells"), protectSelectLockedCells);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("sort"), protectSort);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("autoFilter"), protectAutoFilter);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("pivotTables"), protectPivotTables);
-    if (!chartsheet) writeAttribute(writer, QLatin1String("selectUnlockedCells"), protectSelectUnlockedCells);
-}
-
-void SheetProtection::read(QXmlStreamReader &reader)
-{
-    const auto &a = reader.attributes();
-    parseAttributeString(a, QLatin1String("algorithmName"), algorithmName);
-    parseAttributeString(a, QLatin1String("hashValue"), hashValue);
-    parseAttributeString(a, QLatin1String("saltValue"), saltValue);
-    parseAttributeInt(a, QLatin1String("spinCount"), spinCount);
-    parseAttributeBool(a, QLatin1String("content"), protectContent);
-    parseAttributeBool(a, QLatin1String("sheet"), protectSheet);
-    parseAttributeBool(a, QLatin1String("objects"), protectObjects);
-    parseAttributeBool(a, QLatin1String("scenarios"), protectScenarios);
-    parseAttributeBool(a, QLatin1String("formatCells"), protectFormatCells);
-    parseAttributeBool(a, QLatin1String("formatColumns"), protectFormatColumns);
-    parseAttributeBool(a, QLatin1String("formatRows"), protectFormatRows);
-    parseAttributeBool(a, QLatin1String("insertColumns"), protectInsertColumns);
-    parseAttributeBool(a, QLatin1String("insertRows"), protectInsertRows);
-    parseAttributeBool(a, QLatin1String("insertHyperlinks"), protectInsertHyperlinks);
-    parseAttributeBool(a, QLatin1String("deleteColumns"), protectDeleteColumns);
-    parseAttributeBool(a, QLatin1String("deleteRows"), protectDeleteRows);
-    parseAttributeBool(a, QLatin1String("selectLockedCells"), protectSelectLockedCells);
-    parseAttributeBool(a, QLatin1String("sort"), protectSort);
-    parseAttributeBool(a, QLatin1String("autoFilter"), protectAutoFilter);
-    parseAttributeBool(a, QLatin1String("pivotTables"), protectPivotTables);
-    parseAttributeBool(a, QLatin1String("selectUnlockedCells"), protectSelectUnlockedCells);
 }
 
 }

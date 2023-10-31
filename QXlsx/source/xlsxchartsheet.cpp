@@ -128,7 +128,7 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement(); //sheetViews
 
     //sheet protection
-    if (d->sheetProtection.has_value()) d->sheetProtection->write(writer, true);
+    d->sheetProtection.write(writer, true);
 
     d->pageMargins.write(writer);
     d->pageSetup.write(writer, true);

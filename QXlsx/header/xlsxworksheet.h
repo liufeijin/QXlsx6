@@ -142,7 +142,7 @@ class WorksheetPrivate;
  * #columnWidth(). The default column width is 8 5/7 widths of the widest digit
  * of the normal style's font (Calibri 11 pt).
  *
- * Rows and columns can be hidden with #setRowHidden(), #setColumnHidden(). Also if only
+ * Rows and columns can be set hidden with #setRowHidden(), #setColumnHidden(). Also if only
  * some rows need to be visible, then #setRowsHiddenByDefault() can come in handy.
  * Rows and columns visibility can be tested with #isRowHidden() and #isColumnHidden().
  *
@@ -318,7 +318,7 @@ public:
      *
      * The default value is false.
      */
-    bool dataValidationPromptsDisabled() const;
+    std::optional<bool> dataValidationPromptsDisabled() const;
     /**
      * @brief sets whether all input prompts from the worksheet are disabled.
      * @param disabled if true, then all data validation prompts will not be shown on the worksheet.
@@ -329,8 +329,14 @@ public:
 
 
 
-
+    /**
+     * @brief adds the conditional formatting to the worksheet.
+     * @param cf ConditionalFormatting object that contains the conditional formating parameters.
+     * @return true on success.
+     */
     bool addConditionalFormatting(const ConditionalFormatting &cf);
+    //TODO: add methods for conditional formatting
+
     /**
      * @brief returns cell by its reference.
      * @param row_column reference to the cell.
@@ -351,18 +357,18 @@ public:
      * @param row the 1-based row index of the image top left corner.
      * @param column the 1-based column index of the image top left corner.
      * @param image Image to be inserted.
-     * @return image index (zero-based) on success, -1 otherwise.
+     * @return the zero-based index of the newly inserted image on success, -1 otherwise.
      */
     int insertImage(int row, int column, const QImage &image);
     /**
-     * @brief returns an image.
+     * @brief returns the image by its index.
      * @param index zero-based image index (0 to #imageCount()-1).
      * @return non-null QImage if image was found and read.
      */
     QImage image(int index) const;
     /**
      * @overload
-     * @brief returns image.
+     * @brief returns the image by its top left corner.
      * @param row the 1-based row index of the image top left corner.
      * @param column the 1-based column index of the image top left corner.
      * @return non-null QImage if image was found and read.
@@ -371,26 +377,27 @@ public:
     /**
      * @brief returns the count of images on this worksheet.
      */
-    int imageCount() const;
+    int imagesCount() const;
     /**
-     * @brief removes image from the worksheet
+     * @brief removes the image from the worksheet
      * @param row the 1-based row index of the image top left corner.
      * @param column the 1-based column index of the image top left corner.
      * @return true if image was found and removed, false otherwise.
      */
     bool removeImage(int row, int column);
     /**
+     * @overload
      * @brief removes image from the worksheet
-     * @param index zero-based index of the image (0 to #imageCount()-1).
+     * @param index zero-based index of the image (0 to #imagesCount()-1).
      * @return true if image was found and removed, false otherwise.
      */
     bool removeImage(int index);
     /**
-     * @brief sets new image content to the image specified by @a index.
-     * @param index zero-based index of the image (0 to #imagecount()-1).
-     * @param fileName file name where to load new content from.
+     * @brief sets the new image content to the image specified by @a index.
+     * @param index zero-based index of the image (0 to #imagesCount()-1).
+     * @param fileName file name which to load new content from.
      * @param keepSize if true, then new image will be resized to the old image size.
-     * If false, then new image will have its size.
+     * If false, then new image will retain its size.
      * @return true if the image was found and file was loaded, false otherwise.
      */
     bool changeImage(int index, const QString &fileName, bool keepSize = true);
@@ -416,21 +423,21 @@ public:
      */
     Chart *insertChart(int row, int column, Coordinate width, Coordinate height);
     /**
-     * @brief returns chart
-     * @param index zero-based index of the chart (0 to #chartCount()-1)
+     * @brief returns the chart by its index in the worksheet.
+     * @param index zero-based index of the chart (0 to #chartsCount()-1)
      * @return valid pointer to the chart if the chart was found, nullptr otherwise.
      */
     Chart *chart(int index) const;
     /**
      * @overload
-     * @brief returns chart.
+     * @brief returns the chart by its top left corner.
      * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
      * @return valid pointer to the chart if the chart was found, nullptr otherwise.
      */
     Chart *chart(int row, int column) const;
     /**
-     * @brief removes chart from the worksheet.
+     * @brief removes the chart from the worksheet.
      * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
      * @return true if the chart was found and successfully removed, false otherwise.
@@ -438,7 +445,7 @@ public:
     bool removeChart(int row, int column);
     /**
      * @overload
-     * @brief removes chart from the worksheet.
+     * @brief removes the chart from the worksheet.
      * @param index zero-based index of the chart.
      * @return true if the chart was found and successfully removed, false otherwise.
      */
@@ -446,14 +453,14 @@ public:
     /**
      * @brief returns count of charts on the worksheet.
      */
-    int chartCount() const;
+    int chartsCount() const;
     /**
-    @brief Merges a @a range of cells.
-
-    The first cell will retain its data, other cells will be cleared.
-    All cells will get the same @a format if a valid @a format is given.
-    Returns true on success.
-    */
+     * @brief Merges a @a range of cells.
+     *
+     * The first cell will retain its data, other cells will be cleared.
+     * All cells will get the same @a format if a valid @a format is given.
+     * @return true on success.
+     */
     bool mergeCells(const CellRange &range, const Format &format=Format());
     /**
      * @brief Un-merges a @a range of cells.
@@ -479,16 +486,29 @@ public:
     bool setColumnHidden(int colFirst, int colLast, bool hidden);
     bool setColumnHidden(int col, bool hidden);
     /**
-     * @brief returns the width of @column in characters.
+     * @brief returns the width of @a column in characters.
      * @param column column index (1-based).
-     * @return the width of @column in characters of a standard font.
+     * @return the width of @a column in characters of a standard font, if it was set/changed.
+     * @note The default column width can be obtained with #defaultColumnWidth().
      */
-    double columnWidth(int column) const;
+    std::optional<double> columnWidth(int column) const;
+    /**
+     * @brief returns the format of @a column
+     * @param column column index (1-based).
+     * @return A copy of the column format.
+     */
     Format columnFormat(int column) const;
-    bool isColumnHidden(int column) const;
+    /**
+     * @brief returns whether the column is hidden
+     * @param column column index (1-based).
+     * @return valid bool value if column visibility was changed, nullopt otherwise.
+     *
+     * If the parameter was not set, false (not hidden) is assumed.
+     */
+    std::optional<bool> isColumnHidden(int column) const;
 
     /**
-     * @brief sets rows heights for rows in the range from rowFirst to rowLast.
+     * @brief sets rows heights for rows in the range from @a rowFirst to @a rowLast.
      * @param rowFirst the first row index (1-based).
      * @param rowLast the last row index (1-based).
      * @param height row height in points.
@@ -503,12 +523,19 @@ public:
      * @return true on success.
      */
     bool setRowHeight(int row, double height);
+    /**
+     * @brief sets rows format for rows in the range from @a rowFirst to @a rowLast.
+     * @param rowFirst  the first row index (1-based).
+     * @param rowLast the last row index (1-based).
+     * @param format row format.
+     * @return true on success
+     */
     bool setRowFormat(int rowFirst, int rowLast, const Format &format);
     /**
      * @overload
      * @brief sets row format for @a row.
      * @param row the row index (1-based).
-     * @param format
+     * @param format row format
      * @return true on success.
      */
     bool setRowFormat(int row, const Format &format);
@@ -520,12 +547,27 @@ public:
      * @return true if @a rowFirst and @a rowLast are valid and the visibility is successfully changed.
      */
     bool setRowHidden(int rowFirst, int rowLast, bool hidden);
-    /*!
-     Returns height of \a row in points.
-    */
-    double rowHeight(int row) const;
+    /**
+     * @brief returns the row height in points.
+     * @param row the row index (1-based).
+     * @return valid double value if the row height was set/changed, nullopt otherwise.
+     * @note The default row height can be obtained with #defaultRowHeight().
+     */
+    std::optional<double> rowHeight(int row) const;
+    /**
+     * @brief returns the row format.
+     * @param row the row index (1-based).
+     * @return a copy of the row format object.
+     */
     Format rowFormat(int row) const;
-    bool isRowHidden(int row) const;
+    /**
+     * @brief returns whether the row is hidden.
+     * @param row the row index (1-based).
+     * @return a valid bool value if the row visibility was changed, nullopt otherwise.
+     *
+     * If the row visibility was not set, false (not hidden) is assumed.
+     */
+    std::optional<bool> isRowHidden(int row) const;
 
     bool groupRows(int rowFirst, int rowLast, bool collapsed = true);
     /**
@@ -552,7 +594,7 @@ public:
     bool groupColumns(const CellRange &range, bool collapsed = true);
     /**
      * @brief returns the dimension (extent) of the worksheet.
-     * @return dimension (extent) of the worksheet.
+     * @return dimension (extent) of the worksheet as a CellRange object.
      */
     CellRange dimension() const;
 
@@ -602,7 +644,7 @@ public:
      *
      * @return true if the recalculation of the conditional formatting is on.
      */
-    bool isFormatConditionsCalculationEnabled() const;
+    std::optional<bool> isFormatConditionsCalculationEnabled() const;
     /**
      * @brief sets whether the conditional formatting calculations shall be
      * evaluated.
@@ -624,7 +666,7 @@ public:
      *
      * If not set, the default value is false.
      */
-    bool isSyncedHorizontal() const;
+    std::optional<bool> isSyncedHorizontal() const;
     /**
      * @brief sets whether the worksheet is horizontally synced to the #topLeftAnchor().
      * @param sync If true, and scroll location is missing from the window properties,
@@ -640,7 +682,7 @@ public:
      *
      * If not set, the default value is false.
      */
-    bool isSyncedVertical() const;
+    std::optional<bool> isSyncedVertical() const;
     /**
      * @brief sets whether the worksheet is vertically synced to the #topLeftAnchor().
      * @param sync If true, and scroll location is missing from the window properties,
@@ -667,7 +709,7 @@ public:
      *
      * If not set, the defalult value is true.
      */
-    bool showAutoPageBreaks() const;
+    std::optional<bool> showAutoPageBreaks() const;
     /**
      * @brief sets whether the sheet displays Automatic Page Breaks.
      * @param show automatic page breaks visibility.
@@ -681,7 +723,7 @@ public:
      *
      * If not set, the default value is false.
      */
-    bool fitToPage() const;
+    std::optional<bool> fitToPage() const;
     /**
      * @brief sets the Fit to Page print option.
      * @param value If true, then the sheet's contents will be scaled to fit the page.
@@ -698,7 +740,7 @@ public:
      *
      * The default value is false.
      */
-    bool thickBottomBorder() const;
+    std::optional<bool> thickBottomBorder() const;
     /**
      * @brief sets whether rows have thick bottom borders by default.
      * @param thick if true, then rows will have thick bottom borders by default.
@@ -712,7 +754,7 @@ public:
      *
      * The default value is false.
      */
-    bool thickTopBorder() const;
+    std::optional<bool> thickTopBorder() const;
     /**
      * @brief sets whether rows have thick top borders by default.
      * @param thick if true, then rows will have thick top borders by default.
@@ -730,7 +772,7 @@ public:
      * This parameter is useful if it is much shorter to only write out the rows
      * that are not hidden with #setRowHidden().
      */
-    bool rowsHiddenByDefault() const;
+    std::optional<bool> rowsHiddenByDefault() const;
     /**
      * @brief sets whether rows are hidden by default.
      * @param hidden if true, then all rows are hidden by default.
@@ -782,7 +824,7 @@ public:
      * @note Worksheet can have more than one view. This method returns the
      * property of the last one. To get the specific view use #view() method.
      */
-    bool isWindowProtected() const;
+    std::optional<bool> isWindowProtected() const;
     /**
      * @brief sets whether the panes in the window are locked due to workbook protection.
      *
@@ -792,21 +834,21 @@ public:
      * adds the default one. To get the specific view use #view() method.
      */
     void setWindowProtected(bool protect);
-    bool isFormulasVisible() const; //TODO: doc
+    std::optional<bool> isFormulasVisible() const; //TODO: doc
     void setFormulasVisible(bool visible);//TODO: doc
-    bool isGridLinesVisible() const;//TODO: doc
+    std::optional<bool> isGridLinesVisible() const;//TODO: doc
     void setGridLinesVisible(bool visible);//TODO: doc
-    bool isRowColumnHeadersVisible() const;//TODO: doc
+    std::optional<bool> isRowColumnHeadersVisible() const;//TODO: doc
     void setRowColumnHeadersVisible(bool visible);//TODO: doc
     /**
      * @brief returns whether the window should show 0 (zero) in cells
      * containing zero value.
      * @return true if zeroes are displayed as is, false if cells with zero value
-     * appear blank.
+     * appear blank, nullopt if the parameter is not set.
      *
      * The default value is true.
      */
-    bool isZerosVisible() const;
+    std::optional<bool> isZerosVisible() const;
     /**
      * @brief sets whether the window should show 0 (zero) in cells
      * containing zero value.
@@ -827,7 +869,7 @@ public:
      *
      * The default value is false.
      */
-    bool isRightToLeft() const;
+    std::optional<bool> isRightToLeft() const;
     /**
      * @brief sets whether the sheet is in 'right to left' display mode.
      *
@@ -844,7 +886,7 @@ public:
      *
      * The default value is false.
      */
-    bool isRulerVisible() const;
+    std::optional<bool> isRulerVisible() const;
     /**
      * @brief sets whether ruler is visible in the last added sheet view.
      * @param visible If true, then the ruler is visible.
@@ -858,7 +900,7 @@ public:
      *
      * The default value is true.
      */
-    bool isOutlineSymbolsVisible() const;
+    std::optional<bool> isOutlineSymbolsVisible() const;
     /**
      * @brief sets whether the outline symbols are visible in the last added sheet view.
      * @param visible If true, then the outline symbols are visible.
@@ -874,7 +916,7 @@ public:
      *
      * The default value is true.
      */
-    bool isPageMarginsVisible() const;
+    std::optional<bool> isPageMarginsVisible() const;
     /**
      * @brief sets whether page layout view shall display margins.
      * @param visible False means do not display left, right, top (header), and bottom (footer)
@@ -890,7 +932,7 @@ public:
      * If not set, the default value is true.
      * @return If false, then #viewColorIndex() is used to set the grid color.
      */
-    bool isDefaultGridColorUsed() const;
+    std::optional<bool> isDefaultGridColorUsed() const;
     /**
      * @brief sets whether the application uses the default grid
      * lines color (system dependent).
@@ -906,7 +948,7 @@ public:
      *
      * The default value is SheetView::Type::Normal.
      */
-    SheetView::Type viewType() const;
+    std::optional<SheetView::Type> viewType() const;
     /**
      * @brief sets the type of the last added view.
      * @param type One of SheetView::Type enum values.
@@ -937,7 +979,7 @@ public:
      *
      * If not set, the default value is 64.
      */
-    int viewColorIndex() const;
+    std::optional<int> viewColorIndex() const;
     /**
      * @brief sets the index to the color value for row/column text headings
      * and gridlines.
@@ -1060,17 +1102,18 @@ public:
     void setPrintScale(int scale);
     /**
      * @brief returns the worksheet's print scale in percents.
-     * @return value from 10 to 400. If no print scale was specified, this method
-     * returns the default value of 100.
+     * @return value from 10 to 400.
+     *
+     * If not set, value of 100 is assumed.
      */
-    int printScale() const;
+    std::optional<int> printScale() const;
     /**
      * @brief returns the order of printing the worksheet pages.
      * @return one of PageSetup::PageOrder enum values.
      *
      * The default value is PageSetup::PageOrder::DownThenOver.
      */
-    PageSetup::PageOrder pageOrder() const;
+    std::optional<PageSetup::PageOrder> pageOrder() const;
     /**
      * @brief sets the order of printing the worksheet pages.
      * @param pageOrder one of PageSetup::PageOrder enum values.
@@ -1084,7 +1127,7 @@ public:
      *
      * The default value is 1.
      */
-    int fitToWidth() const;
+    std::optional<int> fitToWidth() const;
     /**
      * @brief sets the number of horizontal pages to fit on when printing.
      * @param pages number of pages starting from 1.
@@ -1098,7 +1141,7 @@ public:
      *
      * The default value is 1.
      */
-    int fitToHeight() const;
+    std::optional<int> fitToHeight() const;
     /**
      * @brief sets the number of vertical pages to fit on when printing.
      * @param pages number of pages starting from 1.
@@ -1108,11 +1151,11 @@ public:
     void setFitToHeight(int pages);
     /**
      * @brief returns how to display cells with errors when printing the worksheet.
-     * @return A PageSetup::PrintError enum value.
+     * @return A PageSetup::PrintError enum value or nullopt if the parameter was not set.
      *
      * The default value is PageSetup::PrintError::Displayed.
      */
-    PageSetup::PrintError printErrors() const;
+    std::optional<PageSetup::PrintError> printErrors() const;
     /**
      * @brief sets how to display cells with errors when printing the worksheet.
      * @param mode A PageSetup::PrintError enum value.
@@ -1126,7 +1169,7 @@ public:
      *
      * The default value is PageSetup::CellComments::DoNotPrint.
      */
-    PageSetup::CellComments printCellComments() const;
+    std::optional<PageSetup::CellComments> printCellComments() const;
     /**
      * @brief sets how cell comments shall be printed.
      * @param mode A PageSetup::CellComments enum value.

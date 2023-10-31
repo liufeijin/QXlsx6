@@ -157,6 +157,8 @@ set(SRC_FILES
     header/xlsxcolor.h
     header/xlsxcolor_p.h
     header/xlsxconditionalformatting.h
+    header/xlsxsheetprotection.h
+    source/xlsxsheetprotection.cpp
 )
 
 set(QXLSX_PUBLIC_HEADERS
@@ -194,6 +196,7 @@ set(QXLSX_PUBLIC_HEADERS
     header/xlsxrichstring.h
     header/xlsxworkbook.h
     header/xlsxworksheet.h
+    header/xlsxsheetprotection.h
 )
 
 add_library(QXlsx
