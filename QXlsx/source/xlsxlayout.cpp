@@ -137,10 +137,10 @@ void Layout::setSize(QSizeF size)
     setWidth(size.width());
 }
 
-double Layout::width() const
+std::optional<double> Layout::width() const
 {
-    if (d) return d->w.value_or(0);
-    return 0;
+    if (d) return d->w;
+    return {};
 }
 
 void Layout::setWidth(double width)
@@ -150,10 +150,10 @@ void Layout::setWidth(double width)
     d->w = width;
 }
 
-double Layout::height() const
+std::optional<double> Layout::height() const
 {
-    if (d) return d->h.value_or(0);
-    return 0;
+    if (d) return d->h;
+    return {};
 }
 
 void Layout::setHeight(double height)
@@ -163,10 +163,10 @@ void Layout::setHeight(double height)
     d->h = height;
 }
 
-double Layout::x() const
+std::optional<double> Layout::x() const
 {
-    if (d) return d->x.value_or(0);
-    return 0;
+    if (d) return d->x;
+    return {};
 }
 
 void Layout::setX(double x)
@@ -176,10 +176,10 @@ void Layout::setX(double x)
     d->x = x;
 }
 
-double Layout::y() const
+std::optional<double> Layout::y() const
 {
-    if (d) return d->y.value_or(0);
-    return 0;
+    if (d) return d->y;
+    return {};
 }
 
 void Layout::setY(double y)

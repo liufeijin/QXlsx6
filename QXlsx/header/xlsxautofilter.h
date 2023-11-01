@@ -275,21 +275,21 @@ public:
      */
     void setRange(const CellRange &range);
     /**
-     * @brief returns whether to show the filtering button in the column header.
+     * @brief returns whether to hide the filtering button in the column header.
      * @param column zero-based column index in the autofilter #range().
-     * @return true if filtering button is shown.
+     * @return valid bool if the parameter was set, nullopt otherwise.
      *
-     * The defualt value is true.
+     * The default value is false (filter button is shown).
      */
-    bool showFilterButton(int column) const; //default = true
+    std::optional<bool> hideFilterButton(int column) const;
     /**
-     * @brief sets whether to show the filtering button in the column header.
+     * @brief sets whether to hide the filtering button in the column header.
      * @param column zero-based column index in the autofilter #range().
-     * @param show If true, then filtering button is shown.
+     * @param show If true, then filtering button is hidden.
      *
-     * If not set, true is assumed.
+     * If not set, false is assumed.
      */
-    void setShowFilterButton(int column, bool show);
+    void setHideFilterButton(int column, bool hide);
     /**
      * @overload
      * @brief sets whether to show the filtering button in the headers of all columns
@@ -302,11 +302,11 @@ public:
     /**
      * @brief returns whether to show filtering options in the UI element.
      * @param column zero-based column index in the autofilter #range().
-     * @return true if filtering options are shown.
+     * @return valid bool if the parameter was set, nullopt otherwise.
      *
      * The default value is true.
      */
-    bool showFilterOptions(int column) const;
+    std::optional<bool> showFilterOptions(int column) const;
     /**
      * @brief sets whether to show filtering options in the UI element.
      * @param column zero-based column index in the autofilter #range().

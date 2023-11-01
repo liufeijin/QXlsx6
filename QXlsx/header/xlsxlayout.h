@@ -77,16 +77,16 @@ public:
     QSizeF size() const;
     void setSize(QSizeF size);
 
-    double width() const;
+    std::optional<double> width() const;
     void setWidth(double width);
 
-    double height() const;
+    std::optional<double> height() const;
     void setHeight(double height);
 
-    double x() const;
+    std::optional<double> x() const;
     void setX(double x);
 
-    double y() const;
+    std::optional<double> y() const;
     void setY(double y);
 
     bool operator ==(const Layout &other) const;

@@ -81,16 +81,16 @@ QString Font::typeface() const
     return {};
 }
 
-Font::Charset Font::charset() const
+std::optional<Font::Charset> Font::charset() const
 {
     if (d) return d->charset.value_or(Charset::Default);
-    return Charset::Default;
+    return {};
 }
 
-Font::PitchFamily Font::pitchAndFamilySubstitute() const
+std::optional<Font::PitchFamily> Font::pitchAndFamilySubstitute() const
 {
-    if (d) return d->pitchFamily.value_or(PitchFamily::DefaultPitchUnknownFamily);
-    return PitchFamily::DefaultPitchUnknownFamily;
+    if (d) return d->pitchFamily;
+    return {};
 }
 
 void Font::setFont(const QFont &font)

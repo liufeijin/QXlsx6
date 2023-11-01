@@ -109,16 +109,16 @@ void AutoFilter::setRange(const CellRange &range)
     d->range = range;
 }
 
-bool AutoFilter::showFilterButton(int column) const
+std::optional<bool> AutoFilter::hideFilterButton(int column) const
 {
-    if (d) return !d->columns.value(column).filterButtonHidden.value_or(false);
-    return true;
+    if (d) return d->columns.value(column).filterButtonHidden;
+    return false;
 }
 
-void AutoFilter::setShowFilterButton(int column, bool show)
+void AutoFilter::setHideFilterButton(int column, bool hide)
 {
     if (!d) d = new AutoFilterPrivate;
-    d->columns[column].filterButtonHidden = !show;
+    d->columns[column].filterButtonHidden = hide;
 }
 void AutoFilter::setShowFilterButton(bool show)
 {
@@ -127,10 +127,10 @@ void AutoFilter::setShowFilterButton(bool show)
         d->columns[col].filterButtonHidden = !show;
 }
 
-bool AutoFilter::showFilterOptions(int column) const
+std::optional<bool> AutoFilter::showFilterOptions(int column) const
 {
-    if (d) return d->columns.value(column).showFilterOptions.value_or(true);
-    return true;
+    if (d) return d->columns.value(column).showFilterOptions;
+    return {};
 }
 void AutoFilter::setShowFilterOptions(int column, bool show)
 {

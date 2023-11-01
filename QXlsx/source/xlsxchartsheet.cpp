@@ -72,11 +72,11 @@ Chartsheet *Chartsheet::copy(const QString &distName, int distId) const
     return sheet;
 }
 
-bool Chartsheet::zoomToFit() const
+std::optional<bool> Chartsheet::zoomToFit() const
 {
     Q_D(const Chartsheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().zoomToFit.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().zoomToFit;
 }
 
 void Chartsheet::setZoomToFit(bool zoom)

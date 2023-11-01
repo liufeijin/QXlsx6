@@ -66,7 +66,7 @@ public:
      * The default value is false according to ECMA-376, but to mimic the Excel behavior if
      * the parameter was not set directly, then on writing the document zoomToFit is written as true.
      */
-    bool zoomToFit() const;
+    std::optional<bool> zoomToFit() const;
     /**
      * @brief sets whether the chartsheet is zoomed to fit the sheet view.
      * @param zoom

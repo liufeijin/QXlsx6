@@ -228,10 +228,10 @@ void Label::setPosition(Label::Position position)
     d->properties.pos = position;
 }
 
-Label::Position Label::position() const
+std::optional<Label::Position> Label::position() const
 {
-    if (d) return d->properties.pos.value_or(Position::BestFit);
-    return Position::BestFit;
+    if (d) return d->properties.pos;
+    return {};
 }
 
 void Label::read(QXmlStreamReader &reader)

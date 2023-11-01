@@ -95,7 +95,12 @@ public:
 
 
     void setPosition(Position pos);
-    Position position() const;
+    /**
+     * @brief returns the label's position.
+     * @return Position enum value if it was set, nullopt otherwise. If not set,
+     * Position::BestFit is assumed.
+     */
+    std::optional<Position> position() const;
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;

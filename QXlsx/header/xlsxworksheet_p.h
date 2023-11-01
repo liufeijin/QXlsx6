@@ -66,7 +66,11 @@ struct SheetFormatProperties
     std::optional<bool> thickBottom; // = false;
     std::optional<bool> thickTop; //= false;
     std::optional<bool> zeroHeight; // = false;
-    //returns calculated default column width
+    //returns
+    /**
+     * @brief returns the calculated default column width.
+     * @return #defaultColWidth value if it was set, or double(#baseColWidth) + 5.0/7.0 otherwise.
+     */
     double defaultColumnWidth() const;
     bool isValid() const;
     void read(QXmlStreamReader &reader);

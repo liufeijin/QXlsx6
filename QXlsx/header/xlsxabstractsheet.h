@@ -1081,8 +1081,8 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     /**
      * @brief returns the vertical print resolution of the device.
      * @param dpi print resolution in DPI.
-     *
-     * The default value is 600.
+     * @return int value if horizontal dpi was set, nullopt otherwise. If not set,
+     * 600 is assumed.
      */
     std::optional<int> verticalDpi() const;
     /**
@@ -1094,9 +1094,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     void setVerticalDpi(int dpi);
     /**
      * @brief returns how many copies to print.
-     * @return
-     *
-     * The default value is 1.
+     * @return int value if copies was set, nullopt otherwise. If not set, 1 is assumed.
      */
     std::optional<int> copies() const;
     /**
@@ -1244,11 +1242,11 @@ To set the sheet VeryHidden use #setVisibility() method.*/
 
     /**
      * @brief returns whether the sheet's tab is selected.
-     * @return true if the sheet's tab is selected.
+     * @return valid bool if the parameter was set, nullopt otherwise.
      *
      * The default value is false.
      */
-    bool isSelected() const;
+    std::optional<bool> isSelected() const;
     /**
      * @brief sets @a selected to the sheet's tab.
      * @param selected tab selection state.
@@ -1261,11 +1259,13 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * This parameter is restricted to values ranging from 10 to 400.
      *
-     * @return window zoom magnification if it was set, 100 being the default value.
+     * The default value is 100.
+     *
+     * @return window zoom magnification if it was set, nullopt otherwise.
      * @note To get the view scales for specific view types see SheetView::zoomScaleNormal,
      * SheetView::zoomScalePageBreakView, SheetView::zoomScalePageLayoutView.
      */
-    int viewZoomScale() const;
+    std::optional<int> viewZoomScale() const;
     /**
      * @brief sets window zoom magnification for last added view as a percent value.
      * @param scale value ranging from 10 to 400.

@@ -621,11 +621,11 @@ bool AbstractSheet::removeBackgroundImage()
     return false;
 }
 
-bool AbstractSheet::isSelected() const
+std::optional<bool> AbstractSheet::isSelected() const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return false;
-    return d->sheetViews.last().tabSelected.value_or(false);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().tabSelected;
 }
 
 void AbstractSheet::setSelected(bool selected)
@@ -635,11 +635,11 @@ void AbstractSheet::setSelected(bool selected)
     d->sheetViews.last().tabSelected = selected;
 }
 
-int AbstractSheet::viewZoomScale() const
+std::optional<int> AbstractSheet::viewZoomScale() const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return 100;
-    return d->sheetViews.last().zoomScale.value_or(100);
+    if (d->sheetViews.isEmpty()) return {};
+    return d->sheetViews.last().zoomScale;
 }
 
 void AbstractSheet::setViewZoomScale(int scale)
