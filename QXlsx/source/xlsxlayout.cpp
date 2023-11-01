@@ -117,7 +117,7 @@ void Layout::setRect(QRectF rect)
 
 QPointF Layout::position() const
 {
-    return {x(), y()};
+    return {x().value_or(0), y().value_or(0)};
 }
 
 void Layout::setPosition(QPointF position)
@@ -128,7 +128,7 @@ void Layout::setPosition(QPointF position)
 
 QSizeF Layout::size() const
 {
-    return {width(), height()};
+    return {width().value_or(0), height().value_or(0)};
 }
 
 void Layout::setSize(QSizeF size)

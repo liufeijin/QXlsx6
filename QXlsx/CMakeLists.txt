@@ -98,7 +98,6 @@ set(SRC_FILES
     header/xlsxconditionalformatting_p.h
     header/xlsxcontenttypes_p.h
     header/xlsxdatavalidation.h
-    header/xlsxdatavalidation_p.h
     header/xlsxdatetype.h
     header/xlsxdocpropsapp_p.h
     header/xlsxdocpropscore_p.h
@@ -159,6 +158,8 @@ set(SRC_FILES
     header/xlsxconditionalformatting.h
     header/xlsxsheetprotection.h
     source/xlsxsheetprotection.cpp
+    header/xlsxpagemargins.h
+    source/xlsxpagemargins.cpp
 )
 
 set(QXLSX_PUBLIC_HEADERS
@@ -197,6 +198,7 @@ set(QXLSX_PUBLIC_HEADERS
     header/xlsxworkbook.h
     header/xlsxworksheet.h
     header/xlsxsheetprotection.h
+    header/xlsxpagemargins.h
 )
 
 add_library(QXlsx

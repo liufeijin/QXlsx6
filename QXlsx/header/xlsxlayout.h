@@ -23,9 +23,9 @@ class QXLSX_EXPORT Layout
 {
 public:
     /**
-     * @brief The LayoutTarget enum specifies  whether to layout the plot area
-     * by its inside (not including axis and axis labels) or outside (including
-     * axis and axis labels).
+     * @brief The LayoutTarget enum specifies  whether to layout the chart element
+     * by its inside (f.e. for the plot area not including axis and axis labels)
+     * or outside (f.e. for the plot area including axis and axis labels).
      */
     enum class LayoutTarget
     {
@@ -70,10 +70,21 @@ public:
 
     QRectF rect() const;
     void setRect(QRectF rect);
-
+    /**
+     * @brief returns the layout position as a point.
+     * @return QPointF object. If #x() or #y() is not set, returns 0.0 instead.
+     * @note This is a convenience method, it is equivalent to ```QPointF pos = {layout.x().value_or(0.0), layout.y().value_or(0.0)};```.
+     *
+     */
     QPointF position() const;
     void setPosition(QPointF position);
 
+    /**
+     * @brief returns the layout size.
+     * @return QSizeF object. If #width() or #height() is not set, it uses 0.0.
+     * @note This is a convenience method. It is equivalent to ```QSizeF size = {layout.width().value_or(0), layout.height().value_or(0)};```.
+     *
+     */
     QSizeF size() const;
     void setSize(QSizeF size);
 

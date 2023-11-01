@@ -55,6 +55,7 @@ INCLUDEPATH += $${QXLSX_HEADERPATH}
 # source code 
 
 HEADERS += \
+$${QXLSX_HEADERPATH}xlsxpagemargins.h \
 $${QXLSX_HEADERPATH}xlsxsheetprotection.h \
 $${QXLSX_HEADERPATH}xlsxautofilter.h \
 $${QXLSX_HEADERPATH}xlsxsheetview.h \
@@ -90,7 +91,6 @@ $${QXLSX_HEADERPATH}xlsxconditionalformatting.h \
 $${QXLSX_HEADERPATH}xlsxconditionalformatting_p.h \
 $${QXLSX_HEADERPATH}xlsxcontenttypes_p.h \
 $${QXLSX_HEADERPATH}xlsxdatavalidation.h \
-$${QXLSX_HEADERPATH}xlsxdatavalidation_p.h \
 $${QXLSX_HEADERPATH}xlsxdatetype.h \
 $${QXLSX_HEADERPATH}xlsxdocpropsapp_p.h \
 $${QXLSX_HEADERPATH}xlsxdocpropscore_p.h \
@@ -119,6 +119,7 @@ $${QXLSX_HEADERPATH}xlsxzipreader_p.h \
 $${QXLSX_HEADERPATH}xlsxzipwriter_p.h
 
 SOURCES += \
+$${QXLSX_SOURCEPATH}xlsxpagemargins.cpp \
 $${QXLSX_SOURCEPATH}xlsxsheetprotection.cpp \
 $${QXLSX_SOURCEPATH}xlsxautofilter.cpp \
 $${QXLSX_SOURCEPATH}xlsxsheetview.cpp \
