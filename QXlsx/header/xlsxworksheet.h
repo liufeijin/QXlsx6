@@ -126,7 +126,7 @@ class WorksheetPrivate;
  * - #printErrors(), #setPrintErrors(), #printCellComments(), #setPrintCellComments()
  * manage how to print additional cell info.
  *
- * All these methods return the default values if the corresponding parameters were not set.
+ * All these methods return std::optional if the corresponding parameters were not set.
  * See PageSetup class documentation on the default values.
  *
  * # Rows and columns
@@ -153,17 +153,21 @@ class WorksheetPrivate;
  *
  *
  *
- * # Autofiltering
+ * # Autofiltering and sorting
  *
  * If set, autofilter temporarily hides rows based on a filter criteria, which is
  * applied column by column to a range of data in the worksheet.
  *
- * These methods help you to set up the autofiltering options for the worksheet:
+ * These methods help you to set up the autofiltering and sorting options for the worksheet:
  *
  * - #autofilter(), #setAutofilter(), #clearAutofilter().
  *
  * See AutoFilter class description on how to set up autofiltering. See also
  * [Autofilter](examples/Autofilter/autofilter.cpp) example.
+ *
+ * # Conditional formatting
+ *
+ *
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
@@ -326,8 +330,43 @@ public:
      * If not set, false is assumed.
      */
     void setDataValidationPromptsDisabled(bool disabled);
-
-
+    /**
+     * @brief removes all data validation that was added to the worksheet.
+     */
+    void clearDataValidation();
+    /**
+     * @brief returns whether the worksheet has any data validation set.
+     * @return true if the worksheet has any data validation set.
+     */
+    bool hasDataValidation() const;
+    /**
+     * @brief returns the list of data validation objects added to the worksheet.
+     */
+    QList<DataValidation> dataValidations() const;
+    /**
+     * @brief returns the data validation object with @a index.
+     * @param index valid index from 0 to #dataValidationsCount()-1.
+     * @return A copy of DataValidation object if @a index is valid, a default-constructed
+     * (invalid) DataValidation object otherwise.
+     */
+    DataValidation dataValidation(int index) const;
+    /**
+     * @brief returns the data validation object with @a index.
+     * @param index valid index from 0 to #dataValidationsCount()-1.
+     * @return A reference to the DataValidation object.
+     * @warning If @a index is invalid, the result is undefined.
+     */
+    DataValidation &dataValidation(int index);
+    /**
+     * @brief removes the data validation from the worksheet.
+     * @param index valid index from 0 to #dataValidationsCount()-1.
+     * @return true if data validation was successfully removed.
+     */
+    bool removeDataValidation(int index);
+    /**
+     * @brief returns the count of data validations added to the worksheet.
+     */
+    int dataValidationsCount() const;
 
     /**
      * @brief adds the conditional formatting to the worksheet.

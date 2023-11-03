@@ -1132,6 +1132,50 @@ void Worksheet::setDataValidationPromptsDisabled(bool disabled)
     d->disableValidationPrompts = disabled;
 }
 
+void Worksheet::clearDataValidation()
+{
+    Q_D(Worksheet);
+    d->dataValidationsList.clear();
+}
+
+bool Worksheet::hasDataValidation() const
+{
+    Q_D(const Worksheet);
+    return !d->dataValidationsList.isEmpty();
+}
+
+QList<DataValidation> Worksheet::dataValidations() const
+{
+    Q_D(const Worksheet);
+    return d->dataValidationsList;
+}
+
+DataValidation Worksheet::dataValidation(int index) const
+{
+    Q_D(const Worksheet);
+    return d->dataValidationsList.value(index);
+}
+
+DataValidation &Worksheet::dataValidation(int index)
+{
+    Q_D(Worksheet);
+    return d->dataValidationsList[index];
+}
+
+bool Worksheet::removeDataValidation(int index)
+{
+    Q_D(Worksheet);
+    if (index < 0 || index >= d->dataValidationsList.size()) return false;
+    d->dataValidationsList.removeAt(index);
+    return true;
+}
+
+int Worksheet::dataValidationsCount() const
+{
+    Q_D(const Worksheet);
+    return d->dataValidationsList.size();
+}
+
 bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
 {
     Q_D(Worksheet);
