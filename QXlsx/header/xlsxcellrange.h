@@ -100,12 +100,20 @@ public:
      */
     bool contains(const CellReference &ref) const;
     /**
+     * @overload
      * @brief return whether the range contains the cell defined by its row and column.
      * @param row 1-based row index.
      * @param column 1-based column index.
      * @return true if range contains cell.
      */
     bool contains(int row, int column) const;
+    /**
+     * @overload
+     * @brief return whether the range contains the @a other range.
+     * @param other
+     * @return true if this range contains the @a other range.
+     */
+    bool contains(const CellRange &other) const;
 
     inline void operator =(const CellRange &other)
     {

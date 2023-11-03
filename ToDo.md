@@ -55,8 +55,7 @@
 1. Add support for filtering by icons
 2. Add support to filtering by color
 3. To filtering by values add support of CT_Filters attributes.
-4. Add support for sorting.
-5. Check string filtering and add the valid help.
+4. Check string filtering and add the valid help.
 
 ### SheetView
 

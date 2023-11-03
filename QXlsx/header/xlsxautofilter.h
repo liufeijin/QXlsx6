@@ -152,38 +152,66 @@ struct QXLSX_EXPORT Filter
 
 };
 
-class SortState
+/**
+ * @brief The SortCondition struct specifies the sort condition parameters in
+ * a SortState object.
+ */
+struct QXLSX_EXPORT SortCondition
 {
-public:
+    /**
+     * @brief The SortBy enum specifies the type of sorting.
+     */
     enum class SortBy
     {
-        Value,
-        CellColor,
-        FontColor,
-        Icon
+        Value, /**< Sort by the cell value (default) */
+        CellColor, /**< Sort by the cell color */
+        FontColor, /**< Sort by the cell font (foreground) color */
+        Icon /**< Sort by the cell icon */
     };
+    std::optional<Qt::SortOrder> descending;// default=Qt::SortAscending
+    std::optional<SortBy> sortBy;// default="value"
+    CellRange range; //required
+    QString customList;
+    std::optional<int> dxfId;
+    bool operator==(const SortCondition &other) const;
+    //TODO: std::optional<IconSet> iconSet;// default="3Arrows"
+    //TODO: std::optional<int> iconId;
+
+    SERIALIZE_ENUM(SortBy, {
+        {SortBy::CellColor, "cellColor"},
+        {SortBy::FontColor, "fontColor"},
+        {SortBy::Icon, "icon"},
+        {SortBy::Value, "value"}
+    });
+};
+
+/**
+ * @brief The SortState class represents the sorting parameters in the autofilter.
+ *
+ * Worksheet sorting is specified for a #range (required parameter). The sort method
+ * is specified with #sortMethod, case sensitivity with #caseSensitive.
+ *
+ * Sort can have up to 64 sort conditions, each of them is applied one by one.
+ */
+class QXLSX_EXPORT SortState
+{
+public:
+
+    /**
+     * @brief The SortMethod enum specifies the sort method.
+     */
     enum class SortMethod
     {
-        None,
-        Stroke,
-        PinYin,
-        };
-    struct SortCondition
-    {
-        std::optional<bool> descending;// default="false"/>
-        std::optional<SortBy> sortBy;// default="value"/>
-        CellReference ref; //required"/>
-        QString customList;
-        std::optional<int> dxfId;
-        bool operator==(const SortCondition &other) const;
-        //TODO: std::optional<IconSet> iconSet;// default="3Arrows"/>
-        //TODO: std::optional<int> iconId;
+        None, /**< The sort method is not specified*/
+        Stroke, /**< Sort by stroke count of the characters. Only applies to
+Chinese Simplified, Chinese Traditional, and Japanese. */
+        PinYin, /**< Sort phonetically. This is the default sort method. */
     };
 
-    std::optional<bool> columnSort; // default="false"/>
-    std::optional<bool> caseSensitive; // default="false"/>
-    std::optional<SortMethod> sortMethod; // default="none"/>
-    CellReference ref; //required
+    std::optional<bool> columnSort; // default="false"
+    std::optional<Qt::CaseSensitivity> caseSensitive; // default="false"
+    std::optional<SortMethod> sortMethod; // default="none"
+    CellRange range; //required
     ExtensionList extLst;
     QList<SortCondition> sortConditions;
 
@@ -191,12 +219,6 @@ public:
        {SortMethod::None,   "none"},
        {SortMethod::PinYin, "pinYin"},
        {SortMethod::Stroke, "stroke"}
-    });
-    SERIALIZE_ENUM(SortBy, {
-        {SortBy::CellColor, "cellColor"},
-        {SortBy::FontColor, "fontColor"},
-        {SortBy::Icon, "icon"},
-        {SortBy::Value, "value"}
     });
 
     bool operator==(const SortState &other) const;
@@ -208,7 +230,11 @@ public:
 
 class AutoFilterPrivate;
 /**
- * @brief The AutoFilter class represents the autofilter parameters for worksheet data.
+ * @brief The AutoFilter class represents the autofilter and sorting parameters for worksheet data.
+ *
+ * This class is _implicitly shareable_.
+ *
+ * # Autofilter
  *
  * If set, autofilter temporarily hides rows based on a filter criteria, which is
  * applied column by column to a table of data in the worksheet.
@@ -223,7 +249,19 @@ class AutoFilterPrivate;
  * #setShowFilterButton() and #setShowFilterOptions() let you to change the visibility
  * of UI elements in the column header.
  *
- * This class is _implicitly shareable_.
+ * # Sorting
+ *
+ * Sorting is applied to a range. See #setSortRange() and #sortRange(). If sort range is invalid,
+ * so is sort.
+ *
+ * To test whether sorting is enabled use #sortEnabled() or ```sortState().isValid()```.
+ *
+ * Sorting can have up to 64 sort conditions. See #sortConditions(), #sortCondition(),
+ * #addSortCondition(), #setSortCondition(), #removeSortCondition() and #clearSortConditions()
+ * to find out how to manipulate sort conditions.
+ *
+ * There is a convenience method #setSorting() to easily add simple sorting by values for a range
+ * of cells. This method replaces all previously defined sort parameters.
  */
 class QXLSX_EXPORT AutoFilter
 {
@@ -440,6 +478,147 @@ public:
      * like #setPredicate(), #setFilterByValues() etc.
      */
     void setFilter(int column, const Filter &filter);
+
+    /// Sorting methods
+
+    /**
+     * @brief returns wheter sorting was enabled. Equivalent to ```sortState().isValid()```
+     * @return true if sorting is enabled.
+     * @note Sort parameters may have no sort conditions specified, but if the sort
+     * range is valid, Excel applied default sorting to this range, thus to set the
+     * simples sorting it is enough to specify the sort range.
+     */
+    bool sortingEnabled() const;
+    /**
+     * @brief clears all sort parameters.
+     */
+    void clearSortState();
+    /**
+     * @brief returns the sort parameters.
+     * @return A copy of the SortState object.
+     */
+    SortState sortState() const;
+    /**
+     * @brief returns the sort parameters.
+     * @return A reference to the SortState object.
+     */
+    SortState &sortState();
+    /**
+     * @brief sets the sort parameters.
+     *
+     * If @a sort is invalid, does nothing and returns false. To remove sorting use #clearSortState()
+     * or ```setSortState({})```.
+     *
+     * @param sort A SortState object.
+     */
+    bool setSortState(const SortState &sort);
+    /**
+     * @brief sets the sort range, which sorting will be applied to.
+     *
+     * If @a range is invalid, does nothing. To remove sorting use #clearSortState()
+     * or ```setSortState({})```.
+     *
+     * @param range a valid CellRange object.
+     * @return true on success (@a range is valid and includes all sort conditions ranges).
+     */
+    bool setSortRange(const CellRange &range);
+    /**
+     * @brief sets the sort range, which sorting is applied to.
+     * @return A CellRange object.
+     */
+    CellRange sortRange() const;
+
+    /**
+     * @brief returns the list of sort conditions defined in the sort.
+     * @return a list.
+     */
+    QList<SortCondition> sortConditions() const;
+    /**
+     * @brief returns the sort condition with @a index.
+     * @param index must be within 0 and #sortConditionsCount()-1.
+     * @return a reference to the sort condition.
+     */
+    SortCondition &sortCondition(int index);
+    /**
+     * @brief returns the sort condition with @a index.
+     * @param index must be within 0 and #sortConditionsCount()-1.
+     * @return  a copy of the SortCondition object if @a index is valid,
+     * a default-constructed SortCondition otherwise.
+     */
+    SortCondition sortCondition(int index) const;
+    /**
+     * @brief returns the sort conditions count.
+     * @return an int value. If it is negative or > 64, the file is ill-formed.
+     */
+    int sortConditionsCount() const;
+    /**
+     * @brief adds a new sort condition.
+     * @param condition SortCondition object
+     * @return true if @a condition is valid and was successfully added.
+     */
+    bool addSortCondition(const SortCondition& condition);
+    /**
+     * @brief sets sort condition with @a index.
+     * @param index must be within 0 and #sortConditionsCount()-1.
+     * @param condition SortCondition object
+     * @return true if @a index and @a condition are valid and @a condition was successfully
+     * set.
+     */
+    bool setSortCondition(int index, const SortCondition& condition);
+    /**
+     * @brief removes the sort condition with @a index
+     * @param index must be within 0 and #sortConditionsCount()-1.
+     * @return true if the sort condition was successfully removed.
+     */
+    bool removeSortCondition(int index);
+    /**
+     * @brief removes all sort conditions.
+     */
+    void clearSortConditions();
+
+    bool addSortByValue(const CellRange &range,
+                        Qt::SortOrder sortOrder = Qt::AscendingOrder,
+                        const QString &customList = "");
+    bool addSortByCellColor(const CellRange &range, int formatIndex, Qt::SortOrder sortOrder = Qt::AscendingOrder);
+    bool addSortByFontColor(const CellRange &range, int formatIndex, Qt::SortOrder sortOrder = Qt::AscendingOrder);
+    //TODO: bool addSortByIcon()
+
+    std::optional<bool> sortBycolumns() const;
+    void setSortByColumns(bool sortByColumns);
+
+    std::optional<Qt::CaseSensitivity> caseSensitivity();
+    void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
+
+    std::optional<SortState::SortMethod> sortMethod() const;
+    void setSortMethod(SortState::SortMethod sortMethod);
+
+    /**
+     * @brief sets sort parameters.
+     *
+     * This method is intended to quickly add sorting to the worksheet.
+     * It uses the following parameters:
+     * - SortState::range is @a sortRange;
+     * - SortState::columnSort is unspecified (defaults to false);
+     * - SortState::caseSensitive is @a caseSensitive;
+     * - SortState::sortMethod is unspecified (defaults to SortMethod::PinYin;
+     * - sort condition is only one:
+     *     - SortCondition::range is @a sortBy;
+     *     - SortCondition::descending is @a descending;
+     *     - SortCondition::sortBy is unspecified (defaults to SortCondition::SortBy::Value);
+     *     - other SortCondition parameters are unspecified.
+     *
+     * @param sortRange The range to be sorted.
+     * @param sortBy The range to sort by.
+     * @param descending Ascending/descending sort.
+     * @param caseSensitive the sort case sensitivity.
+     * @return true if the ranges are valid and sorting is successful.
+     * @note To fine-tune sorting, use #sortState(), #setSortState(), #addSortCondition(),
+     * #sortCondition(int index) methods.
+     */
+    bool setSorting(const CellRange &sortRange,
+                    const CellRange &sortBy = CellRange(),
+                    Qt::SortOrder sortOrder = Qt::AscendingOrder,
+                    Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);

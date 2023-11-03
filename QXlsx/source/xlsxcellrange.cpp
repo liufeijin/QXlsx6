@@ -85,6 +85,15 @@ bool CellRange::contains(int row, int column) const
             column >= left && column <= right);
 }
 
+bool CellRange::contains(const CellRange &other) const
+{
+    if (!other.isValid()) return false;
+    return (top <= other.top &&
+            bottom >= other.bottom &&
+            left <= other.left &&
+            right >= other.right);
+}
+
 CellRange::CellRange(const CellRange &other)
     : top(other.top), left(other.left), bottom(other.bottom), right(other.right)
 {

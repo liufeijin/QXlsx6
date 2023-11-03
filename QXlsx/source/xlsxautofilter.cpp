@@ -590,7 +590,7 @@ bool Filter::operator!=(const Filter &other) const
 
 bool SortState::isValid() const
 {
-    return ref.isValid();
+    return range.isValid();
 }
 
 bool SortState::operator==(const SortState &other) const
@@ -598,7 +598,7 @@ bool SortState::operator==(const SortState &other) const
     if (columnSort != other.columnSort) return false;
     if (caseSensitive != other.caseSensitive) return false;
     if (sortMethod != other.sortMethod) return false;
-    if (ref != other.ref) return false;
+    if (range != other.range) return false;
     if (extLst != other.extLst) return false;
     if (sortConditions != other.sortConditions) return false;
     return true;
@@ -613,17 +613,29 @@ void SortState::write(QXmlStreamWriter &writer, const QString &name) const
     if (!isValid()) return;
     writer.writeStartElement(name);
     writeAttribute(writer, QLatin1String("columnSort"), columnSort);
-    writeAttribute(writer, QLatin1String("caseSensitive"), caseSensitive);
+    if (caseSensitive.has_value()) {
+        switch (caseSensitive.value()) {
+        case Qt::CaseSensitive: writeAttribute(writer, QLatin1String("caseSensitive"), true); break;
+        case Qt::CaseInsensitive: writeAttribute(writer, QLatin1String("caseSensitive"), false); break;
+        }
+    }
+
     if (sortMethod.has_value())
         writeAttribute(writer, QLatin1String("sortMethod"), toString(sortMethod.value()));
-    writeAttribute(writer, QLatin1String("ref"), ref.toString());
+    writeAttribute(writer, QLatin1String("ref"), range.toString());
     for (int i=0; i<sortConditions.size() && i<64; i++) {
         auto &s = sortConditions.at(i);
         writer.writeEmptyElement(QLatin1String("sortCondition"));
-        writeAttribute(writer, QLatin1String("descending"), s.descending);
+        if (s.descending.has_value()) {
+            switch (s.descending.value()) {
+            case Qt::AscendingOrder: writeAttribute(writer, QLatin1String("descending"), false); break;
+            case Qt::DescendingOrder: writeAttribute(writer, QLatin1String("descending"), true); break;
+            }
+        }
+
         if (s.sortBy.has_value())
-            writeAttribute(writer, QLatin1String("sortBy"), toString(s.sortBy.value()));
-        writeAttribute(writer, QLatin1String("ref"), s.ref.toString());
+            writeAttribute(writer, QLatin1String("sortBy"), SortCondition::toString(s.sortBy.value()));
+        writeAttribute(writer, QLatin1String("ref"), s.range.toString());
         writeAttribute(writer, QLatin1String("customList"), s.customList);
         writeAttribute(writer, QLatin1String("dxfId"), s.dxfId);
 //        writeAttribute(writer, QLatin1String("iconSet"), s.iconSet); //TODO
@@ -638,24 +650,28 @@ void SortState::read(QXmlStreamReader &reader)
     const auto &name = reader.name();
     auto a = reader.attributes();
     parseAttributeBool(a, QLatin1String("columnSort"), columnSort);
-    parseAttributeBool(a, QLatin1String("caseSensitive"), caseSensitive);
+    std::optional<bool> cs;
+    parseAttributeBool(a, QLatin1String("caseSensitive"), cs);
+    if (cs.has_value()) caseSensitive = cs.value() ? Qt::CaseSensitive : Qt::CaseInsensitive;
     if (a.hasAttribute(QLatin1String("sortMethod"))) {
         SortMethod t; fromString(a.value(QLatin1String("sortMethod")).toString(), t);
         sortMethod = t;
     }
-    ref = CellReference::fromString(a.value(QLatin1String("ref")).toString());
+    range = CellRange(a.value(QLatin1String("ref")).toString());
     while (!reader.atEnd()) {
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             a = reader.attributes();
             if (reader.name() == QLatin1String("sortCondition")) {
                 SortCondition s;
-                parseAttributeBool(a, QLatin1String("descending"), s.descending);
+                std::optional<bool> desc;
+                parseAttributeBool(a, QLatin1String("caseSensitive"), desc);
+                if (desc.has_value()) s.descending = desc.value() ? Qt::DescendingOrder : Qt::AscendingOrder;
                 if (a.hasAttribute(QLatin1String("sortBy"))) {
-                    SortBy t; fromString(a.value(QLatin1String("sortBy")).toString(), t);
+                    SortCondition::SortBy t; SortCondition::fromString(a.value(QLatin1String("sortBy")).toString(), t);
                     s.sortBy = t;
                 }
-                s.ref = CellReference::fromString(a.value(QLatin1String("ref")).toString());
+                s.range = CellRange(a.value(QLatin1String("ref")).toString());
                 parseAttributeString(a, QLatin1String("customList"), s.customList);
                 parseAttributeInt(a, QLatin1String("dxfId"), s.dxfId);
             }
@@ -667,11 +683,11 @@ void SortState::read(QXmlStreamReader &reader)
     }
 }
 
-bool SortState::SortCondition::operator==(const SortCondition &other) const
+bool SortCondition::operator==(const SortCondition &other) const
 {
     if (descending != other.descending) return false;
     if (sortBy != other.sortBy) return false;
-    if (ref != other.ref) return false;
+    if (range != other.range) return false;
     if (customList != other.customList) return false;
     if (dxfId != other.dxfId) return false;
     //TODO: if (iconSet != other.) return false;
@@ -679,7 +695,200 @@ bool SortState::SortCondition::operator==(const SortCondition &other) const
     return true;
 }
 
+bool AutoFilter::sortingEnabled() const
+{
+    if (!d) return false;
+    return d->sort.range.isValid();
 }
+
+void AutoFilter::clearSortState()
+{
+    if (!d) return; //no need to create d
+    d->sort = SortState();
+}
+
+SortState AutoFilter::sortState() const
+{
+    if (d) return d->sort;
+    return {};
+}
+
+SortState &AutoFilter::sortState()
+{
+    if (!d) d = new AutoFilterPrivate;
+    return d->sort;
+}
+
+bool AutoFilter::setSortState(const SortState &sort)
+{
+    if (!sort.isValid()) return false;
+    if (!d) d = new AutoFilterPrivate;
+    d->sort = sort;
+    return true;
+}
+
+bool AutoFilter::setSortRange(const CellRange &range)
+{
+    if (!range.isValid()) return false;
+    if (!d) d = new AutoFilterPrivate;
+    for (const auto &sc: qAsConst(d->sort.sortConditions)) {
+        if (!range.contains(sc.range)) return false;
+    }
+
+    d->sort.range = range;
+    return true;
+}
+
+CellRange AutoFilter::sortRange() const
+{
+    if (d) return d->sort.range;
+    return {};
+}
+
+QList<SortCondition> AutoFilter::sortConditions() const
+{
+    if (d) return d->sort.sortConditions;
+    return {};
+}
+
+SortCondition &AutoFilter::sortCondition(int index)
+{
+    if (!d) d = new AutoFilterPrivate;
+    return d->sort.sortConditions[index];
+}
+
+SortCondition AutoFilter::sortCondition(int index) const
+{
+    if (d) return d->sort.sortConditions.value(index, {});
+    return {};
+}
+
+int AutoFilter::sortConditionsCount() const
+{
+    if (d) return d->sort.sortConditions.count();
+    return 0;
+}
+
+bool AutoFilter::addSortCondition(const SortCondition& condition)
+{
+    if (!d) d = new AutoFilterPrivate;
+    if (!d->sort.range.contains(condition.range)) return false;
+    if (d->sort.sortConditions.size() >= 64) return false;
+    d->sort.sortConditions.append(condition);
+    return true;
+}
+
+bool AutoFilter::setSortCondition(int index, const SortCondition& condition)
+{
+    if (!d) return false;
+    if (index < 0 || index >= d->sort.sortConditions.size()) return false;
+    if (!d->sort.range.contains(condition.range)) return false;
+    d->sort.sortConditions[index] = condition;
+    return true;
+}
+
+bool AutoFilter::removeSortCondition(int index)
+{
+    if (!d) return false;
+    if (index < 0 || index >= d->sort.sortConditions.size()) return false;
+    d->sort.sortConditions.removeAt(index);
+    return true;
+}
+
+void AutoFilter::clearSortConditions()
+{
+    if (!d) return;
+    d->sort.sortConditions.clear();
+}
+
+bool AutoFilter::addSortByValue(const CellRange &range, Qt::SortOrder sortOrder, const QString &customList)
+{
+    SortCondition sc;
+    sc.range = range;
+    sc.customList = customList;
+    sc.descending = sortOrder;
+    sc.sortBy = SortCondition::SortBy::Value;
+    return addSortCondition(sc);
+}
+
+bool AutoFilter::addSortByCellColor(const CellRange &range, int formatIndex, Qt::SortOrder sortOrder)
+{
+    SortCondition sc;
+    sc.range = range;
+    sc.descending = sortOrder;
+    sc.sortBy = SortCondition::SortBy::CellColor;
+    sc.dxfId = formatIndex;
+    return addSortCondition(sc);
+}
+bool AutoFilter::addSortByFontColor(const CellRange &range, int formatIndex, Qt::SortOrder sortOrder)
+{
+    SortCondition sc;
+    sc.range = range;
+    sc.descending = sortOrder;
+    sc.sortBy = SortCondition::SortBy::FontColor;
+    sc.dxfId = formatIndex;
+    return addSortCondition(sc);
+}
+//TODO: bool addSortByIcon()
+
+std::optional<bool> AutoFilter::sortBycolumns() const
+{
+    if (d) return d->sort.columnSort;
+    return {};
+}
+
+void AutoFilter::setSortByColumns(bool sortByColumns)
+{
+    if (!d) d = new AutoFilterPrivate;
+    d->sort.columnSort = sortByColumns;
+}
+
+std::optional<Qt::CaseSensitivity> AutoFilter::caseSensitivity()
+{
+    if (d) return d->sort.caseSensitive;
+    return {};
+}
+void AutoFilter::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
+{
+    if (!d) d = new AutoFilterPrivate;
+    d->sort.caseSensitive = caseSensitivity;
+}
+
+std::optional<SortState::SortMethod> AutoFilter::sortMethod() const
+{
+    if (d) return d->sort.sortMethod;
+    return {};
+}
+void AutoFilter::setSortMethod(SortState::SortMethod sortMethod)
+{
+    if (!d) d = new AutoFilterPrivate;
+    d->sort.sortMethod = sortMethod;
+}
+
+bool AutoFilter::setSorting(const CellRange &sortRange, const CellRange &sortBy,
+                            Qt::SortOrder sortOrder, Qt::CaseSensitivity caseSensitivity)
+{
+    if (!sortRange.isValid()) return false;
+
+    if (!d) d = new AutoFilterPrivate;
+    SortState ss;
+    ss.range = sortRange;
+    ss.caseSensitive = caseSensitivity;
+    if (sortRange.contains(sortBy)) {
+        SortCondition sc;
+        sc.descending = sortOrder;
+        sc.range = sortBy;
+        sc.sortBy = SortCondition::SortBy::Value;
+        ss.sortConditions.append(sc);
+    }
+    return setSortState(ss);
+}
+
+}
+
+
+
+
 
 
 

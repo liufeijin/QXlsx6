@@ -329,7 +329,7 @@ bool Workbook::renameSheet(int index, const QString &newName)
             return false;
     }
 
-    d->sheets[index]->setName(name);
+    d->sheets[index]->rename(name);
     d->sheetNames[index] = name;
     return true;
 }

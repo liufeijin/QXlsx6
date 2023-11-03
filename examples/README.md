@@ -191,10 +191,12 @@ This example needs rewriting as it compiles only with Qt5.
 Serves as a test application that pumps xlsx files through QXlsx (reads files and writes them back) to test QXlsx features.
 
 Originally the example was a part of [libxlsxwriter](https://github.com/jmcnamara/libxlsxwriter).
-## [WebServer](WebServer)
-Loads xlsx file and displays on Web.
-- Connect to `http://127.0.0.1:3001` 
 
+## [WebServer](WebServer)
+
+Loads xlsx file and displays on Web.
+
+- Connect to `http://127.0.0.1:3001` 
 - C++ 14 is required. Old compilers are not supported.
 
 This example needs rewriting.
@@ -202,6 +204,7 @@ This example needs rewriting.
 ![](../markdown.data/webserver.png)
 
 ## [ShowConsole](ShowConsole)
+
 Loads xlsx file and displays data in console.
 
 Usage: 
@@ -213,6 +216,7 @@ ShowConsole *.xlsx
 ![](../markdown.data/show-console.jpg)
 
 ## XlsxFactory 
+
 - Load xlsx file and display on Qt widgets. 
 - Moved to personal repository for advanced app.
 	- https://j2doll.tistory.com/654

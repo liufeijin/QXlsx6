@@ -12,7 +12,7 @@ int main()
 
     // 1. Filtering by values
     auto sheet = xlsx.activeWorksheet();
-    sheet->rename("Filter by values"); //rename default sheet
+    sheet->setName("Filter by values"); //rename default sheet
 
     for (int i=1; i<=10; ++i) {
         sheet->write(1,i, QString("column %1").arg(i));
@@ -54,6 +54,16 @@ int main()
     sheet->autofilter().setRange(QXlsx::CellRange(1,1,12,2));
     sheet->autofilter().setDynamicFilter(0, QXlsx::Filter::DynamicFilterType::LastQuarter);
     sheet->autofilter().setDynamicFilter(1, QXlsx::Filter::DynamicFilterType::LastWeek);
+
+    //4. Sorting
+    sheet = xlsx.addWorksheet("sorting");
+    for (int i=1; i<=10; ++i) {
+        sheet->write(1,i, QString("column %1").arg(i));
+        for (int j=2; j<=31; ++j) {
+            sheet->write(j,i,i+j);
+        }
+    }
+    sheet->autofilter().setSorting(QXlsx::CellRange(1,1,31,10), QXlsx::CellRange(1,2,31,2), Qt::DescendingOrder);
 
     xlsx.saveAs("autofilter.xlsx");
     return 0;

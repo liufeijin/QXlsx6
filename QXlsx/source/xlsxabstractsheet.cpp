@@ -42,7 +42,7 @@ QString AbstractSheet::name() const
     return d->name;
 }
 
-bool AbstractSheet::rename(const QString &newName)
+bool AbstractSheet::setName(const QString &newName)
 {
     if (name() == newName)
         return false;
@@ -52,7 +52,7 @@ bool AbstractSheet::rename(const QString &newName)
 /*!
  * \internal
  */
-void AbstractSheet::setName(const QString &sheetName)
+void AbstractSheet::rename(const QString &sheetName)
 {
     Q_D(AbstractSheet);
     d->name = sheetName;

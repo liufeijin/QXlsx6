@@ -30,21 +30,21 @@
 - См. [Протестированные среды](TestEnv.md)
 
 ## Вклады
-- См. [Участники] (https://github.com/QtExcel/QXlsx/graphs/contributors).
+- См. [Участники](https://github.com/QtExcel/QXlsx/graphs/contributors).
 
 ## Лицензия и ссылки
-- QXlsx находится под лицензией MIT. [https://github.com/QtExcel/QXlsx] (https://github.com/QtExcel/QXlsx)
+- QXlsx находится под лицензией MIT. [https://github.com/QtExcel/QXlsx](https://github.com/QtExcel/QXlsx)
 - Спасибо за создание следующих замечательных проектов. : +1:
-  - Qt находится под лицензией LGPL v3 или коммерческой лицензией. [https://www.qt.io/]] (https://www.qt.io/)
-  - QtXlsxWriter находится под лицензией MIT. : +1: [https://github.com/dbzhang800/QtXlsxWriter] (https://github.com/dbzhang800/QtXlsxWriter)
-  - Qt-Table-Printer находится под лицензией BSD 3-Clause. [https://github.com/T0ny0/Qt-Table-Printer] (https://github.com/T0ny0/Qt-Table-Printer)
-  - рекурсивно под лицензией MIT. [https://github.com/pkoretic/recurse] (https://github.com/pkoretic/recurse)
-  - libfort находится под лицензией MIT. [https://github.com/seleznevae/libfort] (https://github.com/seleznevae/libfort)
-  - colorprintf находится под лицензией MIT. [https://github.com/VittGam/colorprintf] (https://github.com/VittGam/colorprintf)
-  - HelloActions-Qt находится под лицензией MIT. [https://github.com/jaredtao/HelloActions-Qt] (https://github.com/jaredtao/HelloActions-Qt)
+  - Qt находится под лицензией LGPL v3 или коммерческой лицензией. [https://www.qt.io/](https://www.qt.io/)
+  - QtXlsxWriter находится под лицензией MIT. : +1: [https://github.com/dbzhang800/QtXlsxWriter](https://github.com/dbzhang800/QtXlsxWriter)
+  - Qt-Table-Printer находится под лицензией BSD 3-Clause. [https://github.com/T0ny0/Qt-Table-Printer](https://github.com/T0ny0/Qt-Table-Printer)
+  - рекурсивно под лицензией MIT. [https://github.com/pkoretic/recurse](https://github.com/pkoretic/recurse)
+  - libfort находится под лицензией MIT. [https://github.com/seleznevae/libfort](https://github.com/seleznevae/libfort)
+  - colorprintf находится под лицензией MIT. [https://github.com/VittGam/colorprintf](https://github.com/VittGam/colorprintf)
+  - HelloActions-Qt находится под лицензией MIT. [https://github.com/jaredtao/HelloActions-Qt](https://github.com/jaredtao/HelloActions-Qt)
 
 ##: email: Контакт
-- Оставь мне вопрос. [https://github.com/QtExcel/QXlsx/issues] (https://github.com/QtExcel/QXlsx/issues)
+- Оставь мне вопрос. [https://github.com/QtExcel/QXlsx/issues](https://github.com/QtExcel/QXlsx/issues)
 - Если вы заинтересованы в участии в проекте, обращайтесь к нам по вопросам.
 - Мой родной язык не английский, и я плохо владею английским. Пожалуйста, используйте ЛЕГКИЙ английский. :-)
 - Если вы хотите перевести README.md на свой родной язык, свяжитесь со мной.

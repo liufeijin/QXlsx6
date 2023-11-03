@@ -475,7 +475,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @param newName
      * @return true if renaming was successful.
      */
-    bool rename(const QString &newName);
+    bool setName(const QString &newName);
 
     /**
      * @brief returns the sheet's type.
@@ -1202,7 +1202,7 @@ protected:
      * Returns the new sheet.
      */
     virtual AbstractSheet *copy(const QString &distName, int distId) const = 0;
-    void setName(const QString &sheetName);
+    void rename(const QString &sheetName);
     void setType(Type type);
     int id() const;
 
