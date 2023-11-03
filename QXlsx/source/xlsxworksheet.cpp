@@ -1144,7 +1144,7 @@ bool Worksheet::hasDataValidation() const
     return !d->dataValidationsList.isEmpty();
 }
 
-QList<DataValidation> Worksheet::dataValidations() const
+QList<DataValidation> Worksheet::dataValidationRules() const
 {
     Q_D(const Worksheet);
     return d->dataValidationsList;
@@ -1174,6 +1174,47 @@ int Worksheet::dataValidationsCount() const
 {
     Q_D(const Worksheet);
     return d->dataValidationsList.size();
+}
+
+void Worksheet::clearConditionalformatting()
+{
+    Q_D(Worksheet);
+    d->conditionalFormattingList.clear();
+}
+
+bool Worksheet::hasConditionalFormatting() const
+{
+    Q_D(const Worksheet);
+    return !d->conditionalFormattingList.isEmpty();
+}
+int Worksheet::conditionalFormattingCount() const
+{
+    Q_D(const Worksheet);
+    return d->conditionalFormattingList.size();
+}
+QList<ConditionalFormatting> Worksheet::conditionalFormattingRules() const
+{
+    Q_D(const Worksheet);
+    return d->conditionalFormattingList;
+}
+
+ConditionalFormatting Worksheet::conditionalFormatting(int index) const
+{
+    Q_D(const Worksheet);
+    return d->conditionalFormattingList.value(index);
+}
+ConditionalFormatting &Worksheet::conditionalFormatting(int index)
+{
+    Q_D(Worksheet);
+    return d->conditionalFormattingList[index];
+}
+
+bool Worksheet::removeConditionalFormatting(int index)
+{
+    Q_D(Worksheet);
+    if (index < 0 || index >= d->conditionalFormattingList.size()) return false;
+    d->conditionalFormattingList.removeAt(index);
+    return true;
 }
 
 bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)

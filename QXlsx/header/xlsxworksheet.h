@@ -167,7 +167,16 @@ class WorksheetPrivate;
  *
  * # Conditional formatting
  *
+ * A Conditional Format is a format, such as cell shading or font color, that a
+ * spreadsheet application can automatically apply to cells if a specified
+ * condition is true.
  *
+ * These methods help you to set up the conditional formatting options for the worksheet:
+ *
+ * - #conditionalFormatting(), #setConditionalFormatting(), #clearConditionalformatting().
+ *
+ * See Conditionalformatting class on how to set up the conditions. See also
+ * [ConditionalFormatting](examples/ConditionalFormatting/conditionalFormatting.cpp) example.
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
@@ -342,7 +351,7 @@ public:
     /**
      * @brief returns the list of data validation objects added to the worksheet.
      */
-    QList<DataValidation> dataValidations() const;
+    QList<DataValidation> dataValidationRules() const;
     /**
      * @brief returns the data validation object with @a index.
      * @param index valid index from 0 to #dataValidationsCount()-1.
@@ -368,6 +377,43 @@ public:
      */
     int dataValidationsCount() const;
 
+    /**
+     * @brief removes all conditional formatting rules from the worksheet.
+     */
+    void clearConditionalformatting();
+    /**
+     * @brief returns whether the worksheet has conditional formatting set.
+     * @return true if #conditionalFormattingCount() > 0.
+     */
+    bool hasConditionalFormatting() const;
+    /**
+     * @brief returns the count of conditional formatting rules added to the worksheet.
+     */
+    int conditionalFormattingCount() const;
+    /**
+     * @brief returns the list of conditional formatting rules added to the worksheet.
+     */
+    QList<ConditionalFormatting> conditionalFormattingRules() const;
+    /**
+     * @brief returns the conditional formatting rule at @a index.
+     * @param index valid index from 0 to #conditionalFormattingCount()-1.
+     * @return a copy of the ConditionalFormatting object if the index is valid,
+     * a default-constructed (invalid) ConditionalFormatting object otherwise.
+     */
+    ConditionalFormatting conditionalFormatting(int index) const;
+    /**
+     * @brief returns the conditional formatting rule at @a index.
+     * @param index valid index from 0 to #conditionalFormattingCount()-1.
+     * @return a reference to the conditional formatting rule at @a index.
+     * @warning If @a index is invalid, the behavior isundefined.
+     */
+    ConditionalFormatting &conditionalFormatting(int index);
+    /**
+     * @brief removes the conditional formatting rule at @a index.
+     * @param index valid index from 0 to #conditionalFormattingCount()-1.
+     * @return true if @a index is valid and the rule was removed, false otherwise.
+     */
+    bool removeConditionalFormatting(int index);
     /**
      * @brief adds the conditional formatting to the worksheet.
      * @param cf ConditionalFormatting object that contains the conditional formating parameters.
