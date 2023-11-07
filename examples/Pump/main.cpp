@@ -18,15 +18,12 @@ using namespace std;
 #include "xlsxworkbook.h"
 using namespace QXlsx;
 
-extern int test(QVector<QVariant> params);
+extern int test();
 
 int main(int argc, char *argv[])
 {
 	QCoreApplication app(argc, argv);
 
-	QVector<QVariant> testParams;
-	int ret = test(testParams);
-
-	return 0; 
+    return test();
 }
 

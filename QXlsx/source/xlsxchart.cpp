@@ -151,7 +151,7 @@ Chart::~Chart()
 {
 }
 
-void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
+QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
                       bool firstRowContainsHeaders,
                       bool firstColumnContainsCategoryData,
                       bool columnBased,
@@ -160,20 +160,24 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
     Q_D(Chart);
 
     if (!range.isValid())
-        return;
+        return {};
     if (sheet && sheet->type() != AbstractSheet::Type::Worksheet)
-        return;
+        return {};
     if (!sheet && d->sheet->type() != AbstractSheet::Type::Worksheet)
-        return;
+        return {};
 
     QString sheetName = sheet ? sheet->name() : d->sheet->name();
     //In case sheetName contains space or '
     sheetName = escapeSheetName(sheetName);
 
+    QList<Series*> result;
+
     if (range.columnCount() == 1 || range.rowCount() == 1) {
         auto series = addSeries(subchart);
-        if (!series) return;
-        series->setValueData(sheetName + QLatin1String("!") + range.toString(true, true));
+        if (series) {
+            series->setValueData(sheetName + QLatin1String("!") + range.toString(true, true));
+            result << series;
+        }
     }
     else if (columnBased) {
         //Column based series, first column is category data, rest are value data
@@ -194,13 +198,16 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
         for (int col = firstDataColumn; col <= range.lastColumn(); ++col) {
             CellRange subRange(firstDataRow, col, range.lastRow(), col);
             auto series = addSeries(subchart);
-            if (firstColumnContainsCategoryData)
-                series->setCategoryData(categoryReference);
-            series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
+            if (series) {
+                if (firstColumnContainsCategoryData)
+                    series->setCategoryData(categoryReference);
+                series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
-            if (firstRowContainsHeaders) {
-                CellRange subRange(range.firstRow(), col, range.firstRow(), col);
-                series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                if (firstRowContainsHeaders) {
+                    CellRange subRange(range.firstRow(), col, range.firstRow(), col);
+                    series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                }
+                result << series;
             }
         }
     }
@@ -219,17 +226,20 @@ void Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
         for (int row = firstDataRow; row <= range.lastRow(); ++row) {
             CellRange subRange(row, firstDataColumn, row, range.lastColumn());
             auto series = addSeries(subchart);
-            if (!series) return;
-            if (firstColumnContainsCategoryData)
-                series->setCategoryData(categoryReference);
-            series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
+            if (series) {
+                if (firstColumnContainsCategoryData)
+                    series->setCategoryData(categoryReference);
+                series->setValueData(sheetName + QLatin1String("!") + subRange.toString(true, true));
 
-            if (firstRowContainsHeaders) {
-                CellRange subRange(row, range.firstColumn(), row, range.firstColumn());
-                series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                if (firstRowContainsHeaders) {
+                    CellRange subRange(row, range.firstColumn(), row, range.firstColumn());
+                    series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
+                }
+                result << series;
             }
         }
     }
+    return result;
 }
 
 QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valRange,

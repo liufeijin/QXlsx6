@@ -1227,7 +1227,6 @@ bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
         const std::shared_ptr<XlsxCfRuleData> &rule = cf.d->cfRules[i];
         if (!rule->dxfFormat.isEmpty())
             d->workbook->styles()->addDxfFormat(rule->dxfFormat);
-        rule->priority = 1;
     }
     d->conditionalFormattingList.append(cf);
     return true;

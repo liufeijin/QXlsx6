@@ -254,7 +254,7 @@ class AutoFilterPrivate;
  * Sorting is applied to a range. See #setSortRange() and #sortRange(). If sort range is invalid,
  * so is sort.
  *
- * To test whether sorting is enabled use #sortEnabled() or ```sortState().isValid()```.
+ * To test whether sorting is enabled use #sortingEnabled() or ```sortState().isValid()```.
  *
  * Sorting can have up to 64 sort conditions. See #sortConditions(), #sortCondition(),
  * #addSortCondition(), #setSortCondition(), #removeSortCondition() and #clearSortConditions()
@@ -323,7 +323,7 @@ public:
     /**
      * @brief sets whether to hide the filtering button in the column header.
      * @param column zero-based column index in the autofilter #range().
-     * @param show If true, then filtering button is hidden.
+     * @param hide If true, then filtering button is hidden.
      *
      * If not set, false is assumed.
      */
@@ -609,8 +609,8 @@ public:
      *
      * @param sortRange The range to be sorted.
      * @param sortBy The range to sort by.
-     * @param descending Ascending/descending sort.
-     * @param caseSensitive the sort case sensitivity.
+     * @param sortOrder Ascending/descending sort.
+     * @param caseSensitivity the sort case sensitivity.
      * @return true if the ranges are valid and sorting is successful.
      * @note To fine-tune sorting, use #sortState(), #setSortState(), #addSortCondition(),
      * #sortCondition(int index) methods.

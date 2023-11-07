@@ -25,9 +25,7 @@ using namespace std;
 // #include "colorprintf.h" // https://github.com/VittGam/colorprintf
 #endif
 
-int test( QVector<QVariant> params );
-
-int test( QVector<QVariant> params )
+int test()
 {
     qDebug() << "[debug] current path : " << QDir::currentPath();
 

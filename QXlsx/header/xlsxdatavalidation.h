@@ -34,8 +34,8 @@ class DataValidationPrivate;
  * #setFormula1(), #setFormula2(), #setPredicate().
  *
  * Data validation applies to a single cell, to a range of cells or to a list of
- * ranges. Use #addCell(), #addRange(), #removeCell(), #removeRange(), #ranges()
- * to manipulate data validation ranges.
+ * ranges. Use #addCell(), #addRange(), #removeRange(), #ranges() to manipulate
+ * data validation ranges.
  *
  * Additional UI can be provided to help the user select values (e.g., a dropdown
  * control on the cell or hover text when the cell is active), and to help the
@@ -291,7 +291,7 @@ public:
      * @return If true, then prompt message is shown.
      *
      * The default value is false.
-     * @sa #setPromptMessageVivible(), #setPromptMessage().
+     * @sa #setPromptMessageVisible(), #setPromptMessage().
      */
     std::optional<bool> isPromptMessageVisible() const;
     /**
@@ -299,7 +299,7 @@ public:
      * @return If true, then error message is shown.
      *
      * The default value is false.
-     * @sa #setErrorMessageVivible(), #setErrorMessage().
+     * @sa #setErrorMessageVisible(), #setErrorMessage().
      */
     std::optional<bool> isErrorMessageVisible() const;
     /**
@@ -307,7 +307,7 @@ public:
      * @param visible If true, then prompt message is shown.
      *
      * If not set, false is assumed.
-     * @sa #isPromptMessageVivible(), #setPromptMessage().
+     * @sa #isPromptMessageVisible(), #setPromptMessage().
      */
     void setPromptMessageVisible(bool visible);
     /**
@@ -315,7 +315,7 @@ public:
      * @param visible If true, then error message is shown.
      *
      * If not set, false is assumed.
-     * @sa #isErrorMessageVivible(), #setErrorMessage(), #setErrorStyle().
+     * @sa #isErrorMessageVisible(), #setErrorMessage(), #setErrorStyle().
      */
     void setErrorMessageVisible(bool visible);
     /**
@@ -382,10 +382,10 @@ public:
     bool addCell(const CellReference &cell);
     /**
      * @overload
-     * @brief adds cell with (1-based) row and (1-based) column to the list of
-     * validated ranges.
+     * @brief adds cell with (1-based) @a row and (1-based) @a column to the
+     * list of validated ranges.
      * @param row 1-based cell row number.
-     * @param col 1-based cell column number.
+     * @param column 1-based cell column number.
      * @return true if a cell is valid and has previously not been validated,
      * false otherwise.
      */

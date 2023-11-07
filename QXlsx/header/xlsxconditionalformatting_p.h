@@ -71,7 +71,7 @@ public:
         :priority(1)
     {}
 
-    int priority;
+    int priority = 1;
     Format dxfFormat;
     QMap<int, QVariant> attrs;
 };
@@ -88,9 +88,11 @@ public:
     bool readCfRule(QXmlStreamReader &reader, XlsxCfRuleData *cfRule, Styles *styles);
     bool readCfDataBar(QXmlStreamReader &reader, XlsxCfRuleData *cfRule);
     bool readCfColorScale(QXmlStreamReader &reader, XlsxCfRuleData *cfRule);
+    void appendRule(std::shared_ptr<XlsxCfRuleData> &rule);
 
     QList<std::shared_ptr<XlsxCfRuleData> >cfRules;
     QList<CellRange> ranges;
+    bool autodecrement = false;
 };
 
 }

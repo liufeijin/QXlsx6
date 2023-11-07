@@ -443,7 +443,7 @@ public:
 
     /**
      * @brief adds an empty series.
-     * @param @param subchart zero-based index of a subchart into which the series are being added.
+     * @param subchart zero-based index of a subchart into which the series are being added.
      * @return pointer to the added series.
      */
     Series *addSeries(int subchart = 0);
@@ -466,9 +466,9 @@ public:
      * first row is category data, other rows are value data for new series.
      * @param subchart zero-based index of a subchart into which the series are being added.
      * @note the series will have the type specified by the subchart type.
-     * @return pointer to the added series or nullptr if no series was added.
+     * @return a list of pointers to the added series.
      */
-    void addSeries(const CellRange &range, AbstractSheet *sheet = nullptr,
+    QList<Series *> addSeries(const CellRange &range, AbstractSheet *sheet = nullptr,
                    bool firstRowContainsHeaders = false,
                    bool firstColumnContainsCategoryData = false,
                    bool columnBased = true,
@@ -480,7 +480,7 @@ public:
      * @param valRange value range or y axis range.
      * @param sheet data sheet reference.
      * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference.
-     * @param @param subchart zero-based index of a subchart into which the series are being added.
+     * @param subchart zero-based index of a subchart into which the series are being added.
      * @return pointer to the added series or nullptr if no series was added.
      * @note The series will have the type specifies by the subchart type.
      *

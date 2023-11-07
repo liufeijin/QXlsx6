@@ -952,7 +952,6 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     void setHorizontalDpi(int dpi);
     /**
      * @brief returns the vertical print resolution of the device.
-     * @param dpi print resolution in DPI.
      * @return int value if horizontal dpi was set, nullopt otherwise. If not set,
      * 600 is assumed.
      */
@@ -1008,7 +1007,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * codeName should not change over time, and does not change from user input.
      * This name should be used by code to reference a particular sheet.
-     * @param a unique string.
+     * @param codeName a unique string.
      * @warning This method does not check the codeName to be unique throughout the workbook!
      * Use QUuid class to create a unique codeName.
      */
