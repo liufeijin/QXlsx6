@@ -33,7 +33,7 @@ class ConditionalFormattingPrivate;
 /**
  * @brief Conditional formatting for single cell or ranges
  *
- * A Conditional Format is a format, such as cell shading or font color, that a
+ * A conditional format is a format, such as cell shading or font color, that a
  * spreadsheet application can automatically apply to cells if a specified
  * condition is true.
  *
@@ -118,8 +118,8 @@ public:
         Expression
     };
     /**
-     * @brief The ValueObjectType enum specifies the type of condition for the data bar
-     * and color scale rules.
+     * @brief The ValueObjectType enum specifies the type of condition for the
+     * data bar rules.
      */
     enum class ValueObjectType
     {
@@ -132,7 +132,7 @@ public:
     };
 
     /**
-     * @brief The Format enum specifies a list of predefined highlight formats.
+     * @brief The PredefinedFormat::Format enum specifies a list of predefined highlight formats.
      */
     enum class PredefinedFormat
     {
@@ -153,8 +153,7 @@ public:
     /**
      * @brief Adds the rule of highlighting cells.
      *
-     * Depending of the @a type conditions @a formula1 and @a formula2 are
-     * evaluated as follows:
+     * Depending of the @a type @a formula1 and @a formula2 are evaluated as follows:
      *
      * type | formula1 | formula2
      * ----|----|----
@@ -267,7 +266,7 @@ public:
 
     /**
      * @brief Adds the rule of formatting cells with a color bar.
-     * @param color
+     * @param color The bar color.
      * @param type1
      * @param val1
      * @param type2
@@ -285,11 +284,15 @@ public:
                         bool stopIfTrue = false);
     /**
      * @brief Adds the rule of formatting cells with a color bar.
-     * Equivalent to `addDataBarRule(color,
-     * @param color
-     * @param showData
-     * @param stopIfTrue
-     * @return
+     * Equivalent to `addDataBarRule(color, ConditionalFormatting::ValueObjectType::Min, QStringLiteral("0"),
+     * ConditionalFormatting::ValueObjectType::Max, QStringLiteral("0"),
+     * showData, stopIfTrue)`.
+     * @param color The bar color.
+     * @param showData If true, then cell value will be shown over the color bar.
+     * If false, then only the color bar will be visible.
+     * @param stopIfTrue If true, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to true.
+     * @return true.
      */
     bool addDataBarRule(const QColor &color, bool showData=true, bool stopIfTrue = false);
     bool add2ColorScaleRule(const QColor &minColor, const QColor &maxColor, bool stopIfTrue=false);
