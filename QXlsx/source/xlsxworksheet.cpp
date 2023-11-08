@@ -1223,8 +1223,7 @@ bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
     if (cf.ranges().isEmpty())
         return false;
 
-    for (int i=0; i<cf.d->cfRules.size(); ++i) {
-        const std::shared_ptr<XlsxCfRuleData> &rule = cf.d->cfRules[i];
+    for (const auto &rule: cf.d->cfRules) {
         if (!rule->dxfFormat.isEmpty())
             d->workbook->styles()->addDxfFormat(rule->dxfFormat);
     }

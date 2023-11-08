@@ -261,14 +261,29 @@ bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &form
     return true;
 }
 
+bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &formula1, const QString &formula2, PredefinedFormat format, bool stopIfTrue)
+{
+    return addHighlightCellsRule(type, formula1, formula2, predefinedFormat(format), stopIfTrue);
+}
+
 bool ConditionalFormatting::addHighlightCellsRule(Type type, const Format &format, bool stopIfTrue)
 {
     return addHighlightCellsRule(type, QString(), QString(), format, stopIfTrue);
 }
 
+bool ConditionalFormatting::addHighlightCellsRule(Type type, PredefinedFormat format, bool stopIfTrue)
+{
+    return addHighlightCellsRule(type, QString(), QString(), predefinedFormat(format), stopIfTrue);
+}
+
 bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &formula, const Format &format, bool stopIfTrue)
 {
     return addHighlightCellsRule(type, formula, QString(), format, stopIfTrue);
+}
+
+bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &formula, PredefinedFormat format, bool stopIfTrue)
+{
+    return addHighlightCellsRule(type, formula, QString(), predefinedFormat(format), stopIfTrue);
 }
 
 bool ConditionalFormatting::addDataBarRule(const QColor &color, ValueObjectType type1, const QString &val1, ValueObjectType type2, const QString &val2, bool showData, bool stopIfTrue)
@@ -666,6 +681,35 @@ bool ConditionalFormatting::loadFromXml(QXmlStreamReader &reader, Styles *styles
     return true;
 }
 
+Format ConditionalFormatting::predefinedFormat(PredefinedFormat format)
+{
+    Format f;
+    switch (format) {
+    case PredefinedFormat::Format1:
+        f.setFontColor(QColor(0xFF9C0006));
+        f.setPatternForegroundColor(QColor(0xFFFFC7CE));
+        break;
+    case PredefinedFormat::Format2:
+        f.setFontColor(QColor(0xFF9C6500));
+        f.setPatternForegroundColor(QColor(0xFFFFEB9C));
+        break;
+    case PredefinedFormat::Format3:
+        f.setFontColor(QColor(0xFF006100));
+        f.setPatternForegroundColor(QColor(0xFFC6EFCE));
+        break;
+    case PredefinedFormat::Format4:
+        f.setPatternForegroundColor(QColor(0xFFFFC7CE));
+        break;
+    case PredefinedFormat::Format5:
+        f.setFontColor(QColor(0xFF9C0006));
+        break;
+    case PredefinedFormat::Format6:
+        f.setBorderColor(QColor(0xFF9C0006));
+        break;
+    }
+    return f;
+}
+
 bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("conditionalFormatting"));
@@ -730,7 +774,7 @@ bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
                 writer.writeAttribute(QStringLiteral("showValue"), QStringLiteral("0"));
             d->writeCfVo(writer, rule->attrs[XlsxCfRuleData::A_cfvo1].value<XlsxCfVoData>());
             d->writeCfVo(writer, rule->attrs[XlsxCfRuleData::A_cfvo2].value<XlsxCfVoData>());
-            rule->attrs[XlsxCfRuleData::A_color1].value<Color>().write(writer);
+            rule->attrs[XlsxCfRuleData::A_color1].value<Color>().write(writer, QLatin1String("color"));
             writer.writeEndElement();//dataBar
         } else if (rule->attrs[XlsxCfRuleData::A_type] == QLatin1String("colorScale")) {
             writer.writeStartElement(QStringLiteral("colorScale"));
@@ -741,12 +785,12 @@ bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
             if (it != rule->attrs.constEnd())
                 d->writeCfVo(writer, it.value().value<XlsxCfVoData>());
 
-            rule->attrs[XlsxCfRuleData::A_color1].value<Color>().write(writer);
-            rule->attrs[XlsxCfRuleData::A_color2].value<Color>().write(writer);
+            rule->attrs[XlsxCfRuleData::A_color1].value<Color>().write(writer, QLatin1String("color"));
+            rule->attrs[XlsxCfRuleData::A_color2].value<Color>().write(writer, QLatin1String("color"));
 
             it = rule->attrs.constFind(XlsxCfRuleData::A_color3);
             if (it != rule->attrs.constEnd())
-                it.value().value<Color>().write(writer);
+                it.value().value<Color>().write(writer, QLatin1String("color"));
 
             writer.writeEndElement();//colorScale
         }

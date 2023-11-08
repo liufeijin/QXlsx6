@@ -36,6 +36,38 @@ class ConditionalFormattingPrivate;
  * A Conditional Format is a format, such as cell shading or font color, that a
  * spreadsheet application can automatically apply to cells if a specified
  * condition is true.
+ *
+ * Conditional formatting is applied to a single cell, a range of cells or a
+ * list of ranges. See #ranges(), #addCell(), #addRange(), #setRange(), #clearRanges() methods.
+ *
+ * Conditional formatting is applied if a specific rule is evaluated to true.
+ * There are three conditional formatting rule types implemented so far:
+ *
+ * 1. Highlighting cells based on the cell value. See #addHighlightCellsRule().
+ * 2. Applying color scale to a cell range. See #add2ColorScaleRule(), #add3ColorScaleRule().
+ * 3. Adding color bars to cells. See #addDataBarRule().
+ *
+ * If more than one rule is added, you can manage their order with setting each rule
+ * a specific priority. See #setRulesPriority(), #setRulePriority(),
+ * #setAutoDecrementPriority(), #updateRulesPriorities(), #rulePriority() methods.
+ *
+ * ### Note
+ *
+ * Excel automatically sets higher priority to each added rule, so rules are applied
+ * from the first added rule to the last added rule. To mimic this behavior use this code:
+ *
+ * ```cpp
+ * QXlsx::ConditionalFormatting cf;
+ * cf.addHighlightCellsRule(...);
+ * cf.addHighlightCellsRule(...);
+ * cf.updateRulesPriorities(false);
+ * ```
+ *
+ * Excel understands rules with the same priority and applies them in the order
+ * of appearance. But LibreOffice Calc seems to ignore all rules but the last one.
+ * So #updateRulesPriorities() and #setAutoDecrementPriority() are useful in this case.
+ *
+ *
  */
 class QXLSX_EXPORT ConditionalFormatting
 {
@@ -99,6 +131,19 @@ public:
         Percentile
     };
 
+    /**
+     * @brief The Format enum specifies a list of predefined highlight formats.
+     */
+    enum class PredefinedFormat
+    {
+        Format1, /**< Red background and dark-red font*/
+        Format2, /**< Yellow background and dark-yellow font*/
+        Format3, /**< Green background and dark-green font*/
+        Format4, /**< Red background*/
+        Format5, /**< Dark-red font*/
+        Format6, /**< Dark-red borders*/
+    };
+
 public:
     ConditionalFormatting();
     ConditionalFormatting(const ConditionalFormatting &other);
@@ -106,7 +151,7 @@ public:
 
 public:
     /**
-     * @brief adds the rule of highlighting cells.
+     * @brief Adds the rule of highlighting cells.
      *
      * Depending of the @a type conditions @a formula1 and @a formula2 are
      * evaluated as follows:
@@ -137,8 +182,39 @@ public:
                                const Format &format,
                                bool stopIfTrue = false);
     /**
+     * @brief Adds the rule of highlighting cells.
+     *
+     * Depending of the @a type conditions @a formula1 and @a formula2 are
+     * evaluated as follows:
+     *
+     * type | formula1 | formula2
+     * ----|----|----
+     * LessThan, LessThanOrEqual, Equal, NotEqual, GreaterThanOrEqual, GreaterThan | numeric value | ignored
+     * Between, NotBetween | numeric value 1 | numeric value 2
+     * ContainsText, NotContainsText, BeginsWith, EndsWith | text value | ignored
+     * TimePeriod | not implemented | not implemented
+     * Duplicate, Unique, Blanks, NoBlanks, Errors, NoErrors | ignored | ignored
+     * Top, TopPercent, Bottom, BottomPercent | The value of "n" in a "top/bottom n" rule | ignored
+     * AboveAverage, AboveOrEqualAverage, AboveStdDev1, AboveStdDev2, AboveStdDev3 | ignored | ignored
+     * BelowAverage, BelowOrEqualAverage, BelowStdDev1, BelowStdDev2, BelowStdDev3 | ignored | ignored
+     * Expression | used for expression | used for expression
+     *
+     * @param type The rule type.
+     * @param formula1 The first (main) condition.
+     * @param formula2 The second condition.
+     * @param format A predefined format to apply if the rule evaluates to true.
+     * @param stopIfTrue If true, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to true.
+     * @return true if @a format is valid and adding the rule was successful.
+     */
+    bool addHighlightCellsRule(Type type,
+                               const QString &formula1,
+                               const QString &formula2,
+                               PredefinedFormat format,
+                               bool stopIfTrue = false);
+    /**
      * @overload
-     * @brief adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, "", "", format, stopIfTrue)`.
+     * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, "", "", format, stopIfTrue)`.
      * @param type The rule type.
      * @param format valid Format to apply if the rule evaluates to true.
      * @param stopIfTrue If true, then no rules with lower priority shall be
@@ -150,7 +226,19 @@ public:
                                bool stopIfTrue = false);
     /**
      * @overload
-     * @brief adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, formula, "", format, stopIfTrue)`.
+     * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, "", "", format, stopIfTrue)`.
+     * @param type The rule type.
+     * @param format A predefined format to apply if the rule evaluates to true.
+     * @param stopIfTrue If true, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to true.
+     * @return true if @a format is valid and adding the rule was successful.
+     */
+    bool addHighlightCellsRule(Type type,
+                               PredefinedFormat format,
+                               bool stopIfTrue = false);
+    /**
+     * @overload
+     * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, formula, "", format, stopIfTrue)`.
      * @param type The rule type.
      * @param formula The rule condition.
      * @param format valid Format to apply if the rule evaluates to true.
@@ -162,9 +250,23 @@ public:
                                const QString &formula,
                                const Format &format,
                                bool stopIfTrue = false);
+    /**
+     * @overload
+     * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, formula, "", format, stopIfTrue)`.
+     * @param type The rule type.
+     * @param formula The rule condition.
+     * @param format A predefined format to apply if the rule evaluates to true.
+     * @param stopIfTrue If true, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to true.
+     * @return true if @a format is valid and adding the rule was successful.
+     */
+    bool addHighlightCellsRule(Type type,
+                               const QString &formula,
+                               PredefinedFormat format,
+                               bool stopIfTrue = false);
 
     /**
-     * @brief adds the rule of formatting cells with a color bar.
+     * @brief Adds the rule of formatting cells with a color bar.
      * @param color
      * @param type1
      * @param val1
@@ -182,7 +284,7 @@ public:
                         bool showData = true,
                         bool stopIfTrue = false);
     /**
-     * @brief adds the rule of formatting cells with a color bar.
+     * @brief Adds the rule of formatting cells with a color bar.
      * Equivalent to `addDataBarRule(color,
      * @param color
      * @param showData
@@ -198,26 +300,26 @@ public:
      */
     int rulesCount() const;
     /**
-     * @brief removes all rules defined in this conditional formatting.
+     * @brief Removes all rules defined in this conditional formatting.
      */
     void clearRules();
 
     /**
-     * @brief removes rule with @a ruleIndex.
+     * @brief Removes rule with @a ruleIndex.
      * @param ruleIndex zero-based index of the rule from 0 to #rulesCount()-1.
      * @return true if @a ruleIndex is valid and removing was successful.
      */
     bool removeRule(int ruleIndex);
 
     /**
-     * @brief sets @a priority to all rules defined in this conditional formatting.
+     * @brief Sets @a priority to all rules defined in this conditional formatting.
      * @param priority integer value >= 1. Lower numeric value are higher priority
      * than higher numeric value, where 1 is the highest priority. The default value is 1.
      * @return true if @a priority is valid and rules are not empty.
      */
     bool setRulesPriority(int priority);
     /**
-     * @brief sets @a priority to the rule with @a ruleIndex defined in this conditional formatting.
+     * @brief Sets @a priority to the rule with @a ruleIndex defined in this conditional formatting.
      * @param ruleIndex zero-based index of the rule from 0 to #rulesCount()-1.
      * @param priority integer value >= 1. Lower numeric value are higher priority
      * than higher numeric value, where 1 is the highest priority. The default value is 1.
@@ -235,7 +337,7 @@ public:
      */
     void setAutoDecrementPriority(bool autodecrement);
     /**
-     * @brief updates priorities of the rules defined in this conditional formatting.
+     * @brief Updates priorities of the rules defined in this conditional formatting.
      * @param firstRuleHasMaximumPriority If true, then the first rule will have
      * the highest priority, the last rule will have the lowest priority. If
      * false, then the first rule will have the lowest priority, the last rule
@@ -303,6 +405,7 @@ private:
 private:
     bool saveToXml(QXmlStreamWriter &writer) const;
     bool loadFromXml(QXmlStreamReader &reader, Styles* styles = NULL);
+    Format predefinedFormat(PredefinedFormat format);
 
     QSharedDataPointer<ConditionalFormattingPrivate> d;
 };

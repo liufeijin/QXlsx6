@@ -296,30 +296,19 @@ void Styles::addXfFormat(const Format &format, bool force)
 void Styles::addDxfFormat(const Format &format, bool force)
 {
     //numFmt
-    if ( format.hasNumFmtData() )
-    {
+    if (format.hasNumFmtData())
         fixNumFmt(format);
-    }
 
     const auto& formatIt = m_dxf_formatsHash.constFind(format.formatKey());
-    if ( !format.isEmpty() &&
-            !format.dxfIndexValid() )
-    {
-        if (formatIt ==  m_dxf_formatsHash.constEnd() ) // m_xf_formatsHash.constEnd()) // issue #108
-        {
+    if (!format.isEmpty() && !format.dxfIndexValid()) {
+        if (formatIt ==  m_dxf_formatsHash.constEnd()) // m_xf_formatsHash.constEnd()) // issue #108
             const_cast<Format *>(&format)->setDxfIndex( m_dxf_formatsList.size() );
-        }
         else
-        {
             const_cast<Format *>(&format)->setDxfIndex( formatIt->dxfIndex() );
-        }
     }
-
-    if (formatIt == m_xf_formatsHash.constEnd() ||
-         force )
-    {
+    if (formatIt == m_dxf_formatsHash.constEnd() || force) {
         m_dxf_formatsList.append(format);
-        m_dxf_formatsHash[ format.formatKey() ] = format;
+        m_dxf_formatsHash[format.formatKey()] = format;
     }
 }
 

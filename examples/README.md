@@ -120,6 +120,10 @@ Demonstrates how to use autofiltering and sorting features in a worksheet.
 
 :arrow_right: TO ADD IN FUTURE RELEASES: when adding autofilter, manually hide rows. It requires reading cell values and actually is not an **autofilter** anymore.
 
+## [ConditionalFormatting](ConditionalFormatting)
+
+Demonstrates how to add formatting to cells based on their values.
+
 ## [Charts](Charts)
 
 Demonstrates adding various charts to a worksheet.

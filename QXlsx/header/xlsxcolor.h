@@ -30,7 +30,7 @@ namespace QXlsx {
  * You can make the color lighter or darker, increase or decrease its components,
  * add alpha component etc.
  */
-class ColorTransform
+class QXLSX_EXPORT ColorTransform
 {
 public:
     /**
@@ -167,7 +167,7 @@ private:
 #endif
 
 
-class Color
+class QXLSX_EXPORT Color
 {
 public:
     /**

@@ -5,6 +5,7 @@
 
 #include <QtGlobal>
 #include <QObject>
+#include <QDebug>
 
 #include "xlsxglobal.h"
 #include "xlsxcellreference.h"
@@ -142,6 +143,8 @@ private:
 };
 
 }
+
+QDebug operator<<(QDebug out, const QXlsx::CellRange &range);
 
 Q_DECLARE_TYPEINFO(QXlsx::CellRange, Q_MOVABLE_TYPE);
 

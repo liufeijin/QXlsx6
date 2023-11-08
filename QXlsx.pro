@@ -18,7 +18,8 @@ SUBDIRS += \
     examples\Charts \
     examples\Chartsheets \
     examples\Chromatogram \
-    examples\CombinedChart
+    examples\CombinedChart \
+    examples\ConditionalFormatting
 
 OTHER_FILES += \
     HowToSetProject.md \

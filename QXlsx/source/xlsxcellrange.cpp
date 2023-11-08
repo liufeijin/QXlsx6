@@ -125,3 +125,9 @@ bool CellRange::isValid() const
 }
 
 }
+
+QDebug operator<<(QDebug out, const QXlsx::CellRange &range)
+{
+    out << range.toString();
+    return out;
+}
