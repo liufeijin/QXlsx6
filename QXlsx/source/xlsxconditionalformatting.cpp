@@ -670,6 +670,9 @@ bool ConditionalFormatting::loadFromXml(QXmlStreamReader &reader, Styles *styles
                 d->readCfRule(reader, cfRule.get(), styles);
                 d->cfRules.append(cfRule);
             }
+            else if (reader.name() == QLatin1String("extLst")) {
+                d->extLst.read(reader);
+            }
         }
         if (reader.tokenType() == QXmlStreamReader::EndElement
                 && reader.name() == QStringLiteral("conditionalFormatting")) {
@@ -720,8 +723,7 @@ bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
     }
     writer.writeAttribute(QStringLiteral("sqref"), sqref.join(QLatin1String(" ")));
 
-    for (int i=0; i<d->cfRules.size(); ++i) {
-        const std::shared_ptr<XlsxCfRuleData> &rule = d->cfRules[i];
+    for (const auto &rule: d->cfRules) {
         writer.writeStartElement(QStringLiteral("cfRule"));
         writer.writeAttribute(QStringLiteral("type"), rule->attrs[XlsxCfRuleData::A_type].toString());
         if (rule->dxfFormat.dxfIndexValid())
@@ -812,8 +814,11 @@ bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
         if (it != rule->attrs.constEnd())
             writer.writeTextElement(QStringLiteral("formula"), it.value().toString());
 
+        rule->extLst.write(writer, QStringLiteral("extLst"));
+
         writer.writeEndElement(); //cfRule
     }
+    d->extLst.write(writer, QStringLiteral("extLst"));
 
     writer.writeEndElement(); //conditionalFormatting
     return true;

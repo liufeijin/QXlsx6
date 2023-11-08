@@ -11,6 +11,7 @@
 #include "xlsxconditionalformatting.h"
 #include "xlsxformat.h"
 #include "xlsxcolor.h"
+#include "xlsxmain.h"
 
 namespace QXlsx {
 
@@ -74,6 +75,7 @@ public:
     int priority = 1;
     Format dxfFormat;
     QMap<int, QVariant> attrs;
+    ExtensionList extLst;
 };
 
 class ConditionalFormattingPrivate : public QSharedData
@@ -93,6 +95,7 @@ public:
     QList<std::shared_ptr<XlsxCfRuleData> >cfRules;
     QList<CellRange> ranges;
     bool autodecrement = false;
+    ExtensionList extLst;
 };
 
 }
