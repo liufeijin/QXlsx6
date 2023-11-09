@@ -126,8 +126,12 @@ class WorksheetPrivate;
  * - #pageOrder(), #setPageOrder() manage the order in which worksheet pages are printed.
  * - #printErrors(), #setPrintErrors(), #printCellComments(), #setPrintCellComments()
  * manage how to print additional cell info.
+ * - #printGridLines(), #setPrintGridLines() manage grid lines printing.
+ * - #printHeadings(), #setPrintHeadings() manage printing of row and column headings.
+ * - #printHorizontalCentered(), #setPrintHorizontalCentered(), #printVerticalCentered(),
+ * #setPrintVerticalCentered() manage the arrangement of the sheet data on paper.
  *
- * All these methods return std::optional if the corresponding parameters were not set.
+ * All these methods return std::optional if the parameters were not set.
  * See PageSetup class documentation on the default values.
  *
  * # Rows and columns
@@ -176,8 +180,8 @@ class WorksheetPrivate;
  *
  * - #conditionalFormatting(), #addConditionalFormatting(), #clearConditionalformatting().
  *
- * See Conditionalformatting class on how to set up the conditions. See also
- * [ConditionalFormatting](examples/ConditionalFormatting/conditionalFormatting.cpp) example.
+ * See ConditionalFormatting class on how to set up the conditions. See also
+ * [ConditionalFormatting](examples/ConditionalFormatting/conditionalformatting.cpp) example.
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
@@ -1262,7 +1266,60 @@ public:
      * If not set, PageSetup::CellComments::DoNotPrint is assumed.
      */
     void setPrintCellComments(PageSetup::CellComments mode);
-
+    /**
+     * @brief returns whether to print grid lines.
+     *
+     * The default value is false (do not print grid lines).
+     */
+    std::optional<bool> printGridLines() const;
+    /**
+     * @brief sets whether to print grid lines.
+     * @param printGridLines If true, then grid lines are printed.
+     *
+     * If the parameter is not set, false is assumed (do not print grid lines).
+     */
+    void setPrintGridLines(bool printGridLines);
+    /**
+     * @brief returns whether to print row and column headings.
+     *
+     * The default value is false (do not print headings).
+     */
+    std::optional<bool> printHeadings() const;
+    /**
+     * @brief sets whether to print row and column headings.
+     * @param printHeadings If true, then headings are printed.
+     *
+     * If the parameter is not set, false is assumed (do not print headings).
+     */
+    void setPrintHeadings(bool printHeadings);
+    /**
+     * @brief returns whether to center data on page horizontally when printing.
+     *
+     * The default value is false (do not center data).
+     */
+    std::optional<bool> printHorizontalCentered() const;
+    /**
+     * @brief sets whether to center data on page horizontally when printing.
+     * @param printHorizontalCentered If true, then data is centered on page
+     * when printing.
+     *
+     * If the parameter is not set, false is assumed (do not center data).
+     */
+    void setPrintHorizontalCentered(bool printHorizontalCentered);
+    /**
+     * @brief returns whether to center data on page vertically when printing.
+     *
+     * The default value is false (do not center data).
+     */
+    std::optional<bool> printVerticalCentered() const;
+    /**
+     * @brief sets whether to center data on page vertically when printing.
+     * @param printVerticalCentered If true, then data is centered on page
+     * when printing.
+     *
+     * If the parameter is not set, false is assumed (do not center data).
+     */
+    void setPrintVerticalCentered(bool printVerticalCentered);
 
     // Autofilter parameters
 

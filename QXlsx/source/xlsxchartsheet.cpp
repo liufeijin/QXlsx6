@@ -131,7 +131,7 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
     d->sheetProtection.write(writer, true);
 
     d->pageMargins.write(writer);
-    d->pageSetup.write(writer, true);
+    d->pageSetup.writeChartsheet(writer);
     d->headerFooter.write(writer);
 
     int idx = d->workbook->drawings().indexOf(d->drawing.get());

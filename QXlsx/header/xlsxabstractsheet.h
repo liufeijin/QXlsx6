@@ -419,12 +419,37 @@ public:
      * If no value is specified, then CellComments::DoNotPrint is assumed.
      */
     std::optional<CellComments> cellComments;
+    /**
+     * @brief specifies whether to print grid lines. The default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> printGridLines;
+    /**
+     * @brief specifies whether to print row and column headings. The default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> printHeadings;
+    /**
+     * @brief specifies whether to center data horizontally when printing. The default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> printHorizontalCentered;
+    /**
+     * @brief specifies whether to center data vertically when printing. The default value is false.
+     * @note This parameter is not applicable to chartsheets.
+     */
+    std::optional<bool> printVerticalCentered;
+
 
     bool isValid() const;
-    void write(QXmlStreamWriter &writer, bool chartsheet = false) const;
-    void read(QXmlStreamReader &reader);
+
 private:
+    friend class Worksheet;
+    friend class Chartsheet;
     void readPaperSize(QXmlStreamReader &reader);
+    void writeWorksheet(QXmlStreamWriter &writer, const QString &name) const;
+    void writeChartsheet(QXmlStreamWriter &writer) const;
+    void read(QXmlStreamReader &reader);
 };
 //TODO: move it to separate file
 

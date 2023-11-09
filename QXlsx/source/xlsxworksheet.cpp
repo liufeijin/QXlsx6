@@ -543,6 +543,54 @@ void Worksheet::setPrintCellComments(PageSetup::CellComments mode)
     d->pageSetup.cellComments = mode;
 }
 
+std::optional<bool> Worksheet::printGridLines() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.printGridLines;
+}
+
+void Worksheet::setPrintGridLines(bool printGridLines)
+{
+    Q_D(Worksheet);
+    d->pageSetup.printGridLines = printGridLines;
+}
+
+std::optional<bool> Worksheet::printHeadings() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.printHeadings;
+}
+
+void Worksheet::setPrintHeadings(bool printHeadings)
+{
+    Q_D(Worksheet);
+    d->pageSetup.printHeadings = printHeadings;
+}
+
+std::optional<bool> Worksheet::printHorizontalCentered() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.printHorizontalCentered;
+}
+
+void Worksheet::setPrintHorizontalCentered(bool printHorizontalCentered)
+{
+    Q_D(Worksheet);
+    d->pageSetup.printHorizontalCentered = printHorizontalCentered;
+}
+
+std::optional<bool> Worksheet::printVerticalCentered() const
+{
+    Q_D(const Worksheet);
+    return d->pageSetup.printVerticalCentered;
+}
+
+void Worksheet::setPrintVerticalCentered(bool printVerticalCentered)
+{
+    Q_D(Worksheet);
+    d->pageSetup.printVerticalCentered = printVerticalCentered;
+}
+
 AutoFilter &Worksheet::autofilter()
 {
     Q_D(Worksheet);
@@ -1684,12 +1732,13 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->saveXmlHyperlinks(writer);
 
     //20. printOptions
+    d->pageSetup.writeWorksheet(writer, QLatin1String("printOptions"));
 
     //21. pageMargins
     d->pageMargins.write(writer);
 
     //22. pageSetup
-    d->pageSetup.write(writer);
+    d->pageSetup.writeWorksheet(writer, QLatin1String("pageSetup"));
 
     //23. headerFooter
     d->headerFooter.write(writer);

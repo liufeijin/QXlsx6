@@ -76,8 +76,6 @@
 
 ### phoneticPr
 
-### printOptions
-
 ### rowBreaks
 
 ### colBreaks
