@@ -10,7 +10,7 @@ QXLSX_USE_NAMESPACE
 int main()
 {
     Document xlsx;
-    auto sheet = xlsx.currentWorksheet();
+    auto sheet = xlsx.activeWorksheet();
 
     // Integer validation
 

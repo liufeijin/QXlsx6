@@ -85,6 +85,8 @@ public:
     ConditionalFormattingPrivate(const ConditionalFormattingPrivate &other);
     ~ConditionalFormattingPrivate();
 
+    bool operator == (const ConditionalFormattingPrivate &other) const;
+
     void writeCfVo(QXmlStreamWriter &writer, const XlsxCfVoData& cfvo) const;
     bool readCfVo(QXmlStreamReader &reader, XlsxCfVoData& cfvo);
     bool readCfRule(QXmlStreamReader &reader, XlsxCfRuleData *cfRule, Styles *styles);

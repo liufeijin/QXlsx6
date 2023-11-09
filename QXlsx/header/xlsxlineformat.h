@@ -172,7 +172,7 @@ public:
 
     /**
      * @brief returns fill parameters of the line.
-     * @return a copy of the fill.
+     * @return a copy of the line fill.
      */
     FillFormat fill() const;
     /**
@@ -180,6 +180,10 @@ public:
      * @param fill
      */
     void setFill(const FillFormat &fill);
+    /**
+     * @brief returns fill parameters of the line.
+     * @return a reference to the line fill.
+     */
     FillFormat &fill();
 
     /**

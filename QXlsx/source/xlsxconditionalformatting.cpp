@@ -19,7 +19,8 @@ ConditionalFormattingPrivate::ConditionalFormattingPrivate()
 }
 
 ConditionalFormattingPrivate::ConditionalFormattingPrivate(const ConditionalFormattingPrivate &other)
-    :QSharedData(other)
+    : QSharedData(other),  cfRules{other.cfRules}, ranges{other.ranges}, autodecrement{other.autodecrement},
+    extLst{other.extLst}
 {
 
 }
@@ -27,6 +28,15 @@ ConditionalFormattingPrivate::ConditionalFormattingPrivate(const ConditionalForm
 ConditionalFormattingPrivate::~ConditionalFormattingPrivate()
 {
 
+}
+
+bool ConditionalFormattingPrivate::operator ==(const ConditionalFormattingPrivate &other) const
+{
+    if (cfRules != other.cfRules) return false;
+    if (ranges != other.ranges) return false;
+    if (autodecrement != other.autodecrement) return false;
+    if (extLst != other.extLst) return false;
+    return true;
 }
 
 void ConditionalFormattingPrivate::writeCfVo(QXmlStreamWriter &writer, const XlsxCfVoData &cfvo) const
@@ -49,7 +59,6 @@ void ConditionalFormattingPrivate::writeCfVo(QXmlStreamWriter &writer, const Xls
 }
 
 ConditionalFormatting::ConditionalFormatting()
-    :d(new ConditionalFormattingPrivate())
 {
 
 }
@@ -66,15 +75,45 @@ ConditionalFormatting &ConditionalFormatting::operator=(const ConditionalFormatt
     return *this;
 }
 
+bool ConditionalFormatting::operator == (const ConditionalFormatting &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return *this->d.constData() == *other.d.constData();
+}
+bool ConditionalFormatting::operator != (const ConditionalFormatting &other) const
+{
+    return !(operator==(other));
+}
+
+ConditionalFormatting::operator QVariant() const
+{
+    const auto& cref
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+        = QMetaType::fromType<LineFormat>();
+#else
+        = qMetaTypeId<ConditionalFormatting>() ;
+#endif
+    return QVariant(cref, this);
+}
+
 
 ConditionalFormatting::~ConditionalFormatting()
 {
+}
+
+bool ConditionalFormatting::isValid() const
+{
+    if (d) return true;
+    return false;
 }
 
 bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &formula1, const QString &formula2, const Format &format, bool stopIfTrue)
 {
     if (format.isEmpty())
         return false;
+
+    if (!d) d = new ConditionalFormattingPrivate;
 
     bool skipFormula = false;
 
@@ -288,6 +327,7 @@ bool ConditionalFormatting::addHighlightCellsRule(Type type, const QString &form
 
 bool ConditionalFormatting::addDataBarRule(const QColor &color, ValueObjectType type1, const QString &val1, ValueObjectType type2, const QString &val2, bool showData, bool stopIfTrue)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     auto cfRule = std::make_shared<XlsxCfRuleData>();
 
     cfRule->attrs[XlsxCfRuleData::A_type] = QStringLiteral("dataBar");
@@ -315,6 +355,7 @@ bool ConditionalFormatting::addDataBarRule(const QColor &color, bool showData, b
 
 bool ConditionalFormatting::add2ColorScaleRule(const QColor &minColor, const QColor &maxColor, bool stopIfTrue)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     ValueObjectType type1 = ValueObjectType::Min;
     ValueObjectType type2 = ValueObjectType::Max;
     QString val1 = QStringLiteral("0");
@@ -339,6 +380,7 @@ bool ConditionalFormatting::add2ColorScaleRule(const QColor &minColor, const QCo
 
 bool ConditionalFormatting::add3ColorScaleRule(const QColor &minColor, const QColor &midColor, const QColor &maxColor, bool stopIfTrue)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     ValueObjectType type1 = ValueObjectType::Min;
     ValueObjectType type2 = ValueObjectType::Percent;
     ValueObjectType type3 = ValueObjectType::Max;
@@ -369,16 +411,19 @@ bool ConditionalFormatting::add3ColorScaleRule(const QColor &minColor, const QCo
 
 int ConditionalFormatting::rulesCount() const
 {
+    if (!d) return 0;
     return d->cfRules.size();
 }
 
 void ConditionalFormatting::clearRules()
 {
+    if (!d) return;
     d->cfRules.clear();
 }
 
 bool ConditionalFormatting::removeRule(int ruleIndex)
 {
+    if (!d) return false;
     if (ruleIndex < 0 || ruleIndex >= d->cfRules.size()) return false;
     d->cfRules.removeAt(ruleIndex);
     return true;
@@ -386,6 +431,7 @@ bool ConditionalFormatting::removeRule(int ruleIndex)
 
 bool ConditionalFormatting::setRulesPriority(int priority)
 {
+    if (!d) return false;
     if (d->cfRules.isEmpty()) return false;
     if (priority < 1) return false;
     for (auto &rule: d->cfRules) rule->priority = priority;
@@ -394,6 +440,7 @@ bool ConditionalFormatting::setRulesPriority(int priority)
 
 bool ConditionalFormatting::setRulePriority(int ruleIndex, int priority)
 {
+    if (!d) return false;
     if (ruleIndex < 0 || ruleIndex >= d->cfRules.size()) return false;
     if (priority < 1) return false;
     d->cfRules[ruleIndex]->priority = priority;
@@ -402,11 +449,13 @@ bool ConditionalFormatting::setRulePriority(int ruleIndex, int priority)
 
 void ConditionalFormatting::setAutoDecrementPriority(bool autodecrement)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->autodecrement = autodecrement;
 }
 
 void ConditionalFormatting::updateRulesPriorities(bool firstRuleHasMaximumPriority)
 {
+    if (!d) return;
     for (int index = 0; index < d->cfRules.size(); ++index) {
         d->cfRules[index]->priority = firstRuleHasMaximumPriority ? index+1 : d->cfRules.size() - index;
     }
@@ -414,53 +463,51 @@ void ConditionalFormatting::updateRulesPriorities(bool firstRuleHasMaximumPriori
 
 std::optional<int> ConditionalFormatting::rulePriority(int ruleIndex) const
 {
+    if (!d) return std::nullopt;
     if (ruleIndex < 0 || ruleIndex >= d->cfRules.size()) return std::nullopt;
     return d->cfRules.at(ruleIndex)->priority;
 }
 
-/*!
-    Returns the ranges on which the validation will be applied.
- */
 QList<CellRange> ConditionalFormatting::ranges() const
 {
+    if (!d) return {};
     return d->ranges;
 }
 
-/*!
-    Add the \a cell on which the conditional formatting will apply to.
- */
 void ConditionalFormatting::addCell(const CellReference &cell)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->ranges.append(CellRange(cell, cell));
 }
 
-/*!
-    \overload
-    Add the cell(\a row, \a col) on which the conditional formatting will apply to.
- */
 void ConditionalFormatting::addCell(int row, int col)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->ranges.append(CellRange(row, col, row, col));
 }
 
 void ConditionalFormatting::addRange(int firstRow, int firstCol, int lastRow, int lastCol)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->ranges.append(CellRange(firstRow, firstCol, lastRow, lastCol));
 }
 
 void ConditionalFormatting::addRange(const CellRange &range)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->ranges.append(range);
 }
 
 void ConditionalFormatting::setRange(const CellRange &range)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     d->ranges.clear();
     d->ranges.append(range);
 }
 
 void ConditionalFormatting::clearRanges()
 {
+    if (!d) return;
     d->ranges.clear();
 }
 
@@ -651,6 +698,7 @@ bool ConditionalFormattingPrivate::readCfVo(QXmlStreamReader &reader, XlsxCfVoDa
 
 bool ConditionalFormatting::loadFromXml(QXmlStreamReader &reader, Styles *styles)
 {
+    if (!d) d = new ConditionalFormattingPrivate;
     Q_ASSERT(reader.name() == QStringLiteral("conditionalFormatting"));
 
     d->ranges.clear();
@@ -715,6 +763,7 @@ Format ConditionalFormatting::predefinedFormat(PredefinedFormat format)
 
 bool ConditionalFormatting::saveToXml(QXmlStreamWriter &writer) const
 {
+    if (!d) return false;
     writer.writeStartElement(QStringLiteral("conditionalFormatting"));
     QStringList sqref;
     const auto rangeList = ranges();

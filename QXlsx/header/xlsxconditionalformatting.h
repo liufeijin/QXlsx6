@@ -51,6 +51,8 @@ class ConditionalFormattingPrivate;
  * a specific priority. See #setRulesPriority(), #setRulePriority(),
  * #setAutoDecrementPriority(), #updateRulesPriorities(), #rulePriority() methods.
  *
+ * The class is _implicitly shareable_: the deep copy occurs only in the non-const methods.
+ *
  * ### Note
  *
  * Excel automatically sets higher priority to each added rule, so rules are applied
@@ -149,7 +151,7 @@ public:
     ConditionalFormatting(const ConditionalFormatting &other);
     ~ConditionalFormatting();
 
-public:
+    bool isValid() const;
     /**
      * @brief Adds the rule of highlighting cells.
      *
@@ -400,6 +402,10 @@ public:
 
     //needed by QSharedDataPointer!!
     ConditionalFormatting &operator=(const ConditionalFormatting &other);
+    bool operator == (const ConditionalFormatting &other) const;
+    bool operator != (const ConditionalFormatting &other) const;
+
+    operator QVariant() const;
 
 private:
     friend class Worksheet;
@@ -408,13 +414,14 @@ private:
 private:
     bool saveToXml(QXmlStreamWriter &writer) const;
     bool loadFromXml(QXmlStreamReader &reader, Styles* styles = NULL);
-    Format predefinedFormat(PredefinedFormat format);
+    static Format predefinedFormat(PredefinedFormat format);
 
     QSharedDataPointer<ConditionalFormattingPrivate> d;
 };
 
 }
 
+Q_DECLARE_METATYPE(QXlsx::ConditionalFormatting)
 Q_DECLARE_TYPEINFO(QXlsx::ConditionalFormatting, Q_MOVABLE_TYPE);
 
 #endif // QXLSX_XLSXCONDITIONALFORMATTING_H
