@@ -37,7 +37,6 @@
 #include "xlsxdrawinganchor_p.h"
 #include "xlsxchart.h"
 #include "xlsxcellformula.h"
-#include "xlsxcellformula_p.h"
 #include "xlsxmain.h"
 
 namespace QXlsx {
@@ -719,17 +718,18 @@ QVariant Worksheet::read(int row, int column) const
         return QVariant();
 
     if (c->hasFormula()) {
-        if (c->formula().formulaType() == CellFormula::Type::Normal)
-            return QVariant(QLatin1String("=")+c->formula().formulaText());
+        auto fType = c->formula().type().value_or(CellFormula::Type::Normal);
+        if (fType == CellFormula::Type::Normal)
+            return QVariant(QLatin1String("=")+c->formula().text());
 
-        if (c->formula().formulaType() == CellFormula::Type::Shared) {
-            if (!c->formula().formulaText().isEmpty())
-                return QVariant(QLatin1String("=")+c->formula().formulaText());
+        if (fType == CellFormula::Type::Shared) {
+            if (!c->formula().text().isEmpty())
+                return QVariant(QLatin1String("=")+c->formula().text());
 
-            int si = c->formula().sharedIndex();
+            int si = c->formula().sharedIndex().value_or(-1);
             const CellFormula &rootFormula = d->sharedFormulaMap[ si ];
             CellReference rootCellRef = rootFormula.reference().topLeft();
-            QString rootFormulaText = rootFormula.formulaText();
+            QString rootFormulaText = rootFormula.text();
             QString newFormulaText = convertSharedFormula(rootFormulaText, rootCellRef, CellReference(row, column));
             return QVariant(QLatin1String("=")+newFormulaText);
         }
@@ -891,13 +891,14 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
     d->workbook->styles()->addXfFormat(fmt);
 
     CellFormula formula = formula_;
-    formula.d->ca = true;
-    if (formula.formulaType() == CellFormula::Type::Shared)  {
+    if (!formula.needsRecalculation().has_value())
+        formula.setNeedsRecalculation(true);
+    if (formula.type().value_or(CellFormula::Type::Normal) == CellFormula::Type::Shared)  {
         //Assign proper shared index for shared formula
         int si = 0;
         while ( d->sharedFormulaMap.contains(si) )
             ++si;
-        formula.d->si = si;
+        formula.setSharedIndex(si);
         d->sharedFormulaMap[si] = formula;
     }
 
@@ -906,9 +907,10 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
     d->cellTable[row][column] = data;
 
     CellRange range = formula.reference();
-    if (formula.formulaType() == CellFormula::Type::Shared) {
+    if (formula.type().value_or(CellFormula::Type::Normal) == CellFormula::Type::Shared) {
         CellFormula sf(QString(), CellFormula::Type::Shared);
-        sf.d->si = formula.sharedIndex();
+        if (formula.sharedIndex().has_value())
+            sf.setSharedIndex(formula.sharedIndex().value());
         for (int r=range.firstRow(); r<=range.lastRow(); ++r) {
             for (int c=range.firstColumn(); c<=range.lastColumn(); ++c) {
                 if (!(r==row && c==column)) {
@@ -2571,9 +2573,9 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
             if (reader.name() == QLatin1String("f")) {// formula
                 CellFormula &formula = cell->d_func()->formula;
                 formula.loadFromXml(reader);
-                if (formula.formulaType() == CellFormula::Type::Shared &&
-                    !formula.formulaText().isEmpty()) {
-                    int si = formula.sharedIndex();
+                if (formula.type().value_or(CellFormula::Type::Normal) == CellFormula::Type::Shared
+                    && !formula.text().isEmpty()) {
+                    int si = formula.sharedIndex().value_or(-1);
                     sharedFormulaMap[si] = formula;
                 }
             }

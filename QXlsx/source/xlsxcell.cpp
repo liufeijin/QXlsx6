@@ -214,7 +214,7 @@ QVariant Cell::readValue() const
     }
 
     if (hasFormula())
-        ret = this->formula().formulaText();
+        ret = this->formula().text();
 
     return ret;
 }

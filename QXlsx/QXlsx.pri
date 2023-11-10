@@ -79,7 +79,6 @@ $${QXLSX_HEADERPATH}xlsxabstractsheet.h \
 $${QXLSX_HEADERPATH}xlsxabstractsheet_p.h \
 $${QXLSX_HEADERPATH}xlsxcell.h \
 $${QXLSX_HEADERPATH}xlsxcellformula.h \
-$${QXLSX_HEADERPATH}xlsxcellformula_p.h \
 $${QXLSX_HEADERPATH}xlsxcellrange.h \
 $${QXLSX_HEADERPATH}xlsxcellreference.h \
 $${QXLSX_HEADERPATH}xlsxcell_p.h \

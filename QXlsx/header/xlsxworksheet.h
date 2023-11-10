@@ -207,6 +207,15 @@ public:
     //TODO: bool clearFormat()
 
     QVariant read(const CellReference &row_column) const;
+    /**
+     * @brief Reads the cell data and returns it as a QVariant object.
+     * @param row The cell row (starting from 1).
+     * @param column The cell column (starting from 1).
+     * @return QVariant object, that may contain a number, a string, a date/time etc.
+     * @note If the cell contains a shared formula, and this cell is not a 'master'
+     * formula cell, this method recalculates the formula references to the ones related to
+     * @a row and @a column.
+     */
     QVariant read(int row, int column) const;
 
     bool writeString(const CellReference &row_column, const QString &value, const Format &format=Format());
