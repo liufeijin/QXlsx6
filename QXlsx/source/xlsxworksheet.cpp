@@ -1701,6 +1701,10 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement();//sheetData
 
     //7. sheetCalcPr
+    if (d->fullCalcOnLoad.has_value()) {
+        writer.writeEmptyElement(QLatin1String("sheetCalcPr"));
+        writeAttribute(writer, QLatin1String("fullCalcOnLoad"), d->fullCalcOnLoad);
+    }
 
     //8. sheet protection
     d->sheetProtection.write(writer);
@@ -2858,6 +2862,9 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
             }
             else if (reader.name() == QLatin1String("extLst"))
                 d->extLst.read(reader);
+            else if (reader.name() == QLatin1String("sheetCalcPr")) {
+                parseAttributeBool(reader.attributes(), QLatin1String("fullCalcOnLoad"), d->fullCalcOnLoad);
+            }
         }
     }
 
@@ -2933,6 +2940,18 @@ bool Worksheet::autosizeColumnsWidth()
 bool Worksheet::autosizeColumnWidth(int column)
 {
     return autosizeColumnsWidth(column, column);
+}
+
+std::optional<bool> Worksheet::fullCalculationOnLoad() const
+{
+    Q_D(const Worksheet);
+    return d->fullCalcOnLoad;
+}
+
+void Worksheet::setFullCalculationOnLoad(bool value)
+{
+    Q_D(Worksheet);
+    d->fullCalcOnLoad = value;
 }
 
 QMap<int, double> Worksheet::getMaximumColumnWidths(int firstRow, int lastRow)

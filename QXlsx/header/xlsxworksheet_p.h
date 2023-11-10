@@ -178,6 +178,7 @@ public:
     AutoFilter autofilter;
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
+    std::optional<bool> fullCalcOnLoad;
 private:
 
     static double calculateColWidth(int characters);

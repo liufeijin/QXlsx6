@@ -723,7 +723,24 @@ public:
      */
     bool autosizeColumnWidth(int column);
 
-
+    /**
+     * @brief returns  whether the application should do a full calculate on
+     * load due to contents on this sheet.
+     *
+     * After load and successful calc, the application shall set this value to false.
+     * Set this to true when the application should calculate the workbook on load.
+     * The default value is false.
+     */
+    std::optional<bool> fullCalculationOnLoad() const;
+    /**
+     * @brief sets  whether the application should do a full calculate on
+     * load due to contents on this sheet.
+     *
+     * Set this to true when the application should calculate the workbook on load.
+     * If the parameter is not set, false is assumed.
+     * @param value If true, then the application will calculate the workbook on load.
+     */
+    void setFullCalculationOnLoad(bool value);
 
 
     // Sheet Parameters

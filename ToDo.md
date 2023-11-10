@@ -62,8 +62,6 @@
 1. CT_Pane
 2. CT_PivotSelection
 
-### sheetCalcPr
-
 ### protectedRanges
 
 ### scenarios
