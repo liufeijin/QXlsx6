@@ -23,7 +23,7 @@ namespace QXlsx {
 
 class FontPrivate;
 
-class Font
+class QXLSX_EXPORT Font
 {
 public:
     enum class PitchFamily

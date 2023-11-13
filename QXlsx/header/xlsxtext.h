@@ -798,7 +798,7 @@ class TextFormatPrivate;
 /**
  * @brief This is a helper class. Do not use it directly. Instead use Text and Title methods.
  */
-class TextFormat
+class QXLSX_EXPORT TextFormat
 {
 public:
     TextFormat();

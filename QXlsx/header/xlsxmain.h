@@ -372,12 +372,6 @@ enum class LightRigDirection
     BottomRight
 };
 
-class Extension
-{
-public:
-
-};
-
 class QXLSX_EXPORT ExtensionList
 {
 public:
@@ -731,7 +725,7 @@ class QXLSX_EXPORT Scene3D
 //      </xsd:sequence>
 //    </xsd:complexType>
 public:
-    class Camera
+    class QXLSX_EXPORT Camera
     {
     public:
         QVector<Angle> rotation; //element, optional
@@ -741,7 +735,7 @@ public:
         bool operator ==(const Camera &other) const;
         bool operator !=(const Camera &other) const;
     };
-    class LightRig
+    class QXLSX_EXPORT LightRig
     {
     public:
         QVector<Angle> rotation; //element, optional
@@ -750,7 +744,7 @@ public:
         bool operator ==(const LightRig &other) const;
         bool operator !=(const LightRig &other) const;
     };
-    class BackdropPlane
+    class QXLSX_EXPORT BackdropPlane
     {
     public:
         QVector<Coordinate> anchor;

@@ -23,6 +23,124 @@
 
 namespace QXlsx {
 
+class SubChart
+{
+public:
+    SubChart(Chart::Type type);
+
+    Chart::Type type = Chart::Type::None;
+
+    /* Below are SubChart properties */
+
+    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
+    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
+    QList<Series> seriesList;
+    //+area, +area3d, +line, +line3d
+    std::optional<Chart::Grouping> grouping;
+    //+bar, +bar3d
+    std::optional<Chart::BarGrouping> barGrouping;
+
+    //+line, +line3d, +scatter, +radar, +bar, +bar3d, +area, +area3d,
+    //+pie, +pie3d, +doughnut, +ofpie, +bubble
+    std::optional<bool> varyColors;
+
+    //+line, +line3d, +stock, +scatter, +radar, +bar, +bar3d, +area, +area3d,
+    //+pie, +pie3d, +doughnut, +ofpie, +bubble
+    Labels labels;
+
+    //+line, +line3d, +stock, +area, +area3d,
+    std::optional<ShapeFormat> dropLines; //drop lines can be default
+
+    //+line, +stock,
+    std::optional<ShapeFormat> hiLowLines; //can be default
+
+    //+line, +stock
+    UpDownBar upDownBars; //optional
+
+    //+line
+    std::optional<bool> marker;
+    std::optional<bool> smooth;
+
+    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
+    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
+    QList<int> axesIds;
+
+    //+line3d, +bar3d, +area3d
+    std::optional<int> gapDepth;
+
+    //+scatter
+    Chart::ScatterStyle scatterStyle = Chart::ScatterStyle::Marker;
+
+    //+radar
+    Chart::RadarStyle radarStyle = Chart::RadarStyle::Standard;
+
+    //+bar, +bar3d
+    Chart::BarDirection barDirection = Chart::BarDirection::Column;
+
+    //+bar, +bar3d, +ofpie,
+    std::optional<int> gapWidth;
+
+    //+bar
+    std::optional<int> overlap; //in %
+
+    //+bar, +ofpie
+    QList<ShapeFormat> serLines;
+
+    //+bar3D
+    std::optional<Series::BarShape> barShape;
+
+    //+pie, +doughnut
+    std::optional<int> firstSliceAng; // [0..360] ? why not Angle?
+
+    //+doughnut
+    std::optional<int> holeSize; // in %, 1..90
+
+    //+ofpie
+    Chart::OfPieType ofPieType = Chart::OfPieType::Pie;
+    std::optional<Chart::SplitType> splitType;
+    std::optional<double> splitPos;
+    QList<int> customSplit;
+    std::optional<int> secondPieSize; // in %, 5..200
+
+    //+bubble
+    std::optional<bool> bubble3D;
+    std::optional<bool> showNegBubbles;
+    std::optional<int> bubbleScale; // in % [0..300]
+    std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
+
+    //+surface, +surface3d
+    std::optional<bool> wireframe;
+    QMap<int, ShapeFormat> bandFormats;
+
+    Series *addSeries(int index);
+    bool read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer) const;
+    friend class Chart;
+private:
+    void loadAreaChart(QXmlStreamReader &reader);
+    void loadSurfaceChart(QXmlStreamReader &reader);
+    void loadBubbleChart(QXmlStreamReader &reader);
+    void loadPieChart(QXmlStreamReader &reader);
+    void loadLineChart(QXmlStreamReader &reader);
+    void loadBarChart(QXmlStreamReader &reader);
+    void loadScatterChart(QXmlStreamReader &reader);
+    void loadStockChart(QXmlStreamReader &reader);
+    void loadRadarChart(QXmlStreamReader &reader);
+    void readBandFormats(QXmlStreamReader &reader);
+    void readDropLines(QXmlStreamReader &reader, ShapeFormat &shape);
+
+    void saveAreaChart(QXmlStreamWriter &writer) const;
+    void saveSurfaceChart(QXmlStreamWriter &writer) const;
+    void saveBubbleChart(QXmlStreamWriter &writer) const;
+    void savePieChart(QXmlStreamWriter &writer) const;
+    void saveLineChart(QXmlStreamWriter &writer) const;
+    void saveBarChart(QXmlStreamWriter &writer) const;
+    void saveScatterChart(QXmlStreamWriter &writer) const;
+    void saveStockChart(QXmlStreamWriter &writer) const;
+    void saveRadarChart(QXmlStreamWriter &writer) const;
+    void saveBandFormats(QXmlStreamWriter &writer) const;
+};
+
     class ChartPrivate : public AbstractOOXmlFilePrivate
     {
         Q_DECLARE_PUBLIC(Chart)
@@ -460,11 +578,12 @@ Axis& Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
     return d->axisList.last();
 }
 
-void Chart::addAxis(const Axis &axis)
+Axis & Chart::addAxis(const Axis &axis)
 {
     Q_D(Chart);
 
     d->addAxis(axis);
+    return d->axisList.last();
 }
 
 
@@ -877,14 +996,7 @@ void Chart::saveToXmlFile(QIODevice *device) const
     QXmlStreamWriter writer(device);
 
     writer.writeStartDocument(QStringLiteral("1.0"), true);
-
-    // L.4.13.2.2 Chart
-    //
-    //  chartSpace is the root node, which contains an element defining the chart,
-    // and an element defining the print settings for the chart.
-
     writer.writeStartElement(QStringLiteral("c:chartSpace"));
-
     writer.writeAttribute(QStringLiteral("xmlns:c"),
                           QStringLiteral("http://schemas.openxmlformats.org/drawingml/2006/chart"));
     writer.writeAttribute(QStringLiteral("xmlns:a"),
@@ -892,20 +1004,27 @@ void Chart::saveToXmlFile(QIODevice *device) const
     writer.writeAttribute(QStringLiteral("xmlns:r"),
                           QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
 
-    /*
-    * chart is the root element for the chart. If the chart is a 3D chart,
-    * then a view3D element is contained, which specifies the 3D view.
-    * It then has a plot area, which defines a layout and contains an element
-    * that corresponds to, and defines, the type of chart.
-    */
+    // 1. date1904
     writeEmptyElement(writer, QLatin1String("c:date1904"), d->date1904);
+    // 2. lang
     writeEmptyElement(writer, QLatin1String("c:lang"), d->language);
+    // 3. roundedCorners
     writeEmptyElement(writer, QLatin1String("c:roundedCorners"), d->roundedCorners);
+    // 4. style
     writeEmptyElement(writer, QLatin1String("c:style"), d->styleID);
-
+    // 5. clrMapOvr
+    // 6. pivotSource
+    // 7. protection
+    // 8. chart
     d->saveXmlChart(writer);
+    // 9. spPr
     if (d->chartSpaceShape.isValid()) d->chartSpaceShape.write(writer, "c:spPr");
+    // 10. txPr
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
+    // 11. externalData
+    // 12. printSettings
+    // 13. userShapes
+    // 14. extLst
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
     writer.writeEndElement();// c:chartSpace
     writer.writeEndDocument();
@@ -1385,11 +1504,16 @@ void SubChart::loadRadarChart(QXmlStreamReader &reader)
 void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
 {
     writer.writeStartElement(QStringLiteral("c:chart"));
-
+    // 1. title
     if (title.isValid()) title.write(writer, QLatin1String("c:title"));
-
+    // 2. autoTitleDeleted
     writeEmptyElement(writer, QLatin1String("c:autoTitleDeleted"), autoTitleDeleted);
-
+    // 3. pivotFmts
+    // 4. view3D
+    // 5. floor
+    // 6. sideWall
+    // 7. backWall
+    // 8. plotArea
     writer.writeStartElement(QStringLiteral("c:plotArea"));
 
     layout.write(writer, QLatin1String("c:layout"));
@@ -1408,14 +1532,17 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     if (plotAreaShape.isValid()) plotAreaShape.write(writer, "c:spPr");
     writer.writeEndElement(); // c:plotArea
 
-    // c:legend
+    // 9. legend
     if (legend.isValid()) legend.write(writer);
-
+    // 10. plotVisOnly
     writeEmptyElement(writer, QLatin1String("c:plotVisOnly"), plotVisOnly);
+    // 11. dispBlanksAs
     if (dispBlanksAs.has_value())
         writeEmptyElement(writer, QLatin1String("c:dispBlanksAs"), Chart::toString(dispBlanksAs.value()));
+    // 12. showDLblsOverMax
     writeEmptyElement(writer, QLatin1String("c:showDLblsOverMax"), showDLblsOverMax);
-
+    // 13. extLst
+    chartExtList.write(writer, QLatin1String("c:extLst"));
     writer.writeEndElement(); // c:chart
 }
 

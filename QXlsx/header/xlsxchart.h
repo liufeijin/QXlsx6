@@ -57,9 +57,6 @@ private:
     ExtensionList extension;
 };
 
-class SubChart;
-
-
 /**
  * @brief The Chart class represents a chart in the worksheet or the chartsheet.
  *
@@ -323,7 +320,7 @@ private:
     Chart(AbstractSheet *parent, CreateFlag flag);
     Chart &operator=(const Chart &other);
 public:
-    /*!
+    /**
      * Destroys the chart.
      */
     ~Chart();
@@ -372,21 +369,21 @@ public:
     /**
      * @brief returns the subchart type
      * @param subchartIndex zero-based index of a subchart.
-     * @return Type enum value. If no subcharts were added, returns Type::None.
+     * @return Type enum value. If @a subchartIndex is invalid, returns Type::None.
      */
     Type subchartType(int subchartIndex) const;
     /**
      * @brief sets the subchart type
      * @param subchartIndex zero-based index of a subchart.
      * @param type Type enum value.
-     * @note Check axes that this subchart associated with after invoking this method.
+     * @note Check axes that this subchart is associated with after invoking this method.
      */
     void setSubchartType(int subchartIndex, Type type);
 
     /**
      * @brief sets line format to the chart space (the outer area of the chart).
      *
-     * This is a convenience method, equivalent to ```chartShape()->setLineFormat(format)```
+     * This is a convenience method, equivalent to `chartShape()->setLineFormat(format)`
      * @param format
      */
     void setChartLineFormat(const LineFormat &format);
@@ -394,7 +391,7 @@ public:
      * @brief sets line format to the plot area (the inner area of the chart
      * where actual series plotting occurs).
      *
-     * This is a convenience method, equivalent to ```plotAreaShape()->setLineFormat(format)```
+     * This is a convenience method, equivalent to `plotAreaShape()->setLineFormat(format)`
      * @param format
      */
     void setPlotAreaLineFormat(const LineFormat &format);
@@ -574,14 +571,13 @@ public:
      * The method can be used to duplicate existing axis, change the type and position of the copy
      * and add the result to the chart. The method makes sure new axis will have a unique ID.
      * @param axis
+     * @return reference to the newly added axis.
      */
-    void addAxis(const Axis &axis);
+    Axis &addAxis(const Axis &axis);
     /**
      * @brief returns axis that has index idx
      * @param idx valid index (0 <= idx < axesCount()).
      * @return pointer to the axis if such axis exists, nullptr otherwise.
-     *
-     * This is the same as ```&axes().at(idx)```
      */
     Axis *axis(int idx); //TODO: replace with std::optional<std::reference_wrapper<Axis>> axis(int idx);
     /**
@@ -630,6 +626,8 @@ public:
      * @param axisID the id of the axis to be removed.
      * @return true if axis has been removed, false otherwise (no axis with this id or axis is used
      * in some series).
+     * @note This method does not check if any series uses this axis. Use #seriesThatUseAxis()
+     * to do the checking.
      */
     bool removeAxis(int axisID);
     /**
@@ -638,10 +636,13 @@ public:
      * @param axis the pointer to the axis to be removed.
      * @return true if axis has been removed, false otherwise (no such axis or axis is used
      * in some series).
+     * @note This method does not check if any series uses this axis. Use #seriesThatUseAxis()
+     * to do the checking.
      */
     bool removeAxis(Axis *axis);
     /**
      * @brief removes all axes defined in the chart.
+     *
      * This method removes all axes defined in the chart and clears the series references to the axes.
      * After that until you add the required axes and set these axes for the chart series
      * the chart is ill-formed.
@@ -655,7 +656,7 @@ public:
     QList<Series> seriesThatUseAxis(int axisID) const;
     /**
      * @overload
-     * @brief returns the list of series that use #axis.
+     * @brief returns the list of series that use @a axis.
      * @param axis pointer to the axis.
      * @return
      */
@@ -825,6 +826,10 @@ public:
      * @return
      */
     std::optional<int> styleID() const;
+    /**
+     * @brief setStyleID
+     * @param id
+     */
     void setStyleID(int id);
 
     /**
@@ -1505,128 +1510,12 @@ public:
     void loadMediaFiles(Workbook *workbook);
 
 private:
-    friend class SubChart;
     Series* seriesByOrder(int order);
     bool hasAxis(int id) const;
+    friend class SubChart;
 };
 
-class SubChart
-{
-public:
-    SubChart(Chart::Type type);
 
-    Chart::Type type = Chart::Type::None;
-
-    /* Below are SubChart properties */
-
-    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
-    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
-    QList<Series> seriesList;
-    //+area, +area3d, +line, +line3d
-    std::optional<Chart::Grouping> grouping;
-    //+bar, +bar3d
-    std::optional<Chart::BarGrouping> barGrouping;
-
-    //+line, +line3d, +scatter, +radar, +bar, +bar3d, +area, +area3d,
-    //+pie, +pie3d, +doughnut, +ofpie, +bubble
-    std::optional<bool> varyColors;
-
-    //+line, +line3d, +stock, +scatter, +radar, +bar, +bar3d, +area, +area3d,
-    //+pie, +pie3d, +doughnut, +ofpie, +bubble
-    Labels labels;
-
-    //+line, +line3d, +stock, +area, +area3d,
-    std::optional<ShapeFormat> dropLines; //drop lines can be default
-
-    //+line, +stock,
-    std::optional<ShapeFormat> hiLowLines; //can be default
-
-    //+line, +stock
-    UpDownBar upDownBars; //optional
-
-    //+line
-    std::optional<bool> marker;
-    std::optional<bool> smooth;
-
-    //+area, +area3d, +line, +line3d, +bar, +bar3d, +surface, +surface3d,
-    //+scatter, +pie, +pie3d, +doughnut, +ofpie, +radar, +stock, +bubble
-    QList<int> axesIds;
-
-    //+line3d, +bar3d, +area3d
-    std::optional<int> gapDepth;
-
-    //+scatter
-    Chart::ScatterStyle scatterStyle = Chart::ScatterStyle::Marker;
-
-    //+radar
-    Chart::RadarStyle radarStyle = Chart::RadarStyle::Standard;
-
-    //+bar, +bar3d
-    Chart::BarDirection barDirection = Chart::BarDirection::Column;
-
-    //+bar, +bar3d, +ofpie,
-    std::optional<int> gapWidth;
-
-    //+bar
-    std::optional<int> overlap; //in %
-
-    //+bar, +ofpie
-    QList<ShapeFormat> serLines;
-
-    //+bar3D
-    std::optional<Series::BarShape> barShape;
-
-    //+pie, +doughnut
-    std::optional<int> firstSliceAng; // [0..360] ? why not Angle?
-
-    //+doughnut
-    std::optional<int> holeSize; // in %, 1..90
-
-    //+ofpie
-    Chart::OfPieType ofPieType = Chart::OfPieType::Pie;
-    std::optional<Chart::SplitType> splitType;
-    std::optional<double> splitPos;
-    QList<int> customSplit;
-    std::optional<int> secondPieSize; // in %, 5..200
-
-    //+bubble
-    std::optional<bool> bubble3D;
-    std::optional<bool> showNegBubbles;
-    std::optional<int> bubbleScale; // in % [0..300]
-    std::optional<Chart::BubbleSizeRepresents> bubbleSizeRepresents;
-
-    //+surface, +surface3d
-    std::optional<bool> wireframe;
-    QMap<int, ShapeFormat> bandFormats;
-
-    Series *addSeries(int index);
-    bool read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer) const;
-    friend class Chart;
-private:
-    void loadAreaChart(QXmlStreamReader &reader);
-    void loadSurfaceChart(QXmlStreamReader &reader);
-    void loadBubbleChart(QXmlStreamReader &reader);
-    void loadPieChart(QXmlStreamReader &reader);
-    void loadLineChart(QXmlStreamReader &reader);
-    void loadBarChart(QXmlStreamReader &reader);
-    void loadScatterChart(QXmlStreamReader &reader);
-    void loadStockChart(QXmlStreamReader &reader);
-    void loadRadarChart(QXmlStreamReader &reader);
-    void readBandFormats(QXmlStreamReader &reader);
-    void readDropLines(QXmlStreamReader &reader, ShapeFormat &shape);
-
-    void saveAreaChart(QXmlStreamWriter &writer) const;
-    void saveSurfaceChart(QXmlStreamWriter &writer) const;
-    void saveBubbleChart(QXmlStreamWriter &writer) const;
-    void savePieChart(QXmlStreamWriter &writer) const;
-    void saveLineChart(QXmlStreamWriter &writer) const;
-    void saveBarChart(QXmlStreamWriter &writer) const;
-    void saveScatterChart(QXmlStreamWriter &writer) const;
-    void saveStockChart(QXmlStreamWriter &writer) const;
-    void saveRadarChart(QXmlStreamWriter &writer) const;
-    void saveBandFormats(QXmlStreamWriter &writer) const;
-};
 }
 
 #endif // QXLSX_CHART_H

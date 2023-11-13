@@ -23,7 +23,7 @@ class EffectPrivate;
 /**
  * @brief The Effect class represents effects for shapes.
  */
-class Effect
+class QXLSX_EXPORT Effect
 {
 public:
     enum class Type

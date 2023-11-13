@@ -12,15 +12,22 @@
 
 ## Charts
 
-1. Add printSettings
-2. Add user shapes
-3. Add externalData
-4. Add protection
-5. Add pivotSource
-6. Add clrMapOvr
-7. Add pivotFmts
-8. Add view3D
-9. Add floor and walls
+### chartSpace
+
+1. clrMapOvr
+2. pivotSource
+3. protection
+4. externalData
+5. printSettings
+6. userShapes
+
+### chart
+
+1. pivotFmts
+2. view3D
+3. floor
+4. sideWall
+5. backWall
 
 ### Shapes
 

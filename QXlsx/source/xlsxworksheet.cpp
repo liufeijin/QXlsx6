@@ -473,121 +473,121 @@ void Worksheet::setSelection(const Selection &selection)
 void Worksheet::setPrintScale(int scale)
 {
     Q_D(Worksheet);
-    d->pageSetup.scale = scale;
+    d->pageSetup.setScale(scale);
 }
 
 std::optional<int> Worksheet::printScale() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.scale;
+    return d->pageSetup.scale();
 }
 
 std::optional<PageSetup::PageOrder> Worksheet::pageOrder() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.pageOrder;
+    return d->pageSetup.pageOrder();
 }
 
 void Worksheet::setPageOrder(PageSetup::PageOrder pageOrder)
 {
     Q_D(Worksheet);
-    d->pageSetup.pageOrder = pageOrder;
+    d->pageSetup.setPageOrder(pageOrder);
 }
 
 std::optional<int> Worksheet::fitToWidth() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.fitToWidth;
+    return d->pageSetup.fitToWidth();
 }
 
 void Worksheet::setFitToWidth(int pages)
 {
     Q_D(Worksheet);
-    if (pages > 0) d->pageSetup.fitToWidth = pages;
+    if (pages > 0) d->pageSetup.setFitToWidth(pages);
 }
 
 std::optional<int> Worksheet::fitToHeight() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.fitToHeight;
+    return d->pageSetup.fitToHeight();
 }
 
 void Worksheet::setFitToHeight(int pages)
 {
     Q_D(Worksheet);
-    if (pages > 0) d->pageSetup.fitToHeight = pages;
+    if (pages > 0) d->pageSetup.setFitToHeight(pages);
 }
 
 std::optional<PageSetup::PrintError> Worksheet::printErrors() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.errors;
+    return d->pageSetup.printErrors();
 }
 
 void Worksheet::setPrintErrors(PageSetup::PrintError mode)
 {
     Q_D(Worksheet);
-    d->pageSetup.errors = mode;
+    d->pageSetup.setPrintErrors(mode);
 }
 
 std::optional<PageSetup::CellComments> Worksheet::printCellComments() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.cellComments;
+    return d->pageSetup.printCellComments();
 }
 
 void Worksheet::setPrintCellComments(PageSetup::CellComments mode)
 {
     Q_D(Worksheet);
-    d->pageSetup.cellComments = mode;
+    d->pageSetup.setPrintCellComments(mode);
 }
 
 std::optional<bool> Worksheet::printGridLines() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.printGridLines;
+    return d->pageSetup.printGridLines();
 }
 
 void Worksheet::setPrintGridLines(bool printGridLines)
 {
     Q_D(Worksheet);
-    d->pageSetup.printGridLines = printGridLines;
+    d->pageSetup.setPrintGridLines(printGridLines);
 }
 
 std::optional<bool> Worksheet::printHeadings() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.printHeadings;
+    return d->pageSetup.printHeadings();
 }
 
 void Worksheet::setPrintHeadings(bool printHeadings)
 {
     Q_D(Worksheet);
-    d->pageSetup.printHeadings = printHeadings;
+    d->pageSetup.setPrintHeadings(printHeadings);
 }
 
 std::optional<bool> Worksheet::printHorizontalCentered() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.printHorizontalCentered;
+    return d->pageSetup.printHorizontalCentered();
 }
 
 void Worksheet::setPrintHorizontalCentered(bool printHorizontalCentered)
 {
     Q_D(Worksheet);
-    d->pageSetup.printHorizontalCentered = printHorizontalCentered;
+    d->pageSetup.setPrintHorizontalCentered(printHorizontalCentered);
 }
 
 std::optional<bool> Worksheet::printVerticalCentered() const
 {
     Q_D(const Worksheet);
-    return d->pageSetup.printVerticalCentered;
+    return d->pageSetup.printVerticalCentered();
 }
 
 void Worksheet::setPrintVerticalCentered(bool printVerticalCentered)
 {
     Q_D(Worksheet);
-    d->pageSetup.printVerticalCentered = printVerticalCentered;
+    d->pageSetup.setPrintVerticalCentered(printVerticalCentered);
 }
 
 AutoFilter &Worksheet::autofilter()
