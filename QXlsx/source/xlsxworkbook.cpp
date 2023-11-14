@@ -27,18 +27,57 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag)
     styles = QSharedPointer<Styles>(new Styles(flag));
     theme = QSharedPointer<Theme>(new Theme(flag));
 
-    x_window = 240;
-    y_window = 15;
-    window_width = 16095;
-    window_height = 9660;
-
     strings_to_numbers_enabled = false;
     strings_to_hyperlinks_enabled = true;
     html_to_richstring_enabled = false;
     defaultDateFormat = QStringLiteral("yyyy-mm-dd");
-    activesheetIndex = 0;
-    firstsheet = 0;
     table_count = 0;
+}
+
+void WorkbookView::write(QXmlStreamWriter &writer) const
+{
+    if (extLst.isValid()) writer.writeStartElement(QLatin1String("workbookView"));
+    else writer.writeEmptyElement(QLatin1String("workbookView"));
+    if (visibility.has_value())
+        writeAttribute(writer, QLatin1String("visibility"), AbstractSheet::toString(visibility.value()));
+    writeAttribute(writer, QLatin1String("minimized"), minimized);
+    writeAttribute(writer, QLatin1String("showHorizontalScroll"), showHorizontalScroll);
+    writeAttribute(writer, QLatin1String("showVerticalScroll"), showVerticalScroll);
+    writeAttribute(writer, QLatin1String("showSheetTabs"), showSheetTabs);
+    writeAttribute(writer, QLatin1String("xWindow"), xWindow);
+    writeAttribute(writer, QLatin1String("yWindow"), yWindow);
+    writeAttribute(writer, QLatin1String("windowWidth"), windowWidth);
+    writeAttribute(writer, QLatin1String("windowHeight"), windowHeight);
+    writeAttribute(writer, QLatin1String("tabRatio"), tabRatio);
+    writeAttribute(writer, QLatin1String("firstSheet"), firstSheet);
+    writeAttribute(writer, QLatin1String("activeTab"), activeTab);
+    writeAttribute(writer, QLatin1String("autoFilterDateGrouping"), autoFilterDateGrouping);
+    extLst.write(writer, QLatin1String("extLst"));
+    if (extLst.isValid()) writer.writeEndElement();
+}
+
+void WorkbookView::read(QXmlStreamReader &reader)
+{
+    const auto &a = reader.attributes();
+    if (a.hasAttribute(QLatin1String("visibility"))) {
+        AbstractSheet::Visibility v;
+        AbstractSheet::fromString(a.value(QLatin1String("visibility")).toString(), v);
+        visibility = v;
+    }
+    parseAttributeBool(a, QLatin1String("minimized"), minimized);
+    parseAttributeBool(a, QLatin1String("showHorizontalScroll"), showHorizontalScroll);
+    parseAttributeBool(a, QLatin1String("showVerticalScroll"), showVerticalScroll);
+    parseAttributeBool(a, QLatin1String("showSheetTabs"), showSheetTabs);
+    parseAttributeInt(a, QLatin1String("xWindow"), xWindow);
+    parseAttributeInt(a, QLatin1String("yWindow"), yWindow);
+    parseAttributeInt(a, QLatin1String("windowWidth"), windowWidth);
+    parseAttributeInt(a, QLatin1String("windowHeight"), windowHeight);
+    parseAttributeInt(a, QLatin1String("tabRatio"), tabRatio);
+    parseAttributeInt(a, QLatin1String("firstSheet"), firstSheet);
+    parseAttributeInt(a, QLatin1String("activeTab"), activeTab);
+    parseAttributeBool(a, QLatin1String("autoFilterDateGrouping"), autoFilterDateGrouping);
+    reader.readNextStartElement();
+    if (reader.name() == QLatin1String("extLst")) extLst.read(reader);
 }
 
 Workbook::Workbook(CreateFlag flag)
@@ -288,7 +327,8 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
 
     d->sheets.insert(index, QSharedPointer<AbstractSheet>(sheet));
     d->sheetNames.insert(index, sheetName);
-    d->activesheetIndex = index;
+    if (d->views.isEmpty()) d->views << WorkbookView{};
+    d->views.last().activeTab = index;
 
     return sheet;
 }
@@ -298,7 +338,8 @@ AbstractSheet *Workbook::activeSheet() const
     Q_D(const Workbook);
     if (d->sheets.isEmpty())
         const_cast<Workbook *>(this)->addSheet();
-    return d->sheets[d->activesheetIndex].data();
+    if (d->views.isEmpty()) d->views << WorkbookView{};
+    return d->sheets[d->views.last().activeTab.value_or(0)].data();
 }
 
 bool Workbook::setActiveSheet(int index)
@@ -308,7 +349,8 @@ bool Workbook::setActiveSheet(int index)
         //warning
         return false;
     }
-    d->activesheetIndex = index;
+    if (d->views.isEmpty()) d->views << WorkbookView{};
+    d->views.last().activeTab = index;
     return true;
 }
 
@@ -532,20 +574,10 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     // 4. workbookProtection
     //TODO: workbookProtection
     // 5. bookViews
-    //TODO: check for implementation
     writer.writeStartElement(QStringLiteral("bookViews"));
-    writer.writeEmptyElement(QStringLiteral("workbookView"));
-    writer.writeAttribute(QStringLiteral("xWindow"), QString::number(d->x_window));
-    writer.writeAttribute(QStringLiteral("yWindow"), QString::number(d->y_window));
-    writer.writeAttribute(QStringLiteral("windowWidth"), QString::number(d->window_width));
-    writer.writeAttribute(QStringLiteral("windowHeight"), QString::number(d->window_height));
-    //Store the firstSheet when it isn't the default
-    //For example, when "the first sheet 0 is hidden", the first sheet will be 1
-    if (d->firstsheet > 0)
-        writer.writeAttribute(QStringLiteral("firstSheet"), QString::number(d->firstsheet + 1));
-    //Store the activeTab when it isn't the first sheet
-    if (d->activesheetIndex > 0)
-        writer.writeAttribute(QStringLiteral("activeTab"), QString::number(d->activesheetIndex));
+    if (d->views.isEmpty()) d->views << WorkbookView{};
+    for (const auto &view: d->views)
+        view.write(writer);
     writer.writeEndElement(); //bookViews
     // 6. sheets
     writer.writeStartElement(QStringLiteral("sheets"));
@@ -556,10 +588,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         writer.writeEmptyElement(QStringLiteral("sheet"));
         writer.writeAttribute(QStringLiteral("name"), sheet->name());
         writer.writeAttribute(QStringLiteral("sheetId"), QString::number(sheet->id()));
-        if (sheet->visibility() == AbstractSheet::Visibility::Hidden)
-            writer.writeAttribute(QStringLiteral("state"), QStringLiteral("hidden"));
-        else if (sheet->visibility() == AbstractSheet::Visibility::VeryHidden)
-            writer.writeAttribute(QStringLiteral("state"), QStringLiteral("veryHidden"));
+        writer.writeAttribute(QStringLiteral("state"), AbstractSheet::toString(sheet->visibility()));
 
         if (sheet->type() == AbstractSheet::Type::Worksheet)
             d->relationships->addDocumentRelationship(QStringLiteral("/worksheet"),
@@ -616,17 +645,28 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     }
     // 10. calcPr
     //TODO: check for implementation
+    //TODO: add missing members
+    //TODO: add missing methods to manipulate
     writer.writeStartElement(QStringLiteral("calcPr"));
     writer.writeAttribute(QStringLiteral("calcId"), QStringLiteral("124519"));
     writer.writeEndElement(); //calcPr
+
     // 11. oleSize
+    //TODO:
     // 12. customWorkbookViews
+    //TODO:
     // 13. pivotCaches
+    //TODO:
     // 14. smartTagPr
+    //TODO:
     // 15. smartTagTypes
+    //TODO:
     // 16. webPublishing
+    //TODO:
     // 17. fileRecoveryPr
+    //TODO:
     // 18. webPublishObjects
+    //TODO:
     // 19. extLst
     d->extLst.write(writer, QLatin1String("extLst"));
     writer.writeEndElement(); //workbook
@@ -657,13 +697,10 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                 const auto &rId = attributes.value(QLatin1String("r:id")).toString();
 
-                const auto &stateString = attributes.value(QLatin1String("state"));
-
                 auto state = AbstractSheet::Visibility::Visible;
-                if (stateString == QLatin1String("hidden"))
-                    state = AbstractSheet::Visibility::Hidden;
-                else if (stateString == QLatin1String("veryHidden"))
-                    state = AbstractSheet::Visibility::VeryHidden;
+                if (attributes.hasAttribute(QLatin1String("state"))) {
+                    AbstractSheet::fromString(attributes.value(QLatin1String("state")).toString(), state);
+                }
 
                 XlsxRelationship relationship = d->relationships->getRelationshipById(rId);
 
@@ -718,28 +755,10 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 parseAttributeBool(attributes, QLatin1String("refreshAllConnections"), d->refreshAllConnections);
                 parseAttributeInt(attributes, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion);
             }
-            else if (reader.name() == QLatin1String("bookView")) {
-                while (!(reader.name() == QLatin1String("bookView")
-                         && reader.tokenType() == QXmlStreamReader::EndElement)) {
-                    reader.readNextStartElement();
-                    if (reader.tokenType() == QXmlStreamReader::StartElement) {
-                        if (reader.name() == QLatin1String("workbookView")) {
-                            QXmlStreamAttributes attrs = reader.attributes();
-                            if (attrs.hasAttribute(QLatin1String("xWindow")))
-                                d->x_window = attrs.value(QLatin1String("xWindow")).toInt();
-                            if (attrs.hasAttribute(QLatin1String("yWindow")))
-                                d->y_window = attrs.value(QLatin1String("yWindow")).toInt();
-                            if (attrs.hasAttribute(QLatin1String("windowWidth")))
-                                d->window_width = attrs.value(QLatin1String("windowWidth")).toInt();
-                            if (attrs.hasAttribute(QLatin1String("windowHeight")))
-                                d->window_height = attrs.value(QLatin1String("windowHeight")).toInt();
-                            if (attrs.hasAttribute(QLatin1String("firstSheet")))
-                                d->firstsheet = attrs.value(QLatin1String("firstSheet")).toInt();
-                            if (attrs.hasAttribute(QLatin1String("activeTab")))
-                                d->activesheetIndex = attrs.value(QLatin1String("activeTab")).toInt();
-                        }
-                    }
-                }
+            else if (reader.name() == QLatin1String("workbookView")) {
+                WorkbookView view;
+                view.read(reader);
+                d->views << view;
             }
             else if (reader.name() == QLatin1String("externalReference")) {
                 const QString rId = attributes.value(QLatin1String("r:id")).toString();

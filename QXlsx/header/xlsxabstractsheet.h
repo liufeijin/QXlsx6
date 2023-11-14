@@ -865,8 +865,13 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @return true if the view was found and removed, false otherwise.
      */
     bool removeView(int index);
-
+    SERIALIZE_ENUM(Visibility, {
+        {Visibility::Hidden,     "hidden"},
+        {Visibility::VeryHidden, "veryHidden"},
+        {Visibility::Visible,    "visible"}
+    });
 protected:
+
     friend class Workbook;
     AbstractSheet(const QString &sheetName, int sheetId, Workbook *book, AbstractSheetPrivate *d);
     /**

@@ -184,7 +184,7 @@ application will not display an alert in the user interface.*/
      *
      * If not set, false is assumed (the default epoch being 1900).
      */
-    bool isDate1904() const; //NOTE: remove from future releases
+    bool isDate1904() const; //NOTE: remove in future releases
     /**
      * @brief returns whether the default epoch of this workbook is set to 1904.
      *
@@ -204,7 +204,7 @@ application will not display an alert in the user interface.*/
      * between one system and the other. QXlsx stores dates in the 1900 format
      * by default.
      *
-     * @return true if all dates are be calculated using the 1904 epoch.
+     * @return true if all dates are calculated using the 1904 epoch.
      *
      * If not set, false is assumed (the default epoch being 1900).
      */

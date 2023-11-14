@@ -15,6 +15,36 @@
 
 namespace QXlsx {
 
+struct WorkbookView
+{
+//    default values to be used in new workbooks
+//    xWindow = 240;
+//    yWindow = 15;
+//    windowWidth = 16095;
+//    windowHeight = 9660;
+//    activeTab = 0;
+//    firstSheet = 0;
+
+    std::optional<int> xWindow;
+    std::optional<int> yWindow;
+    std::optional<int> windowWidth;
+    std::optional<int> windowHeight;
+    std::optional<int> activeTab;
+    std::optional<int> firstSheet;
+    std::optional<bool> minimized; //default=false
+
+    std::optional<AbstractSheet::Visibility> visibility;// default="visible"/>
+    std::optional<bool> showHorizontalScroll;// default="true"/>
+    std::optional<bool> showVerticalScroll;// default="true"/>
+    std::optional<bool> showSheetTabs;// default="true"/>
+    std::optional<int> tabRatio;// default="600"/>
+    std::optional<bool> autoFilterDateGrouping;// default="true"/>
+
+    ExtensionList extLst;
+    void write(QXmlStreamWriter &writer) const;
+    void read(QXmlStreamReader &reader);
+};
+
 class WorkbookPrivate : public AbstractOOXmlFilePrivate
 {
     Q_DECLARE_PUBLIC(Workbook)
@@ -37,19 +67,15 @@ public:
 
     QString defaultDateFormat;
 
-    int x_window;
-    int y_window;
-    int window_width;
-    int window_height;
-
-    int activesheetIndex;
-    int firstsheet;
     int table_count;
 
     //Used to generate new sheet name and id
     int lastWorksheetIndex = 0;
     int lastChartsheetIndex = 0;
     int lastSheetId = 0;
+
+    // workbookView
+    mutable QList<WorkbookView> views;
 
     // workBookPr
     std::optional<bool> date1904;
