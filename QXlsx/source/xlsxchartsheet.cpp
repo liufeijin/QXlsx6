@@ -132,7 +132,7 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
 
     d->pageMargins.write(writer);
     d->pageSetup.writeChartsheet(writer);
-    d->headerFooter.write(writer);
+    d->headerFooter.write(writer, QLatin1String("headerFooter"));
 
     int idx = d->workbook->drawings().indexOf(d->drawing.get());
     d->relationships->addWorksheetRelationship(QStringLiteral("/drawing"), QStringLiteral("../drawings/drawing%1.xml").arg(idx+1));

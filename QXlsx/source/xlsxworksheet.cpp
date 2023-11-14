@@ -1747,7 +1747,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->pageSetup.writeWorksheet(writer, QLatin1String("pageSetup"));
 
     //23. headerFooter
-    d->headerFooter.write(writer);
+    d->headerFooter.write(writer, QLatin1String("headerFooter"));
 
     //24. rowBreaks
 

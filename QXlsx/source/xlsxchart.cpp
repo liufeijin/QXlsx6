@@ -168,7 +168,9 @@ private:
         ShapeFormat chartSpaceShape;
         TextFormat textProperties;
         //    std::optional<ExternalData> externalData;
-        //    std::optional<PrintSettings> printSettings;
+        HeaderFooter headerFooter;
+        PageMargins pageMargins;
+        PageSetup pageSetup;
         //    std::optional<Reference> userShapes;
         ExtensionList chartSpaceExtList;
 
@@ -221,7 +223,9 @@ ChartPrivate &ChartPrivate::operator=(const ChartPrivate &other)
     chartSpaceShape = other.chartSpaceShape;
     textProperties = other.textProperties;
     //externalData = other.externalData;
-    //printSettings = other.printSettings;
+    headerFooter = other.headerFooter;
+    pageMargins = other.pageMargins;
+    pageSetup = other.pageSetup;
     //userShapes = other.userShapes;
     chartSpaceExtList = other.chartSpaceExtList;
 
@@ -540,6 +544,24 @@ ShapeFormat &Chart::chartShape()
     return d->chartSpaceShape;
 }
 
+HeaderFooter &Chart::headerFooter()
+{
+    Q_D(Chart);
+    return d->headerFooter;
+}
+
+PageMargins &Chart::pageMargins()
+{
+    Q_D(Chart);
+    return d->pageMargins;
+}
+
+PageSetup &Chart::pageSetup()
+{
+    Q_D(Chart);
+    return d->pageSetup;
+}
+
 void Chart::setPlotAreaShape(const ShapeFormat &shape)
 {
     Q_D(Chart);
@@ -570,20 +592,20 @@ void Chart::setTextProperties(const TextFormat &textProperties)
     d->textProperties = textProperties;
 }
 
-Axis& Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
+int Chart::addAxis(Axis::Type type, Axis::Position pos, QString title)
 {
     Q_D(Chart);
 
     d->addAxis(type, pos, title);
-    return d->axisList.last();
+    return d->axisList.size()-1;
 }
 
-Axis & Chart::addAxis(const Axis &axis)
+int Chart::addAxis(const Axis &axis)
 {
     Q_D(Chart);
 
     d->addAxis(axis);
-    return d->axisList.last();
+    return d->axisList.size()-1;
 }
 
 
@@ -843,21 +865,21 @@ QList<int> Chart::addDefaultAxes(Type type)
     case Type::Bar:
     case Type::Radar:
     case Type::Stock: {
-        auto &ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
-        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
-        ax1.setCrossAxis(&ax2);
-        ax2.setCrossAxis(&ax1);
-        result << ax1.id();
-        result << ax2.id();
+        auto ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
+        auto ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        axis(ax1)->setCrossAxis(axis(ax2));
+        axis(ax2)->setCrossAxis(axis(ax1));
+        result << axis(ax1)->id();
+        result << axis(ax2)->id();
         break;
     }
     case Type::Scatter: {
-        auto &ax1 = addAxis(Axis::Type::Value, Axis::Position::Bottom);
-        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
-        ax1.setCrossAxis(&ax2);
-        ax2.setCrossAxis(&ax1);
-        result << ax1.id();
-        result << ax2.id();
+        auto ax1 = addAxis(Axis::Type::Value, Axis::Position::Bottom);
+        auto ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        axis(ax1)->setCrossAxis(axis(ax2));
+        axis(ax2)->setCrossAxis(axis(ax1));
+        result << axis(ax1)->id();
+        result << axis(ax2)->id();
         break;
     }
     case Type::Area3D:
@@ -865,15 +887,15 @@ QList<int> Chart::addDefaultAxes(Type type)
     case Type::Bar3D:
     case Type::Surface:
     case Type::Surface3D: {
-        auto &ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
-        auto &ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
-        auto &ax3 = addAxis(Axis::Type::Series, Axis::Position::Bottom);
-        ax1.setCrossAxis(&ax2);
-        ax2.setCrossAxis(&ax1);
-        ax3.setCrossAxis(&ax2);
-        result << ax1.id();
-        result << ax2.id();
-        result << ax3.id();
+        auto ax1 = addAxis(Axis::Type::Category, Axis::Position::Bottom);
+        auto ax2 = addAxis(Axis::Type::Value, Axis::Position::Left);
+        auto ax3 = addAxis(Axis::Type::Series, Axis::Position::Bottom);
+        axis(ax1)->setCrossAxis(axis(ax2));
+        axis(ax2)->setCrossAxis(axis(ax1));
+        axis(ax3)->setCrossAxis(axis(ax2));
+        result << axis(ax1)->id();
+        result << axis(ax2)->id();
+        result << axis(ax3)->id();
         break;
     }
     }
@@ -888,6 +910,8 @@ void Chart::addSubchart(Type type, const QList<int> &axesIDs)
         auto axes = addDefaultAxes(type);
         sub.axesIds = axes;
     }
+    else
+        sub.axesIds = axesIDs;
 
     d->subcharts << sub;
 }
@@ -1023,6 +1047,12 @@ void Chart::saveToXmlFile(QIODevice *device) const
     if (d->textProperties.isValid()) d->textProperties.write(writer, QLatin1String("c:txPr"));
     // 11. externalData
     // 12. printSettings
+    if (d->headerFooter.isValid() || d->pageMargins.isValid() || d->pageSetup.isValid()) {
+        writer.writeStartElement(QLatin1String("c:printSettings"));
+        d->headerFooter.write(writer, QLatin1String("c:headerFooter"));
+        d->pageMargins.write(writer);
+        d->pageSetup.writeChartsheet(writer);
+    }
     // 13. userShapes
     // 14. extLst
     if (d->chartSpaceExtList.isValid()) d->chartSpaceExtList.write(writer, QLatin1String("c:extLst"));
@@ -1030,9 +1060,6 @@ void Chart::saveToXmlFile(QIODevice *device) const
     writer.writeEndDocument();
 }
 
-/*!
- * \internal
- */
 bool Chart::loadFromXmlFile(QIODevice *device)
 {
     Q_D(Chart);
@@ -1081,10 +1108,14 @@ bool Chart::loadFromXmlFile(QIODevice *device)
                 //TODO
                 reader.skipCurrentElement();
             }
-            else if (reader.name() == QLatin1String("printSettings")) {
-                //TODO
-                reader.skipCurrentElement();
+            else if (reader.name() == QLatin1String("printSettings")) {//dive into
             }
+            else if (reader.name() == QLatin1String("headerFooter"))
+                d->headerFooter.read(reader);
+            else if (reader.name() == QLatin1String("pageMargins"))
+                d->pageMargins.read(reader);
+            else if (reader.name() == QLatin1String("pageSetup"))
+                d->pageSetup.read(reader);
             else if (reader.name() == QLatin1String("userShapes")) {
                 //TODO
                 reader.skipCurrentElement();
@@ -1521,8 +1552,7 @@ void ChartPrivate::saveXmlChart(QXmlStreamWriter &writer) const
     for (const auto &sub: qAsConst(subcharts)) {
         sub.write(writer);
     }
-
-    for (const auto &axis: qAsConst(axisList)) {
+    for (auto &axis: axisList) {
         axis.write(writer);
     }
 
@@ -1616,6 +1646,10 @@ void SubChart::saveAreaChart(QXmlStreamWriter &writer) const
         }
         else writer.writeEmptyElement(QLatin1String("c:dropLines"));
     }
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
     if (gapDepth.has_value() && type == Chart::Type::Area3D)
         writeEmptyElement(writer, QLatin1String("c:gapDepth"), toST_PercentInt(gapDepth.value()));
@@ -1628,6 +1662,10 @@ void SubChart::saveSurfaceChart(QXmlStreamWriter &writer) const
     writeEmptyElement(writer, QLatin1String("c:wireframe"), wireframe);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     saveBandFormats(writer);
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
     writer.writeEndElement();
 }
@@ -1647,6 +1685,10 @@ void SubChart::saveBubbleChart(QXmlStreamWriter &writer) const
             writeEmptyElement(writer, QLatin1String("c:sizeRepresents"), QLatin1String("area"));
         if (bubbleSizeRepresents.value() == Chart::BubbleSizeRepresents::Width)
             writeEmptyElement(writer, QLatin1String("c:sizeRepresents"), QLatin1String("w"));
+    }
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
     }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
@@ -1735,6 +1777,10 @@ void SubChart::saveLineChart(QXmlStreamWriter &writer) const
     }
     if (gapDepth.has_value() && type == Chart::Type::Line3D)
         writeEmptyElement(writer, QLatin1String("c:gapDepth"), toST_PercentInt(gapDepth.value()));
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
@@ -1776,6 +1822,10 @@ void SubChart::saveBarChart(QXmlStreamWriter &writer) const
     }
     if (type == Chart::Type::Bar3D && barShape.has_value())
         writeEmptyElement(writer, QLatin1String("c:shape"), Series::toString(barShape.value()));
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
@@ -1789,6 +1839,10 @@ void SubChart::saveScatterChart(QXmlStreamWriter &writer) const
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
@@ -1817,6 +1871,10 @@ void SubChart::saveStockChart(QXmlStreamWriter &writer) const
         else writer.writeEmptyElement(QLatin1String("c:hiLowLines"));
     }
     if (upDownBars.isValid()) upDownBars.write(writer, QLatin1String("c:upDownBars"));
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();
@@ -1830,6 +1888,10 @@ void SubChart::saveRadarChart(QXmlStreamWriter &writer) const
     writeEmptyElement(writer, QLatin1String("c:varyColors"), varyColors);
     for (const auto &ser: qAsConst(seriesList)) ser.write(writer);
     if (labels.isValid()) labels.write(writer);
+    if (axesIds.isEmpty()) {
+        qDebug()<<"[Error] Axes IDs are empty!";
+        return;
+    }
     for (const auto id: qAsConst(axesIds)) writeEmptyElement(writer, QLatin1String("c:axId"), id);
 
     writer.writeEndElement();

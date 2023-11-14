@@ -14,6 +14,9 @@
 #include "xlsxlabel.h"
 #include "xlsxseries.h"
 #include "xlsxlegend.h"
+#include "xlsxpagesetup.h"
+#include "xlsxpagemargins.h"
+#include "xlsxabstractsheet.h"
 
 namespace QXlsx {
 
@@ -408,6 +411,22 @@ public:
      */
     ShapeFormat &chartShape();
     /**
+     * @brief returns the header/footer parameters of the chart space (the outer area of the chart).
+     * @return reference to the HeaderFooter object.
+     */
+    HeaderFooter &headerFooter();
+    /**
+     * @brief returns the page margins parameters of the chart space (the outer area of the chart).
+     * @return reference to the PageMargins object.
+     */
+    PageMargins &pageMargins();
+    /**
+     * @brief returns the paper and printing parameters of the chart space (the outer area of the chart).
+     * @return reference to the PageSetup object.
+     */
+    PageSetup &pageSetup();
+
+    /**
      * @brief sets shape format to the plot area (the inner area of the chart
      * where actual plotting occurs).
      * @param shape
@@ -562,18 +581,18 @@ public:
      * @param type axis type: Cat, Val, Date or Ser.
      * @param pos Axis position: Bottom, Left, Top or Right.
      * @param title optional axis title.
-     * @return reference to the newly added axis.
+     * @return index of the newly added axis.
      */
-    Axis &addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
+    int addAxis(Axis::Type type, Axis::Position pos, QString title = QString());
     /**
      * @brief adds new axis created elsewhere.
      *
      * The method can be used to duplicate existing axis, change the type and position of the copy
      * and add the result to the chart. The method makes sure new axis will have a unique ID.
      * @param axis
-     * @return reference to the newly added axis.
+     * @return index of the newly added axis.
      */
-    Axis &addAxis(const Axis &axis);
+    int addAxis(const Axis &axis);
     /**
      * @brief returns axis that has index idx
      * @param idx valid index (0 <= idx < axesCount()).

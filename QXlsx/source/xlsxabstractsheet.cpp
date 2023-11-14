@@ -796,10 +796,10 @@ bool HeaderFooter::isValid() const
     return false;
 }
 
-void HeaderFooter::write(QXmlStreamWriter &writer) const
+void HeaderFooter::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (isValid()) {
-        writer.writeStartElement(QStringLiteral("headerFooter"));
+        writer.writeStartElement(name);
         writeAttribute(writer, QLatin1String("differentOddEven"), differentOddEven);
         writeAttribute(writer, QLatin1String("differentFirst"), differentFirst);
         writeAttribute(writer, QLatin1String("alignWithMargins"), alignWithMargins);

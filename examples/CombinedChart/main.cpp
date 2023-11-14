@@ -39,11 +39,11 @@ int main()
 
     //The first series - bar series
     chart1->addSubchart(Chart::Type::Bar);
-    chart1->addSeries(CellRange(1,1,2,10), NULL, true, true, false, 0);
+    chart1->addSeries(CellRange(1,1,2,10), nullptr, true, true, false, 0);
 
     //The second series - line chart
-    chart1->addSubchart(Chart::Type::Line, chart1->axesIDs());
-    chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), NULL, true, 1);
+    chart1->addSubchart(Chart::Type::Line, chart1->subchartAxes(0));
+    chart1->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true, 1);
 
     /**
     An example of a chart with series of different types. The first series is placed
@@ -56,26 +56,33 @@ int main()
     chart2->setAutoTitleDeleted(true);
 
     // add axes
-    auto &bottomAxis = chart2->addAxis(Axis::Type::Category, Axis::Position::Bottom, "bottom axis");
-    auto &leftAxis = chart2->addAxis(Axis::Type::Value, Axis::Position::Left, "left axis");
-    auto &rightAxis = chart2->addAxis(Axis::Type::Value, Axis::Position::Right, "right axis");
+    chart2->addAxis(Axis::Type::Category, Axis::Position::Bottom, "bottom axis");
+    chart2->addAxis(Axis::Type::Value, Axis::Position::Left, "left axis");
+    chart2->addAxis(Axis::Type::Value, Axis::Position::Right, "right axis");
+    auto bottomAxis = chart2->axis(0);
+    auto leftAxis = chart2->axis(1);
+    auto rightAxis = chart2->axis(2);
+
     //link axes together
-    bottomAxis.setCrossAxis(&leftAxis);
-    rightAxis.setCrossAxis(&bottomAxis);
+    leftAxis->setCrossAxis(bottomAxis);
+    bottomAxis->setCrossAxis(leftAxis);
+    rightAxis->setCrossAxis(bottomAxis);
+    //right now both left and right axes are plotted on the left. We need to properly
+    //position the right axis.
+    rightAxis->setCrossesType(Axis::CrossesType::Maximum); // Comment out this line to see what changes.
 
     //chart2->title().textProperties().textShape = TextShapeType::textChevron;
 
     //The first series - bar series
-    chart2->addSubchart(Chart::Type::Bar, {bottomAxis.id(), leftAxis.id()});
+    auto bottomAxisId = bottomAxis->id();
+    auto leftAxisId = leftAxis->id();
+    auto rightAxisId = rightAxis->id();
+    chart2->addSubchart(Chart::Type::Bar, {bottomAxisId, leftAxisId});
     chart2->addSeries(CellRange(1,1,2,10), nullptr, true, true, false, 0);
 
     //The second series - line chart
-    chart2->addSubchart(Chart::Type::Line, {bottomAxis.id(), rightAxis.id()});
+    chart2->addSubchart(Chart::Type::Line, {bottomAxisId, rightAxisId});
     chart2->addSeries(CellRange(1,1,1,10), CellRange(3,1,3,10), nullptr, true, 1);
-
-    //right now both left and right axes are plotted on the left. We need to properly
-    //position the right axis.
-    rightAxis.setCrossesType(Axis::CrossesType::Maximum); // Comment out this line to see what changes.
 
     xlsx.saveAs("combinedChart1.xlsx");
 

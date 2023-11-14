@@ -556,6 +556,7 @@ private:
 private:
     friend class Worksheet;
     friend class Chartsheet;
+    friend class Chart;
     void readPaperSize(QXmlStreamReader &reader);
     void writeWorksheet(QXmlStreamWriter &writer, const QString &name) const;
     void writeChartsheet(QXmlStreamWriter &writer) const;

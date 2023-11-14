@@ -237,15 +237,13 @@ Axis * Axis::crossAxis() const
 
 void Axis::setCrossAxis(Axis *axis)
 {
-    if (!d) d = new AxisPrivate;
+    if (!d) d = new AxisPrivate{};
 
     if (d->crossAxisPt != axis) {
         d->crossAxisPt = axis;
 
-        if (axis) {
+        if (axis)
             d->crossAxis = axis->id();
-            axis->setCrossAxis(this);
-        }
     }
 }
 
@@ -583,6 +581,8 @@ void Axis::setCrossesBetween(Axis::CrossesBetweenType crossesBetween)
 
 void Axis::write(QXmlStreamWriter &writer) const
 {
+    if (!d) return;
+
     QString name;
     switch (d->type) {
         case Type::Category: name = "c:catAx"; break;
@@ -627,9 +627,9 @@ void Axis::write(QXmlStreamWriter &writer) const
     if (d->title.isValid()) d->title.write(writer, QLatin1String("c:title"));
 
     writer.writeEmptyElement("c:crossAx");
-    if (d->crossAxisPt != nullptr)
+    /*if (d->crossAxisPt != nullptr)
         writer.writeAttribute("val", QString::number(d->crossAxisPt->id()));
-    else if (d->crossAxis != -1)
+    else*/ if (d->crossAxis != -1)
         writer.writeAttribute("val", QString::number(d->crossAxis));
 
     if (d->crossesType.has_value()) {
@@ -677,7 +677,6 @@ void Axis::write(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:minorUnit"), d->minorUnit);
     }
     if (d->type == Type::Date) {
-        QString s;
         if (d->baseTimeUnit.has_value())
             writeEmptyElement(writer, QLatin1String("c:baseTimeUnit"), toString(d->baseTimeUnit.value()));
         if (d->majorTimeUnit.has_value())
@@ -689,6 +688,7 @@ void Axis::write(QXmlStreamWriter &writer) const
         writeEmptyElement(writer, QLatin1String("c:tickLblSkip"), d->tickLabelSkip);
         writeEmptyElement(writer, QLatin1String("c:tickMarkSkip"), d->tickMarkSkip);
     }
+
     if (d->type == Type::Category)
         writeEmptyElement(writer, QLatin1String("c:noMultiLvlLbl"), d->noMultiLevelLabels);
     if (d->type == Type::Value) {
