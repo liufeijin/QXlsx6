@@ -460,9 +460,9 @@ public:
     /**
      * @brief adds an empty series.
      * @param subchart zero-based index of a subchart into which the series are being added.
-     * @return pointer to the added series.
+     * @return index of the added series.
      */
-    Series *addSeries(int subchart = 0);
+    int addSeries(int subchart = 0);
 
     /**
      * @overload
@@ -482,9 +482,9 @@ public:
      * first row is category data, other rows are value data for new series.
      * @param subchart zero-based index of a subchart into which the series are being added.
      * @note the series will have the type specified by the subchart type.
-     * @return a list of pointers to the added series.
+     * @return a list of indexes the added series.
      */
-    QList<Series *> addSeries(const CellRange &range, AbstractSheet *sheet = nullptr,
+    QList<int> addSeries(const CellRange &range, AbstractSheet *sheet = nullptr,
                    bool firstRowContainsHeaders = false,
                    bool firstColumnContainsCategoryData = false,
                    bool columnBased = true,
@@ -497,13 +497,13 @@ public:
      * @param sheet data sheet reference.
      * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference.
      * @param subchart zero-based index of a subchart into which the series are being added.
-     * @return pointer to the added series or nullptr if no series was added.
+     * @return index of the added series or -1 if no series was added.
      * @note The series will have the type specifies by the subchart type.
      *
      * @note To set bubbleSizeDataSource to the BubbleChart series (the 3rd range)
      * use #addSeries() method and manually set all three ranges.
      */
-    Series* addSeries(const CellRange &keyRange, const CellRange &valRange,
+    int addSeries(const CellRange &keyRange, const CellRange &valRange,
                       AbstractSheet *sheet = NULL, bool keyRangeIncludesHeader = false,
                       int subchart = 0);
     /**
@@ -670,16 +670,16 @@ public:
     /**
      * @brief returns the list of series that use axis with @a axisID.
      * @param axisID axis ID. @see Axis::id().
-     * @return
+     * @return list of series indexes.
      */
-    QList<Series> seriesThatUseAxis(int axisID) const;
+    QList<int> seriesThatUseAxis(int axisID) const;
     /**
      * @overload
      * @brief returns the list of series that use @a axis.
      * @param axis pointer to the axis.
-     * @return
+     * @return list of series indexes.
      */
-    QList<Series> seriesThatUseAxis(Axis *axis) const;
+    QList<int> seriesThatUseAxis(Axis *axis) const;
     /**
      * @brief returns the axes count
      * @return

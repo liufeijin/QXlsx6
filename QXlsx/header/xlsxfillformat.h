@@ -164,7 +164,6 @@ public:
         Tile /**< The picture will be tiled to fill the shape */
     };
 
-    //TODO: methods to create simple fills
     /**
      * @brief creates an invalid fill. @see isValid().
      */

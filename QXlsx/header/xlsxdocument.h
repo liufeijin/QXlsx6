@@ -82,7 +82,7 @@ public:
      * xlsx.addDefinedName("MyCol_3", "=$C$1:$C$10", "Sheet1"); //OK for LibreOffice, error for Excel
      * @endcode
      */
-    DefinedName *addDefinedName(const QString &name,
+    bool addDefinedName(const QString &name,
                                 const QString &formula,
                                 const QString &scope = QString());
     /**

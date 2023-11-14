@@ -106,7 +106,7 @@ application will not display an alert in the user interface.*/
      * @param name The defined name
      * @param formula The value, the cell or range that the defined name refers to.
      * @param scope The name of a worksheet which @a formula refers to, or empty which means global scope.
-     * @return pointer to the added defined name. It may be null if @a name or @a formula is empty or there
+     * @return true if adding defined name is successful. False if @a name or @a formula is empty or there
      * is already a definedName with @a name.
      * @note Even if you specify the sheet name in @a scope, Excel will treat @a formula without
      * the sheet name part as invalid. LibreOffice is OK with that. Example:
@@ -116,7 +116,7 @@ application will not display an alert in the user interface.*/
      * xlsx.addDefinedName("MyCol_3", "=$C$1:$C$10", "Sheet1"); //OK for LibreOffice, error for Excel
      * @endcode
      */
-    DefinedName *addDefinedName(const QString &name,
+    bool addDefinedName(const QString &name,
                                 const QString &formula,
                                 const QString &scope = QString());
     /**

@@ -619,7 +619,7 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
-DefinedName * Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
+bool Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
 {
     Q_D(Document);
     return d->workbook->addDefinedName(name, formula, scope);

@@ -832,6 +832,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @param index non-negative index of the view. If the index is invalid,
      * the behaviour is undefined.
      * @return reference to the sheet view with the (zero-based) @a index.
+     * @note Reference can be invalidated after adding or removing views.
      */
     SheetView &view(int index);
     /**
@@ -844,6 +845,8 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @return a reference to the SheetView object.
      *
      * In no view was defined in the sheet, this method creates and adds one.
+     * @note Reference can be invalidated after adding or removing views. Use #view()
+     * with #addView().
      */
     SheetView &lastView();
     /**
@@ -853,9 +856,9 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     int viewsCount() const;
     /**
      * @brief adds new default-constructed sheet view.
-     * @return reference to the added view.
+     * @return index of the added view.
      */
-    SheetView & addView();
+    int addView();
     /**
      * @brief removes the sheet view with @a index.
      * @param index non-negative index of the view.

@@ -273,7 +273,7 @@ Chart::~Chart()
 {
 }
 
-QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
+QList<int> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
                       bool firstRowContainsHeaders,
                       bool firstColumnContainsCategoryData,
                       bool columnBased,
@@ -292,13 +292,14 @@ QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
     //In case sheetName contains space or '
     sheetName = escapeSheetName(sheetName);
 
-    QList<Series*> result;
+    QList<int> result;
 
     if (range.columnCount() == 1 || range.rowCount() == 1) {
-        auto series = addSeries(subchart);
+        auto seriesIdx = addSeries(subchart);
+        auto series = this->series(seriesIdx);
         if (series) {
             series->setValueData(sheetName + QLatin1String("!") + range.toString(true, true));
-            result << series;
+            result << seriesIdx;
         }
     }
     else if (columnBased) {
@@ -319,7 +320,8 @@ QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             firstDataColumn += 1;
         for (int col = firstDataColumn; col <= range.lastColumn(); ++col) {
             CellRange subRange(firstDataRow, col, range.lastRow(), col);
-            auto series = addSeries(subchart);
+            auto seriesIdx = addSeries(subchart);
+            auto series = this->series(seriesIdx);
             if (series) {
                 if (firstColumnContainsCategoryData)
                     series->setCategoryData(categoryReference);
@@ -329,7 +331,7 @@ QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
                     CellRange subRange(range.firstRow(), col, range.firstRow(), col);
                     series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
                 }
-                result << series;
+                result << seriesIdx;
             }
         }
     }
@@ -347,7 +349,8 @@ QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
             firstDataRow += 1;
         for (int row = firstDataRow; row <= range.lastRow(); ++row) {
             CellRange subRange(row, firstDataColumn, row, range.lastColumn());
-            auto series = addSeries(subchart);
+            auto seriesIdx = addSeries(subchart);
+            auto series = this->series(seriesIdx);
             if (series) {
                 if (firstColumnContainsCategoryData)
                     series->setCategoryData(categoryReference);
@@ -357,14 +360,14 @@ QList<Series*> Chart::addSeries(const CellRange &range, AbstractSheet *sheet,
                     CellRange subRange(row, range.firstColumn(), row, range.firstColumn());
                     series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
                 }
-                result << series;
+                result << seriesIdx;
             }
         }
     }
     return result;
 }
 
-QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valRange,
+int Chart::addSeries(const CellRange &keyRange, const CellRange &valRange,
                                 AbstractSheet *sheet, bool keyRangeIncludesHeader, int subchart)
 {
     Q_D(Chart);
@@ -385,8 +388,9 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
     if (!(valRange.columnCount() == 1 || valRange.rowCount() == 1))
         return {};
 
-    auto series = addSeries(subchart);
-    if (!series) return nullptr;
+    auto seriesIdx = addSeries(subchart);
+    auto series = this->series(seriesIdx);
+    if (!series) return -1;
 
     CellRange subRange = keyRange;
     if (keyRange.columnCount() == 1) {
@@ -413,16 +417,17 @@ QXlsx::Series *Chart::addSeries(const CellRange &keyRange, const CellRange &valR
         CellRange subRange(valRange.firstRow(), valRange.firstColumn(), valRange.firstRow(), valRange.firstColumn());
         series->setNameReference(sheetName + QLatin1String("!") + subRange.toString(true, true));
     }
-    return series;
+    return seriesCount()-1;
 }
 
-Series *Chart::addSeries(int subchart)
+int Chart::addSeries(int subchart)
 {
     Q_D(Chart);
 
-    if (subchart < 0 || subchart >= d->subcharts.size()) return nullptr;
+    if (subchart < 0 || subchart >= d->subcharts.size()) return -1;
 
-    return d->subcharts[subchart].addSeries(seriesCount());
+    d->subcharts[subchart].addSeries(seriesCount());
+    return seriesCount()-1;
 }
 
 Series* Chart::series(int index)
@@ -700,21 +705,22 @@ void Chart::removeAxes()
     }
 }
 
-QList<Series> Chart::seriesThatUseAxis(int axisID) const
+QList<int> Chart::seriesThatUseAxis(int axisID) const
 {
     Q_D(const Chart);
-    QList<Series> result;
+    QList<int> result;
 
     for (const auto &sub: qAsConst(d->subcharts)) {
         if (sub.axesIds.contains(axisID)) {
-            result.append(sub.seriesList);
+            for (const auto &s: sub.seriesList)
+                result.append(s.index());
         }
     }
 
     return result;
 }
 
-QList<Series> Chart::seriesThatUseAxis(Axis *axis) const
+QList<int> Chart::seriesThatUseAxis(Axis *axis) const
 {
     return seriesThatUseAxis(axis->id());
 }

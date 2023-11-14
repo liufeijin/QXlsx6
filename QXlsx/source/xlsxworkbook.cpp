@@ -107,19 +107,19 @@ void Workbook::setDefaultDateFormat(const QString &format)
     d->defaultDateFormat = format;
 }
 
-DefinedName *Workbook::addDefinedName(const QString &name,
+bool Workbook::addDefinedName(const QString &name,
                                       const QString &formula,
                                       const QString &scope)
 {
     Q_D(Workbook);
 
     if (name.isEmpty() || formula.isEmpty())
-        return nullptr;
+        return false;
     if (std::find_if(d->definedNamesList.constBegin(),
                      d->definedNamesList.constEnd(),
                      [name](const DefinedName &dn) { return dn.name == name; })
         != d->definedNamesList.constEnd())
-        return nullptr;
+        return false;
 
     //Remove the = sign from the formula if it exists.
     QString formulaString = formula;
@@ -137,7 +137,7 @@ DefinedName *Workbook::addDefinedName(const QString &name,
     }
 
     d->definedNamesList.append(DefinedName(name, formulaString, id));
-    return &d->definedNamesList.last();
+    return true;
 }
 
 bool Workbook::removeDefinedName(const QString &name)

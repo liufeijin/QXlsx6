@@ -86,7 +86,7 @@ private:
  * via the corresponding Worksheet methods.
  *
  * One parameter is valid to only chartsheets: #zoomToFit. The corresponding methods
- * are added to Chartsheet class.
+ * are added to the Chartsheet class.
  */
 struct QXLSX_EXPORT SheetView
         //TODO: convert to implicitly shareable class

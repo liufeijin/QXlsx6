@@ -122,7 +122,7 @@ public:
     std::optional<bool> entryVisible(int index) const;
 
     /**
-     * @brief returns legend entry for the series with index index.
+     * @brief returns legend entry for the series with @a index.
      * @param index the entry index. If no entry with this index is present in legend,
      * creates a new legend entry.
      * @return reference to the legend entry.

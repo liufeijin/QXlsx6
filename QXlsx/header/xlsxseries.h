@@ -539,7 +539,7 @@ public:
     /**
      * @brief label returns reference to a label with @a index.
      * @param index index of a label (not the index of a series dataPoint!)
-     * @return reference to a label, fails if series is not valid
+     * @return reference to a label, nullopt if series is not valid
      */
     std::optional<std::reference_wrapper<Label> > label(int index);
     /**
@@ -552,7 +552,7 @@ public:
     /**
      * @brief label returns reference to a label for a specified data point
      * @param index index of a series data point
-     * @return reference to a label, fails if series is not valid
+     * @return reference to a label, nullopt if series is not valid
      */
     std::optional<std::reference_wrapper<Label> > labelForPoint(int index);
     /**

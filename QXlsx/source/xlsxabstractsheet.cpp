@@ -681,11 +681,11 @@ int AbstractSheet::viewsCount() const
     return d->sheetViews.size();
 }
 
-SheetView &AbstractSheet::addView()
+int AbstractSheet::addView()
 {
     Q_D(AbstractSheet);
     d->sheetViews << SheetView();
-    return d->sheetViews.last();
+    return d->sheetViews.size()-1;
 }
 
 bool AbstractSheet::removeView(int index)
