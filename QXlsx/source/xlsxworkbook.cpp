@@ -493,20 +493,20 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     writer.writeStartDocument(QStringLiteral("1.0"), true);
     writer.writeStartElement(QStringLiteral("workbook"));
     writer.writeAttribute(QStringLiteral("xmlns"),
-                          QStringLiteral(
-                              "http://schemas.openxmlformats.org/spreadsheetml/2006/main"));
-    writer
-        .writeAttribute(QStringLiteral("xmlns:r"),
-                        QStringLiteral(
-                            "http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
+                          QStringLiteral("http://schemas.openxmlformats.org/spreadsheetml/2006/main"));
+    writer.writeAttribute(QStringLiteral("xmlns:r"),
+                          QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/relationships"));
 
+    // 1. fileVersion
     writer.writeEmptyElement(QStringLiteral("fileVersion"));
     writer.writeAttribute(QStringLiteral("appName"), QStringLiteral("xl"));
     writer.writeAttribute(QStringLiteral("lastEdited"), QStringLiteral("4"));
     writer.writeAttribute(QStringLiteral("lowestEdited"), QStringLiteral("4"));
     writer.writeAttribute(QStringLiteral("rupBuild"), QStringLiteral("4505"));
     //    writer.writeAttribute(QStringLiteral("codeName"), QStringLiteral("{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}"));
-
+    //2. fileSharing
+    // TODO: fileSharing
+    //3. workbookPr
     writer.writeEmptyElement(QStringLiteral("workbookPr"));
     writeAttribute(writer, QLatin1String("date1904"), d->date1904);
     if (d->showObjects.has_value())
@@ -529,7 +529,10 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     writeAttribute(writer, QLatin1String("refreshAllConnections"), d->refreshAllConnections);
     writeAttribute(writer, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion.value_or(124226));
 
-
+    // 4. workbookProtection
+    //TODO: workbookProtection
+    // 5. bookViews
+    //TODO: check for implementation
     writer.writeStartElement(QStringLiteral("bookViews"));
     writer.writeEmptyElement(QStringLiteral("workbookView"));
     writer.writeAttribute(QStringLiteral("xWindow"), QString::number(d->x_window));
@@ -544,7 +547,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     if (d->activesheetIndex > 0)
         writer.writeAttribute(QStringLiteral("activeTab"), QString::number(d->activesheetIndex));
     writer.writeEndElement(); //bookViews
-
+    // 6. sheets
     writer.writeStartElement(QStringLiteral("sheets"));
     int worksheetIndex = 0;
     int chartsheetIndex = 0;
@@ -571,7 +574,9 @@ void Workbook::saveToXmlFile(QIODevice *device) const
                               QStringLiteral("rId%1").arg(d->relationships->count()));
     }
     writer.writeEndElement(); //sheets
-
+    // 7. functionGroups
+    // TODO: functionGroups
+    // 8. externalReferences
     if (d->externalLinks.size() > 0) {
         writer.writeStartElement(QStringLiteral("externalReferences"));
         for (int i = 0; i < d->externalLinks.size(); ++i) {
@@ -585,7 +590,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         }
         writer.writeEndElement(); //externalReferences
     }
-
+    // 9. definedNames
     if (!d->definedNamesList.isEmpty()) {
         writer.writeStartElement(QStringLiteral("definedNames"));
         for (const auto &data : qAsConst(d->definedNamesList)) {
@@ -609,11 +614,21 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         }
         writer.writeEndElement(); //definedNames
     }
-
+    // 10. calcPr
+    //TODO: check for implementation
     writer.writeStartElement(QStringLiteral("calcPr"));
     writer.writeAttribute(QStringLiteral("calcId"), QStringLiteral("124519"));
     writer.writeEndElement(); //calcPr
-
+    // 11. oleSize
+    // 12. customWorkbookViews
+    // 13. pivotCaches
+    // 14. smartTagPr
+    // 15. smartTagTypes
+    // 16. webPublishing
+    // 17. fileRecoveryPr
+    // 18. webPublishObjects
+    // 19. extLst
+    d->extLst.write(writer, QLatin1String("extLst"));
     writer.writeEndElement(); //workbook
     writer.writeEndDocument();
 
@@ -755,6 +770,8 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 data.formula = reader.readElementText();
                 d->definedNamesList.append(data);
             }
+            else if (reader.name() == QLatin1String("extLst"))
+                d->extLst.read(reader);
         }
     }
     return true;

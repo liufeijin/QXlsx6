@@ -10,6 +10,11 @@
 
 # What is yet to be done:
 
+## Workbooks
+
+1. Add methods to access workbook properties (right now only isDate1904() exists).
+2. Implement reading and writing of other workbook parameters (there are TODOs in workbook.cpp)
+
 ## Charts
 
 ### chartSpace

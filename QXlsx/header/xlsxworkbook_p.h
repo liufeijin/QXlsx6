@@ -70,6 +70,8 @@ public:
     std::optional<bool> autoCompressPictures;
     std::optional<bool> refreshAllConnections;
     std::optional<int> defaultThemeVersion;
+
+    ExtensionList extLst;
 };
 
 }
