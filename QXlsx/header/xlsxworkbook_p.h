@@ -34,7 +34,7 @@ public:
     bool strings_to_numbers_enabled;
     bool strings_to_hyperlinks_enabled;
     bool html_to_richstring_enabled;
-    bool date1904;
+
     QString defaultDateFormat;
 
     int x_window;
@@ -50,6 +50,26 @@ public:
     int lastWorksheetIndex = 0;
     int lastChartsheetIndex = 0;
     int lastSheetId = 0;
+
+    // workBookPr
+    std::optional<bool> date1904;
+    std::optional<Workbook::ShowObjects> showObjects;
+    std::optional<bool> showBorderUnselectedTables;
+    std::optional<bool> filterPrivacy;
+    std::optional<bool> promptedSolutions;
+    std::optional<bool> showInkAnnotation;
+    std::optional<bool> backupFile;
+    std::optional<bool> saveExternalLinkValues;
+    std::optional<Workbook::UpdateLinks> updateLinks;
+    QString codeName;
+    std::optional<bool> hidePivotFieldList;
+    std::optional<bool> showPivotChartFilter;
+    std::optional<bool> allowRefreshQuery;
+    std::optional<bool> publishItems;
+    std::optional<bool> checkCompatibility;
+    std::optional<bool> autoCompressPictures;
+    std::optional<bool> refreshAllConnections;
+    std::optional<int> defaultThemeVersion;
 };
 
 }

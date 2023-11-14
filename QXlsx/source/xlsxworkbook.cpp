@@ -35,7 +35,6 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag)
     strings_to_numbers_enabled = false;
     strings_to_hyperlinks_enabled = true;
     html_to_richstring_enabled = false;
-    date1904 = false;
     defaultDateFormat = QStringLiteral("yyyy-mm-dd");
     activesheetIndex = 0;
     firstsheet = 0;
@@ -51,7 +50,7 @@ Workbook::~Workbook() {}
 bool Workbook::isDate1904() const
 {
     Q_D(const Workbook);
-    return d->date1904;
+    return d->date1904.value_or(false);
 }
 
 void Workbook::setDate1904(bool date1904)
@@ -509,9 +508,27 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     //    writer.writeAttribute(QStringLiteral("codeName"), QStringLiteral("{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}"));
 
     writer.writeEmptyElement(QStringLiteral("workbookPr"));
-    if (d->date1904)
-        writer.writeAttribute(QStringLiteral("date1904"), QStringLiteral("1"));
-    writer.writeAttribute(QStringLiteral("defaultThemeVersion"), QStringLiteral("124226"));
+    writeAttribute(writer, QLatin1String("date1904"), d->date1904);
+    if (d->showObjects.has_value())
+        writeAttribute(writer, QLatin1String("showObjects"), toString(d->showObjects.value()));
+    writeAttribute(writer, QLatin1String("showBorderUnselectedTables"), d->showBorderUnselectedTables);
+    writeAttribute(writer, QLatin1String("filterPrivacy"), d->filterPrivacy);
+    writeAttribute(writer, QLatin1String("promptedSolutions"), d->promptedSolutions);
+    writeAttribute(writer, QLatin1String("showInkAnnotation"), d->showInkAnnotation);
+    writeAttribute(writer, QLatin1String("backupFile"), d->backupFile);
+    writeAttribute(writer, QLatin1String("saveExternalLinkValues"), d->saveExternalLinkValues);
+    if (d->updateLinks.has_value())
+        writeAttribute(writer, QLatin1String("updateLinks"), toString(d->updateLinks.value()));
+    writeAttribute(writer, QLatin1String("codeName"), d->codeName);
+    writeAttribute(writer, QLatin1String("hidePivotFieldList"), d->hidePivotFieldList);
+    writeAttribute(writer, QLatin1String("showPivotChartFilter"), d->showPivotChartFilter);
+    writeAttribute(writer, QLatin1String("allowRefreshQuery"), d->allowRefreshQuery);
+    writeAttribute(writer, QLatin1String("publishItems"), d->publishItems);
+    writeAttribute(writer, QLatin1String("checkCompatibility"), d->checkCompatibility);
+    writeAttribute(writer, QLatin1String("autoCompressPictures"), d->autoCompressPictures);
+    writeAttribute(writer, QLatin1String("refreshAllConnections"), d->refreshAllConnections);
+    writeAttribute(writer, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion.value_or(124226));
+
 
     writer.writeStartElement(QStringLiteral("bookViews"));
     writer.writeEmptyElement(QStringLiteral("workbookView"));
@@ -617,7 +634,7 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
     while (!reader.atEnd()) {
         QXmlStreamReader::TokenType token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
-            QXmlStreamAttributes attributes = reader.attributes();
+            const auto &attributes = reader.attributes();
             if (reader.name() == QLatin1String("sheet")) {
                 const auto &name = attributes.value(QLatin1String("name")).toString();
 
@@ -659,12 +676,35 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 sheet->setFilePath(fullPath);
             }
             else if (reader.name() == QLatin1String("workbookPr")) {
-                //TODO: workbookPr
-                if (attributes.hasAttribute(QLatin1String("date1904")))
-                    d->date1904 = true;
+                parseAttributeBool(attributes, QLatin1String("date1904"), d->date1904);
+                if (attributes.hasAttribute(QLatin1String("showObjects"))) {
+                    ShowObjects so;
+                    fromString(attributes.value(QLatin1String("showObjects")).toString(), so);
+                    d->showObjects = so;
+                }
+                parseAttributeBool(attributes, QLatin1String("showBorderUnselectedTables"), d->showBorderUnselectedTables);
+                parseAttributeBool(attributes, QLatin1String("filterPrivacy"), d->filterPrivacy);
+                parseAttributeBool(attributes, QLatin1String("promptedSolutions"), d->promptedSolutions);
+                parseAttributeBool(attributes, QLatin1String("showInkAnnotation"), d->showInkAnnotation);
+                parseAttributeBool(attributes, QLatin1String("backupFile"), d->backupFile);
+                parseAttributeBool(attributes, QLatin1String("saveExternalLinkValues"), d->saveExternalLinkValues);
+                if (attributes.hasAttribute(QLatin1String("updateLinks"))) {
+                    UpdateLinks ul;
+                    fromString(attributes.value(QLatin1String("updateLinks")).toString(), ul);
+                    d->updateLinks = ul;
+                }
+                d->codeName = attributes.value(QLatin1String("codeName")).toString();
+                parseAttributeBool(attributes, QLatin1String("hidePivotFieldList"), d->hidePivotFieldList);
+                parseAttributeBool(attributes, QLatin1String("showPivotChartFilter"), d->showPivotChartFilter);
+                parseAttributeBool(attributes, QLatin1String("allowRefreshQuery"), d->allowRefreshQuery);
+                parseAttributeBool(attributes, QLatin1String("publishItems"), d->publishItems);
+                parseAttributeBool(attributes, QLatin1String("checkCompatibility"), d->checkCompatibility);
+                parseAttributeBool(attributes, QLatin1String("autoCompressPictures"), d->autoCompressPictures);
+                parseAttributeBool(attributes, QLatin1String("refreshAllConnections"), d->refreshAllConnections);
+                parseAttributeInt(attributes, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion);
             }
-            else if (reader.name() == QLatin1String("bookviews")) {
-                while (!(reader.name() == QLatin1String("bookviews")
+            else if (reader.name() == QLatin1String("bookView")) {
+                while (!(reader.name() == QLatin1String("bookView")
                          && reader.tokenType() == QXmlStreamReader::EndElement)) {
                     reader.readNextStartElement();
                     if (reader.tokenType() == QXmlStreamReader::StartElement) {

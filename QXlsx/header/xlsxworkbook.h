@@ -14,6 +14,7 @@
 #include "xlsxglobal.h"
 #include "xlsxabstractooxmlfile.h"
 #include "xlsxabstractsheet.h"
+#include "xlsxutility_p.h"
 
 namespace QXlsx {
 
@@ -55,6 +56,29 @@ class QXLSX_EXPORT Workbook : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(Workbook)
 public:
+    /**
+     * @brief The ShowObjects enum specifies  how the application displays objects
+     * in this workbook. Objects might include charts, images, and other object
+     * data that the application supports.
+     */
+    enum class ShowObjects {
+        All, /**< All objects are shown in the workbook (default). */
+        Placeholders, /**< The application show placeholders for objects in the workbook. */
+        None /**< All objects are hidden in the workbook. */
+    };
+    /**
+     * @brief The UpdateLinks enum specifies when the application updates links
+     * to other workbooks when the workbook is opened.
+     */
+    enum class UpdateLinks {
+        UserSet, /**< The end-user specified whether they receive an alert to update
+links to other workbooks when the workbook is opened (default).*/
+        Never, /**< Links to other workbooks are never updated when the workbook is opened. The
+application will not display an alert in the user interface.*/
+        Always /**< Links to other workbooks are always updated when the workbook is opened. The
+application will not display an alert in the user interface.*/
+    };
+
     ~Workbook();
 
     int sheetCount() const;
@@ -137,27 +161,92 @@ public:
      */
     DefinedName *definedName(const QString &name);
 
-
-    bool isDate1904() const;
-    /*!
-    Excel for Windows uses a default epoch of 1900 and Excel
-    for Mac uses an epoch of 1904. However, Excel on either
-    platform will convert automatically between one system
-    and the other. Qt Xlsx stores dates in the 1900 format
-    by default.
-
-    \note This function should be called before any date/time
-    has been written.
-    */
-    void setDate1904(bool date1904);
-    bool isStringsToNumbersEnabled() const;
     /**
-    Enables the worksheet.write() method to convert strings
-    to numbers, where possible, using float() in order to avoid
-    an Excel warning about "Numbers Stored as Text".
+     * @brief returns whether the default epoch of this workbook is set to 1904.
+     *
+     * - In the 1900 date system, the lower limit is January 1st, 0001 00:00:00,
+     * which has a serial date-time of -693593. The upper-limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,958,465.9999884.
+     * The base date for this system is 00:00:00 on December 30th, 1899, which
+     * has a serial date-time of 0.
+     * - In the 1904 date system, the lower limit is January 1st, 0001, 00:00:00,
+     * which has a serial date-time of -695055. The upper limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,957,003.9999884.
+     * The base date for this system is 00:00:00 on January 1st, 1904, which has
+     * a serial date-time of 0.
+     *
+     * Excel for Windows uses a default epoch of 1900 and Excel for Mac uses an
+     * epoch of 1904. However, Excel on either platform will convert automatically
+     * between one system and the other. QXlsx stores dates in the 1900 format
+     * by default.
+     *
+     * @return true if all dates are be calculated using the 1904 epoch.
+     *
+     * If not set, false is assumed (the default epoch being 1900).
+     */
+    bool isDate1904() const; //NOTE: remove from future releases
+    /**
+     * @brief returns whether the default epoch of this workbook is set to 1904.
+     *
+     * - In the 1900 date system, the lower limit is January 1st, 0001 00:00:00,
+     * which has a serial date-time of -693593. The upper-limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,958,465.9999884.
+     * The base date for this system is 00:00:00 on December 30th, 1899, which
+     * has a serial date-time of 0.
+     * - In the 1904 date system, the lower limit is January 1st, 0001, 00:00:00,
+     * which has a serial date-time of -695055. The upper limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,957,003.9999884.
+     * The base date for this system is 00:00:00 on January 1st, 1904, which has
+     * a serial date-time of 0.
+     *
+     * Excel for Windows uses a default epoch of 1900 and Excel for Mac uses an
+     * epoch of 1904. However, Excel on either platform will convert automatically
+     * between one system and the other. QXlsx stores dates in the 1900 format
+     * by default.
+     *
+     * @return true if all dates are be calculated using the 1904 epoch.
+     *
+     * If not set, false is assumed (the default epoch being 1900).
+     */
+    std::optional<bool> date1094() const;
+    /**
+     * @brief sets the default epoch for this workbook.
+     *
+     * - In the 1900 date system, the lower limit is January 1st, 0001 00:00:00,
+     * which has a serial date-time of -693593. The upper-limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,958,465.9999884.
+     * The base date for this system is 00:00:00 on December 30th, 1899, which
+     * has a serial date-time of 0.
+     * - In the 1904 date system, the lower limit is January 1st, 0001, 00:00:00,
+     * which has a serial date-time of -695055. The upper limit is December 31st,
+     * 9999, 23:59:59.999, which has a serial date-time of 2,957,003.9999884.
+     * The base date for this system is 00:00:00 on January 1st, 1904, which has
+     * a serial date-time of 0.
+     *
+     * Excel for Windows uses a default epoch of 1900 and Excel
+     * for Mac uses an epoch of 1904. However, Excel on either
+     * platform will convert automatically between one system
+     * and the other. QXlsx stores dates in the 1900 format
+     * by default.
+     *
+     * @param date1904 If true, then all dates will be calculated using the 1904
+     * epoch.
+     *
+     * If not set, false is assumed (the default epoch being 1900).
+     * @note This function should be called before any date/time has been written.
+     */
+    void setDate1904(bool date1904);
 
-    The default is false
-    */
+    bool isStringsToNumbersEnabled() const;
+
+    /**
+     * @brief Enables the worksheet.write() method to convert strings
+     * to numbers, where possible, using float() in order to avoid
+     * an Excel warning about "Numbers Stored as Text".
+     * @param enable
+     *
+     * The default value is false.
+     */
     void setStringsToNumbersEnabled(bool enable=true);
     bool isStringsToHyperlinksEnabled() const;
     void setStringsToHyperlinksEnabled(bool enable=true);
@@ -175,6 +264,16 @@ public:
     QList<QWeakPointer<Chart> > chartFiles() const;
 
 private:
+    SERIALIZE_ENUM(ShowObjects, {
+        {ShowObjects::All, "all"},
+        {ShowObjects::None, "none"},
+        {ShowObjects::Placeholders, "placehoders"}
+    });
+    SERIALIZE_ENUM(UpdateLinks, {
+        {UpdateLinks::Always, "always"},
+        {UpdateLinks::Never, "never"},
+        {UpdateLinks::UserSet, "userSet"}
+    });
     friend class Worksheet;
     friend class Chartsheet;
     friend class WorksheetPrivate;
