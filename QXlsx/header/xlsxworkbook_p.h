@@ -69,6 +69,21 @@ public:
 
     int table_count;
 
+    // fileVersion
+    QString appName{"xl"};
+    QString lastEdited{"4"};
+    QString lowestEdited{"4"};
+    QString rupBuild{"4505"};
+    QString appCodeName;
+
+    // fileSharing
+    std::optional<bool> readOnlyRecommended;
+    QString userName;
+    QString algorithmName;
+    QString hashValue;
+    QString saltValue;
+    std::optional<int> spinCount;
+
     //Used to generate new sheet name and id
     int lastWorksheetIndex = 0;
     int lastChartsheetIndex = 0;

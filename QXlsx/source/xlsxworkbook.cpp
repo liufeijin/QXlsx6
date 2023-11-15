@@ -600,13 +600,22 @@ void Workbook::saveToXmlFile(QIODevice *device) const
 
     // 1. fileVersion
     writer.writeEmptyElement(QStringLiteral("fileVersion"));
-    writer.writeAttribute(QStringLiteral("appName"), QStringLiteral("xl"));
-    writer.writeAttribute(QStringLiteral("lastEdited"), QStringLiteral("4"));
-    writer.writeAttribute(QStringLiteral("lowestEdited"), QStringLiteral("4"));
-    writer.writeAttribute(QStringLiteral("rupBuild"), QStringLiteral("4505"));
-    //    writer.writeAttribute(QStringLiteral("codeName"), QStringLiteral("{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}"));
+    writeAttribute(writer, QLatin1String("appName"), d->appName);
+    writeAttribute(writer, QLatin1String("lastEdited"), d->lastEdited);
+    writeAttribute(writer, QLatin1String("lowestEdited"), d->lowestEdited);
+    writeAttribute(writer, QLatin1String("rupBuild"), d->rupBuild);
+    writeAttribute(writer, QLatin1String("codeName"), d->appCodeName);
     //2. fileSharing
-    // TODO: fileSharing
+    if (d->readOnlyRecommended.has_value() || !d->userName.isEmpty() || !d->algorithmName.isEmpty()
+        || !d->hashValue.isEmpty() || !d->saltValue.isEmpty() || !d->spinCount.has_value()) {
+        writer.writeEmptyElement(QLatin1String("fileSharing"));
+        writeAttribute(writer, QLatin1String("readOnlyRecommended"), d->readOnlyRecommended);
+        writeAttribute(writer, QLatin1String("userName"), d->userName);
+        writeAttribute(writer, QLatin1String("algorithmName"), d->algorithmName);
+        writeAttribute(writer, QLatin1String("hashValue"), d->hashValue);
+        writeAttribute(writer, QLatin1String("saltValue"), d->saltValue);
+        writeAttribute(writer, QLatin1String("spinCount"), d->spinCount);
+    }
     //3. workbookPr
     writer.writeEmptyElement(QStringLiteral("workbookPr"));
     writeAttribute(writer, QLatin1String("date1904"), d->date1904);
@@ -831,6 +840,22 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 parseAttributeBool(attributes, QLatin1String("autoCompressPictures"), d->autoCompressPictures);
                 parseAttributeBool(attributes, QLatin1String("refreshAllConnections"), d->refreshAllConnections);
                 parseAttributeInt(attributes, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion);
+            }
+            else if (reader.name() == QLatin1String("fileVersion")) {
+                parseAttributeString(attributes, QLatin1String("appName"), d->appName);
+                parseAttributeString(attributes, QLatin1String("lastEdited"), d->lastEdited);
+                parseAttributeString(attributes, QLatin1String("lastEdited"), d->lastEdited);
+                parseAttributeString(attributes, QLatin1String("lowestEdited"), d->lowestEdited);
+                parseAttributeString(attributes, QLatin1String("rupBuild"), d->rupBuild);
+                parseAttributeString(attributes, QLatin1String("codeName"), d->appCodeName);
+            }
+            else if (reader.name() == QLatin1String("fileSharing")) {
+                parseAttributeBool(attributes, QLatin1String("readOnlyRecommended"), d->readOnlyRecommended);
+                parseAttributeString(attributes, QLatin1String("userName"), d->userName);
+                parseAttributeString(attributes, QLatin1String("algorithmName"), d->algorithmName);
+                parseAttributeString(attributes, QLatin1String("hashValue"), d->hashValue);
+                parseAttributeString(attributes, QLatin1String("saltValue"), d->saltValue);
+                parseAttributeInt(attributes, QLatin1String("spinCount"), d->spinCount);
             }
             else if (reader.name() == QLatin1String("workbookView")) {
                 WorkbookView view;
