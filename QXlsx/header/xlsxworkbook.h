@@ -31,6 +31,15 @@ class Chartsheet;
 class Worksheet;
 class WorkbookPrivate;
 
+/**
+ * @brief The DefinedName struct represents properties of a defined name attached
+ * to a workbook.
+ *
+ * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
+ * constant values. Defined names can be used to represent a range on any worksheet.
+ *
+ *
+ */
 struct QXLSX_EXPORT DefinedName
 {
     //TODO: convert to shallow-copyable and move to a separate header.
@@ -71,7 +80,7 @@ public:
      * to other workbooks when the workbook is opened.
      */
     enum class UpdateLinks {
-        UserSet, /**< The end-user specified whether they receive an alert to update
+        UserSet, /**< The end-user specifies whether they receive an alert to update
 links to other workbooks when the workbook is opened (default).*/
         Never, /**< Links to other workbooks are never updated when the workbook is opened. The
 application will not display an alert in the user interface.*/
@@ -109,19 +118,97 @@ of row R1 and column C1. */
     };
 
     ~Workbook();
-
-    int sheetCount() const;
+    /**
+     * @brief returns the sheets count (both worksheets and chartsheets).
+     */
+    int sheetsCount() const;
+    /**
+     * @brief returns the list of sheets names.
+     */
+    QStringList sheetNames() const;
+    /**
+     * @brief returns the sheet with @a index.
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @return pointer to the sheet or nullptr if @a index is invalid.
+     */
     AbstractSheet *sheet(int index) const;
-
+    /**
+     * @overload
+     * @brief returns the sheet with @a name.
+     * @param name the sheet name.
+     * @return pointer to the sheet or nullptr if no sheet with @a name exists.
+     */
+    AbstractSheet *sheet(const QString &name) const;
+    /**
+     * @brief adds new sheet to the workbook.
+     * @param name optional sheet name. If empty, new sheet will have the name
+     * Sheet# or Chart# depending on @a type.
+     * @param type optional sheet type.
+     * @return pointer to the new sheet on success, nullptr otherwise.
+     */
     AbstractSheet *addSheet(const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
-    AbstractSheet *insertSheet(int index, const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
-    bool renameSheet(int index, const QString &name);
+    /**
+     * @brief inserts new sheet
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @param name optional sheet name. If empty, new sheet will have the name
+     * Sheet# or Chart# depending on @a type.
+     * @param type optional sheet type.
+     * @return pointer to the new sheet on success, nullptr otherwise.
+     */
+    AbstractSheet *insertSheet(int index, const QString &name = QString(),
+                               AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
+    /**
+     * @brief renames sheet with @a index.
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @param newName new sheet name.
+     * @return true on success.
+     * @note This is equivalent to `sheet(index)->rename(newName);`.
+     */
+    bool renameSheet(int index, const QString &newName);
+    /**
+     * @overload
+     * @brief renames sheet
+     * @param oldName old sheet name
+     * @param newName new sheet name
+     * @return true on success.
+     * @note This is equivalent to `sheet(oldName)->rename(newName);`.
+     */
     bool renameSheet(const QString &oldName, const QString &newName);
+    /**
+     * @brief deletes the sheet with @a index.
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @return true on success.
+     */
     bool deleteSheet(int index);
+    /**
+     * @brief copies sheet with @a index into a new sheet and gives the new sheet @a newName.
+     *
+     * This method places new sheet _at the end of sheets list_. The copy will have
+     * index `sheetsCount()-1`.
+     *
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @param newName the name of the new copy.
+     * @return true on success.
+     */
     bool copySheet(int index, const QString &newName=QString());
-    bool moveSheet(int srcIndex, int distIndex);
-
+    /**
+     * @brief moves the sheet from @a srcIndex to @a dstIndex
+     * @param srcIndex the old index.
+     * @param distIndex the  new index.
+     * @return true on success.
+     */
+    bool moveSheet(int srcIndex, int dstIndex);
+    /**
+     * @brief returns the active (current) sheet.
+     * @return pointer to the active sheet. If no sheets were added to the
+     * workbook, inserts a new worksheet and returns pointer to it.
+     */
     AbstractSheet *activeSheet() const;
+    /**
+     * @brief sets the active (current) sheet.
+     * @param index the sheet index (0 to #sheetsCount()-1).
+     * @return true on success.
+     */
     bool setActiveSheet(int index);
 
 
@@ -399,7 +486,6 @@ private:
     QList<QImage> images();
     QList<Drawing *> drawings();
     QList<QSharedPointer<AbstractSheet> > getSheetsByType(AbstractSheet::Type type) const;
-    QStringList worksheetNames() const;
     AbstractSheet *addSheet(const QString &name, int sheetId, AbstractSheet::Type type);
 };
 

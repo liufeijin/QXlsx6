@@ -64,7 +64,6 @@ public:
     QSharedPointer<SharedStrings> sharedStrings;
     QList<QSharedPointer<AbstractSheet> > sheets;
     QList<QSharedPointer<SimpleOOXmlFile> > externalLinks;
-    QStringList sheetNames;
     QSharedPointer<Styles> styles;
     QSharedPointer<Theme> theme;
     QList<QWeakPointer<MediaFile> > mediaFiles;

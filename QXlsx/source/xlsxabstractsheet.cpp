@@ -40,15 +40,21 @@ QString AbstractSheet::name() const
 
 bool AbstractSheet::setName(const QString &newName)
 {
-    if (name() == newName)
-        return false;
-    return workbook()->renameSheet(name(), newName);
+    return rename(newName);
 }
 
-void AbstractSheet::rename(const QString &sheetName)
+bool AbstractSheet::rename(const QString &sheetName)
 {
     Q_D(AbstractSheet);
-    d->name = sheetName;
+
+    QString name = createSafeSheetName(sheetName);
+    for (int i = 0; i < d->workbook->sheetsCount(); ++i) {
+        if (d->workbook->sheet(i)->name() == name)
+            return false;
+    }
+
+    d->name = name;
+    return true;
 }
 
 AbstractSheet::Type AbstractSheet::type() const

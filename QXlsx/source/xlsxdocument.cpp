@@ -275,7 +275,7 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     }
 
     //load sheets
-    for (int i=0; i<workbook->sheetCount(); ++i) {
+    for (int i=0; i<workbook->sheetsCount(); ++i) {
         AbstractSheet *sheet = workbook->sheet(i);
         QString strFilePath = sheet->filePath();
         QString rel_path = getRelFilePath(strFilePath);
@@ -686,7 +686,7 @@ Workbook *Document::workbook() const
 AbstractSheet *Document::sheet(const QString &sheetName) const
 {
     Q_D(const Document);
-    return d->workbook->sheet(sheetNames().indexOf(sheetName));
+    return d->workbook->sheet(sheetName);
 }
 
 bool Document::addSheet(const QString &name, AbstractSheet::Type type)
@@ -772,7 +772,7 @@ bool Document::setActiveSheet(int index)
 QStringList Document::sheetNames() const
 {
     Q_D(const Document);
-    return d->workbook->worksheetNames();
+    return d->workbook->sheetNames();
 }
 
 bool Document::save() const

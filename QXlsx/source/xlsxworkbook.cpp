@@ -300,10 +300,13 @@ AbstractSheet *Workbook::addSheet(const QString &name, AbstractSheet::Type type)
 /*!
  * \internal
  */
-QStringList Workbook::worksheetNames() const
+QStringList Workbook::sheetNames() const
 {
     Q_D(const Workbook);
-    return d->sheetNames;
+    QStringList result;
+    for (const auto &s: qAsConst(d->sheets))
+        result << s->name();
+    return result;
 }
 
 /*!
@@ -332,7 +335,6 @@ AbstractSheet *Workbook::addSheet(const QString &name, int sheetId, AbstractShee
 
     if (sheet) {
         d->sheets.append(QSharedPointer<AbstractSheet>(sheet));
-        d->sheetNames.append(name);
     }
     return sheet;
 }
@@ -348,21 +350,21 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
 
     if (!sheetName.isEmpty()) {
         //If user given an already in-used name, we should not continue any more!
-        if (d->sheetNames.contains(sheetName))
-            return 0;
+        if (sheet(sheetName))
+            return nullptr;
     }
     else {
         if (type == AbstractSheet::Type::Worksheet) {
             do {
                 ++d->lastWorksheetIndex;
                 sheetName = QStringLiteral("Sheet%1").arg(d->lastWorksheetIndex);
-            } while (d->sheetNames.contains(sheetName));
+            } while (sheet(sheetName));
         }
         else if (type == AbstractSheet::Type::Chartsheet) {
             do {
                 ++d->lastChartsheetIndex;
                 sheetName = QStringLiteral("Chart%1").arg(d->lastChartsheetIndex);
-            } while (d->sheetNames.contains(sheetName));
+            } while (sheet(sheetName));
         }
         else {
             qWarning("unsupported sheet type.");
@@ -385,7 +387,6 @@ AbstractSheet *Workbook::insertSheet(int index, const QString &name, AbstractShe
     }
 
     d->sheets.insert(index, QSharedPointer<AbstractSheet>(sheet));
-    d->sheetNames.insert(index, sheetName);
     if (d->views.isEmpty()) d->views << WorkbookView{};
     d->views.last().activeTab = index;
 
@@ -413,40 +414,23 @@ bool Workbook::setActiveSheet(int index)
     return true;
 }
 
-/*!
- * Rename the worksheet at the \a index to \a newName.
- */
 bool Workbook::renameSheet(int index, const QString &newName)
 {
     Q_D(Workbook);
-    QString name = createSafeSheetName(newName);
     if (index < 0 || index >= d->sheets.size())
         return false;
 
-    //If user given an already in-used name, return false
-    for (int i = 0; i < d->sheets.size(); ++i) {
-        if (d->sheets[i]->name() == name)
-            return false;
-    }
-
-    d->sheets[index]->rename(name);
-    d->sheetNames[index] = name;
-    return true;
+    return sheet(index)->rename(newName);
 }
 
 bool Workbook::renameSheet(const QString &oldName, const QString &newName)
 {
-    Q_D(Workbook);
-
     if (oldName == newName)
         return false;
-    int index = d->sheetNames.indexOf(oldName);
-    return renameSheet(index, newName);
+    if (auto s = sheet(oldName)) return s->rename(newName);
+    return false;
 }
 
-/*!
- * Remove the worksheet at pos \a index.
- */
 bool Workbook::deleteSheet(int index)
 {
     Q_D(Workbook);
@@ -455,31 +439,24 @@ bool Workbook::deleteSheet(int index)
     if (index < 0 || index >= d->sheets.size())
         return false;
     d->sheets.removeAt(index);
-    d->sheetNames.removeAt(index);
     return true;
 }
 
-/*!
- * Moves the worksheet form \a srcIndex to \a distIndex.
- */
-bool Workbook::moveSheet(int srcIndex, int distIndex)
+bool Workbook::moveSheet(int srcIndex, int dstIndex)
 {
     Q_D(Workbook);
-    if (srcIndex == distIndex)
+    if (srcIndex == dstIndex)
         return false;
 
     if (srcIndex < 0 || srcIndex >= d->sheets.size())
         return false;
 
     QSharedPointer<AbstractSheet> sheet = d->sheets.takeAt(srcIndex);
-    d->sheetNames.takeAt(srcIndex);
-    if (distIndex >= 0 || distIndex <= d->sheets.size()) {
-        d->sheets.insert(distIndex, sheet);
-        d->sheetNames.insert(distIndex, sheet->name());
+    if (dstIndex >= 0 || dstIndex <= d->sheets.size()) {
+        d->sheets.insert(dstIndex, sheet);
     }
     else {
         d->sheets.append(sheet);
-        d->sheetNames.append(sheet->name());
     }
     return true;
 }
@@ -491,9 +468,9 @@ bool Workbook::copySheet(int index, const QString &newName)
         return false;
 
     QString worksheetName = createSafeSheetName(newName);
-    if (!newName.isEmpty()) {
+    if (!worksheetName.isEmpty()) {
         //If user given an already in-used name, we should not continue any more!
-        if (d->sheetNames.contains(newName))
+        if (sheet(worksheetName))
             return false;
     }
     else {
@@ -501,35 +478,37 @@ bool Workbook::copySheet(int index, const QString &newName)
         do {
             ++copy_index;
             worksheetName = QStringLiteral("%1(%2)").arg(d->sheets[index]->name()).arg(copy_index);
-        } while (d->sheetNames.contains(worksheetName));
+        } while (sheet(worksheetName));
     }
 
     ++d->lastSheetId;
     AbstractSheet *sheet = d->sheets[index]->copy(worksheetName, d->lastSheetId);
     d->sheets.append(QSharedPointer<AbstractSheet>(sheet));
-    d->sheetNames.append(sheet->name());
 
     return true; // #162
 }
 
-/*!
- * Returns count of worksheets.
- */
-int Workbook::sheetCount() const
+int Workbook::sheetsCount() const
 {
     Q_D(const Workbook);
     return d->sheets.count();
 }
 
-/*!
- * Returns the sheet object at index \a sheetIndex.
- */
 AbstractSheet *Workbook::sheet(int index) const
 {
     Q_D(const Workbook);
     if (index < 0 || index >= d->sheets.size())
         return 0;
     return d->sheets.at(index).data();
+}
+
+AbstractSheet *Workbook::sheet(const QString &name) const
+{
+    Q_D(const Workbook);
+    for (const auto &s: d->sheets) {
+        if (s->name() == name) return s.data();
+    }
+    return nullptr;
 }
 
 SharedStrings *Workbook::sharedStrings() const
