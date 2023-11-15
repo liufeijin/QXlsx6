@@ -738,7 +738,10 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement(); //calcPr
 
     // 11. oleSize
-    //TODO:
+    if (d->oleSize.isValid()) {
+        writer.writeEmptyElement(QLatin1String("oleSize"));
+        writeAttribute(writer, QLatin1String("ref"), d->oleSize.toString());
+    }
     // 12. customWorkbookViews
     //TODO:
     // 13. pivotCaches
@@ -748,11 +751,35 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     // 15. smartTagTypes
     //TODO:
     // 16. webPublishing
-    //TODO:
+    if (d->css.has_value() || d->thicket.has_value() || d->longFileNames.has_value()
+        || d->vml.has_value() || d->allowPng.has_value() || d->dpi.has_value()
+        || !d->targetScreenSize.isEmpty() || !d->characterSet.isEmpty()) {
+        writer.writeEmptyElement(QLatin1String("webPublishing"));
+        writeAttribute(writer, QLatin1String("css"), d->css);
+        writeAttribute(writer, QLatin1String("thicket"), d->thicket);
+        writeAttribute(writer, QLatin1String("longFileNames"), d->longFileNames);
+        writeAttribute(writer, QLatin1String("vml"), d->vml);
+        writeAttribute(writer, QLatin1String("allowPng"), d->allowPng);
+        writeAttribute(writer, QLatin1String("targetScreenSize"), d->targetScreenSize);
+        writeAttribute(writer, QLatin1String("dpi"), d->dpi);
+        writeAttribute(writer, QLatin1String("characterSet"), d->characterSet);
+    }
     // 17. fileRecoveryPr
     //TODO:
     // 18. webPublishObjects
-    //TODO:
+    if (!d->webPublishObjects.isEmpty()) {
+        writer.writeStartElement(QLatin1String("webPublishObjects"));
+        writeAttribute(writer, QLatin1String("count"), d->webPublishObjects.size());
+        for (const auto &w: qAsConst(d->webPublishObjects)) {
+            writer.writeEmptyElement(QLatin1String("webPublishObject"));
+            writeAttribute(writer, QLatin1String("id"), w.id);
+            writeAttribute(writer, QLatin1String("divId"), w.divId);
+            writeAttribute(writer, QLatin1String("sourceObject"), w.sourceObject);
+            writeAttribute(writer, QLatin1String("destinationFile"), w.destinationFile);
+            writeAttribute(writer, QLatin1String("title"), w.title);
+            writeAttribute(writer, QLatin1String("autoRepublish"), w.autoRepublish);
+        }
+    }
     // 19. extLst
     d->extLst.write(writer, QLatin1String("extLst"));
     writer.writeEndElement(); //workbook
@@ -849,6 +876,19 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 parseAttributeString(attributes, QLatin1String("rupBuild"), d->rupBuild);
                 parseAttributeString(attributes, QLatin1String("codeName"), d->appCodeName);
             }
+            else if (reader.name() == QLatin1String("oleSize")) {
+                d->oleSize = CellRange(attributes.value(QLatin1String("ref")).toString());
+            }
+            else if (reader.name() == QLatin1String("webPublishing")) {
+                parseAttributeBool(attributes, QLatin1String("css"), d->css);
+                parseAttributeBool(attributes, QLatin1String("thicket"), d->thicket);
+                parseAttributeBool(attributes, QLatin1String("longFileNames"), d->longFileNames);
+                parseAttributeBool(attributes, QLatin1String("vml"), d->vml);
+                parseAttributeBool(attributes, QLatin1String("allowPng"), d->allowPng);
+                parseAttributeString(attributes, QLatin1String("targetScreenSize"), d->targetScreenSize);
+                parseAttributeInt(attributes, QLatin1String("dpi"), d->dpi);
+                parseAttributeString(attributes, QLatin1String("characterSet"), d->characterSet);
+            }
             else if (reader.name() == QLatin1String("fileSharing")) {
                 parseAttributeBool(attributes, QLatin1String("readOnlyRecommended"), d->readOnlyRecommended);
                 parseAttributeString(attributes, QLatin1String("userName"), d->userName);
@@ -856,6 +896,16 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 parseAttributeString(attributes, QLatin1String("hashValue"), d->hashValue);
                 parseAttributeString(attributes, QLatin1String("saltValue"), d->saltValue);
                 parseAttributeInt(attributes, QLatin1String("spinCount"), d->spinCount);
+            }
+            else if (reader.name() == QLatin1String("webPublishObject")) {
+                WebPublishObject w;
+                parseAttributeInt(attributes, QLatin1String("id"), w.id);
+                parseAttributeString(attributes, QLatin1String("divId"), w.divId);
+                parseAttributeString(attributes, QLatin1String("sourceObject"), w.sourceObject);
+                parseAttributeString(attributes, QLatin1String("destinationFile"), w.destinationFile);
+                parseAttributeString(attributes, QLatin1String("title"), w.title);
+                parseAttributeBool(attributes, QLatin1String("autoRepublish"), w.autoRepublish);
+                d->webPublishObjects << w;
             }
             else if (reader.name() == QLatin1String("workbookView")) {
                 WorkbookView view;

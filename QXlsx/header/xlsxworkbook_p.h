@@ -45,6 +45,16 @@ struct WorkbookView
     void read(QXmlStreamReader &reader);
 };
 
+struct WebPublishObject
+{
+    int id = 0;
+    QString divId;
+    QString sourceObject;
+    QString destinationFile;
+    QString title;
+    std::optional<bool> autoRepublish;
+};
+
 class WorkbookPrivate : public AbstractOOXmlFilePrivate
 {
     Q_DECLARE_PUBLIC(Workbook)
@@ -69,6 +79,7 @@ public:
 
     int table_count;
 
+    // --- These members have no corresponding methods in Workbook
     // fileVersion
     QString appName{"xl"};
     QString lastEdited{"4"};
@@ -76,6 +87,7 @@ public:
     QString rupBuild{"4505"};
     QString appCodeName;
 
+    // --- These members have no corresponding methods in Workbook
     // fileSharing
     std::optional<bool> readOnlyRecommended;
     QString userName;
@@ -83,6 +95,23 @@ public:
     QString hashValue;
     QString saltValue;
     std::optional<int> spinCount;
+
+    // --- These members have no corresponding methods in Workbook
+    // oleSize
+    CellRange oleSize;
+
+    // --- These members have no corresponding methods in Workbook
+    // webPublishObjects
+    QList<WebPublishObject> webPublishObjects;
+    // webPublishing
+    std::optional<bool> css;
+    std::optional<bool> thicket;
+    std::optional<bool> longFileNames;
+    std::optional<bool> vml;
+    std::optional<bool> allowPng;
+    QString targetScreenSize;
+    std::optional<int> dpi;
+    QString characterSet;
 
     //Used to generate new sheet name and id
     int lastWorksheetIndex = 0;
@@ -92,6 +121,7 @@ public:
     // workbookView
     mutable QList<WorkbookView> views;
 
+    // --- Not all of these members have corresponding methods in Workbook
     // workBookPr
     std::optional<bool> date1904;
     std::optional<Workbook::ShowObjects> showObjects;
@@ -112,6 +142,7 @@ public:
     std::optional<bool> refreshAllConnections;
     std::optional<int> defaultThemeVersion;
 
+    // --- Not all of these members have corresponding methods in Workbook
     // calcPr
     int calcId = 124519; //required, if missing we use 124519 (why?)
     std::optional<Workbook::CalculationMode> calcMode; //default="auto"
@@ -127,6 +158,7 @@ public:
     std::optional<int> concurrentManualCount;
     std::optional<bool> forceFullCalc;
 
+    // --- These members have no corresponding methods in Workbook
     // functionGroups
     QStringList functionGroups;
     std::optional<int> builtInGroupCount;
