@@ -78,6 +78,35 @@ application will not display an alert in the user interface.*/
         Always /**< Links to other workbooks are always updated when the workbook is opened. The
 application will not display an alert in the user interface.*/
     };
+    /**
+     * @brief The CalculationMode enum specifies when the application should
+     * calculate formulas in the workbook.
+     */
+    enum class CalculationMode
+    {
+        Manual, /**< Calculations in the workbook are triggered manually by the user. */
+        Auto, /**< Calculations in the workbook are performed automatically when
+cell values change. The application recalculates those cells that are dependent
+on other cells that contain changed values. This mode of calculation helps to avoid
+unnecessary calculations. (default.) */
+        AutoNoTable /**< Calculations in the workbook are performed automatically when
+cell values change. Tables are excluded during calculation. */
+    };
+    /**
+     * @brief The ReferenceMode enum defines the supported reference styles or
+     * modes for a workbook.
+     */
+    enum class ReferenceMode
+    {
+        A1, /**< Workbook uses A1 reference style (default). A1 reference style
+refers to columns with letters and refers to rows with numbers. For example, A1
+refers to the cell at the intersection of column A and row 1. */
+        R1C1 /**< Workbook uses the R1C1 reference style. R1C1 reference style
+refers to both the rows and the columns on the worksheet with numbers. The location
+of a cell is indicated with an "R" followed by a row number and a "C" followed by
+a column number. For example, R1C1 refers to the cell at the intersection
+of row R1 and column C1. */
+    };
 
     ~Workbook();
 
@@ -273,6 +302,15 @@ private:
         {UpdateLinks::Always, "always"},
         {UpdateLinks::Never, "never"},
         {UpdateLinks::UserSet, "userSet"}
+    });
+    SERIALIZE_ENUM(CalculationMode, {
+        {CalculationMode::Auto, "auto"},
+        {CalculationMode::AutoNoTable, "autoNoTable"},
+        {CalculationMode::Manual, "manual"}
+    });
+    SERIALIZE_ENUM(ReferenceMode, {
+        {ReferenceMode::A1, "A1"},
+        {ReferenceMode::R1C1, "R1C1"}
     });
     friend class Worksheet;
     friend class Chartsheet;

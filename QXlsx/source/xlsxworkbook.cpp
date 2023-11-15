@@ -644,11 +644,23 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         writer.writeEndElement(); //definedNames
     }
     // 10. calcPr
-    //TODO: check for implementation
-    //TODO: add missing members
     //TODO: add missing methods to manipulate
     writer.writeStartElement(QStringLiteral("calcPr"));
-    writer.writeAttribute(QStringLiteral("calcId"), QStringLiteral("124519"));
+    writeAttribute(writer, QLatin1String("calcId"), d->calcId);
+    if (d->calcMode.has_value())
+        writeAttribute(writer, QLatin1String("calcMode"), toString(d->calcMode.value()));
+    writeAttribute(writer, QLatin1String("fullCalcOnLoad"), d->fullCalcOnLoad);
+    if (d->refMode.has_value())
+        writeAttribute(writer, QLatin1String("refMode"), toString(d->refMode.value()));
+    writeAttribute(writer, QLatin1String("iterate"), d->iterate);
+    writeAttribute(writer, QLatin1String("iterateCount"), d->iterateCount);
+    writeAttribute(writer, QLatin1String("iterateDelta"), d->iterateDelta);
+    writeAttribute(writer, QLatin1String("fullPrecision"), d->fullPrecision);
+    writeAttribute(writer, QLatin1String("calcCompleted"), d->calcCompleted);
+    writeAttribute(writer, QLatin1String("calcOnSave"), d->calcOnSave);
+    writeAttribute(writer, QLatin1String("concurrentCalc"), d->concurrentCalc);
+    writeAttribute(writer, QLatin1String("concurrentManualCount"), d->concurrentManualCount);
+    writeAttribute(writer, QLatin1String("forceFullCalc"), d->forceFullCalc);
     writer.writeEndElement(); //calcPr
 
     // 11. oleSize
@@ -772,6 +784,27 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                 link->setFilePath(fullPath);
                 d->externalLinks.append(link);
+            }
+            else if (reader.name() == QLatin1String("calcPr")) {
+                parseAttributeInt(attributes, QLatin1String("calcId"), d->calcId);
+                if (attributes.hasAttribute(QLatin1String("calcMode"))) {
+                    CalculationMode m; fromString(attributes.value(QLatin1String("calcMode")).toString(), m);
+                    d->calcMode = m;
+                }
+                parseAttributeBool(attributes, QLatin1String("fullCalcOnLoad"), d->fullCalcOnLoad);
+                if (attributes.hasAttribute(QLatin1String("refMode"))) {
+                    ReferenceMode m; fromString(attributes.value(QLatin1String("refMode")).toString(), m);
+                    d->refMode = m;
+                }
+                parseAttributeBool(attributes, QLatin1String("iterate"), d->iterate);
+                parseAttributeInt(attributes, QLatin1String("iterateCount"), d->iterateCount);
+                parseAttributeDouble(attributes, QLatin1String("iterateDelta"), d->iterateDelta);
+                parseAttributeBool(attributes, QLatin1String("fullPrecision"), d->fullPrecision);
+                parseAttributeBool(attributes, QLatin1String("calcCompleted"), d->calcCompleted);
+                parseAttributeBool(attributes, QLatin1String("calcOnSave"), d->calcOnSave);
+                parseAttributeBool(attributes, QLatin1String("concurrentCalc"), d->concurrentCalc);
+                parseAttributeInt(attributes, QLatin1String("concurrentManualCount"), d->concurrentManualCount);
+                parseAttributeBool(attributes, QLatin1String("forceFullCalc"), d->forceFullCalc);
             }
             else if (reader.name() == QLatin1String("definedName")) {
                 DefinedName data;

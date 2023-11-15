@@ -97,6 +97,21 @@ public:
     std::optional<bool> refreshAllConnections;
     std::optional<int> defaultThemeVersion;
 
+    // calcPr
+    int calcId = 124519; //required, if missing we use 124519 (why?)
+    std::optional<Workbook::CalculationMode> calcMode; //default="auto"
+    std::optional<bool> fullCalcOnLoad; // default="false"/>
+    std::optional<Workbook::ReferenceMode> refMode;// default="A1"/>
+    std::optional<bool> iterate;// default="false"/>
+    std::optional<int> iterateCount;// default="100"/>
+    std::optional<double> iterateDelta;// default="0.001"/>
+    std::optional<bool> fullPrecision;//default="true"/>
+    std::optional<bool> calcCompleted;// default="true"/>
+    std::optional<bool> calcOnSave;// default="true"/>
+    std::optional<bool> concurrentCalc;// default="true"/>
+    std::optional<int> concurrentManualCount;
+    std::optional<bool> forceFullCalc;
+
     ExtensionList extLst;
 };
 
