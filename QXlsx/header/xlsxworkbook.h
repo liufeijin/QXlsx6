@@ -45,8 +45,8 @@ struct QXLSX_EXPORT DefinedName
     QString comment; /**< A comment to this name. */
     QString description; /**< A description of this name. */
     std::optional<bool> hidden; /**< Whether this defined name is hidden
-from the program interface. If true, then the defined name will not be shown in the defined names
-list (in Excel). The default value is false.*/
+from the program interface. If true, then the defined name will not be shown in
+the defined names list (in Excel). The default value is false.*/
     std::optional<bool> workbookParameter; /**<  default = false */
 
     int sheetId = -1; //using internal sheetId, instead of the localSheetId(order in the workbook)
@@ -186,34 +186,12 @@ of row R1 and column C1. */
     /**
      * @brief returns a defined name by its name.
      * @param name A name to search.
-     * @return A pointer to the defined name. May be null if there's no such defined name in the workbook.
+     * @return A pointer to the defined name. May be null if there's no such
+     * defined name in the workbook.
+     * @warning The pointer can become invalidated if you add or remove defined names.
      */
     DefinedName *definedName(const QString &name);
 
-    /**
-     * @brief returns whether the default epoch of this workbook is set to 1904.
-     *
-     * - In the 1900 date system, the lower limit is January 1st, 0001 00:00:00,
-     * which has a serial date-time of -693593. The upper-limit is December 31st,
-     * 9999, 23:59:59.999, which has a serial date-time of 2,958,465.9999884.
-     * The base date for this system is 00:00:00 on December 30th, 1899, which
-     * has a serial date-time of 0.
-     * - In the 1904 date system, the lower limit is January 1st, 0001, 00:00:00,
-     * which has a serial date-time of -695055. The upper limit is December 31st,
-     * 9999, 23:59:59.999, which has a serial date-time of 2,957,003.9999884.
-     * The base date for this system is 00:00:00 on January 1st, 1904, which has
-     * a serial date-time of 0.
-     *
-     * Excel for Windows uses a default epoch of 1900 and Excel for Mac uses an
-     * epoch of 1904. However, Excel on either platform will convert automatically
-     * between one system and the other. QXlsx stores dates in the 1900 format
-     * by default.
-     *
-     * @return true if all dates are be calculated using the 1904 epoch.
-     *
-     * If not set, false is assumed (the default epoch being 1900).
-     */
-    bool isDate1904() const; //NOTE: remove in future releases
     /**
      * @brief returns whether the default epoch of this workbook is set to 1904.
      *
@@ -237,7 +215,7 @@ of row R1 and column C1. */
      *
      * If not set, false is assumed (the default epoch being 1900).
      */
-    std::optional<bool> date1094() const;
+    std::optional<bool> date1904() const;
     /**
      * @brief sets the default epoch for this workbook.
      *
@@ -283,6 +261,98 @@ of row R1 and column C1. */
     void setHtmlToRichStringEnabled(bool enable=true);
     QString defaultDateFormat() const;
     void setDefaultDateFormat(const QString &format);
+
+    // Calculation parameters (not all)
+
+    /**
+     * @brief returns the mode the workbook uses to reference cells.
+     *
+     * The default value is ReferenceMode::A1.
+     */
+    std::optional<ReferenceMode> referenceMode() const;
+    /**
+     * @brief sets the mode the workbook uses to reference cells.
+     * @param mode ReferenceMode enum value.
+     *
+     * If the reference mode is not set, ReferenceMode::A1 is assumed.
+     */
+    void setReferenceMode(ReferenceMode mode);
+    /**
+     * @brief returns the mode when the application should calculate formulas in
+     * the workbook.
+     *
+     * The default value is CalculationMode::Auto.
+     */
+    std::optional<CalculationMode> calculationMode() const;
+    /**
+     * @brief sets the mode when the application should calculate formulas in
+     * the workbook.
+     * @param mode CalculationMode enum value.
+     *
+     * If the calculation mode is not set, CalculationMode::Auto is assumed.
+     */
+    void setCalculationMode(CalculationMode mode);
+    /**
+     * @brief sets whether the application shall perform a full recalculation
+     * when the workbook is opened.
+     *
+     * If #calculationMode() is set to CalculationMode::Manual, then this parameter
+     * is ignored.
+     *
+     * @param trigger If true, then the application performs a full recalculation
+     * of workbook values when the workbook is opened.
+     *
+     * If no value is set, false is assumed.
+     */
+    void setRecalculationOnLoad(bool recalculate);
+    /**
+     * @brief returns a boolean that indicates the precision the application uses
+     * when performing calculations.
+     *
+     * `True` indicates the application uses the stored values of the referenced
+     * cells when performing calculations.
+     * `False` indicates the application uses the display values of the referenced
+     * cells when performing calculations.
+     *
+     * Example: If two cells each contain the value 10.005 and the cells are
+     * formatted to display values in currency format, the value $10.01 is displayed
+     * in each cell. If you add the two cells together, the result is $20.01
+     * because the application adds the stored values 10.005 and 10.005, not the
+     * displayed values. You can change the precision of calculations so that the
+     * application uses the displayed value instead of the stored value when it
+     * recalculates formulas. So, if #fullPrecisionOnCalculation() is false, then
+     * the result must be $20.02, because each cell shows $10.01, so those are
+     * the values to be added.
+     *
+     * The default value is true.
+     */
+    std::optional<bool> fullPrecisionOnCalculation() const;
+    /**
+     * @brief sets a boolean that indicates the precision the application uses
+     * when performing calculations.
+     *
+     * Example: If two cells each contain the value 10.005 and the cells are
+     * formatted to display values in currency format, the value $10.01 is displayed
+     * in each cell. If you add the two cells together, the result is $20.01
+     * because the application adds the stored values 10.005 and 10.005, not the
+     * displayed values. You can change the precision of calculations so that the
+     * application uses the displayed value instead of the stored value when it
+     * recalculates formulas. So, if #fullPrecisionOnCalculation() is false, then
+     * the result must be $20.02, because each cell shows $10.01, so those are
+     * the values to be added.
+     *
+     * @param fullPrecision `true` indicates the application uses the stored values
+     * of the referenced cells when performing calculations.
+     * `false` indicates the application uses the display values of the referenced
+     * cells when performing calculations.
+     *
+     * If fullPrecision is not set, true is assumed.
+     */
+    void setFullPrecisionOnCalculation(bool fullPrecision);
+    /**
+     * @brief Clears all calculation parameters and sets the default values.
+     */
+    void setCalculationParametersDefaults();
 
     //internal used member
     bool addMediaFile(QSharedPointer<MediaFile> media, bool force=false);

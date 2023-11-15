@@ -86,10 +86,10 @@ Workbook::Workbook(CreateFlag flag)
 
 Workbook::~Workbook() {}
 
-bool Workbook::isDate1904() const
+std::optional<bool> Workbook::date1904() const
 {
     Q_D(const Workbook);
-    return d->date1904.value_or(false);
+    return d->date1904;
 }
 
 void Workbook::setDate1904(bool date1904)
@@ -144,6 +144,65 @@ void Workbook::setDefaultDateFormat(const QString &format)
 {
     Q_D(Workbook);
     d->defaultDateFormat = format;
+}
+
+std::optional<Workbook::ReferenceMode> Workbook::referenceMode() const
+{
+    Q_D(const Workbook);
+    return d->refMode;
+}
+
+void Workbook::setReferenceMode(ReferenceMode mode)
+{
+    Q_D(Workbook);
+    d->refMode = mode;
+}
+
+std::optional<Workbook::CalculationMode> Workbook::calculationMode() const
+{
+    Q_D(const Workbook);
+    return d->calcMode;
+}
+
+void Workbook::setCalculationMode(CalculationMode mode)
+{
+    Q_D(Workbook);
+    d->calcMode = mode;
+}
+
+void Workbook::setRecalculationOnLoad(bool recalculate)
+{
+    Q_D(Workbook);
+    d->fullCalcOnLoad = recalculate;
+}
+
+std::optional<bool> Workbook::fullPrecisionOnCalculation() const
+{
+    Q_D(const Workbook);
+    return d->fullPrecision;
+}
+
+void Workbook::setFullPrecisionOnCalculation(bool fullPrecision)
+{
+    Q_D(Workbook);
+    d->fullPrecision = fullPrecision;
+}
+
+void Workbook::setCalculationParametersDefaults()
+{
+    Q_D(Workbook);
+    d->calcMode.reset(); //default="auto"
+    d->fullCalcOnLoad.reset(); // default="false"/>
+    d->refMode.reset();// default="A1"/>
+    d->iterate.reset();// default="false"/>
+    d->iterateCount.reset();// default="100"/>
+    d->iterateDelta.reset();// default="0.001"/>
+    d->fullPrecision.reset();//default="true"/>
+    d->calcCompleted.reset();// default="true"/>
+    d->calcOnSave.reset();// default="true"/>
+    d->concurrentCalc.reset();// default="true"/>
+    d->concurrentManualCount.reset();
+    d->forceFullCalc.reset();
 }
 
 bool Workbook::addDefinedName(const QString &name,
@@ -576,7 +635,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     // 5. bookViews
     writer.writeStartElement(QStringLiteral("bookViews"));
     if (d->views.isEmpty()) d->views << WorkbookView{};
-    for (const auto &view: d->views)
+    for (const auto &view: qAsConst(d->views))
         view.write(writer);
     writer.writeEndElement(); //bookViews
     // 6. sheets
