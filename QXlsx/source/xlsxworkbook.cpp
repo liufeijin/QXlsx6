@@ -663,7 +663,13 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     }
     writer.writeEndElement(); //sheets
     // 7. functionGroups
-    // TODO: functionGroups
+    if (!d->functionGroups.isEmpty() || d->builtInGroupCount.has_value()) {
+        writer.writeStartElement(QLatin1String("functionGroups"));
+        for (const auto &g: qAsConst(d->functionGroups))
+            writer.writeTextElement(QLatin1String("functionGroup"), g);
+        writeAttribute(writer, QLatin1String("builtInGroupCount"), d->builtInGroupCount);
+        writer.writeEndElement();
+    }
     // 8. externalReferences
     if (d->externalLinks.size() > 0) {
         writer.writeStartElement(QStringLiteral("externalReferences"));
@@ -830,6 +836,13 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 WorkbookView view;
                 view.read(reader);
                 d->views << view;
+            }
+            else if (reader.name() == QLatin1String("functionGroups")) {
+                parseAttributeInt(attributes, QLatin1String("builtInGroupCount"), d->builtInGroupCount);
+            }
+            else if (reader.name() == QLatin1String("functionGroup")) {
+                QString g = reader.readElementText();
+                if (!g.isEmpty()) d->functionGroups << g;
             }
             else if (reader.name() == QLatin1String("externalReference")) {
                 const QString rId = attributes.value(QLatin1String("r:id")).toString();

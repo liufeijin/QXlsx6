@@ -992,7 +992,7 @@ bool Worksheet::writeDateTime(int row, int column, const QDateTime &dt, const Fo
         fmt.setNumberFormat(d->workbook->defaultDateFormat());
     d->workbook->styles()->addXfFormat(fmt);
 
-    double value = datetimeToNumber(dt, d->workbook->isDate1904());
+    double value = datetimeToNumber(dt, d->workbook->date1904().value_or(false));
 
     d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Number, fmt, this);
 
@@ -1022,7 +1022,7 @@ bool Worksheet::writeDate(int row, int column, const QDate &dt, const Format &fo
 
     d->workbook->styles()->addXfFormat(fmt);
 
-    double value = datetimeToNumber(QDateTime(dt, QTime(0,0,0)), d->workbook->isDate1904());
+    double value = datetimeToNumber(QDateTime(dt, QTime(0,0,0)), d->workbook->date1904().value_or(false));
 
     d->cellTable[row][column] = std::make_shared<Cell>(value, Cell::Type::Number, fmt, this);
 
@@ -2604,7 +2604,7 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
                     // [dev54] DateType
 
                     double dValue = value.toDouble(); // days from 1900(or 1904)
-                    bool bIsDate1904 = q->workbook()->isDate1904();
+                    bool bIsDate1904 = q->workbook()->date1904().value_or(false);
 
                     QVariant vDatetimeValue = datetimeFromNumber( dValue, bIsDate1904 );
                     Q_UNUSED(vDatetimeValue);

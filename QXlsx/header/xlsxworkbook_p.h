@@ -112,6 +112,10 @@ public:
     std::optional<int> concurrentManualCount;
     std::optional<bool> forceFullCalc;
 
+    // functionGroups
+    QStringList functionGroups;
+    std::optional<int> builtInGroupCount;
+
     ExtensionList extLst;
 };
 

@@ -311,7 +311,7 @@ QVariant Cell::dateTime() const
 
     QVariant ret;
     double dValue = d->value.toDouble();
-    bool isDate1904 = d->parent->workbook()->isDate1904();
+    bool isDate1904 = d->parent->workbook()->date1904().value_or(false);
     ret = datetimeFromNumber(dValue, isDate1904);
     return ret;
 }
