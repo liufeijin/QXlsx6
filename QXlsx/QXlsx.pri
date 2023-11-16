@@ -82,7 +82,6 @@ $${QXLSX_HEADERPATH}xlsxcell.h \
 $${QXLSX_HEADERPATH}xlsxcellformula.h \
 $${QXLSX_HEADERPATH}xlsxcellrange.h \
 $${QXLSX_HEADERPATH}xlsxcellreference.h \
-$${QXLSX_HEADERPATH}xlsxcell_p.h \
 $${QXLSX_HEADERPATH}xlsxchart.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet.h \
 $${QXLSX_HEADERPATH}xlsxchartsheet_p.h \

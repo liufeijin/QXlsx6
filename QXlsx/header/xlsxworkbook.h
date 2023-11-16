@@ -483,6 +483,7 @@ private:
     friend class WorksheetPrivate;
     friend class Document;
     friend class DocumentPrivate;
+    friend class Cell;
 
     Workbook(Workbook::CreateFlag flag);
 

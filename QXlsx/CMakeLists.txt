@@ -144,7 +144,6 @@ set(SRC_FILES
     header/xlsxautofilter.h
     header/xlsxaxis.h
     header/xlsxcell.h
-    header/xlsxcell_p.h
     header/xlsxcellformula.h
     header/xlsxcellformula_p.h
     header/xlsxcellrange.h

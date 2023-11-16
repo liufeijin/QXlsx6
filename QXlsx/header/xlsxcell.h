@@ -16,6 +16,8 @@
 #include "xlsxglobal.h"
 #include "xlsxformat.h"
 #include "xlsxutility_p.h"
+#include "xlsxrichstring.h"
+#include "xlsxcellformula.h"
 
 namespace QXlsx {
 
@@ -57,11 +59,12 @@ public:
 
 public:
     Cell(const QVariant &data = QVariant(),
-            Type type = Type::Number,
-            const Format &format = Format(),
-            Worksheet *parent = nullptr,
-            qint32 styleIndex = (-1) );
-    Cell(const Cell * const cell);
+         Type type = Type::Number,
+         const Format &format = Format(),
+         Worksheet *parent = nullptr,
+         qint32 styleIndex = -1,
+         const RichString &richString = {});
+    Cell(const Cell * const cell, Worksheet *parent = nullptr);
     ~Cell();
 
 public:
@@ -71,16 +74,21 @@ public:
     Type type() const;
     QVariant value() const;
     QVariant readValue() const;
+    void setValue(const QVariant &value);
+
     Format format() const;
     void setFormat(const Format &format);
     
     bool hasFormula() const;
     CellFormula formula() const;
+    void setFormula(const CellFormula &formula);
 
     bool isDateTime() const;
     QVariant dateTime() const; // QDateTime, QDate, QTime
 
     bool isRichString() const;
+    RichString richString() const;
+    void setRichString(const RichString &richString);
 
     qint32 styleNumber() const;
 

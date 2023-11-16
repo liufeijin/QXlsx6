@@ -9,14 +9,32 @@
 #include <QTime>
 
 #include "xlsxcell.h"
-#include "xlsxcell_p.h"
 #include "xlsxformat.h"
 #include "xlsxformat_p.h"
 #include "xlsxutility_p.h"
 #include "xlsxworksheet.h"
 #include "xlsxworkbook.h"
+#include "xlsxsharedstrings_p.h"
 
 namespace QXlsx {
+
+class CellPrivate
+{
+    Q_DECLARE_PUBLIC(Cell)
+public:
+    CellPrivate(Cell *p);
+    CellPrivate(const CellPrivate * const cp);
+public:
+    Worksheet *parent;
+    Cell *q_ptr;
+public:
+    Cell::Type cellType;
+    QVariant value;
+    CellFormula formula;
+    Format format;
+    RichString richString;
+    qint32 styleNumber;
+};
 
 CellPrivate::CellPrivate(Cell *p) :
     q_ptr(p)
@@ -36,11 +54,12 @@ CellPrivate::CellPrivate(const CellPrivate * const cp)
 
 }
 
-Cell::Cell(const QVariant &data, 
-    Type type,
-    const Format &format,
-    Worksheet *parent,
-    qint32 styleIndex ) :
+Cell::Cell(const QVariant &data,
+           Type type,
+           const Format &format,
+           Worksheet *parent,
+           qint32 styleIndex ,
+           const RichString &richString) :
     d_ptr(new CellPrivate(this))
 {
     d_ptr->value = data;
@@ -48,12 +67,16 @@ Cell::Cell(const QVariant &data,
     d_ptr->format = format;
     d_ptr->parent = parent;
     d_ptr->styleNumber = styleIndex;
+    d_ptr->richString = richString;
 }
 
-Cell::Cell(const Cell * const cell):
+Cell::Cell(const Cell * const cell, Worksheet *parent):
     d_ptr(new CellPrivate(cell->d_ptr))
 {
     d_ptr->q_ptr = this;
+    d_ptr->parent = parent;
+    if (d_ptr->cellType == Cell::Type::SharedString)
+        d_ptr->parent->workbook()->sharedStrings()->addSharedString(d_ptr->richString);
 }
 
 Cell::~Cell()
@@ -193,6 +216,12 @@ QVariant Cell::readValue() const
     return ret;
 }
 
+void Cell::setValue(const QVariant &value)
+{
+    Q_D(Cell);
+    d->value = value;
+}
+
 Format Cell::format() const
 {
     Q_D(const Cell);
@@ -218,6 +247,12 @@ CellFormula Cell::formula() const
     Q_D(const Cell);
 
     return d->formula;
+}
+
+void Cell::setFormula(const CellFormula &formula)
+{
+    Q_D(Cell);
+    d->formula = formula;
 }
 
 bool Cell::isDateTime() const
@@ -276,6 +311,18 @@ bool Cell::isRichString() const
     }
 
     return d->richString.isRichString();
+}
+
+RichString Cell::richString() const
+{
+    Q_D(const Cell);
+    return d->richString;
+}
+
+void Cell::setRichString(const RichString &richString)
+{
+    Q_D(Cell);
+    d->richString = richString;
 }
 
 qint32 Cell::styleNumber() const 

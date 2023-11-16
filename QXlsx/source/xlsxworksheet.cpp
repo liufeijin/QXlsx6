@@ -31,7 +31,6 @@
 #include "xlsxdrawing_p.h"
 #include "xlsxstyles_p.h"
 #include "xlsxcell.h"
-#include "xlsxcell_p.h"
 #include "xlsxcellrange.h"
 #include "xlsxconditionalformatting_p.h"
 #include "xlsxdrawinganchor_p.h"
@@ -191,11 +190,11 @@ Worksheet *Worksheet::copy(const QString &distName, int distId) const
             it2.next();
             int col = it2.key();
 
-            auto cell = std::make_shared<Cell>(it2.value().get());
-            cell->d_ptr->parent = sheet;
+            auto cell = std::make_shared<Cell>(it2.value().get(), sheet);
+//            cell->d_ptr->parent = sheet;
 
-            if (cell->type() == Cell::Type::SharedString)
-                d->workbook->sharedStrings()->addSharedString(cell->d_ptr->richString);
+//            if (cell->type() == Cell::Type::SharedString)
+//                d->workbook->sharedStrings()->addSharedString(cell->d_ptr->richString);
 
             sheet_d->cellTable[row][col] = cell;
         }
@@ -796,8 +795,8 @@ bool Worksheet::writeString(int row, int column, const RichString &value, const 
     if (value.fragmentCount() == 1 && value.fragmentFormat(0).isValid())
         fmt.mergeFormat(value.fragmentFormat(0));
     d->workbook->styles()->addXfFormat(fmt);
-    auto cell = std::make_shared<Cell>(value.toPlainString(), Cell::Type::SharedString, fmt, this);
-    cell->d_ptr->richString = value;
+    auto cell = std::make_shared<Cell>(value.toPlainString(), Cell::Type::SharedString, fmt, this, 0, value);
+//    cell->d_ptr->richString = value;
     d->cellTable[row][column] = cell;
     return true;
 }
@@ -903,7 +902,7 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
     }
 
     auto data = std::make_shared<Cell>(result, Cell::Type::Number, fmt, this);
-    data->d_ptr->formula = formula;
+    data->setFormula(formula);
     d->cellTable[row][column] = data;
 
     CellRange range = formula.reference();
@@ -915,10 +914,10 @@ bool Worksheet::writeFormula(int row, int column, const CellFormula &formula_, c
             for (int c=range.firstColumn(); c<=range.lastColumn(); ++c) {
                 if (!(r==row && c==column)) {
                     if (Cell *ce = cell(r, c)) {
-                        ce->d_ptr->formula = sf;
+                        ce->setFormula(sf);
                     } else {
                         auto newCell = std::make_shared<Cell>(result, Cell::Type::Number, fmt, this);
-                        newCell->d_ptr->formula = sf;
+                        newCell->setFormula(sf);
                         d->cellTable[r][c] = newCell;
                     }
                 }
@@ -1604,7 +1603,7 @@ bool Worksheet::mergeCells(const CellRange &range, const Format &format)
             if (row == range.firstRow() && col == range.firstColumn()) {
                 if (Cell *c = cell(row, col)) {
                     if (format.isValid())
-                        c->d_ptr->format = format;
+                        c->setFormat(format);
                 }
                 else
                     writeBlank(row, col, format);
@@ -1861,8 +1860,8 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
     switch (cell->type()) {
         case Cell::Type::SharedString: { // 's'
             auto sst_idx = sharedStrings()->getSharedStringIndex(cell->isRichString()
-                                                                ? cell->d_ptr->richString
-                                                                : RichString(cell->value().toString()));
+                                                                     ? cell->richString()
+                                                                     : RichString(cell->value().toString()));
             if (sst_idx.has_value()) {
                 writer.writeAttribute(QLatin1String("t"), QLatin1String("s"));
                 writer.writeTextElement(QLatin1String("v"), QString::number(sst_idx.value()));
@@ -1874,7 +1873,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
             writer.writeStartElement(QLatin1String("is"));
             if (cell->isRichString()) {
                 //Rich text string
-                const RichString &string = cell->d_ptr->richString;
+                const RichString &string = cell->richString();
                 for (int i=0; i<string.fragmentCount(); ++i) {
                     writer.writeStartElement(QLatin1String("r"));
                     if (string.fragmentFormat(i).hasFontData())
@@ -2547,8 +2546,7 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
     const auto &name = reader.name();
     const auto &a = reader.attributes();
 
-    QString r = a.value(QLatin1String("r")).toString();
-    CellReference pos(r);
+    CellReference pos(a.value(QLatin1String("r")).toString());
 
     //get format
     Format format;
@@ -2575,13 +2573,14 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("f")) {// formula
-                CellFormula &formula = cell->d_func()->formula;
+                CellFormula formula;
                 formula.loadFromXml(reader);
                 if (formula.type().value_or(CellFormula::Type::Normal) == CellFormula::Type::Shared
                     && !formula.text().isEmpty()) {
                     int si = formula.sharedIndex().value_or(-1);
                     sharedFormulaMap[si] = formula;
                 }
+                cell->setFormula(formula);
             }
             else if (reader.name() == QLatin1String("v")) {// Value
                 QString value = reader.readElementText();
@@ -2590,35 +2589,30 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
                     sharedStrings()->incRefByStringIndex(sst_idx);
                     RichString rs = sharedStrings()->getSharedString(sst_idx);
                     QString strPlainString = rs.toPlainString();
-                    cell->d_func()->value = strPlainString;
+                    cell->setValue(strPlainString);
                     if (rs.isRichString())
-                        cell->d_func()->richString = rs;
+                        cell->setRichString(rs);
                 }
                 else if (cellType == Cell::Type::Number) {
-                    cell->d_func()->value = value.toDouble();
+                    cell->setValue(value.toDouble());
                 }
                 else if (cellType == Cell::Type::Boolean) {
-                    cell->d_func()->value = fromST_Boolean(value);
+                    cell->setValue(fromST_Boolean(value));
                 }
                 else  if (cellType == Cell::Type::Date) {
                     // [dev54] DateType
 
                     double dValue = value.toDouble(); // days from 1900(or 1904)
-                    bool bIsDate1904 = q->workbook()->date1904().value_or(false);
-
-                    QVariant vDatetimeValue = datetimeFromNumber( dValue, bIsDate1904 );
-                    Q_UNUSED(vDatetimeValue);
-                    // cell->d_func()->value = vDatetimeValue;
-                    cell->d_func()->value = dValue; // dev67
+                    cell->setValue(dValue); // dev67
                 }
                 else {
                     // ELSE type
-                    cell->d_func()->value = value;
+                    cell->setValue(value);
                 }
             }
             else if (reader.name() == QLatin1String("is")) {
                 //TODO: add rich text read support
-                cell->d_func()->value = reader.readElementText();
+                cell->setValue(reader.readElementText());
             }
             else if (reader.name() == QLatin1String("extLst"))
                 reader.skipCurrentElement();

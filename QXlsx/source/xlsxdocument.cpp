@@ -11,7 +11,6 @@
 #include <QDebug>
 
 #include "xlsxdocument.h"
-#include "xlsxdocument_p.h"
 #include "xlsxworkbook.h"
 #include "xlsxworksheet.h"
 #include "xlsxchartsheet.h"
