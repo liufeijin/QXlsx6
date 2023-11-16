@@ -36,17 +36,6 @@ CellPrivate::CellPrivate(const CellPrivate * const cp)
 
 }
 
-/*!
-  \class Cell
-  \brief The Cell class provides a API that is used to handle the worksheet cell.
-
-*/
-
-/*!
- * \internal
- * Created by Worksheet only.
- */
-// qint32 styleIndex = (-1)
 Cell::Cell(const QVariant &data, 
     Type type,
     const Format &format,
@@ -61,27 +50,18 @@ Cell::Cell(const QVariant &data,
     d_ptr->styleNumber = styleIndex;
 }
 
-/*!
- * \internal
- */
 Cell::Cell(const Cell * const cell):
     d_ptr(new CellPrivate(cell->d_ptr))
 {
     d_ptr->q_ptr = this;
 }
 
-/*!
- * Destroys the Cell and cleans up.
- */
 Cell::~Cell()
 {
     if ( NULL != d_ptr )
         delete d_ptr;
 }
 
-/*!
- * Returns the data type of this Cell
- */
 Cell::Type Cell::type() const
 {
     Q_D(const Cell);
@@ -89,9 +69,6 @@ Cell::Type Cell::type() const
     return d->cellType;
 }
 
-/*!
- * Returns the data content of this Cell
- */
 QVariant Cell::value() const
 {
     Q_D(const Cell);
@@ -99,9 +76,6 @@ QVariant Cell::value() const
     return d->value;
 }
 
-/*!
-* Returns the data content of this Cell for reading
-*/
 QVariant Cell::readValue() const
 {
     Q_D(const Cell);
@@ -219,9 +193,6 @@ QVariant Cell::readValue() const
     return ret;
 }
 
-/*!
- * Return the style used by this Cell. If no style used, 0 will be returned.
- */
 Format Cell::format() const
 {
     Q_D(const Cell);
@@ -235,9 +206,6 @@ void Cell::setFormat(const Format &format)
     d->format = format;
 }
 
-/*!
- * Returns true if the cell has one formula.
- */
 bool Cell::hasFormula() const
 {
     Q_D(const Cell);
@@ -245,9 +213,6 @@ bool Cell::hasFormula() const
     return d->formula.isValid();
 }
 
-/*!
- * Return the formula contents if the dataType is Formula
- */
 CellFormula Cell::formula() const
 {
     Q_D(const Cell);
@@ -255,9 +220,6 @@ CellFormula Cell::formula() const
     return d->formula;
 }
 
-/*!
- * Returns whether the value is probably a dateTime or not
- */
 bool Cell::isDateTime() const
 {
     Q_D(const Cell);
@@ -284,20 +246,6 @@ bool Cell::isDateTime() const
     return false;
 }
 
-/*!
- * Return the data time value.
- */
-/*
-QDateTime Cell::dateTime() const
-{
-    Q_D(const Cell);
-
-    if (!isDateTime())
-        return QDateTime();
-
-    return datetimeFromNumber(d->value.toDouble(), d->parent->workbook()->isDate1904());
-}
-*/
 QVariant Cell::dateTime() const
 {
     Q_D(const Cell);
@@ -316,9 +264,6 @@ QVariant Cell::dateTime() const
     return ret;
 }
 
-/*!
- * Returns whether the cell is probably a rich string or not
- */
 bool Cell::isRichString() const
 {
     Q_D(const Cell);

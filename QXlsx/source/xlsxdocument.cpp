@@ -67,6 +67,29 @@
 
 namespace QXlsx {
 
+class DocumentPrivate
+{
+    Q_DECLARE_PUBLIC(Document)
+public:
+    DocumentPrivate(Document *p);
+    void init();
+
+    bool loadPackage(QIODevice *device);
+    bool savePackage(QIODevice *device) const;
+
+    // copy style from one xlsx file to other
+    //    static bool copyStyle(const QString &from, const QString &to);
+
+    Document *q_ptr;
+    const QString defaultPackageName; //default name when package name not specified
+    QString packageName; //name of the .xlsx file
+
+    QMap<QString, QString> documentProperties; //core, app and custom properties
+    QSharedPointer<Workbook> workbook;
+    std::shared_ptr<ContentTypes> contentTypes;
+    bool isLoad;
+};
+
 namespace xlsxDocumentCpp {
     std::string copyTag(const std::string &sFrom, const std::string &sTo, const std::string &tag) {
         const std::string tagToFindStart = "<" + tag;

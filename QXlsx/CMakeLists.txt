@@ -102,7 +102,6 @@ set(SRC_FILES
     header/xlsxdocpropsapp_p.h
     header/xlsxdocpropscore_p.h
     header/xlsxdocument.h
-    header/xlsxdocument_p.h
     header/xlsxdrawing_p.h
     header/xlsxdrawinganchor_p.h
     header/xlsxeffect.h

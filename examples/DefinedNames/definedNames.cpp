@@ -20,24 +20,24 @@ int main()
         xlsx.write(i, 3, i*i*i);
     }
 
-    xlsx.addDefinedName("MyCol_1", "=Sheet1!$A$1:$A$10");
-    xlsx.addDefinedName("MyCol_2", "=Sheet1!$B$1:$B$10");
-    auto definedName = xlsx.definedName("MyCol_2");
+    xlsx.workbook()->addDefinedName("MyCol_1", "=Sheet1!$A$1:$A$10");
+    xlsx.workbook()->addDefinedName("MyCol_2", "=Sheet1!$B$1:$B$10");
+    auto definedName = xlsx.workbook()->definedName("MyCol_2");
     if (definedName)
         definedName->comment = "This is a comment";
-    xlsx.addDefinedName("MyCol_3", "=Sheet1!$C$1:$C$10", "Sheet1");
-    definedName = xlsx.definedName("MyCol_3");
+    xlsx.workbook()->addDefinedName("MyCol_3", "=Sheet1!$C$1:$C$10", "Sheet1");
+    definedName = xlsx.workbook()->definedName("MyCol_3");
     if (definedName)
         definedName->description = "This is a description";
-    xlsx.addDefinedName("Factor", "=0.5");
-    auto factor = xlsx.definedName("Factor");
+    xlsx.workbook()->addDefinedName("Factor", "=0.5");
+    auto factor = xlsx.workbook()->definedName("Factor");
     if (factor) {
         factor->hidden = true; //hide this name from the list of defined names.
         factor->workbookParameter = true;
     }
     //test adding duplicate defined name
-    Q_ASSERT_X(!xlsx.addDefinedName("MyCol_1", "=Sheet1!$A$1:$A$20"), "", "MyCol_1 is already defined");
-    qDebug() << "Defined names:" << xlsx.definedNames();
+    Q_ASSERT_X(!xlsx.workbook()->addDefinedName("MyCol_1", "=Sheet1!$A$1:$A$20"), "", "MyCol_1 is already defined");
+    qDebug() << "Defined names:" << xlsx.workbook()->definedNames();
 
     xlsx.write(11, 1, "=SUM(MyCol_1)");
     xlsx.write(11, 2, "=SUM(MyCol_2)");

@@ -21,14 +21,6 @@ AbstractOOXmlFilePrivate::~AbstractOOXmlFilePrivate()
     delete relationships;
 }
 
-/*!
- * \internal
- *
- * \class AbstractOOXmlFile
- *
- * Base class of all the ooxml part file.
- */
-
 AbstractOOXmlFile::AbstractOOXmlFile(CreateFlag flag)
     :d_ptr(new AbstractOOXmlFilePrivate(this, flag))
 {
@@ -64,28 +56,18 @@ bool AbstractOOXmlFile::loadFromXmlData(const QByteArray &data)
     return loadFromXmlFile(&buffer);
 }
 
-/*!
- * \internal
- */
 void AbstractOOXmlFile::setFilePath(const QString path)
 {
     Q_D(AbstractOOXmlFile);
     d->filePathInPackage = path;
 }
 
-/*!
- * \internal
- */
 QString AbstractOOXmlFile::filePath() const
 {
     Q_D(const AbstractOOXmlFile);
     return d->filePathInPackage;
 }
 
-
-/*!
- * \internal
- */
 Relationships *AbstractOOXmlFile::relationships() const
 {
     Q_D(const AbstractOOXmlFile);

@@ -251,9 +251,6 @@ ChartPrivate &ChartPrivate::operator=(const ChartPrivate &other)
     return *this;
 }
 
-/*!
- * \internal
- */
 Chart::Chart(AbstractSheet *parent, CreateFlag flag)
     : AbstractOOXmlFile(new ChartPrivate(this, flag))
 {
@@ -1016,9 +1013,6 @@ void Chart::setLayout(const Layout &layout)
     d->layout = layout;
 }
 
-/*!
- * \internal
- */
 void Chart::saveToXmlFile(QIODevice *device) const
 {
     Q_D(const Chart);

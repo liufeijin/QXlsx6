@@ -95,7 +95,6 @@ $${QXLSX_HEADERPATH}xlsxdatetype.h \
 $${QXLSX_HEADERPATH}xlsxdocpropsapp_p.h \
 $${QXLSX_HEADERPATH}xlsxdocpropscore_p.h \
 $${QXLSX_HEADERPATH}xlsxdocument.h \
-$${QXLSX_HEADERPATH}xlsxdocument_p.h \
 $${QXLSX_HEADERPATH}xlsxdrawinganchor_p.h \
 $${QXLSX_HEADERPATH}xlsxdrawing_p.h \
 $${QXLSX_HEADERPATH}xlsxformat.h \

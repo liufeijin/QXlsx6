@@ -759,27 +759,18 @@ void AbstractSheet::removeSheetProtection()
     d->sheetProtection = SheetProtection();
 }
 
-/*!
- * \internal
- */
 int AbstractSheet::id() const
 {
     Q_D(const AbstractSheet);
     return d->id;
 }
 
-/*!
- * \internal
- */
 Drawing *AbstractSheet::drawing() const
 {
     Q_D(const AbstractSheet);
     return d->drawing.get();
 }
 
-/*!
- * Return the workbook
- */
 Workbook *AbstractSheet::workbook() const
 {
     Q_D(const AbstractSheet);
