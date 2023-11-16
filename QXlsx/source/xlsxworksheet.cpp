@@ -701,12 +701,12 @@ bool Worksheet::write(const CellReference &row_column, const QVariant &value, co
     return write(row_column.row(), row_column.column(), value, format);
 }
 
-QVariant Worksheet::read(const CellReference &row_column) const
+QVariant Worksheet::read(const CellReference &cell) const
 {
-    if (!row_column.isValid())
+    if (!cell.isValid())
         return QVariant();
 
-    return read(row_column.row(), row_column.column());
+    return read(cell.row(), cell.column());
 }
 
 QVariant Worksheet::read(int row, int column) const

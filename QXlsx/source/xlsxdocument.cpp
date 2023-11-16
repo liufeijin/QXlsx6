@@ -473,77 +473,77 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     return true;
 }
 
-bool DocumentPrivate::copyStyle(const QString &from, const QString &to)
-{
-    // create a temp file because the zip writer cannot modify already existing zips
-    QTemporaryFile tempFile;
-    tempFile.open();
-    tempFile.close();
-    QString temFilePath = QFileInfo(tempFile).absoluteFilePath();
+//bool DocumentPrivate::copyStyle(const QString &from, const QString &to)
+//{
+//    // create a temp file because the zip writer cannot modify already existing zips
+//    QTemporaryFile tempFile;
+//    tempFile.open();
+//    tempFile.close();
+//    QString temFilePath = QFileInfo(tempFile).absoluteFilePath();
 
-    ZipWriter temporalZip(temFilePath);
+//    ZipWriter temporalZip(temFilePath);
 
-    ZipReader zipReader(from);
-    QStringList filePaths = zipReader.filePaths();
+//    ZipReader zipReader(from);
+//    QStringList filePaths = zipReader.filePaths();
 
-    QSharedPointer<ZipReader> toReader = QSharedPointer<ZipReader>(new ZipReader(to));
+//    QSharedPointer<ZipReader> toReader = QSharedPointer<ZipReader>(new ZipReader(to));
 
-    QStringList toFilePaths = toReader->filePaths();
+//    QStringList toFilePaths = toReader->filePaths();
 
-    // copy all files from "to" zip except those related to style
-    for (int i = 0; i < toFilePaths.size(); i++) {
-        if (toFilePaths[i].contains(QLatin1String("xl/styles"))) {
-            if (filePaths.contains(toFilePaths[i])) {    // style file exist in 'from' as well
-                // modify style file
-                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
-                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
-                // copy default theme style from 'from' to 'to'
-                toData = xlsxDocumentCpp::copyTag(fromData, toData, "dxfs");
-                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
+//    // copy all files from "to" zip except those related to style
+//    for (int i = 0; i < toFilePaths.size(); i++) {
+//        if (toFilePaths[i].contains(QLatin1String("xl/styles"))) {
+//            if (filePaths.contains(toFilePaths[i])) {    // style file exist in 'from' as well
+//                // modify style file
+//                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
+//                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
+//                // copy default theme style from 'from' to 'to'
+//                toData = xlsxDocumentCpp::copyTag(fromData, toData, "dxfs");
+//                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
 
-                continue;
-            }
-        }
+//                continue;
+//            }
+//        }
 
-        if (toFilePaths[i].contains(QLatin1String("xl/workbook"))) {
-            if (filePaths.contains(toFilePaths[i])) {    // workbook file exist in 'from' as well
-                // modify workbook file
-                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
-                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
-                // copy default theme style from 'from' to 'to'
-                toData = xlsxDocumentCpp::copyTag(fromData, toData, "workbookPr");
-                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
-                continue;
-            }
-        }
+//        if (toFilePaths[i].contains(QLatin1String("xl/workbook"))) {
+//            if (filePaths.contains(toFilePaths[i])) {    // workbook file exist in 'from' as well
+//                // modify workbook file
+//                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
+//                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
+//                // copy default theme style from 'from' to 'to'
+//                toData = xlsxDocumentCpp::copyTag(fromData, toData, "workbookPr");
+//                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
+//                continue;
+//            }
+//        }
 
-        if (toFilePaths[i].contains(QLatin1String("xl/worksheets/sheet"))) {
-            if (filePaths.contains(toFilePaths[i])) {    // sheet file exist in 'from' as well
-                // modify sheet file
-                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
-                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
-                // copy "conditionalFormatting" from 'from' to 'to'
-                toData = xlsxDocumentCpp::copyTag(fromData, toData, "conditionalFormatting");
-                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
-                continue;
-            }
-        }
+//        if (toFilePaths[i].contains(QLatin1String("xl/worksheets/sheet"))) {
+//            if (filePaths.contains(toFilePaths[i])) {    // sheet file exist in 'from' as well
+//                // modify sheet file
+//                std::string fromData = QString::fromUtf8(zipReader.fileData(toFilePaths[i])).toStdString();
+//                std::string toData = QString::fromUtf8(toReader->fileData(toFilePaths[i])).toStdString();
+//                // copy "conditionalFormatting" from 'from' to 'to'
+//                toData = xlsxDocumentCpp::copyTag(fromData, toData, "conditionalFormatting");
+//                temporalZip.addFile(toFilePaths.at(i), QString::fromUtf8(toData.c_str()).toUtf8());
+//                continue;
+//            }
+//        }
 
-        QByteArray data = toReader->fileData(toFilePaths.at(i));
-        temporalZip.addFile(toFilePaths.at(i), data);
-    }
+//        QByteArray data = toReader->fileData(toFilePaths.at(i));
+//        temporalZip.addFile(toFilePaths.at(i), data);
+//    }
 
-    temporalZip.close();
+//    temporalZip.close();
 
-    toReader.clear();
+//    toReader.clear();
 
-    tempFile.close();
+//    tempFile.close();
 
-    QFile::remove(to);
-    tempFile.copy(to);
+//    QFile::remove(to);
+//    tempFile.copy(to);
 
-    return true;
-}
+//    return true;
+//}
 
 Document::Document(QObject *parent) :
     QObject(parent), d_ptr(new DocumentPrivate(this))
@@ -551,40 +551,23 @@ Document::Document(QObject *parent) :
     d_ptr->init();
 }
 
-Document::Document(const QString &name, 
-                    QObject *parent) :
-    QObject(parent), 
-    d_ptr(new DocumentPrivate(this))
+Document::Document(const QString &name, bool loadImmediately, QObject *parent) :
+    QObject(parent), d_ptr(new DocumentPrivate(this))
 {
     d_ptr->packageName = name; 
 
-    if (QFile::exists(name)) 
-    {
-        QFile xlsx(name);
-        if (xlsx.open(QFile::ReadOnly))
-        {
-            if (! d_ptr->loadPackage(&xlsx))
-            {
-                // NOTICE: failed to load package 
-            }
-        }
+    if (loadImmediately) {
+        load();
     }
 
     d_ptr->init();
 }
 
-/*!
- * \overload
- * Try to open an existing xlsx document from \a device.
- * The \a parent argument is passed to QObject's constructor.
- */
 Document::Document(QIODevice *device, QObject *parent) :
     QObject(parent), d_ptr(new DocumentPrivate(this))
 {
-    if (device && device->isReadable())
-    {
-        if (!d_ptr->loadPackage(device))
-        {
+    if (device && device->isReadable()) {
+        if (!d_ptr->loadPackage(device)) {
             // NOTICE: failed to load package 
         }
     }
@@ -619,50 +602,10 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
-bool Document::addDefinedName(const QString &name, const QString &formula, const QString &scope)
-{
-    Q_D(Document);
-    return d->workbook->addDefinedName(name, formula, scope);
-}
-
-bool Document::removeDefinedName(const QString &name)
-{
-    Q_D(Document);
-    return d->workbook->removeDefinedName(name);
-}
-
-bool Document::removeDefinedName(DefinedName *name)
-{
-    Q_D(Document);
-    return d->workbook->removeDefinedName(name);
-}
-
-bool Document::hasDefinedName(const QString &name) const
-{
-    Q_D(const Document);
-    return d->workbook->hasDefinedName(name);
-}
-
-QStringList Document::definedNames() const
-{
-    Q_D(const Document);
-    return d->workbook->definedNames();
-}
-
-DefinedName *Document::definedName(const QString &name)
-{
-    Q_D(Document);
-    return d->workbook->definedName(name);
-}
-
 QString Document::documentProperty(const QString &key) const
 {
     Q_D(const Document);
-    auto it = d->documentProperties.constFind(key);
-    if (it != d->documentProperties.constEnd())
-        return it.value();
-    else
-        return QString();
+    return d->documentProperties.value(key);
 }
 
 void Document::setDocumentProperty(const QString &name, const QString &property)
@@ -713,6 +656,12 @@ bool Document::insertSheet(int index, const QString &name, AbstractSheet::Type t
     return d->workbook->insertSheet(index, name, type);
 }
 
+int Document::sheetsCount() const
+{
+    Q_D(const Document);
+    return d->workbook->sheetsCount();
+}
+
 bool Document::renameSheet(const QString &oldName, const QString &newName)
 {
     Q_D(Document);
@@ -721,24 +670,36 @@ bool Document::renameSheet(const QString &oldName, const QString &newName)
     return d->workbook->renameSheet(sheetNames().indexOf(oldName), newName);
 }
 
-bool Document::copySheet(const QString &srcName, const QString &distName)
+bool Document::copySheet(const QString &srcName, const QString &dstName)
 {
     Q_D(Document);
-    if (srcName == distName)
+    if (srcName == dstName)
         return false;
-    return d->workbook->copySheet(sheetNames().indexOf(srcName), distName);
+    return d->workbook->copySheet(sheetNames().indexOf(srcName), dstName);
 }
 
-bool Document::moveSheet(const QString &srcName, int distIndex)
+bool Document::moveSheet(const QString &sheetName, int dstIndex)
 {
     Q_D(Document);
-    return d->workbook->moveSheet(sheetNames().indexOf(srcName), distIndex);
+    return d->workbook->moveSheet(sheetName, dstIndex);
+}
+
+bool Document::moveSheet(int srcIndex, int dstIndex)
+{
+    Q_D(Document);
+    return d->workbook->moveSheet(srcIndex, dstIndex);
 }
 
 bool Document::deleteSheet(const QString &name)
 {
     Q_D(Document);
     return d->workbook->deleteSheet(sheetNames().indexOf(name));
+}
+
+bool Document::deleteSheet(int index)
+{
+    Q_D(Document);
+    return d->workbook->deleteSheet(index);
 }
 
 AbstractSheet *Document::activeSheet() const
@@ -753,6 +714,15 @@ Worksheet *Document::activeWorksheet() const
     AbstractSheet *st = activeSheet();
     if (st && st->type() == AbstractSheet::Type::Worksheet)
         return static_cast<Worksheet *>(st);
+    else
+        return nullptr;
+}
+
+Chartsheet *Document::activeChartsheet() const
+{
+    AbstractSheet *st = activeSheet();
+    if (st && st->type() == AbstractSheet::Type::Chartsheet)
+        return static_cast<Chartsheet *>(st);
     else
         return nullptr;
 }
@@ -803,9 +773,20 @@ bool Document::isLoaded() const
     return d->isLoad; 
 }
 
-bool Document::copyStyle(const QString &from, const QString &to) {
-    return DocumentPrivate::copyStyle(from, to);
+bool Document::load()
+{
+    if (QFile::exists(d_ptr->packageName)) {
+        QFile xlsx(d_ptr->packageName);
+        if (xlsx.open(QFile::ReadOnly)) {
+            return d_ptr->loadPackage(&xlsx);
+        }
+    }
+    return false;
 }
+
+//bool Document::copyStyle(const QString &from, const QString &to) {
+//    return DocumentPrivate::copyStyle(from, to);
+//}
 
 Document::~Document()
 {

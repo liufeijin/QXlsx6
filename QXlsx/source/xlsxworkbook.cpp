@@ -297,6 +297,15 @@ AbstractSheet *Workbook::addSheet(const QString &name, AbstractSheet::Type type)
     return insertSheet(d->sheets.size(), name, type);
 }
 
+Chartsheet *Workbook::addChartsheet(const QString &name)
+{
+    return dynamic_cast<Chartsheet*>(addSheet(name, AbstractSheet::Type::Chartsheet));
+}
+Worksheet *Workbook::addWorksheet(const QString &name)
+{
+    return dynamic_cast<Worksheet*>(addSheet(name));
+}
+
 /*!
  * \internal
  */
@@ -459,6 +468,13 @@ bool Workbook::moveSheet(int srcIndex, int dstIndex)
         d->sheets.append(sheet);
     }
     return true;
+}
+
+bool Workbook::moveSheet(const QString &sheetName, int dstIndex)
+{
+    int srcIndex = sheetNames().indexOf(sheetName);
+    if (srcIndex >= 0) return moveSheet(srcIndex, dstIndex);
+    return false;
 }
 
 bool Workbook::copySheet(int index, const QString &newName)

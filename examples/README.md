@@ -79,7 +79,7 @@ This example shows that `Worksheet::read()` method returns values with respect t
 Document doc;
 doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
 qDebug() << doc.read(3, 1).type() << doc.read(3, 1); // QVariant::QDate QVariant(QDate, QDate("2019-10-09"))
-qDebug() << doc.cellAt(3, 1)->value().type() << doc.cellAt(3, 1)->value(); // QVariant::double QVariant(double, 43747)
+qDebug() << doc.activeWorksheet()->cellAt(3, 1)->value().type() << doc.cellAt(3, 1)->value(); // QVariant::double QVariant(double, 43747)
 ```
 
 

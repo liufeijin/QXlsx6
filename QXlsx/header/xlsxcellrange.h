@@ -77,8 +77,8 @@ public:
     bool isValid() const;
     inline void setFirstRow(int row) { top = row; }
     inline void setLastRow(int row) { bottom = row; }
-    inline void setFirstColumn(int col) { left = col; }
-    inline void setLastColumn(int col) { right = col; }
+    inline void setFirstColumn(int column) { left = column; }
+    inline void setLastColumn(int column) { right = column; }
     inline int firstRow() const { return top; }
     inline int lastRow() const { return bottom; }
     inline int firstColumn() const { return left; }

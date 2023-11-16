@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
 
     //---------------------------------------------------------------
-    //Create the first sheet (Otherwise, default "Sheet1" will be created)
+    //Create the first sheet
     xlsx.addSheet("Aligns & Borders");
     auto sheet = xlsx.activeWorksheet();
     sheet->setColumnWidth(2, 20); //Column B

@@ -64,7 +64,7 @@ public:
     static CellReference fromString(const QString &cell);
     bool isValid() const;
     inline void setRow(int row) { _row = row; }
-    inline void setColumn(int col) { _column = col; }
+    inline void setColumn(int column) { _column = column; }
     inline int row() const { return _row; }
     inline int column() const { return _column; }
     /**

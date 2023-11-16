@@ -147,6 +147,8 @@ of row R1 and column C1. */
      * @return pointer to the new sheet on success, nullptr otherwise.
      */
     AbstractSheet *addSheet(const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
+    Chartsheet *addChartsheet(const QString &name = QString());
+    Worksheet *addWorksheet(const QString &name = QString());
     /**
      * @brief inserts new sheet
      * @param index the sheet index (0 to #sheetsCount()-1).
@@ -192,12 +194,19 @@ of row R1 and column C1. */
      */
     bool copySheet(int index, const QString &newName=QString());
     /**
-     * @brief moves the sheet from @a srcIndex to @a dstIndex
+     * @brief moves the sheet from @a srcIndex to @a dstIndex.
      * @param srcIndex the old index.
-     * @param distIndex the  new index.
+     * @param dstIndex the new index.
      * @return true on success.
      */
     bool moveSheet(int srcIndex, int dstIndex);
+    /**
+     * @brief moves the sheet named @a sheetName to @a dstIndex.
+     * @param sheetName the sheet to move.
+     * @param dstIndex the new index.
+     * @return true on success.
+     */
+    bool moveSheet(const QString &sheetName, int dstIndex);
     /**
      * @brief returns the active (current) sheet.
      * @return pointer to the active sheet. If no sheets were added to the
@@ -386,7 +395,7 @@ of row R1 and column C1. */
      * If #calculationMode() is set to CalculationMode::Manual, then this parameter
      * is ignored.
      *
-     * @param trigger If true, then the application performs a full recalculation
+     * @param recalculate If true, then the application performs a full recalculation
      * of workbook values when the workbook is opened.
      *
      * If no value is set, false is assumed.

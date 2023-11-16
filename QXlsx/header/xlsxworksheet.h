@@ -206,8 +206,17 @@ public:
     bool setFormat(int row, int column, const Format &format);
     //TODO: bool clearFormat()
 
-    QVariant read(const CellReference &row_column) const;
     /**
+     * @brief Reads the cell data and returns it as a QVariant object.
+     * @param cell The cell to read from.
+     * @return QVariant object, that may contain a number, a string, a date/time etc.
+     * @note If @a cell contains a shared formula, and this cell is not a 'master'
+     * formula cell, this method recalculates the formula references to the ones related to
+     * @a row and @a column.
+     */
+    QVariant read(const CellReference &cell) const;
+    /**
+     * @overload
      * @brief Reads the cell data and returns it as a QVariant object.
      * @param row The cell row (starting from 1).
      * @param column The cell column (starting from 1).
@@ -577,12 +586,12 @@ public:
     bool setColumnWidth(const CellRange& range, double width);
     bool setColumnFormat(const CellRange& range, const Format &format);
     bool setColumnHidden(const CellRange& range, bool hidden);
-    bool setColumnWidth(int colFirst, int colLast, double width);
-    bool setColumnWidth(int col, double width);
-    bool setColumnFormat(int colFirst, int colLast, const Format &format);
-    bool setColumnFormat(int col, const Format &format);
-    bool setColumnHidden(int colFirst, int colLast, bool hidden);
-    bool setColumnHidden(int col, bool hidden);
+    bool setColumnWidth(int columnFirst, int columnLast, double width);
+    bool setColumnWidth(int column, double width);
+    bool setColumnFormat(int columnFirst, int columnLast, const Format &format);
+    bool setColumnFormat(int column, const Format &format);
+    bool setColumnHidden(int columnFirst, int columnLast, bool hidden);
+    bool setColumnHidden(int column, bool hidden);
     /**
      * @brief returns the width of @a column in characters.
      * @param column column index (1-based).

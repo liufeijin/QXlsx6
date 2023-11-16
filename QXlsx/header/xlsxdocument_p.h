@@ -24,7 +24,7 @@ public:
     bool savePackage(QIODevice *device) const;
 
     // copy style from one xlsx file to other
-    static bool copyStyle(const QString &from, const QString &to);
+//    static bool copyStyle(const QString &from, const QString &to);
 
     Document *q_ptr;
     const QString defaultPackageName; //default name when package name not specified

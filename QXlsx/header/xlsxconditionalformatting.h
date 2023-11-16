@@ -370,9 +370,9 @@ public:
      * @overload
      * @brief adds the cell which the conditional formatting is applied to.
      * @param row the (1-based) cell row number.
-     * @param col the (1-based) cell column number.
+     * @param column the (1-based) cell column number.
      */
-    void addCell(int row, int col);
+    void addCell(int row, int column);
     /**
      * @brief adds cell range which the conditional formatting is applied to.
      * @param range valid CellRange object.
