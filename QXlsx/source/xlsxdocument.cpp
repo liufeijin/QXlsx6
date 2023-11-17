@@ -84,6 +84,9 @@ public:
     QString packageName; //name of the .xlsx file
 
     QMap<QString, QString> documentProperties; //core, app and custom properties
+
+    QMap<Document::Metadata, QVariant> metadata; //core and app properties
+
     QSharedPointer<Workbook> workbook;
     std::shared_ptr<ContentTypes> contentTypes;
     bool isLoad;
@@ -213,7 +216,7 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
     Relationships rootRels;
     rootRels.loadFromXmlData(zipReader.fileData(QStringLiteral("_rels/.rels")));
 
-    //load core property
+    //load core properties
     QList<XlsxRelationship> rels_core = rootRels.packageRelationships(QStringLiteral("/metadata/core-properties"));
     if (!rels_core.isEmpty()) {
         //Get the core property file name if it exists.
@@ -222,24 +225,22 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
 
         DocPropsCore props(DocPropsCore::F_LoadFromExists);
         props.loadFromXmlData(zipReader.fileData(docPropsCore_Name));
-        const auto propNames = props.propertyNames();
-        for (const QString &name : propNames)
-            q->setDocumentProperty(name, props.property(name));
+        metadata.insert(props.properties());
     }
 
-    //load app property
+    //load app properties
     QList<XlsxRelationship> rels_app = rootRels.documentRelationships(QStringLiteral("/extended-properties"));
     if (!rels_app.isEmpty()) {
         //Get the app property file name if it exists.
         //In normal case, this should be "docProps/app.xml"
         QString docPropsApp_Name = rels_app[0].target;
 
-        DocPropsApp props(DocPropsApp::F_LoadFromExists);
-        props.loadFromXmlData(zipReader.fileData(docPropsApp_Name));
-        const auto propNames = props.propertyNames();
-        for (const QString &name : propNames)
-            q->setDocumentProperty(name, props.property(name));
+        DocPropsApp docPropsApp(DocPropsApp::F_LoadFromExists);
+        docPropsApp.loadFromXmlData(zipReader.fileData(docPropsApp_Name));
+        metadata.insert(docPropsApp.properties());
     }
+
+    //TODO: load extended properties
 
     //load workbook now, Get the workbook file path from the root rels file
     //In normal case, this should be "xl/workbook.xml"
@@ -429,10 +430,10 @@ bool DocumentPrivate::savePackage(QIODevice *device) const
     }
 
     // save docProps app/core xml file
-    const auto docPropNames = q->documentPropertyNames();
-    for (const QString &name : docPropNames) {
-        docPropsApp.setProperty(name, q->documentProperty(name));
-        docPropsCore.setProperty(name, q->documentProperty(name));
+    const auto docProps = q->allMetadata();
+    for (auto name : docProps.keys()) {
+        docPropsApp.setProperty(name, q->metadata(name));
+        docPropsCore.setProperty(name, q->metadata(name));
     }
     contentTypes->addDocPropApp();
     contentTypes->addDocPropCore();
@@ -624,22 +625,28 @@ QVariant Document::read(int row, int col) const
     return QVariant();
 }
 
-QString Document::documentProperty(const QString &key) const
+QVariant Document::metadata(Metadata property) const
 {
     Q_D(const Document);
-    return d->documentProperties.value(key);
+    return d->metadata.value(property);
 }
 
-void Document::setDocumentProperty(const QString &name, const QString &property)
+void Document::setMetadata(Metadata property, const QVariant &value)
 {
     Q_D(Document);
-    d->documentProperties[name] = property;
+    d->metadata[property] = value;
 }
 
-QStringList Document::documentPropertyNames() const
+bool Document::hasMetadata(Metadata property) const
 {
     Q_D(const Document);
-    return d->documentProperties.keys();
+    return d->metadata.contains(property);
+}
+
+QMap<Document::Metadata, QVariant> Document::allMetadata() const
+{
+    Q_D(const Document);
+    return d->metadata;
 }
 
 Workbook *Document::workbook() const

@@ -75,6 +75,7 @@ void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, int 
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, double val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<double> val);
 void writeEmptyElement(QXmlStreamWriter &writer, const QLatin1String &name, QString val);
+void writeTextElement(QXmlStreamWriter &writer, const QLatin1String &name, QString val);
 
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<bool> val);
 void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::optional<int> val);

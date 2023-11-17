@@ -1,6 +1,7 @@
 // xlsxdocpropsapp.cpp
 
 #include "xlsxdocpropsapp_p.h"
+#include "xlsxutility_p.h"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -27,35 +28,12 @@ void DocPropsApp::addHeadingPair(const QString &name, int value)
     m_headingPairsList.append({ name, value });
 }
 
-bool DocPropsApp::setProperty(const QString &name, const QString &value)
+void DocPropsApp::setProperty(Document::Metadata name, const QVariant &value)
 {
-    static const QStringList validKeys = {
-        QStringLiteral("manager"), QStringLiteral("company")
-    };
-
-    if (!validKeys.contains(name))
-        return false;
-
-    if (value.isEmpty())
+    if (!value.isValid())
         m_properties.remove(name);
     else
         m_properties[name] = value;
-
-    return true;
-}
-
-QString DocPropsApp::property(const QString &name) const
-{
-    auto it = m_properties.constFind(name);
-    if (it != m_properties.constEnd())
-        return it.value();
-
-    return QString();
-}
-
-QStringList DocPropsApp::propertyNames() const
-{
-    return m_properties.keys();
 }
 
 void DocPropsApp::saveToXmlFile(QIODevice *device) const
@@ -67,7 +45,8 @@ void DocPropsApp::saveToXmlFile(QIODevice *device) const
     writer.writeStartElement(QStringLiteral("Properties"));
     writer.writeDefaultNamespace(QStringLiteral("http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"));
     writer.writeNamespace(vt, QStringLiteral("vt"));
-    writer.writeTextElement(QStringLiteral("Application"), QStringLiteral("Microsoft Excel"));
+    writer.writeTextElement(QStringLiteral("Application"),
+                            m_properties.value(Document::Metadata::Application, QStringLiteral("Microsoft Excel")).toString());
     writer.writeTextElement(QStringLiteral("DocSecurity"), QStringLiteral("0"));
     writer.writeTextElement(QStringLiteral("ScaleCrop"), QStringLiteral("false"));
 
@@ -96,17 +75,14 @@ void DocPropsApp::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement();//vt:vector
     writer.writeEndElement();//TitlesOfParts
 
-    auto it = m_properties.constFind(QStringLiteral("manager"));
-    if (it != m_properties.constEnd())
-        writer.writeTextElement(QStringLiteral("Manager"), it.value());
-    //Not like "manager", "company" always exists for Excel generated file.
-
-    it = m_properties.constFind(QStringLiteral("company"));
-    writer.writeTextElement(QStringLiteral("Company"), it != m_properties.constEnd() ? it.value() : QString());
+    writeTextElement(writer, QLatin1String("Manager"), m_properties.value(Document::Metadata::Manager).toString());
+    writer.writeTextElement(QStringLiteral("Company"), m_properties.value(Document::Metadata::Company).toString());
     writer.writeTextElement(QStringLiteral("LinksUpToDate"), QStringLiteral("false"));
     writer.writeTextElement(QStringLiteral("SharedDoc"), QStringLiteral("false"));
     writer.writeTextElement(QStringLiteral("HyperlinksChanged"), QStringLiteral("false"));
-    writer.writeTextElement(QStringLiteral("AppVersion"), QStringLiteral("12.0000"));
+
+    writer.writeTextElement(QStringLiteral("AppVersion"),
+                            m_properties.value(Document::Metadata::AppVersion, QStringLiteral("12.0000")).toString());
 
     writer.writeEndElement(); //Properties
     writer.writeEndDocument();
@@ -118,14 +94,14 @@ bool DocPropsApp::loadFromXmlFile(QIODevice *device)
     while (!reader.atEnd()) {
          QXmlStreamReader::TokenType token = reader.readNext();
          if (token == QXmlStreamReader::StartElement) {
-             if (reader.name() == QLatin1String("Properties"))
-                 continue;
-
-             if (reader.name() == QStringLiteral("Manager")) {
-                 setProperty(QStringLiteral("manager"), reader.readElementText());
-             } else if (reader.name() == QStringLiteral("Company")) {
-                 setProperty(QStringLiteral("company"), reader.readElementText());
-             }
+             if (reader.name() == QStringLiteral("Manager"))
+                 setProperty(Document::Metadata::Manager, reader.readElementText());
+             else if (reader.name() == QStringLiteral("Company"))
+                 setProperty(Document::Metadata::Company, reader.readElementText());
+             else if (reader.name() == QStringLiteral("Application"))
+                 setProperty(Document::Metadata::Application, reader.readElementText());
+             else if (reader.name() == QStringLiteral("AppVersion"))
+                 setProperty(Document::Metadata::AppVersion, reader.readElementText());
          }
 
          if (reader.hasError()) {

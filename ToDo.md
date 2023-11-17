@@ -10,6 +10,10 @@
 
 # What is yet to be done:
 
+## Document
+
+1. Add custom metadata support. Right now only core and extended metadata are supported.
+
 ## Workbooks
 
 1. Add methods to access workbook properties (right now only isDate1904() exists).

@@ -5,6 +5,7 @@
 
 #include "xlsxglobal.h"
 #include "xlsxabstractooxmlfile.h"
+#include "xlsxdocument.h"
 
 #include <QMap>
 #include <QStringList>
@@ -18,15 +19,14 @@ class DocPropsCore : public AbstractOOXmlFile
 public:
     explicit DocPropsCore(CreateFlag flag);
 
-    bool setProperty(const QString &name, const QString &value);
-    QString property(const QString &name) const;
-    QStringList propertyNames() const;
+    void setProperty(Document::Metadata name, const QVariant &value);
+    inline QMap<Document::Metadata, QVariant> properties() const {return m_properties;}
         
     void saveToXmlFile(QIODevice *device) const override;
     bool loadFromXmlFile(QIODevice *device) override;
 
 private:
-    QMap<QString, QString> m_properties;
+    QMap<Document::Metadata, QVariant> m_properties;
 };
 
 }

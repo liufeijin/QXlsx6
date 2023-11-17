@@ -9,6 +9,7 @@
 
 #include "xlsxglobal.h"
 #include "xlsxabstractooxmlfile.h"
+#include "xlsxdocument.h"
 
 class QIODevice;
 
@@ -22,9 +23,11 @@ public:
     void addPartTitle(const QString &title);
     void addHeadingPair(const QString &name, int value);
 
-    bool setProperty(const QString &name, const QString &value);
-    QString property(const QString &name) const;
-    QStringList propertyNames() const;
+    void setProperty(Document::Metadata name, const QVariant &value);
+    QMap<Document::Metadata, QVariant> properties() const
+    {
+        return m_properties;
+    }
 
     void saveToXmlFile(QIODevice *device) const override;
     bool loadFromXmlFile(QIODevice *device) override;
@@ -32,7 +35,7 @@ public:
 private:
     QStringList m_titlesOfPartsList;
     QList<std::pair<QString, int> > m_headingPairsList;
-    QMap<QString, QString> m_properties;
+    QMap<Document::Metadata, QVariant> m_properties;
 };
 
 }

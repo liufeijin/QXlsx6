@@ -30,7 +30,7 @@ class Chartsheet;
  *
  * This class is used as an entry point to the xlsx document. It has methods to
  * #save() and #load() xlsx file, and to some extent to manipulate sheets and
- * their contents.
+ * their contents (internally through the #workbook() pointer).
  *
  * See [Demo example](../../examples/Demo/demo.cpp).
  *
@@ -45,23 +45,47 @@ class QXLSX_EXPORT Document : public QObject
                                 // macro in the public class. The macro reads: qglobal.h
 public:
     /**
+     * @brief The Metadata enum specifies the document metadata that the user can change.
+     */
+    enum class Metadata
+    {
+        Category, /**< Core string property */
+        ContentStatus, /**< Core string property */
+        Created, /**< Core date/time property. By default QXlsx writes the current date/time */
+        Creator, /**< Core string property. By default QXlsx writes "QXlsx Library" */
+        Description, /**< Core string property */
+        Identifier, /**< Core string property */
+        Keywords, /**< Core string property */
+        Language, /**< Core string property */
+        LastModifiedBy, /**< Core string property. By default QXlsx writes "QXlsx Library" */
+        LastPrinted, /**< Core date/time property. */
+        Revision, /**< Core string property */
+        Subject, /**< Core string property */
+        Title, /**< Core string property */
+        Version, /**< Core string property */
+        Application, /**< Extended string property. By default QXlsx writes "Microsoft Excel" */
+        AppVersion, /**< Extended string property. By default QXlsx writes "12.0000" */
+        Company, /**< Extended string property */
+        Manager /**< Extended string property */
+    };
+    /**
      * @brief creates an empty Document.
      * @param parent
      */
     explicit Document(QObject *parent = nullptr);
     /**
      * @overload
-     * @brief creates Document and optionally reads @a xlsxName file.
-     * @param xlsxName File name to read.
+     * @brief creates Document and optionally reads @a name file.
+     * @param name File name to read.
      * @param loadImmediately If true, then the document will be loaded on creation.
-     * If false, use #load() method to read @a xlsxName.
+     * If false, use #load() method to read @a name.
      * @param parent
      */
-    Document(const QString& xlsxName, bool loadImmediately = true, QObject* parent = nullptr);
+    Document(const QString& name, bool loadImmediately = true, QObject* parent = nullptr);
     /**
      * @overload
      * @brief creates Document and reads from @a device.
-     * @param device pointer to a device to read from.
+     * @param device pointer to a readable device to read from.
      * @param parent this object parent.
      */
     Document(QIODevice* device, QObject* parent = nullptr);
@@ -75,11 +99,11 @@ public:
     bool save() const;
     /**
      * @brief saves the current document.
-     * @param xlsXname The document name. If the file @a xlsXname already exists,
+     * @param name The document name. If the file @a name already exists,
      * it will be overwritten.
      * @return true on success.
      */
-    bool saveAs(const QString &xlsXname) const;
+    bool saveAs(const QString &name) const;
     /**
      * @brief writes the current document to the @a device.
      * @param device the pointer to the (writable) device.
@@ -191,46 +215,41 @@ public:
      * ```
      */
     QVariant read(int row, int column) const;
+
+
+    /// Document metadata properties
+
     /**
-     * @brief returns the document property with @a name.
-     * @param name the property name. Here is the list of the core properties:
+     * @brief returns the metadata property associated with the document.
+     * @param property The metadata to retrieve.
+     * @return Valid QVariant object if @a property was set.
+     */
+    QVariant metadata(Metadata property) const;
+    /**
+     * @brief sets the metadata property associated with the document.
+     * @param property The metadata to set.
+     * @param value The metadata value.
+     */
+    void setMetadata(Metadata property, const QVariant &value);
+    /**
+     * @brief returns whether the document has metadata @a property associated with it.
+     * @param property The metadata to test.
+     * @return true if @a property was set.
+     * @note The following metadata properties get the default values if they were not
+     * set by the moment the document is being written:
      *
-     * - title
-     * - subject
-     * - creator
-     * - manager
-     * - company
-     * - category
-     * - keywords
-     * - description
-     * - status
+     * - Metadata::Created
+     * - Metadata::Creator
+     * - Metadata::LastModifiedBy
+     * - Metadata::Application
+     * - Metadata::AppVersion
      */
-    QString documentProperty(const QString &name) const;
+    bool hasMetadata(Metadata property) const;
     /**
-        @brief Set the document properties such as Title, Author etc.
-
-        The method can be used to set the document properties of the Excel
-        file created by Qt Xlsx. These properties are visible when you use the
-        Office Button -> Prepare -> Properties option in Excel and are also
-        available to external applications that read or index windows files.
-
-        The property @a name that can be set are:
-
-        - title
-        - subject
-        - creator
-        - manager
-        - company
-        - category
-        - keywords
-        - description
-        - status
-    */
-    void setDocumentProperty(const QString &name, const QString &property);
-    /**
-     * @brief returns the list of property names defined in the document.
+     * @brief returns the map of all metadata associated with the document.
      */
-    QStringList documentPropertyNames() const;
+    QMap<Metadata, QVariant> allMetadata() const;
+
     /**
      * @brief returns the list of sheets names.
      */

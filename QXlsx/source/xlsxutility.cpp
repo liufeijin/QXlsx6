@@ -525,4 +525,9 @@ void writeAttribute(QXmlStreamWriter &writer, const QLatin1String &name, std::op
     if (val.has_value()) writeAttribute(writer, name, val.value());
 }
 
+void writeTextElement(QXmlStreamWriter &writer, const QLatin1String &name, QString val)
+{
+    if (!val.isEmpty()) writer.writeTextElement(name, val);
+}
+
 }
