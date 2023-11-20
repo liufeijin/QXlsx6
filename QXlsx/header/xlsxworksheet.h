@@ -202,9 +202,83 @@ public:
     bool write(const CellReference &row_column, const QVariant &value, const Format &format=Format());
     bool write(int row, int column, const QVariant &value, const Format &format=Format());
 
+    /**
+     * @brief sets formatting for @a range.
+     * @param range valid CellRange.
+     * @param format If valid, sets new format. If invalid, clears formatting in @a range.
+     * @return true on success.
+     * @sa #format(), #clearFormat().
+     */
     bool setFormat(const CellRange &range, const Format &format);
+    /**
+     * @overload
+     * @brief sets formatting for the cell (@a row, @a column).
+     * @param row index of the cell row (starting from 1).
+     * @param column index of the cell column (starting from 1).
+     * @param format If valid, sets new format. If invalid, clears formatting.
+     * @return true on success.
+     */
     bool setFormat(int row, int column, const Format &format);
-    //TODO: bool clearFormat()
+    /**
+     * @brief clears formatting in @a range.
+     * @param range valid CellRange.
+     * @return true on success.
+     * @note This method does not remove not used Format from the workbook styles,
+     * it simply removes the link between Format and Cell.
+     * @sa #setFormat(), #format().
+     */
+    bool clearFormat(const CellRange &range);
+    /**
+     * @overload
+     * @brief clears formatting in the cell (@a row, @a column).
+     * @param row index of the cell row (starting from 1).
+     * @param column index of the cell column (starting from 1).
+     * @return true on success.
+     * @note This method does not remove not used Format from the workbook styles,
+     * it simply removes the link between Format and Cell.
+     * @sa #setFormat(), #format().
+     */
+    bool clearFormat(int row, int column);
+    /**
+     * @overload
+     * @brief clears formatting on the entire worksheet.
+     * @note This method does not remove not used Format from the workbook styles,
+     * it simply removes the link between Format and Cell.
+     * @sa #setFormat(), #format().
+     */
+    void clearFormat();
+    /**
+     * @brief returns format of the @a cell.
+     * @param cell valid CellReference.
+     * @return A copy of the cell Format. May be invalid if no formatting was set
+     * for @a cell.
+     *
+     * You can get the format directly:
+     *
+     * ```cpp
+     * if (auto c = sheet->cell(cellRef))
+     *     return c->format();
+     * return {};
+     * ```
+     */
+    Format format(const CellReference &cellRef) const;
+    /**
+     * @overload
+     * @brief returns format of the cell (@a row, @a column).
+     * @param row index of the cell row (starting from 1).
+     * @param column index of the cell column (starting from 1).
+     * @return A copy of the cell Format. May be invalid if no formatting was set
+     * for the cell.
+     *
+     * You can get the format directly:
+     *
+     * ```cpp
+     * if (auto c = sheet->cell(row, column))
+     *     return c->format();
+     * return {};
+     * ```
+     */
+    Format format(int row, int column) const;
 
     /**
      * @brief Reads the cell data and returns it as a QVariant object.
@@ -958,12 +1032,52 @@ public:
      * adds the default one. To get the specific view use #view() method.
      */
     void setWindowProtected(bool protect);
-    std::optional<bool> isFormulasVisible() const; //TODO: doc
-    void setFormulasVisible(bool visible);//TODO: doc
-    std::optional<bool> isGridLinesVisible() const;//TODO: doc
-    void setGridLinesVisible(bool visible);//TODO: doc
-    std::optional<bool> isRowColumnHeadersVisible() const;//TODO: doc
-    void setRowColumnHeadersVisible(bool visible);//TODO: doc
+    /**
+     * @brief returns whether formulas in the cells are displayed.
+     * @return True, if formulas in the cells are displayed 'as is'. False,
+     * if the computed values are displayed. `nullopt` if the parameter is not set.
+     *
+     * The default value is `false`.
+     */
+    std::optional<bool> isFormulasVisible() const;
+    /**
+     * @brief sets the visibility of formulas in the cells.
+     * @param visible If `true`, then formulas in the cells are displayed 'as is'.
+     * If `false`, then the computed values are displayed.
+     *
+     * If not set, `false` is assumed.
+     */
+    void setFormulasVisible(bool visible);
+    /**
+     * @brief returns whether the sheet grid lines are shown.
+     * @return `true` if the grid lines are shown.
+     *
+     * The default value is 'true'.
+     */
+    std::optional<bool> isGridLinesVisible() const;
+    /**
+     * @brief sets whether the sheet grid lines are shown.
+     * @param visible If `true` then grid lines are shown. If `false`, then grid
+     * lines are hidden.
+     *
+     * If not set, `true` is assumed.
+     */
+    void setGridLinesVisible(bool visible);
+    /**
+     * @brief returns whether the row and column headers are shown.
+     * @return valid bool if the parameter was set, `nullopt` otherwise.
+     *
+     * The default value is `true`.
+     */
+    std::optional<bool> isRowColumnHeadersVisible() const;
+    /**
+     * @brief eturns whether the row and column headers are shown.
+     * @param visible If `true` then the row and column headers are shown.
+     * If `false` then the row and column headers are hidden.
+     *
+     * If not set, `true` is assumed.
+     */
+    void setRowColumnHeadersVisible(bool visible);
     /**
      * @brief returns whether the window should show 0 (zero) in cells
      * containing zero value.

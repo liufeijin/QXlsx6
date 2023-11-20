@@ -692,6 +692,46 @@ bool Worksheet::setFormat(int row, int column, const Format &format)
     return true;
 }
 
+bool Worksheet::clearFormat(const CellRange &range)
+{
+    bool applied = false;
+    for (int row = range.firstRow(); row <= range.lastRow(); ++row) {
+        for (int col = range.firstColumn(); col <= range.lastColumn(); ++col) {
+            if (auto c = cell(row, col)) {
+                c->setFormat({});
+                applied = true;
+            }
+        }
+    }
+    return applied;
+}
+
+bool Worksheet::clearFormat(int row, int column)
+{
+    if (auto c = cell(row, column)) {
+        c->setFormat({});
+        return true;
+    }
+    return false;
+}
+
+void Worksheet::clearFormat()
+{
+    clearFormat(dimension());
+}
+
+Format Worksheet::format(const CellReference &cell) const
+{
+    if (auto c = this->cell(cell)) return c->format();
+    return {};
+}
+
+Format Worksheet::format(int row, int column) const
+{
+    if (auto c = cell(row, column)) return c->format();
+    return {};
+}
+
 bool Worksheet::write(const CellReference &row_column, const QVariant &value, const Format &format)
 {
     if (!row_column.isValid())
@@ -753,9 +793,9 @@ Cell *Worksheet::cell(int row, int col) const
     Q_D(const Worksheet);
     auto it = d->cellTable.constFind(row);
     if (it == d->cellTable.constEnd())
-        return 0;
+        return nullptr;
     if (!it->contains(col))
-        return 0;
+        return nullptr;
 
     return (*it)[col].get();
 }
