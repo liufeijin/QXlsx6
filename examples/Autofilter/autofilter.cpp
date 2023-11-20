@@ -63,7 +63,7 @@ int main()
             sheet->write(j,i,i+j);
         }
     }
-    sheet->autofilter().setSorting(QXlsx::CellRange(1,1,31,10), QXlsx::CellRange(1,2,31,2), Qt::DescendingOrder);
+    sheet->autofilter().setSorting(QXlsx::CellRange(2,1,31,10), QXlsx::CellRange(2,2,31,2), Qt::DescendingOrder);
 
     xlsx.saveAs("autofilter.xlsx");
     return 0;

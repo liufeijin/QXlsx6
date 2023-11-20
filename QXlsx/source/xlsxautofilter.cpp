@@ -252,10 +252,10 @@ void AutoFilter::setFilter(int column, const Filter &filter)
 void AutoFilter::write(QXmlStreamWriter &writer, const QString &name) const
 {
     if (!isValid()) return;
-
     writer.writeStartElement(name);
 
     if (d->range.isValid()) writer.writeAttribute(QLatin1String("ref"), d->range.toString());
+
 
     for (auto it = d->columns.constBegin(); it != d->columns.constEnd(); ++it)
         it.value().write(writer, QLatin1String("filterColumn"), it.key());
@@ -871,6 +871,7 @@ bool AutoFilter::setSorting(const CellRange &sortRange, const CellRange &sortBy,
     if (!sortRange.isValid()) return false;
 
     if (!d) d = new AutoFilterPrivate;
+    setRange(sortRange);
     SortState ss;
     ss.range = sortRange;
     ss.caseSensitive = caseSensitivity;

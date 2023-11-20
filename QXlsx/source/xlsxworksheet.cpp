@@ -1713,9 +1713,10 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //10. scenarios
 
     //11. autoFilter
-    if (d->autofilter.isValid()) d->autofilter.write(writer, QLatin1String("autoFilter"));
+    d->autofilter.write(writer, QLatin1String("autoFilter"));
 
     //12. sortState
+    d->sortState.write(writer, QLatin1String("sortState"));
 
     //13. dataConsolidate
 
@@ -2822,6 +2823,8 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->headerFooter.read(reader);
             else if (reader.name() == QLatin1String("autoFilter"))
                 d->autofilter.read(reader);
+            else if (reader.name() == QLatin1String("sortState"))
+                d->sortState.read(reader);
             else if (reader.name() == QLatin1String("drawing")) {
                 QString rId = a.value(QLatin1String("r:id")).toString();
                 QString name = d->relationships->getRelationshipById(rId).target;

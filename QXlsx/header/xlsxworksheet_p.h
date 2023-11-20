@@ -176,6 +176,8 @@ public:
 
     SheetFormatProperties sheetFormatProperties;
     AutoFilter autofilter;
+    SortState sortState;
+
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
     std::optional<bool> fullCalcOnLoad;
