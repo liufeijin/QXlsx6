@@ -95,6 +95,9 @@ public:
     QString saltValue;
     std::optional<int> spinCount;
 
+    // workbookPr
+    WorkbookProtection protection;
+
     // --- These members have no corresponding methods in Workbook
     // oleSize
     CellRange oleSize;

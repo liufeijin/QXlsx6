@@ -450,6 +450,57 @@ of row R1 and column C1. */
      */
     void setCalculationParametersDefaults();
 
+
+
+    /// Protection
+
+
+    /**
+     * @brief returns the workbook protection parameters.
+     */
+    WorkbookProtection workbookProtection() const;
+    /**
+     * @brief creates the default workbook protection and returns
+     * the reference to it.
+     */
+    WorkbookProtection &workbookProtection();
+    /**
+     * @brief sets the workbook protection parameters.
+     * @param protection WorkbookProtection object. If invalid, removes the
+     * workbook protection.
+     */
+    void setWorkbookProtection(const WorkbookProtection &protection);
+    /**
+     * @brief returns whether the workbook is protected.
+     * @return true if any of the protection parameters were set.
+     * @sa #isPasswordProtectionSet().
+     */
+    bool isWorkbookProtected() const;
+    /**
+     * @brief returns whether the workbook is protected with password.
+     *
+     * If password protection is set, then #isWorkbookProtected() also returns true.
+     */
+    bool isPasswordProtectionSet() const;
+    /**
+     * @brief sets the password protection to the workbook.
+     * @param algorithm a string that describes the hashing algorithm used.
+     * See #Protection::algorithmName for some reserved values.
+     * @param hash a string that contains the hashed password in a base64 form.
+     * @param salt a string that contains the salt in a base64 form.
+     * @param spinCount count of iterations to compute the password hash.
+     *
+     * The actual hashing should be done outside this library.
+     * See QCryptographicHash and QPasswordDigestor.
+     */
+    void setPasswordProtection(const QString &algorithm, const QString &hash,
+                               const QString &salt = QString(), int spinCount = 1);
+    /**
+     * @brief deletes any workbook protection parameters that have been set.
+     */
+    void removeWorkbookProtection();
+
+
     //internal used member
     bool addMediaFile(QSharedPointer<MediaFile> media, bool force=false);
     void removeMediaFile(QSharedPointer<MediaFile> media);

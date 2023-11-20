@@ -6,10 +6,7 @@ namespace QXlsx {
 class SheetProtectionPrivate : public QSharedData
 {
 public:
-    QString algorithmName;
-    QString hashValue;
-    QString saltValue;
-    std::optional<int> spinCount;
+    Protection protection;
     std::optional<bool> protectContent;
     std::optional<bool> protectObjects;
     std::optional<bool> protectSheet;
@@ -33,6 +30,22 @@ public:
     ~SheetProtectionPrivate();
 
     bool operator == (const SheetProtectionPrivate &other) const;
+};
+
+class WorkbookProtectionPrivate : public QSharedData
+{
+public:
+    Protection protection;
+    Protection revisionsProtection;
+    std::optional<bool> lockStructure;
+    std::optional<bool> lockWindows;
+    std::optional<bool> lockRevision;
+
+    WorkbookProtectionPrivate();
+    WorkbookProtectionPrivate(const WorkbookProtectionPrivate &other);
+    ~WorkbookProtectionPrivate();
+
+    bool operator == (const WorkbookProtectionPrivate &other) const;
 };
 
 SheetProtection::SheetProtection()
@@ -79,40 +92,50 @@ SheetProtection::operator QVariant() const
     return QVariant(cref, this);
 }
 
-QString SheetProtection::algorithmName() const
+WorkbookProtection &WorkbookProtection::operator=(const WorkbookProtection &other)
 {
-    if (!d) return {};
-    return d->algorithmName;
+    if (*this != other) d = other.d;
+    return *this;
 }
 
-void SheetProtection::setAlgorithmName(const QString &name)
+bool WorkbookProtection::operator == (const WorkbookProtection &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return *this->d.constData() == *other.d.constData();
+}
+bool WorkbookProtection::operator != (const WorkbookProtection &other) const
+{
+    return !operator==(other);
+}
+
+WorkbookProtection::operator QVariant() const
+{
+    const auto& cref
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+        = QMetaType::fromType<WorkbookProtection>();
+#else
+        = qMetaTypeId<WorkbookProtection>() ;
+#endif
+    return QVariant(cref, this);
+}
+
+Protection SheetProtection::protection() const
+{
+    if (d) return d->protection;
+    return {};
+}
+
+Protection &SheetProtection::protection()
 {
     if (!d) d = new SheetProtectionPrivate;
-    d->algorithmName = name;
+    return d->protection;
 }
 
-QString SheetProtection::hashValue() const
-{
-    if (!d) return {};
-    return d->hashValue;
-}
-
-void SheetProtection::setHashValue(const QString hashValue)
+void SheetProtection::setProtection(const Protection &protection)
 {
     if (!d) d = new SheetProtectionPrivate;
-    d->hashValue = hashValue;
-}
-
-QString SheetProtection::saltValue() const
-{
-    if (!d) return {};
-    return d->saltValue;
-}
-
-void SheetProtection::setSaltValue(const QString &saltValue)
-{
-    if (!d) d = new SheetProtectionPrivate;
-    d->saltValue = saltValue;
+    d->protection = protection;
 }
 
 std::optional<bool> SheetProtection::protectSelectUnlockedCells() const
@@ -319,18 +342,6 @@ void SheetProtection::setProtectContent(bool protectContent)
     d->protectContent = protectContent;
 }
 
-std::optional<int> SheetProtection::spinCount() const
-{
-    if (!d) return {};
-    return d->spinCount;
-}
-
-void SheetProtection::setSpinCount(int spinCount)
-{
-    if (!d) d = new SheetProtectionPrivate;
-    d->spinCount = spinCount;
-}
-
 bool SheetProtection::isValid() const
 {
     if (d)
@@ -342,10 +353,10 @@ void SheetProtection::write(QXmlStreamWriter &writer, bool chartsheet) const
 {
     if (!d) return;
     writer.writeEmptyElement(QLatin1String("sheetProtection"));
-    writeAttribute(writer, QLatin1String("algorithmName"), d->algorithmName);
-    writeAttribute(writer, QLatin1String("hashValue"), d->hashValue);
-    writeAttribute(writer, QLatin1String("saltValue"), d->saltValue);
-    writeAttribute(writer, QLatin1String("spinCount"), d->spinCount);
+    writeAttribute(writer, QLatin1String("algorithmName"), d->protection.algorithmName);
+    writeAttribute(writer, QLatin1String("hashValue"), d->protection.hashValue);
+    writeAttribute(writer, QLatin1String("saltValue"), d->protection.saltValue);
+    writeAttribute(writer, QLatin1String("spinCount"), d->protection.spinCount);
     if (chartsheet) writeAttribute(writer, QLatin1String("content"), d->protectContent);
     if (!chartsheet) writeAttribute(writer, QLatin1String("sheet"), d->protectSheet);
     writeAttribute(writer, QLatin1String("objects"), d->protectObjects);
@@ -369,10 +380,10 @@ void SheetProtection::read(QXmlStreamReader &reader)
 {
     d = new SheetProtectionPrivate;
     const auto &a = reader.attributes();
-    parseAttributeString(a, QLatin1String("algorithmName"), d->algorithmName);
-    parseAttributeString(a, QLatin1String("hashValue"), d->hashValue);
-    parseAttributeString(a, QLatin1String("saltValue"), d->saltValue);
-    parseAttributeInt(a, QLatin1String("spinCount"), d->spinCount);
+    parseAttributeString(a, QLatin1String("algorithmName"), d->protection.algorithmName);
+    parseAttributeString(a, QLatin1String("hashValue"), d->protection.hashValue);
+    parseAttributeString(a, QLatin1String("saltValue"), d->protection.saltValue);
+    parseAttributeInt(a, QLatin1String("spinCount"), d->protection.spinCount);
     parseAttributeBool(a, QLatin1String("content"), d->protectContent);
     parseAttributeBool(a, QLatin1String("sheet"), d->protectSheet);
     parseAttributeBool(a, QLatin1String("objects"), d->protectObjects);
@@ -399,10 +410,7 @@ SheetProtectionPrivate::SheetProtectionPrivate()
 
 SheetProtectionPrivate::SheetProtectionPrivate(const SheetProtectionPrivate &other)
     : QSharedData(other),
-    algorithmName{other.algorithmName},
-    hashValue{other.hashValue},
-    saltValue{other.saltValue},
-    spinCount{other.spinCount},
+    protection{other.protection},
     protectContent{other.protectContent},
     protectObjects{other.protectObjects},
     protectSheet{other.protectSheet},
@@ -431,10 +439,7 @@ SheetProtectionPrivate::~SheetProtectionPrivate()
 
 bool SheetProtectionPrivate::operator ==(const SheetProtectionPrivate &other) const
 {
-    if (algorithmName != other.algorithmName) return false;
-    if (hashValue != other.hashValue) return false;
-    if (saltValue != other.saltValue) return false;
-    if (spinCount != other.spinCount) return false;
+    if (protection != other.protection) return false;
     if (protectContent != other.protectContent) return false;
     if (protectObjects != other.protectObjects) return false;
     if (protectSheet != other.protectSheet) return false;
@@ -453,6 +458,187 @@ bool SheetProtectionPrivate::operator ==(const SheetProtectionPrivate &other) co
     if (protectPivotTables != other.protectPivotTables) return false;
     if (protectSelectUnlockedCells != other.protectSelectUnlockedCells) return false;
     return true;
+}
+
+Protection::Protection(const QString &algorithm, const QString &hashValue, const QString &salt, std::optional<int> spinCount)
+    : algorithmName(algorithm), hashValue(hashValue), saltValue(salt), spinCount(spinCount)
+{
+
+}
+
+bool Protection::isValid() const
+{
+    return !algorithmName.isEmpty() || !hashValue.isEmpty() || !saltValue.isEmpty()
+           || spinCount.has_value();
+}
+
+bool Protection::operator==(const Protection &other) const
+{
+    return algorithmName==other.algorithmName && hashValue == other.hashValue &&
+           saltValue == other.saltValue && spinCount == other.spinCount;
+}
+
+bool Protection::operator!=(const Protection &other) const
+{
+    return !operator==(other);
+}
+
+WorkbookProtectionPrivate::WorkbookProtectionPrivate()
+{
+
+}
+
+WorkbookProtectionPrivate::WorkbookProtectionPrivate(const WorkbookProtectionPrivate &other)
+    : QSharedData(other),
+    protection{other.protection},
+    revisionsProtection{other.revisionsProtection},
+    lockStructure{other.lockStructure},
+    lockWindows{other.lockWindows},
+    lockRevision{other.lockRevision}
+{
+
+}
+
+WorkbookProtectionPrivate::~WorkbookProtectionPrivate()
+{
+
+}
+
+bool WorkbookProtectionPrivate::operator ==(const WorkbookProtectionPrivate &other) const
+{
+    if (protection != other.protection) return false;
+    if (revisionsProtection != other.revisionsProtection) return false;
+    if (lockStructure != other.lockStructure) return false;
+    if (lockWindows != other.lockWindows) return false;
+    if (lockRevision != other.lockRevision) return false;
+    return true;
+}
+
+WorkbookProtection::WorkbookProtection()
+{
+
+}
+
+WorkbookProtection::WorkbookProtection(const WorkbookProtection &other) : d{other.d}
+{
+
+}
+
+WorkbookProtection::~WorkbookProtection()
+{
+
+}
+
+Protection WorkbookProtection::protection() const
+{
+    if (d) return d->protection;
+    return {};
+}
+
+Protection &WorkbookProtection::protection()
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    return d->protection;
+}
+
+void WorkbookProtection::setProtection(const Protection &protection)
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    d->protection = protection;
+}
+
+Protection WorkbookProtection::revisionsProtection() const
+{
+    if (d) return d->revisionsProtection;
+    return {};
+}
+
+Protection &WorkbookProtection::revisionsProtection()
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    return d->revisionsProtection;
+}
+
+void WorkbookProtection::setRevisionsProtection(const Protection &protection)
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    d->revisionsProtection = protection;
+}
+
+std::optional<bool> WorkbookProtection::structureLocked() const
+{
+    if (d) return d->lockStructure;
+    return {};
+}
+
+void WorkbookProtection::setStructureLocked(bool locked)
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    d->lockStructure = locked;
+}
+
+std::optional<bool> WorkbookProtection::windowsLocked() const
+{
+    if (d) return d->lockWindows;
+    return {};
+}
+
+void WorkbookProtection::setWindowsLocked(bool locked)
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    d->lockWindows = locked;
+}
+
+std::optional<bool> WorkbookProtection::revisionsLocked() const
+{
+    if (d) return d->lockRevision;
+    return {};
+}
+
+void WorkbookProtection::setRevisionsLocked(bool locked)
+{
+    if (!d) d = new WorkbookProtectionPrivate;
+    d->lockRevision = locked;
+}
+
+bool WorkbookProtection::isValid() const
+{
+    if (d) return true;
+    return false;
+}
+
+void WorkbookProtection::write(QXmlStreamWriter &writer) const
+{
+    if (!d) return;
+    writer.writeEmptyElement(QLatin1String("workbookProtection"));
+    writeAttribute(writer, QLatin1String("lockStructure"), d->lockStructure);
+    writeAttribute(writer, QLatin1String("lockWindows"), d->lockWindows);
+    writeAttribute(writer, QLatin1String("lockRevision"), d->lockRevision);
+    writeAttribute(writer, QLatin1String("revisionsAlgorithmName"), d->revisionsProtection.algorithmName);
+    writeAttribute(writer, QLatin1String("revisionsHashValue"), d->revisionsProtection.hashValue);
+    writeAttribute(writer, QLatin1String("revisionsSaltValue"), d->revisionsProtection.saltValue);
+    writeAttribute(writer, QLatin1String("revisionsSpinCount"), d->revisionsProtection.spinCount);
+    writeAttribute(writer, QLatin1String("workbookAlgorithmName"), d->protection.algorithmName);
+    writeAttribute(writer, QLatin1String("workbookHashValue"), d->protection.hashValue);
+    writeAttribute(writer, QLatin1String("workbookSaltValue"), d->protection.saltValue);
+    writeAttribute(writer, QLatin1String("workbookSpinCount"), d->protection.spinCount);
+}
+
+void WorkbookProtection::read(QXmlStreamReader &reader)
+{
+    d = new WorkbookProtectionPrivate;
+    const auto &a = reader.attributes();
+    parseAttributeString(a, QLatin1String("workbookAlgorithmName"), d->protection.algorithmName);
+    parseAttributeString(a, QLatin1String("workbookHashValue"), d->protection.hashValue);
+    parseAttributeString(a, QLatin1String("workbookSaltValue"), d->protection.saltValue);
+    parseAttributeInt(a, QLatin1String("workbookSpinCount"), d->protection.spinCount);
+    parseAttributeString(a, QLatin1String("revisionsAlgorithmName"), d->revisionsProtection.algorithmName);
+    parseAttributeString(a, QLatin1String("revisionsHashValue"), d->revisionsProtection.hashValue);
+    parseAttributeString(a, QLatin1String("revisionsSaltValue"), d->revisionsProtection.saltValue);
+    parseAttributeInt(a, QLatin1String("revisionsSpinCount"), d->revisionsProtection.spinCount);
+    parseAttributeBool(a, QLatin1String("lockRevision"), d->lockRevision);
+    parseAttributeBool(a, QLatin1String("lockWindows"), d->lockWindows);
+    parseAttributeBool(a, QLatin1String("lockStructure"), d->lockStructure);
 }
 
 }

@@ -776,7 +776,8 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * The actual hashing should be done outside this library.
      * See QCryptographicHash and QPasswordDigestor.
      */
-    void setPassword(const QString &algorithm, const QString &hash, const QString &salt = QString(), int spinCount = 1);
+    void setPasswordProtection(const QString &algorithm, const QString &hash,
+                               const QString &salt = QString(), int spinCount = 1);
     /**
      * @brief sets the default sheet protection parameters.
      *

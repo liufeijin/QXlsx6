@@ -205,6 +205,52 @@ void Workbook::setCalculationParametersDefaults()
     d->forceFullCalc.reset();
 }
 
+WorkbookProtection Workbook::workbookProtection() const
+{
+     Q_D(const Workbook);
+     return d->protection;
+}
+
+WorkbookProtection &Workbook::workbookProtection()
+{
+    Q_D(Workbook);
+    return d->protection;
+}
+
+void Workbook::setWorkbookProtection(const WorkbookProtection &protection)
+{
+    Q_D(Workbook);
+    d->protection = protection;
+}
+
+bool Workbook::isWorkbookProtected() const
+{
+    Q_D(const Workbook);
+    return d->protection.isValid();
+}
+
+bool Workbook::isPasswordProtectionSet() const
+{
+    Q_D(const Workbook);
+    if (d->protection.isValid()) {
+        return !d->protection.protection().algorithmName.isEmpty() and
+               !d->protection.protection().hashValue.isEmpty();
+    }
+    return false;
+}
+
+void Workbook::setPasswordProtection(const QString &algorithm, const QString &hash, const QString &salt, int spinCount)
+{
+    Q_D(Workbook);
+    d->protection.protection() = Protection(algorithm, hash, salt, spinCount);
+}
+
+void Workbook::removeWorkbookProtection()
+{
+    Q_D(Workbook);
+    d->protection = {};
+}
+
 bool Workbook::addDefinedName(const QString &name,
                                       const QString &formula,
                                       const QString &scope)
@@ -635,7 +681,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     writeAttribute(writer, QLatin1String("defaultThemeVersion"), d->defaultThemeVersion.value_or(124226));
 
     // 4. workbookProtection
-    //TODO: workbookProtection
+    d->protection.write(writer);
     // 5. bookViews
     writer.writeStartElement(QStringLiteral("bookViews"));
     if (d->views.isEmpty()) d->views << WorkbookView{};
@@ -835,6 +881,8 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
 
                 sheet->setFilePath(fullPath);
             }
+            else if (reader.name() == QLatin1String("workbookProtection"))
+                d->protection.read(reader);
             else if (reader.name() == QLatin1String("workbookPr")) {
                 parseAttributeBool(attributes, QLatin1String("date1904"), d->date1904);
                 if (attributes.hasAttribute(QLatin1String("showObjects"))) {

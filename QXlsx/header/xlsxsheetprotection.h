@@ -8,6 +8,81 @@
 
 namespace QXlsx {
 
+/**
+ * @brief The Protection struct represents the protection parameters common for
+ * different classes: SheetProtection, WorkbookProtection etc. that specify
+ * the password protection options (hash, salt, algorithm and spin count).
+ */
+struct QXLSX_EXPORT Protection
+{
+    /**
+     * @brief creates a Protection object with specified password parameters.
+     */
+    Protection(const QString &algorithm = {}, const QString &hashValue = {},
+               const QString &salt = {}, std::optional<int> spinCount = std::nullopt);
+    /**
+     * @brief specifies the cryptographic hashing algorithm which shall
+     * be used along with the salt attribute and input password in order to
+     * compute the hash value.
+     *
+     * This is an optional parameter.
+     *
+     * The following names are reserved:
+     *
+     * Algorithm | Description
+     * ----|----
+     * MD2   |Specifies that the MD2 algorithm, as defined by RFC 1319, shall be used.
+     * MD4 |  Specifies that the MD4 algorithm, as defined by RFC 1320, shall be used.
+     * MD5 | Specifies that the MD5 algorithm, as defined by RFC 1321, shall be used.
+     * RIPEMD-128 | Specifies that the RIPEMD-128 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * RIPEMD-160 | Specifies that the RIPEMD-160 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-1 | Specifies that the SHA-1 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-256 | Specifies that the SHA-256 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * SHA-384 | Specifies that the SHA-384 algorithm, as defined by ISO/IEC 10118-3:2004  shall be used.
+     * SHA-512 | Specifies that the SHA-512 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * WHIRLPOOL | Specifies that the WHIRLPOOL algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     */
+    QString algorithmName;
+    /**
+     * @brief specifies the hash value as a base64 string for the password
+     * required to edit the document.
+     *
+     * This value shall be compared with the resulting hash value after hashing
+     * the user-supplied password using the #algorithmName, and if the two values
+     * match, the protection shall no longer be enforced.
+     *
+     * This is an optional parameter.
+     */
+    QString hashValue;
+    /**
+     * @brief specifies the salt as a base64 string which was prepended to the
+     * user-supplied password before it was hashed using #algorithmName to
+     * generate #hashValue, and which shall also be prepended to the user-supplied
+     * password before attempting to generate a hash value for comparison.
+     *
+     * A salt is a random string which is added to a user-supplied password
+     * before it is hashed in order to prevent a malicious party from
+     * pre-calculating all possible password/hash combinations and simply using
+     * those pre-calculated values (often referred to as a "dictionary attack").
+     *
+     * This is an optional parameter.
+     */
+    QString saltValue;
+    /**
+     * @brief specifies the number of times the hashing function shall be
+     * iteratively run (runs using each iteration's result plus a 4 byte value
+     * (0-based, little endian) containing the number of the iteration as the
+     * input for the next iteration) when attempting to compare a user-supplied
+     * password with the value stored in #hashValue.
+     *
+     * This is an optional parameter.
+     */
+    std::optional<int> spinCount;
+    bool isValid() const;
+    bool operator==(const Protection &other) const;
+    bool operator!=(const Protection &other) const;
+};
+
 class SheetProtectionPrivate;
 
 /**
@@ -34,108 +109,23 @@ public:
     operator QVariant() const;
 
     /**
-     * @brief returns the specific cryptographic hashing algorithm which was
-     * used along with the salt attribute and input password in order to
-     * compute the hash value.
-     * @return QString object. May be empty.
+     * @brief returns the sheet password protection parameters.
+     * @return Protection object. May be invalid.
      */
-    QString algorithmName() const;
+    Protection protection() const;
     /**
-     * @brief sets the specific cryptographic hashing algorithm which shall
-     * be used along with the salt attribute and input password in order to
-     * compute the hash value.
-     *
-     * This is an optional parameter. If algorithmName is empty, it will not be stored in the doc.
-     *
-     * @param name The algorithm name. The following names are reserved:
-     *
-     * Algorithm | Description
-     * ----|----
-     * MD2   |Specifies that the MD2 algorithm, as defined by RFC 1319, shall be used.
-     * MD4 |  Specifies that the MD4 algorithm, as defined by RFC 1320, shall be used.
-     * MD5 | Specifies that the MD5 algorithm, as defined by RFC 1321, shall be used.
-     * RIPEMD-128 | Specifies that the RIPEMD-128 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * RIPEMD-160 | Specifies that the RIPEMD-160 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-1 | Specifies that the SHA-1 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-256 | Specifies that the SHA-256 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * SHA-384 | Specifies that the SHA-384 algorithm, as defined by ISO/IEC 10118-3:2004  shall be used.
-     * SHA-512 | Specifies that the SHA-512 algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
-     * WHIRLPOOL | Specifies that the WHIRLPOOL algorithm, as defined by ISO/IEC 10118-3:2004 shall be used.
+     * @brief returns the sheet password protection parameters.
+     * @return a reference to the Protection object.
      */
-    void setAlgorithmName(const QString &name);
+    Protection &protection();
     /**
-     * @brief Returns the hash value for the password required to edit this worksheet.
-     *
-     * This value shall be compared with the resulting hash value after hashing
-     * the user-supplied password using the #algorithmName, and if the two values
-     * match, the protection shall no longer be enforced.
-     *
-     * This is an optional parameter. If hashValue is empty, it will not be stored in the doc.
-     * @return a base64 string.
+     * @brief sets the sheet password protection parameters.
+     * @param protection Protection object. If invalid, password protection is
+     * unset.
      */
-    QString hashValue() const;
+    void setProtection(const Protection &protection);
     /**
-     * @brief sets the hash value for the password required to edit this worksheet.
-     *
-     * This value shall be compared with the resulting hash value after hashing
-     * the user-supplied password using the #algorithmName(), and if the two values
-     * match, the protection shall no longer be enforced.
-     *
-     * This is an optional parameter. If @a hashValue is empty, it will not be stored in the doc.
-     * @param hashValue a base64 string.
-     */
-    void setHashValue(const QString hashValue);
-    /**
-     * @brief Returns the salt which was prepended to the user-supplied
-     * password before it was hashed using #algorithmName() to generate #hashValue(),
-     * and which shall also be prepended to the user-supplied password before
-     * attempting to generate a hash value for comparison.
-     *
-     * A salt is a random string which is added to a user-supplied password
-     * before it is hashed in order to prevent a malicious party from
-     * pre-calculating all possible password/hash combinations and simply using
-     * those pre-calculated values (often referred to as a "dictionary attack").
-     *
-     * @return a base64 string.
-     *
-     * This is an optional parameter. If saltValue is empty, it will not be stored in the doc.
-     */
-    QString saltValue() const;
-    /**
-     * @brief sets the salt which was prepended to the user-supplied
-     * password before it was hashed using #algorithmName() to generate #hashValue(),
-     * and which shall also be prepended to the user-supplied password before
-     * attempting to generate a hash value for comparison.
-     *
-     * A salt is a random string which is added to a user-supplied password
-     * before it is hashed in order to prevent a malicious party from
-     * pre-calculating all possible password/hash combinations and simply using
-     * those pre-calculated values (often referred to as a "dictionary attack").
-     * @param saltValue a base64 string.
-     *
-     * This is an optional parameter. If saltValue is empty, it will not be stored in the doc.
-     */
-    void setSaltValue(const QString &saltValue);
-    /**
-     * @brief Returns the number of times the hashing function shall be
-     * iteratively run (runs using each iteration's result plus a 4 byte value
-     * (0-based, little endian) containing the number of the iteration as the
-     * input for the next iteration) when attempting to compare a user-supplied
-     * password with the value stored in #hashValue().
-     * @return valid int value if the parameter was set, nullopt otherwise.
-     */
-    std::optional<int> spinCount() const;
-    /**
-     * @brief sets the number of times the hashing function shall be
-     * iteratively run (runs using each iteration's result plus a 4 byte value
-     * (0-based, little endian) containing the number of the iteration as the
-     * input for the next iteration) when attempting to compare a user-supplied
-     * password with the value stored in #hashValue().
-     * @param spinCount a positive integer value.
-     */
-    void setSpinCount(int spinCount);
-    /**
-     * @brief returns whether editing of sheet content should not be allowed when
+     * @brief returns whether editing of chartsheet content should not be allowed when
      * the chartsheet is protected.
      *
      * The default value is false.
@@ -144,7 +134,7 @@ public:
      */
     std::optional<bool> protectContent() const;
     /**
-     * @brief sets whether editing of sheet content should not be allowed when
+     * @brief sets whether editing of chartsheet content should not be allowed when
      * the chartsheet is protected.
      *
      * If not set, false is assumed.
@@ -435,6 +425,111 @@ public:
     QSharedDataPointer<SheetProtectionPrivate> d;
 };
 
+class WorkbookProtectionPrivate;
+
+/**
+ * @brief The WorkbookProtection class represents the workbook protection parameters.
+ */
+class QXLSX_EXPORT WorkbookProtection
+{
+public:
+    WorkbookProtection();
+    WorkbookProtection(const WorkbookProtection &other);
+    ~WorkbookProtection();
+    WorkbookProtection &operator=(const WorkbookProtection &other);
+
+    bool operator == (const WorkbookProtection &other) const;
+    bool operator != (const WorkbookProtection &other) const;
+
+    operator QVariant() const;
+
+    /**
+     * @brief returns the workbook password protection parameters.
+     * @return Protection object. May be invalid.
+     */
+    Protection protection() const;
+    /**
+     * @brief returns the workbook password protection parameters.
+     * @return a reference to the Protection object.
+     */
+    Protection &protection();
+    /**
+     * @brief sets the workbook password protection parameters.
+     * @param protection Protection object. If invalid, password protection is
+     * unset.
+     */
+    void setProtection(const Protection &protection);
+
+    /**
+     * @brief returns the revisions password protection parameters.
+     * @return Protection object. May be invalid.
+     */
+    Protection revisionsProtection() const;
+    /**
+     * @brief returns the revisions password protection parameters.
+     * @return a reference to the Protection object.
+     */
+    Protection &revisionsProtection();
+    /**
+     * @brief sets the revisions password protection parameters.
+     * @param protection Protection object. If invalid, password protection is
+     * unset.
+     */
+    void setRevisionsProtection(const Protection &protection);
+
+    /**
+     * @brief returns whether the workbook structure is locked.
+     *
+     * If the workbook structure is locked, then sheets in the workbook can't be
+     * moved, deleted, hidden, unhidden, or renamed, and new sheets can't be inserted.
+     *
+     * The default value is `false`.
+     */
+    std::optional<bool> structureLocked() const;
+    /**
+     * @brief sets whether the workbook structure is locked.
+     * @param locked If `true` then sheets in the workbook can't be
+     * moved, deleted, hidden, unhidden, or renamed, and new sheets can't be inserted.
+     *
+     * If not set, the default value is `false` (not locked).
+     */
+    void setStructureLocked(bool locked);
+    /**
+     * @brief returns whether the workbook windows are locked.
+     *
+     * If windows are locked, then they'll have the same size and position each
+     * time the document is opened.
+     *
+     * The default value is `false` (not locked).
+     */
+    std::optional<bool> windowsLocked() const;
+    /**
+     * @brief sets whether the workbook windows are locked.
+     * @param locked If true, then windows will have the same size and position each
+     * time the document is opened.
+     *
+     * If not set, `false` (not locked) is assumed.
+     */
+    void setWindowsLocked(bool locked);
+    /**
+     * @brief returns whether the workbook is locked for revisions.
+     */
+    std::optional<bool> revisionsLocked() const;
+    /**
+     * @brief sets whether the workbook is locked for revisions.
+     * @param locked if `true` then the workbook cannot get revisions.
+     */
+    void setRevisionsLocked(bool locked);
+    /**
+     * @brief returns whether any of protection parameters are set.
+     */
+    bool isValid() const;
+    void write(QXmlStreamWriter &writer) const;
+    void read(QXmlStreamReader &reader);
+
+    QSharedDataPointer<WorkbookProtectionPrivate> d;
+};
+
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const SheetProtection &f);
 #endif
@@ -443,5 +538,7 @@ QDebug operator<<(QDebug dbg, const SheetProtection &f);
 
 Q_DECLARE_METATYPE(QXlsx::SheetProtection)
 Q_DECLARE_TYPEINFO(QXlsx::SheetProtection, Q_MOVABLE_TYPE);
+Q_DECLARE_METATYPE(QXlsx::WorkbookProtection)
+Q_DECLARE_TYPEINFO(QXlsx::WorkbookProtection, Q_MOVABLE_TYPE);
 
 #endif // XLSXSHEETPROTECTION_H
