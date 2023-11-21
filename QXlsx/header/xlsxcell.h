@@ -48,12 +48,12 @@ public:
         Boolean, /**< Cell contains a boolean */
         Date, /**< Cell contains a date in the ISO 8601 format. */
         Error, /**< Cell contains an error. */
-        InlineString, /**< Cell containing an (inline) rich string, i.e., one not in
-                            the shared string table.  If this cell type is used, then
-                            the cell value is in the _is_ element rather than the _v_
-                            element in the cell (c element) */
+        InlineString, /**< Cell contains an (inline) rich string, i.e., one not in
+the shared string table. The string is written in the cell itself, with possible
+duplication of data. */
         Number, /**< Cell contains a number */
-        SharedString, /**< Cell contains a shared string */
+        SharedString, /**< Cell contains a shared string. The actual string is stored not in the
+cell but in the table of shared strings, thus reducing the document size. */
         String, /**< Cell contains a formula string */
     };
 

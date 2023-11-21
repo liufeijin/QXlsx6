@@ -199,8 +199,6 @@ public:
     ~Worksheet();
 
 public:
-    bool write(const CellReference &row_column, const QVariant &value, const Format &format=Format());
-    bool write(int row, int column, const QVariant &value, const Format &format=Format());
 
     /**
      * @brief sets formatting for @a range.
@@ -301,21 +299,195 @@ public:
      */
     QVariant read(int row, int column) const;
 
-    bool writeString(const CellReference &row_column, const QString &value, const Format &format=Format());
+    /**
+     * @brief writes @a value into the cell @a ref and applies @a format.
+     * @param ref the cell reference
+     * @param value
+     * @param format
+     * @return `true` on success.
+     *
+     * Depending on the @a value type and flags Workbook::isHtmlToRichStringEnabled(),
+     * Workbook::isStringsToHyperlinksEnabled(), Workbook::isStringsToNumbersEnabled()
+     * etc. this method tries to guess the right Cell::Type to use:
+     *
+     * value | behaviour | equivalent
+     * ----|----|----
+     * null variant | creates empty cell | #writeBlank()
+     * string starts with '=' | creates a formula string cell | #writeFormula()
+     * string contains HTML tags | if Workbook::isHtmlToRichStringEnabled() creates a rich string cell; otherwise creates a shared string cell | #writeString()
+     * string resembles a hyperlink | if Workbook::isStringsToHyperlinksEnabled(), creates a hyperlink cell; otherwise creates a shared string cell | #writeHyperlink()
+     * plain string | if value is convertible to a number and Workbook::isStringsToNumbersEnabled(), creates a numeric cell; otherwise creates a shared string cell | #writeString()
+     * number | creates a numeric cell | #writeNumeric()
+     * boolean | creates a boolean cell | #writeBool()
+     * date/time | creates a date-time cell | #writeDateTime()
+     */
+    bool write(const CellReference &ref, const QVariant &value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes @a value into the cell (@a row, @a column) and applies @a format.
+     * @param row index of the cell row (starting from 1).
+     * @param column index of the cell column (starting from 1).
+     * @param value value to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * Depending on the @a value type and flags Workbook::isHtmlToRichStringEnabled(),
+     * Workbook::isStringsToHyperlinksEnabled(), Workbook::isStringsToNumbersEnabled()
+     * etc. this method tries to guess the right Cell::Type to use:
+     *
+     * value | behaviour | equivalent
+     * ----|----|----
+     * null variant | creates empty cell | #writeBlank()
+     * string starts with '=' | creates a formula string cell | #writeFormula()
+     * string contains HTML tags | if Workbook::isHtmlToRichStringEnabled() creates a rich string cell; otherwise creates a shared string cell | #writeString()
+     * string resembles a hyperlink | if Workbook::isStringsToHyperlinksEnabled(), creates a hyperlink cell; otherwise creates a shared string cell | #writeHyperlink()
+     * plain string | if value is convertible to a number and Workbook::isStringsToNumbersEnabled(), creates a numeric cell; otherwise creates a shared string cell | #writeString()
+     * number | creates a numeric cell | #writeNumeric()
+     * boolean | creates a boolean cell | #writeBool()
+     * date/time | creates a date-time cell | #writeDateTime()
+     */
+    bool write(int row, int column, const QVariant &value, const Format &format=Format());
+
+    /**
+     * @brief writes @a value into cell @a ref and applies @a format.
+     * @param ref cell reference to write data to.
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * Depending on the @a value and flag Workbook::isHtmlToRichStringEnabled()
+     * this method tries to guess the right Cell::Type to use:
+     *
+     * value | behaviour
+     * ----|----
+     * string contains HTML tags and Workbook::isHtmlToRichStringEnabled() | creates shared string cell and writes RichString
+     * otherwise | creates shared string cell and writes plain string.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
+    bool writeString(const CellReference &ref, const QString &value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes @a value into cell (@a row, @a column) and applies @a format.
+     * @param row cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * Depending on the @a value and flag Workbook::isHtmlToRichStringEnabled()
+     * this method tries to guess the right Cell::Type to use:
+     *
+     * value | behaviour
+     * ----|----
+     * string contains HTML tags and Workbook::isHtmlToRichStringEnabled() | creates shared string cell and writes RichString
+     * otherwise | creates shared string cell and writes plain string.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
     bool writeString(int row, int column, const QString &value, const Format &format=Format());
-    bool writeString(const CellReference &row_column, const RichString &value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes @a value into a shared string cell @a ref and applies @a format.
+     * @param ref cell reference to write data to.
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
+    bool writeString(const CellReference &ref, const RichString &value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes @a value into a shared string cell (@a row, @a column) and applies @a format.
+     * @param row cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
     bool writeString(int row, int column, const RichString &value, const Format &format=Format());
-
-    bool writeInlineString(const CellReference &row_column, const QString &value, const Format &format=Format());
+    /**
+     * @brief writes @a value into an inline string cell @a ref and applies @a format.
+     * @param ref cell reference to write data to.
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
+    bool writeInlineString(const CellReference &ref, const QString &value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes @a value into an inline string cell (@a row, @a column) and applies @a format.
+     * @param row cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     *
+     * See Cell::Type on the inline and shared string types.
+     */
     bool writeInlineString(int row, int column, const QString &value, const Format &format=Format());
-
-    bool writeNumeric(const CellReference &row_column, double value, const Format &format=Format());
+    /**
+     * @brief writes a numeric @a value into @a ref and applies @a format.
+     * @param ref cell reference to write data to.
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     */
+    bool writeNumeric(const CellReference &ref, double value, const Format &format=Format());
+    /**
+     * @overload
+     * @brief writes a numeric @a value into cell (@a row, @a column) and applies @a format.
+     * @param row cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param value data to write.
+     * @param format format to apply.
+     * @return `true` on success.
+     */
     bool writeNumeric(int row, int column, double value, const Format &format=Format());
-
-    bool writeFormula(const CellReference &row_column, const CellFormula &formula, const Format &format=Format(), double result=0);
+    /**
+     * @brief writes a @a formula (with optional computational @a result) into
+     * @a ref and applies @a format.
+     * @param ref cell reference to write data to.
+     * @param formula formula to write.
+     * @param format format to apply.
+     * @param result optional result of @a formula computation, provided purely
+     * as a cashed value (may at any time be overwritten in the nest computational cycle).
+     * @return `true` on success.
+     */
+    bool writeFormula(const CellReference &ref, const CellFormula &formula, const Format &format=Format(), double result=0);
+    /**
+     * @overload
+     * @brief writes a @a formula (with optional computational @a result) into
+     * cell (@a row, @a column) and applies @a format.
+     * @param row cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param formula formula to write.
+     * @param format format to apply.
+     * @param result optional result of @a formula computation, provided purely
+     * as a cashed value (may at any time be overwritten in the nest computational cycle).
+     * @return `true` on success.
+     */
     bool writeFormula(int row, int column, const CellFormula &formula, const Format &format=Format(), double result=0);
-
-    bool writeBlank(const CellReference &row_column, const Format &format=Format());
+    /**
+     * @brief creates an empty (blank) cell at @a ref and applies @a format to it.
+     * @param ref cell reference to apply @a format to.
+     * @param format format to apply.
+     * @return `true` on success.
+     */
+    bool writeBlank(const CellReference &ref, const Format &format=Format());
+    /**
+     * @overload
+     * @brief creates an empty (blank) cell (@a row, @a column) and applies @a format to it.
+     * @param cell row index (starting from 1).
+     * @param column cell column index (starting from 1).
+     * @param format to apply.
+     * @return `true` on success.
+     */
     bool writeBlank(int row, int column, const Format &format=Format());
 
     bool writeBool(const CellReference &row_column, bool value, const Format &format=Format());
@@ -474,6 +646,8 @@ public:
      */
     int dataValidationsCount() const;
 
+    /// Conditional formatting
+
     /**
      * @brief removes all conditional formatting rules from the worksheet.
      */
@@ -520,20 +694,35 @@ public:
 
     /**
      * @brief returns cell by its reference.
-     * @param row_column reference to the cell.
+     * @param ref reference to the cell.
      * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
+     *
+     * If no data or format were written into @a ref, this method returns `nullptr`.
+     * Use #write() methods to implicitly create a cell.
      */
-    Cell *cell(const CellReference &row_column) const;
+    Cell *cell(const CellReference &ref) const;
     /**
      * @overload
      * @brief returns cell by its row and column number.
      * @param row 1-based cell row number.
      * @param column 1-based cell column number.
      * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
+     *
+     * If no data or format were written into (@a row, @a column), this method
+     * returns `nullptr`. Use #write() methods to implicitly create a cell.
      */
     Cell *cell(int row, int column) const;
 
     /**
+     * @brief Inserts an @a image at the position @a ref.
+     * @param row the 1-based row index of the image top left corner.
+     * @param column the 1-based column index of the image top left corner.
+     * @param image Image to be inserted.
+     * @return the zero-based index of the newly inserted image on success, -1 otherwise.
+     */
+    int insertImage(const CellReference &ref, const QImage &image);
+    /**
+     * @overload
      * @brief Inserts an @a image at the position @a row, @a column.
      * @param row the 1-based row index of the image top left corner.
      * @param column the 1-based column index of the image top left corner.
@@ -577,9 +766,9 @@ public:
      * @brief sets the new image content to the image specified by @a index.
      * @param index zero-based index of the image (0 to #imagesCount()-1).
      * @param fileName file name which to load new content from.
-     * @param keepSize if true, then new image will be resized to the old image size.
-     * If false, then new image will retain its size.
-     * @return true if the image was found and file was loaded, false otherwise.
+     * @param keepSize if `true`, then new image will be resized to the old image size.
+     * If `false`, then new image will retain its size.
+     * @return `true` if the image was found and file was loaded, `false` otherwise.
      */
     bool changeImage(int index, const QString &fileName, bool keepSize = true);
 

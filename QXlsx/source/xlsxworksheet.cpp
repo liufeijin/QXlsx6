@@ -1320,6 +1320,12 @@ bool Worksheet::addConditionalFormatting(const ConditionalFormatting &cf)
     return true;
 }
 
+int Worksheet::insertImage(const CellReference &ref, const QImage &image)
+{
+    if (!ref.isValid()) return -1;
+    return insertImage(ref.row(), ref.column(), image);
+}
+
 int Worksheet::insertImage(int row, int column, const QImage &image)
 {
     Q_D(Worksheet);
