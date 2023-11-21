@@ -27,9 +27,6 @@ WorkbookPrivate::WorkbookPrivate(Workbook *q, Workbook::CreateFlag flag)
     styles = QSharedPointer<Styles>(new Styles(flag));
     theme = QSharedPointer<Theme>(new Theme(flag));
 
-    strings_to_numbers_enabled = false;
-    strings_to_hyperlinks_enabled = true;
-    html_to_richstring_enabled = false;
     defaultDateFormat = QStringLiteral("yyyy-mm-dd");
     table_count = 0;
 }
@@ -364,6 +361,44 @@ QStringList Workbook::sheetNames() const
     return result;
 }
 
+QList<AbstractSheet *> Workbook::sheets(AbstractSheet::Type type) const
+{
+    Q_D(const Workbook);
+    QList<AbstractSheet *> result;
+    for (const auto &sheet: d->sheets)
+        if (sheet->type() == type) result << sheet.get();
+    return result;
+}
+
+QList<AbstractSheet *> Workbook::sheets() const
+{
+    Q_D(const Workbook);
+    QList<AbstractSheet *> result;
+    for (const auto &sheet: d->sheets)
+        result << sheet.get();
+    return result;
+}
+
+QList<Worksheet *> Workbook::worksheets() const
+{
+    Q_D(const Workbook);
+    QList<Worksheet *> result;
+    for (const auto &sheet: d->sheets)
+        if (sheet->type() == AbstractSheet::Type::Worksheet)
+            result << static_cast<Worksheet *>(sheet.get());
+    return result;
+}
+
+QList<Chartsheet *> Workbook::chartsheets() const
+{
+    Q_D(const Workbook);
+    QList<Chartsheet *> result;
+    for (const auto &sheet: d->sheets)
+        if (sheet->type() == AbstractSheet::Type::Chartsheet)
+            result << static_cast<Chartsheet *>(sheet.get());
+    return result;
+}
+
 /*!
  * \internal
  * Used only when load the xlsx file!!
@@ -455,6 +490,21 @@ AbstractSheet *Workbook::activeSheet() const
         const_cast<Workbook *>(this)->addSheet();
     if (d->views.isEmpty()) d->views << WorkbookView{};
     return d->sheets[d->views.last().activeTab.value_or(0)].data();
+}
+Worksheet *Workbook::activeWorksheet() const
+{
+    AbstractSheet *st = activeSheet();
+    if (st && st->type() == AbstractSheet::Type::Worksheet)
+        return static_cast<Worksheet *>(st);
+    return nullptr;
+}
+
+Chartsheet *Workbook::activeChartsheet() const
+{
+    AbstractSheet *st = activeSheet();
+    if (st && st->type() == AbstractSheet::Type::Chartsheet)
+        return static_cast<Chartsheet *>(st);
+    return nullptr;
 }
 
 bool Workbook::setActiveSheet(int index)
@@ -554,6 +604,14 @@ int Workbook::sheetsCount() const
 {
     Q_D(const Workbook);
     return d->sheets.count();
+}
+
+int Workbook::sheetsCount(AbstractSheet::Type type) const
+{
+    Q_D(const Workbook);
+    return std::count_if(d->sheets.constBegin(), d->sheets.constEnd(), [type](QSharedPointer<AbstractSheet> sheet){
+        return (sheet.get() && sheet->type() == type);
+    });
 }
 
 AbstractSheet *Workbook::sheet(int index) const
@@ -759,7 +817,6 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         writer.writeEndElement(); //definedNames
     }
     // 10. calcPr
-    //TODO: add missing methods to manipulate
     writer.writeStartElement(QStringLiteral("calcPr"));
     writeAttribute(writer, QLatin1String("calcId"), d->calcId);
     if (d->calcMode.has_value())
@@ -806,7 +863,14 @@ void Workbook::saveToXmlFile(QIODevice *device) const
         writeAttribute(writer, QLatin1String("characterSet"), d->characterSet);
     }
     // 17. fileRecoveryPr
-    //TODO:
+    if (d->autoRecover.has_value() || d->crashSave.has_value() ||
+        d->dataExtractLoad.has_value() || d->repairLoad.has_value()) {
+        writer.writeEmptyElement(QLatin1String("fileRecoveryPr"));
+        writeAttribute(writer, QLatin1String("autoRecover"), d->autoRecover);
+        writeAttribute(writer, QLatin1String("crashSave"), d->crashSave);
+        writeAttribute(writer, QLatin1String("dataExtractLoad"), d->dataExtractLoad);
+        writeAttribute(writer, QLatin1String("repairLoad"), d->repairLoad);
+    }
     // 18. webPublishObjects
     if (!d->webPublishObjects.isEmpty()) {
         writer.writeStartElement(QLatin1String("webPublishObjects"));
@@ -918,6 +982,12 @@ bool Workbook::loadFromXmlFile(QIODevice *device)
                 parseAttributeString(attributes, QLatin1String("lowestEdited"), d->lowestEdited);
                 parseAttributeString(attributes, QLatin1String("rupBuild"), d->rupBuild);
                 parseAttributeString(attributes, QLatin1String("codeName"), d->appCodeName);
+            }
+            else if (reader.name() == QLatin1String("fileRecoveryPr")) {
+                parseAttributeBool(attributes, QLatin1String("autoRecover"), d->autoRecover);
+                parseAttributeBool(attributes, QLatin1String("crashSave"), d->crashSave);
+                parseAttributeBool(attributes, QLatin1String("dataExtractLoad"), d->dataExtractLoad);
+                parseAttributeBool(attributes, QLatin1String("repairLoad"), d->repairLoad);
             }
             else if (reader.name() == QLatin1String("oleSize")) {
                 d->oleSize = CellRange(attributes.value(QLatin1String("ref")).toString());

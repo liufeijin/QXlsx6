@@ -4,13 +4,12 @@
 
 > *Read this in other languages: [English](README.md), :kr: [한국어](README.ko.md), :ru: [Русский](README.RU.md)*
 
-<p align="center"><img src="https://raw.githubusercontent.com/QtExcel/QXlsx/master/markdown.data/QXlsx-Desktop.png"></p>
+QXlsx - это библиотека чтения / записи файлов Excel (*. Xlsx).
+Поскольку QtXlsxWriter больше не поддерживается, я создал новый проект, основанный на QtXlsx. (2017-)
 
-- QXlsx - это библиотека чтения / записи файлов Excel (*. Xlsx).
-   - Поскольку QtXlsxWriter больше не поддерживается, я создал новый проект, основанный на QtXlsx. (2017-)
-- Язык разработки QXlsx - C++. (с Qt)
-- Вам не нужно использовать статическую библиотеку или динамический общий объект с помощью QXlsx.
-   - Вы также можете использовать его как статическую библиотеку.
+Язык разработки QXlsx - C++ (с Qt)
+
+QXlsx использует приватные части Qt, поэтому лучше линковать его с вашей программой статически.
 
 ## Как использовать
 - См. [Примеры](Example.md)
@@ -19,7 +18,6 @@
 
 ## Как настроить (Установка)
 
--: Рекомендуется: 
 - См. [Как настроить проект QXlsx (qmake)](HowToSetProject.md)
 - См. [Как настроить проект QXlsx (cmake)](HowToSetProject-cmake.md)	
 

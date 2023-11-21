@@ -61,6 +61,11 @@ the defined names list (in Excel). The default value is false.*/
     int sheetId = -1; //using internal sheetId, instead of the localSheetId(order in the workbook)
 };
 
+
+/**
+ * @brief The Workbook class represents a collection of sheets and provides methods
+ * to add, remove, copy sheets, to manupulate the workbook properties etc.
+ */
 class QXLSX_EXPORT Workbook : public AbstractOOXmlFile
 {
     Q_DECLARE_PRIVATE(Workbook)
@@ -123,20 +128,41 @@ of row R1 and column C1. */
      */
     int sheetsCount() const;
     /**
-     * @brief returns the list of sheets names.
+     * @brief returns the count of sheets of specified @a type
+     * @param type sheets type.
+     */
+    int sheetsCount(AbstractSheet::Type type) const;
+    /**
+     * @brief returns the list of sheets names (both worksheets and chartsheets).
      */
     QStringList sheetNames() const;
     /**
+     * @brief returns the list of sheets of @a type.
+     */
+    QList<AbstractSheet*> sheets(AbstractSheet::Type type) const;
+    /**
+     * @brief returns the list of sheets (both worksheets and chartsheets).
+     */
+    QList<AbstractSheet*> sheets() const;
+    /**
+     * @brief returns the list of worksheets.
+     */
+    QList<Worksheet*> worksheets() const;
+    /**
+     * @brief returns the list of chartsheets
+     */
+    QList<Chartsheet*> chartsheets() const;
+    /**
      * @brief returns the sheet with @a index.
      * @param index the sheet index (0 to #sheetsCount()-1).
-     * @return pointer to the sheet or nullptr if @a index is invalid.
+     * @return pointer to the sheet or `nullptr` if @a index is invalid.
      */
     AbstractSheet *sheet(int index) const;
     /**
      * @overload
      * @brief returns the sheet with @a name.
      * @param name the sheet name.
-     * @return pointer to the sheet or nullptr if no sheet with @a name exists.
+     * @return pointer to the sheet or `nullptr` if no sheet with @a name exists.
      */
     AbstractSheet *sheet(const QString &name) const;
     /**
@@ -144,10 +170,22 @@ of row R1 and column C1. */
      * @param name optional sheet name. If empty, new sheet will have the name
      * Sheet# or Chart# depending on @a type.
      * @param type optional sheet type.
-     * @return pointer to the new sheet on success, nullptr otherwise.
+     * @return pointer to the new sheet on success, `nullptr` otherwise.
      */
     AbstractSheet *addSheet(const QString &name = QString(), AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
+    /**
+     * @brief adds new chartsheet to the workbook.
+     * @param name optional sheet name. If empty, new sheet will have the name
+     * Chart# where # is the sequential chartsheet number.
+     * @return pointer to the new chartsheet on success, `nullptr` otherwise.
+     */
     Chartsheet *addChartsheet(const QString &name = QString());
+    /**
+     * @brief adds new worksheet to the workbook.
+     * @param name optional sheet name. If empty, new sheet will have the name
+     * Sheet# where # is the sequential worksheet number.
+     * @return pointer to the new worksheet on success, `nullptr` otherwise.
+     */
     Worksheet *addWorksheet(const QString &name = QString());
     /**
      * @brief inserts new sheet
@@ -155,7 +193,7 @@ of row R1 and column C1. */
      * @param name optional sheet name. If empty, new sheet will have the name
      * Sheet# or Chart# depending on @a type.
      * @param type optional sheet type.
-     * @return pointer to the new sheet on success, nullptr otherwise.
+     * @return pointer to the new sheet on success, `nullptr` otherwise.
      */
     AbstractSheet *insertSheet(int index, const QString &name = QString(),
                                AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
@@ -214,6 +252,18 @@ of row R1 and column C1. */
      */
     AbstractSheet *activeSheet() const;
     /**
+     * @brief returns the active (current) worksheet.
+     * @return pointer to the active worksheet or `nullptr` if there is no
+     * worksheets or the active sheet is a chartsheet.
+     */
+    Worksheet *activeWorksheet() const;
+    /**
+     * @brief returns the active (current) chartsheet.
+     * @return pointer to the active chartsheet or `nullptr` if there is no
+     * chartsheets or the active sheet is a worksheet.
+     */
+    Chartsheet *activeChartsheet() const;
+    /**
      * @brief sets the active (current) sheet.
      * @param index the sheet index (0 to #sheetsCount()-1).
      * @return true on success.
@@ -235,11 +285,11 @@ of row R1 and column C1. */
      * is already a definedName with @a name.
      * @note Even if you specify the sheet name in @a scope, Excel will treat @a formula without
      * the sheet name part as invalid. LibreOffice is OK with that. Example:
-     * @code
+     * ```cpp
      * xlsx.addDefinedName("MyCol_3", "=Sheet1!$C$1:$C$10", "Sheet1"); //The only way for Excel
      * //vs
      * xlsx.addDefinedName("MyCol_3", "=$C$1:$C$10", "Sheet1"); //OK for LibreOffice, error for Excel
-     * @endcode
+     * ```
      */
     bool addDefinedName(const QString &name,
                                 const QString &formula,
@@ -339,11 +389,18 @@ of row R1 and column C1. */
      * @note This function should be called before any date/time has been written.
      */
     void setDate1904(bool date1904);
-
+    /**
+     * @brief returns whether strings are converted to numbers (floats) where
+     * possible in the Worksheet::write() method in order to avoid
+     * an Excel warning about "Numbers Stored as Text".
+     * @return `true` if converting is enabled.
+     *
+     * The default value is false.
+     */
     bool isStringsToNumbersEnabled() const;
 
     /**
-     * @brief Enables the worksheet.write() method to convert strings
+     * @brief Enables the Worksheet::write() method to convert strings
      * to numbers, where possible, using float() in order to avoid
      * an Excel warning about "Numbers Stored as Text".
      * @param enable
@@ -351,11 +408,53 @@ of row R1 and column C1. */
      * The default value is false.
      */
     void setStringsToNumbersEnabled(bool enable=true);
+    /**
+     * @brief returns whether strings are converted to hyperlinks where
+     * possible in the Worksheet::write() method.
+     * @return `true` if converting is enabled.
+     *
+     * The default value is `true`.
+     */
     bool isStringsToHyperlinksEnabled() const;
+    /**
+     * @brief Enables the Worksheet::write() method to convert strings
+     * to hyperlinks, where possible.
+     * @param enable If `true` then strings are tested for being a hyperlink and
+     * are written accordingly.
+     *
+     * The default value is `true`.
+     */
     void setStringsToHyperlinksEnabled(bool enable=true);
+    /**
+     * @brief returns whether strings are automatically converted to rich text if
+     * they contain HTML tags.
+     *
+     * The default value is `false`.
+     */
     bool isHtmlToRichStringEnabled() const;
-    void setHtmlToRichStringEnabled(bool enable=true);
+    /**
+     * @brief Enables the Worksheet::writeString() method to convert strings to
+     * rich text if strings contain HTML tags.
+     * @param enable If `true` then strings that contain HTML tags are written
+     * as rich text in the Worksheet::writeString() method. If `false` then such
+     * string are written as plain text.
+     *
+     * The default value is `false`.
+     */
+    void setHtmlToRichStringEnabled(bool enable = true);
+    /**
+     * @brief returns the default date format.
+     *
+     * If the default date format is not set, 'yyyy-mm-dd' is used.
+     */
     QString defaultDateFormat() const;
+    /**
+     * @brief sets the default date format.
+     * @param format a string with standard QDate placeholders (y, yy, yyyy,
+     * mm, mmmm, d, dd etc.)
+     *
+     * If not set, 'yyyy-mm-dd' is used.
+     */
     void setDefaultDateFormat(const QString &format);
 
     // Calculation parameters (not all)
@@ -501,14 +600,6 @@ of row R1 and column C1. */
     void removeWorkbookProtection();
 
 
-    //internal used member
-    bool addMediaFile(QSharedPointer<MediaFile> media, bool force=false);
-    void removeMediaFile(QSharedPointer<MediaFile> media);
-    QList<QWeakPointer<MediaFile> > mediaFiles() const;
-    void addChartFile(const QSharedPointer<Chart> &chartFile);
-    void removeChartFile(const QSharedPointer<Chart> &chart);
-    QList<QWeakPointer<Chart> > chartFiles() const;
-
 private:
     SERIALIZE_ENUM(ShowObjects, {
         {ShowObjects::All, "all"},
@@ -529,17 +620,27 @@ private:
         {ReferenceMode::A1, "A1"},
         {ReferenceMode::R1C1, "R1C1"}
     });
+    friend class AbstractSheet;
     friend class Worksheet;
     friend class Chartsheet;
     friend class WorksheetPrivate;
     friend class Document;
     friend class DocumentPrivate;
     friend class Cell;
+    friend class FillFormat;
+    friend class DrawingAnchor;
 
     Workbook(Workbook::CreateFlag flag);
 
     void saveToXmlFile(QIODevice *device) const override;
     bool loadFromXmlFile(QIODevice *device) override;
+
+    bool addMediaFile(QSharedPointer<MediaFile> media, bool force=false);
+    void removeMediaFile(QSharedPointer<MediaFile> media);
+    QList<QWeakPointer<MediaFile> > mediaFiles() const;
+    void addChartFile(const QSharedPointer<Chart> &chartFile);
+    void removeChartFile(const QSharedPointer<Chart> &chart);
+    QList<QWeakPointer<Chart> > chartFiles() const;
 
     SharedStrings *sharedStrings() const;
     Styles *styles();

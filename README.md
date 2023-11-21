@@ -4,11 +4,9 @@
 
 > *Read this in other languages: [English](README.md), :kr: [Korean](README.ko.md), :ru: [Russian](README.RU.md)*
 
-<p align="center"><img src="https://raw.githubusercontent.com/QtExcel/QXlsx/master/markdown.data/QXlsx-Desktop.png"></p>
+QXlsx is an Excel files (`*.xlsx`) reader/writer library.
 
-- QXlsx is an excel files (`*.xlsx`) reader/writer library.
-  - Because QtXlsxWriter is no longer supported, I created a new project that is based on QtXlsx. (2017-)
-- Development language of QXlsx is C++ (with Qt.)
+Development language of QXlsx is C++ (with Qt.)
 
 ## About this fork
 
@@ -25,17 +23,20 @@ The original QXlsx uses enums and maps to implement it: the feature is not set, 
 
 This fork utilises another approach. 
 
-For simple properties (bool, int, enums) it uses `std::optional`: methods that return a feature return `std::optional`. You can test the feature with `std::optional::has_value()`.
+For simple properties (bool, int, enums) it uses `std::optional`: methods that 
+return a feature return `std::optional`. You can test the feature with `std::optional::has_value()`.
 
-For complex properties (f.e. the shape fill or the title text) classes that implement these properties are shallow-copyable and have `isValid()` method.
+For complex properties (f.e. the shape fill or the title text) classes that implement 
+these properties are shallow-copyable and have `isValid()` method.
 If the feature is set, `isValid()` will return true.
 
 For types like `QString`, `QList` if the returned value `isEmpty()` then the feature is not set. In some cases though 
 ECMA-376 allows having empty strings as default values, in this case `std::optional` is used.
 
-I try to get rid of the raw pointers. And definitely non-scoped enums shall be replaced with scoped ones. Some parts of the library still need serious overhaul. 
+I try to get rid of the raw pointers. And definitely non-scoped enums shall be 
+replaced with scoped ones. Some parts of the library still need serious overhaul. 
 
-See [what is done up to this moment](ToDo.md).
+See [what is yet to be done](ToDo.md).
 
 You can find examples of charts here:
 

@@ -70,9 +70,9 @@ public:
     QList<QWeakPointer<Chart> > chartFiles;
     QList<DefinedName> definedNamesList;
 
-    bool strings_to_numbers_enabled;
-    bool strings_to_hyperlinks_enabled;
-    bool html_to_richstring_enabled;
+    bool strings_to_numbers_enabled{false};
+    bool strings_to_hyperlinks_enabled{true};
+    bool html_to_richstring_enabled{false};
 
     QString defaultDateFormat;
 
@@ -164,6 +164,12 @@ public:
     // functionGroups
     QStringList functionGroups;
     std::optional<int> builtInGroupCount;
+
+    // fileRecoveryPr
+    std::optional<bool> autoRecover;// default="true"/>
+    std::optional<bool> crashSave;// default="false"/>
+    std::optional<bool> dataExtractLoad;// default="false"/>
+    std::optional<bool> repairLoad;// default="false"/>
 
     ExtensionList extLst;
 };

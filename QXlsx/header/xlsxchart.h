@@ -509,7 +509,7 @@ public:
     /**
      * @brief returns the chart series by its index.
      * @param index the series index starting from 0.
-     * @return pointer to the series if such series exists, nullptr otherwise.
+     * @return pointer to the series if such series exists, `nullptr` otherwise.
      */
     Series *series(int index);
 
@@ -596,7 +596,7 @@ public:
     /**
      * @brief returns axis that has index idx
      * @param idx valid index (0 <= idx < axesCount()).
-     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     * @return pointer to the axis if such axis exists, `nullptr` otherwise.
      */
     Axis *axis(int idx); //TODO: replace with std::optional<std::reference_wrapper<Axis>> axis(int idx);
     /**
@@ -605,7 +605,7 @@ public:
      * @param pos Axis::Position.
      * @note A chart can have several axes positioned at @a pos. This method returns
      * _the first added_ axis that has position @a pos.
-     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     * @return pointer to the axis if such axis exists, `nullptr` otherwise.
      */
     Axis *axis(Axis::Position pos);
     /**
@@ -615,7 +615,7 @@ public:
      * @note A chart can have several axes of the same type (f.e. scatter chart
      * usually has 2 value axes). This method returns _the first added_ axis of the
      * type.
-     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     * @return pointer to the axis if such axis exists, `nullptr` otherwise.
      */
     Axis *axis(Axis::Type type);
     /**
@@ -625,7 +625,7 @@ public:
      * @param type Axis::Type.
      * @note A chart can have several axes of the same position and type. This
      * method returns _the first added_ axis of these position and type.
-     * @return pointer to the axis if such axis exists, nullptr otherwise.
+     * @return pointer to the axis if such axis exists, `nullptr` otherwise.
      */
     Axis *axis(Axis::Type type, Axis::Position pos);
     /**

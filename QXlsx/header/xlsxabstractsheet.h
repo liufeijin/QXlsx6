@@ -768,7 +768,7 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     /**
      * @brief sets the password protection to the sheet.
      * @param algorithm a string that describes the hashing algorithm used.
-     * See #SheetProtection::algorithmName for some reserved values.
+     * See #Protection::algorithmName for some reserved values.
      * @param hash a string that contains the hashed password in a base64 form.
      * @param salt a string that contains the salt in a base64 form.
      * @param spinCount count of iterations to compute the password hash.

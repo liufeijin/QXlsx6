@@ -249,7 +249,7 @@ public:
     void clearFormat();
     /**
      * @brief returns format of the @a cell.
-     * @param cell valid CellReference.
+     * @param cellRef valid CellReference.
      * @return A copy of the cell Format. May be invalid if no formatting was set
      * for @a cell.
      *
@@ -521,7 +521,7 @@ public:
     /**
      * @brief returns cell by its reference.
      * @param row_column reference to the cell.
-     * @return valid pointer to the cell if the cell was found, nullptr otherwise.
+     * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
      */
     Cell *cell(const CellReference &row_column) const;
     /**
@@ -529,7 +529,7 @@ public:
      * @brief returns cell by its row and column number.
      * @param row 1-based cell row number.
      * @param column 1-based cell column number.
-     * @return valid pointer to the cell if the cell was found, nullptr otherwise.
+     * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
      */
     Cell *cell(int row, int column) const;
 
@@ -588,7 +588,7 @@ public:
      * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
      * @param size the chart size in pixels at 96 dpi.
-     * @return pointer to the new chart or nullptr if no chart was created.
+     * @return pointer to the new chart or `nullptr` if no chart was created.
      */
     Chart *insertChart(int row, int column, const QSize &size);
     /**
@@ -600,13 +600,13 @@ public:
      * width in pixels, points, millimeters, EMU etc. See Coordinate for help.
      * @param height height of a chart specified as a Coordinate object. You can use it to set
      * height in pixels, points, millimeters, EMU etc. See Coordinate for help.
-     * @return pointer to the new chart or nullptr if no chart was created.
+     * @return pointer to the new chart or `nullptr` if no chart was created.
      */
     Chart *insertChart(int row, int column, Coordinate width, Coordinate height);
     /**
      * @brief returns the chart by its index in the worksheet.
      * @param index zero-based index of the chart (0 to #chartsCount()-1)
-     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     * @return valid pointer to the chart if the chart was found, `nullptr` otherwise.
      */
     Chart *chart(int index) const;
     /**
@@ -614,7 +614,7 @@ public:
      * @brief returns the chart by its top left corner.
      * @param row the 1-based row index of the chart top left corner.
      * @param column the 1-based column index of the chart top left corner.
-     * @return valid pointer to the chart if the chart was found, nullptr otherwise.
+     * @return valid pointer to the chart if the chart was found, `nullptr` otherwise.
      */
     Chart *chart(int row, int column) const;
     /**

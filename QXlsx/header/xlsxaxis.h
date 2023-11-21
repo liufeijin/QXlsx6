@@ -274,7 +274,7 @@ public:
 
     /**
      * @brief returns the axis that should cross the current axis.
-     * @return pointer to the axis if cross axis was set, nullptr otherwise.
+     * @return pointer to the axis if cross axis was set, `nullptr` otherwise.
      */
     Axis *crossAxis() const;
     /**

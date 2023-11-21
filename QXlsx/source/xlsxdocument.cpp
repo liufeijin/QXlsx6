@@ -740,20 +740,14 @@ AbstractSheet *Document::activeSheet() const
 
 Worksheet *Document::activeWorksheet() const
 {
-    AbstractSheet *st = activeSheet();
-    if (st && st->type() == AbstractSheet::Type::Worksheet)
-        return static_cast<Worksheet *>(st);
-    else
-        return nullptr;
+    Q_D(const Document);
+    return d->workbook->activeWorksheet();
 }
 
 Chartsheet *Document::activeChartsheet() const
 {
-    AbstractSheet *st = activeSheet();
-    if (st && st->type() == AbstractSheet::Type::Chartsheet)
-        return static_cast<Chartsheet *>(st);
-    else
-        return nullptr;
+    Q_D(const Document);
+    return d->workbook->activeChartsheet();
 }
 
 bool Document::setActiveSheet(const QString &name)

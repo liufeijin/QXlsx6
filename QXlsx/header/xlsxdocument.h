@@ -77,8 +77,8 @@ public:
      * @overload
      * @brief creates Document and optionally reads @a name file.
      * @param name File name to read.
-     * @param loadImmediately If true, then the document will be loaded on creation.
-     * If false, use #load() method to read @a name.
+     * @param loadImmediately If true, then the document will be loaded on
+     * creation. If false, use #load() method to read @a name.
      * @param parent
      */
     Document(const QString& name, bool loadImmediately = true, QObject* parent = nullptr);
@@ -145,8 +145,8 @@ public:
     bool write(const CellReference &cell, const QVariant &value, const Format &format=Format());
     // TODO: remove in future versions
     /**
-     * @brief writes @a value to the active worksheet at (@a row, @a column) and formats
-     * it with @a format.
+     * @brief writes @a value to the active worksheet at (@a row, @a column) and
+     * formats it with @a format.
      * @param row the row number of the cell (starting from 1).
      * @param column the column number of the cell (starting from 1).
      * @param value data to write.
@@ -165,10 +165,11 @@ public:
      * @brief Reads the cell data from the active worksheet and returns it as a
      * QVariant object.
      * @param cell The cell to read from.
-     * @return QVariant object, that may contain a number, a string, a date/time etc.
-     * @note If @a cell contains a shared/array formula, and this cell is not a 'master'
-     * formula cell, this method recalculates the formula references to the ones related to
-     * @a cell.
+     * @return QVariant object, that may contain a number, a string, a date/time
+     * etc.
+     * @note If @a cell contains a shared/array formula, and this cell is not a
+     * 'master' formula cell, this method recalculates the formula references to
+     * the ones related to @a cell.
      *
      * Equivalent to
      * ```cpp
@@ -177,7 +178,6 @@ public:
      * ```
      *
      * @note Data returned may differ from data stored in the document. Compare:
-     *
      * ```cpp
      * doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
      * qDebug() << doc.read(3, 1).type() << doc.read(3, 1); // QVariant::QDate QVariant(QDate, QDate("2019-10-09"))
@@ -194,10 +194,11 @@ public:
      * QVariant object.
      * @param row The cell row (starting from 1).
      * @param column The cell column (starting from 1).
-     * @return QVariant object, that may contain a number, a string, a date/time etc.
-     * @note If the cell contains a shared/array formula, and this cell is not a 'master'
-     * formula cell, this method recalculates the formula references to the ones related to
-     * @a cell.
+     * @return QVariant object, that may contain a number, a string, a date/time
+     * etc.
+     * @note If the cell contains a shared/array formula, and this cell is not a
+     * 'master' formula cell, this method recalculates the formula references to
+     * the ones related to @a cell.
      *
      * Equivalent to
      * ```cpp
@@ -206,7 +207,6 @@ public:
      * ```
      *
      * @note Data returned may differ from data stored in the document. Compare:
-     *
      * ```cpp
      * doc.write( "A3", QVariant(QDate(2019, 10, 9)) );
      * qDebug() << doc.read(3, 1); // QVariant(QDate, QDate("2019-10-09"))
@@ -237,12 +237,11 @@ public:
      * @return true if @a property was set.
      * @note The following metadata properties get the default values if they were not
      * set by the moment the document is being written:
-     *
-     * - Metadata::Created
-     * - Metadata::Creator
-     * - Metadata::LastModifiedBy
-     * - Metadata::Application
-     * - Metadata::AppVersion
+     * - Metadata::Created (gets the current date/time)
+     * - Metadata::Creator (gets 'QXlsx library')
+     * - Metadata::LastModifiedBy (gets 'QXlsx library')
+     * - Metadata::Application (gets 'Microsoft Excel')
+     * - Metadata::AppVersion (gets '12.0000')
      */
     bool hasMetadata(Metadata property) const;
     /**
@@ -257,7 +256,8 @@ public:
     /**
      * @brief adds new sheet to a workbook and makes it the current active sheet.
      * @param name sheet name. If empty, the default name will be constructed
-     * (SheetN for worksheets, ChartN for chartsheets, where N is the sheet number).
+     * ('Sheet#' for worksheets, 'Chart#' for chartsheets, where # is the sequential
+     * sheet number).
      * @param type The optional new sheet type.
      * @return true if new sheet was successfully added.
      */
@@ -266,24 +266,24 @@ public:
     /**
      * @brief adds new chartsheet to a workbook and makes it the current active sheet.
      * @param name sheet name. If empty, the default name will be constructed
-     * (ChartN, where N is the sheet number).
+     * ('Chart#', where # is the sequential sheet number).
      * @return pointer to the chartsheet if new chartsheet was successfully added,
-     * nullptr otherwise.
+     * `nullptr` otherwise.
      */
     Chartsheet *addChartsheet(const QString &name = QString());
     /**
      * @brief adds new worksheet to a workbook and makes it the current active sheet.
      * @param name sheet name. If empty, the default name will be constructed
-     * (SheetN, where N is the sheet number).
+     * ('Sheet#', where # is the sequential sheet number).
      * @return pointer to the worksheet if new worksheet was successfully added,
-     * nullptr otherwise.
+     * `nullptr` otherwise.
      */
     Worksheet *addWorksheet(const QString &name = QString());
     /**
      * @brief inserts new sheet at @a index and makes it the current active sheet.
      * @param index index of the new sheet (0 to #sheetsCount()).
      * @param name sheet name. If empty, the default name will be constructed
-     * (ChartN, where N is the sheet number).
+     * ('Chart#', where # is the sequential sheet number).
      * @param type The optional sheet type.
      * @return true if new sheet was successfully inserted.
      */
@@ -355,25 +355,25 @@ public:
     /**
      * @brief returns the sheet by its @a sheetName.
      * @param sheetName a string that contains the sheet name.
-     * @return pointer to the sheet or nullptr if there is no sheet with
+     * @return pointer to the sheet or `nullptr` if there is no sheet with
      * @a sheetName.
      */
     AbstractSheet *sheet(const QString &sheetName) const;
     /**
      * @brief returns the active (current) sheet.
-     * @return pointer to the active sheet or nullptr if there is no sheets in
+     * @return pointer to the active sheet or `nullptr` if there is no sheets in
      * the workbook.
      */
     AbstractSheet *activeSheet() const;
     /**
      * @brief returns the active (current) worksheet.
-     * @return pointer to the active worksheet or nullptr if there is no
+     * @return pointer to the active worksheet or `nullptr` if there is no
      * worksheets or the active sheet is a chartsheet.
      */
     Worksheet *activeWorksheet() const;
     /**
      * @brief returns the active (current) chartsheet.
-     * @return pointer to the active chartsheet or nullptr if there is no
+     * @return pointer to the active chartsheet or `nullptr` if there is no
      * chartsheets or the active sheet is a worksheet.
      */
     Chartsheet *activeChartsheet() const;
