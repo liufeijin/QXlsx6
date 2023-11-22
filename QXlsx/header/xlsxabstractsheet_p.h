@@ -24,17 +24,21 @@ struct SheetProperties
     std::optional<bool> applyStyles;
     std::optional<bool> summaryBelow;
     std::optional<bool> summaryRight;
-    std::optional<bool> showOutlineSymbols;
+    std::optional<bool> showOutlineSymbols; // according to ECMA-376 this attribute
+    //should be overridden with the view's showOutlineSymbols in case of conflict.
+    //So I removed the methods of accessing this attribute.
     std::optional<bool> autoPageBreaks;
     std::optional<bool> fitToPage;
     std::optional<bool> syncHorizontal;
     std::optional<bool> syncVertical;
     CellReference syncRef;
-    std::optional<bool> transitionEvaluation;
-    std::optional<bool> transitionEntry;
+    std::optional<bool> transitionEvaluation; // this attribute has no doc in ECMA-376,
+    //so I ignored it as an unknown attribute.
+    std::optional<bool> transitionEntry; // this attribute has no doc in ECMA-376,
+    //so I ignored it as an unknown attribute.
     std::optional<bool> published;
     QString codeName;
-    std::optional<bool> filterMode;
+    std::optional<bool> filterMode; //this attribute is set internally if autofiltering is applied.
     std::optional<bool> enableFormatConditionsCalculation;
     bool isValid() const;
     void read(QXmlStreamReader &reader);

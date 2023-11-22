@@ -2410,6 +2410,41 @@ CellRange Worksheet::dimension() const
     return d->dimension;
 }
 
+std::optional<bool> Worksheet::applyStylesInOutline() const
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.applyStyles;
+}
+void Worksheet::setApplyStylesInOutline(bool apply)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.applyStyles = apply;
+}
+
+std::optional<bool> Worksheet::outlineSummaryBelow()
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.summaryBelow;
+}
+
+void Worksheet::setOutlineSummaryBelow(bool below)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.summaryBelow = below;
+}
+
+std::optional<bool> Worksheet::outlineSummaryRight()
+{
+    Q_D(const Worksheet);
+    return d->sheetProperties.summaryRight;
+}
+
+void Worksheet::setOutlineSummaryRight(bool right)
+{
+    Q_D(Worksheet);
+    d->sheetProperties.summaryRight = right;
+}
+
 std::optional<bool> Worksheet::isFormatConditionsCalculationEnabled() const
 {
     Q_D(const Worksheet);

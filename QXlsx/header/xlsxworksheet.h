@@ -65,6 +65,7 @@ class WorksheetPrivate;
  *   #setThickTopBorder() manage default thickness of rows borders.
  * - #rowsHiddenByDefault(), #setRowsHiddenByDefault() manage the default
  *   visibility of rows.
+ * -
  *
  * ## Sheet Views
  *
@@ -592,6 +593,7 @@ public:
      */
     int dataValidationsCount() const;
 
+
     /// Conditional formatting
 
     /**
@@ -638,8 +640,10 @@ public:
      */
     bool addConditionalFormatting(const ConditionalFormatting &cf);
 
+    /// Direct manipulation of cells
+
     /**
-     * @brief returns cell by its reference.
+     * @brief returns a cell by its reference.
      * @param ref reference to the cell.
      * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
      *
@@ -665,6 +669,9 @@ public:
      * @param image Image to be inserted.
      * @return the zero-based index of the newly inserted image on success, -1 otherwise.
      */
+
+    /// Images
+
     int insertImage(const CellReference &ref, const QImage &image);
     /**
      * @overload
@@ -716,6 +723,9 @@ public:
      * @return `true` if the image was found and file was loaded, `false` otherwise.
      */
     bool changeImage(int index, const QString &fileName, bool keepSize = true);
+
+
+    /// Charts
 
     /**
      * @brief creates a new chart and places it inside the current worksheet.
@@ -776,6 +786,10 @@ public:
      * All cells will get the same @a format if a valid @a format is given.
      * @return `true` on success.
      */
+
+
+    /// Rows, columns and cells
+
     bool mergeCells(const CellRange &range, const Format &format=Format());
     /**
      * @brief Un-merges a @a range of cells.
@@ -962,6 +976,73 @@ public:
 
     // Sheet Parameters
 
+    /**
+     * @brief returns whether to apply styles in the outline when an outline is
+     * applied.
+     *
+     * The default value is `false`
+     */
+    std::optional<bool> applyStylesInOutline() const;
+    /**
+     * @brief sets whether to apply styles in the outline when an outline is
+     * applied.
+     * @param apply If `true` then cell style will be applied to the outline.
+     *
+     * If not set, `false` is assumed.
+     */
+    void setApplyStylesInOutline(bool apply);
+    /**
+     * @brief returns whether summary rows appear below detail in an outline,
+     * when applying an outline.
+     *
+     * When `true`, a summary row is inserted below the detailed data being
+     * summarized and a new outline level is established on that row.
+     *
+     * When `false`, a summary row is inserted above the detailed data being
+     * summarized and a new outline level is established on that row.
+     *
+     * The default value is `true`.
+     */
+    std::optional<bool> outlineSummaryBelow();
+    /**
+     * @brief sets whether summary rows appear below detail in an outline,
+     * when applying an outline.
+     * @param below  When `true`, a summary row is inserted below the detailed
+     * data being summarized and a new outline level is established on that row.
+     * When `false`, a summary row is inserted above the detailed data being
+     * summarized and a new outline level is established on that row.
+     *
+     * If not set, `true` is assumed.
+     */
+    void setOutlineSummaryBelow(bool below);
+    /**
+     * @brief returns whether summary columns appear to the right of detail in
+     * an outline, when applying an outline.
+     *
+     * When `true`, a summary column is inserted to the right of the detailed
+     * data being summarized and a new outline level is established on that
+     * column.
+     *
+     * When `false`, a summary column is inserted to the left of the detailed
+     * data being summarized and a new outline level is established on that
+     * column.
+     *
+     * The default value is `true`.
+     */
+    std::optional<bool> outlineSummaryRight();
+    /**
+     * @brief sets whether summary columns appear to the right of detail in
+     * an outline, when applying an outline.
+     * @param right When `true`, a summary column is inserted to the right of
+     * the detailed data being summarized and a new outline level is established
+     * on that column.
+     * When `false`, a summary column is inserted to the left of the detailed
+     * data being summarized and a new outline level is established on that
+     * column.
+     *
+     * If not set, `true` is assumed.
+     */
+    void setOutlineSummaryRight(bool right);
     /**
      * @brief returns whether the conditional formatting calculations shall be
      * evaluated. If set to `false`, then the min/max values of color scales or
