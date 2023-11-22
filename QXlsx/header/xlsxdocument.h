@@ -77,8 +77,8 @@ public:
      * @overload
      * @brief creates Document and optionally reads @a name file.
      * @param name File name to read.
-     * @param loadImmediately If true, then the document will be loaded on
-     * creation. If false, use #load() method to read @a name.
+     * @param loadImmediately if `true`, then the document will be loaded on
+     * creation. If `false`, use #load() method to read @a name.
      * @param parent
      */
     Document(const QString& name, bool loadImmediately = true, QObject* parent = nullptr);
@@ -94,20 +94,20 @@ public:
     /**
      * @brief saves the current document. If no name was specified with #saveAs(),
      * saves under the default-constructed name ("Book1.xlsx").
-     * @return true on success.
+     * @return `true` on success.
      */
     bool save() const;
     /**
      * @brief saves the current document.
      * @param name The document name. If the file @a name already exists,
      * it will be overwritten.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool saveAs(const QString &name) const;
     /**
      * @brief writes the current document to the @a device.
      * @param device the pointer to the (writable) device.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool saveAs(QIODevice *device) const;
 
@@ -122,7 +122,7 @@ public:
     bool isLoaded() const;
     /**
      * @brief loads the document contents.
-     * @return  true on success.
+     * @return  `true` on success.
      */
     bool load();
 
@@ -134,7 +134,7 @@ public:
      * @param cell the cell to write to.
      * @param value data to write.
      * @param format format to apply.
-     * @return true if writing was successful.
+     * @return `true` if writing was successful.
      *
      * Equivalent to
      * ```cpp
@@ -151,7 +151,7 @@ public:
      * @param column the column number of the cell (starting from 1).
      * @param value data to write.
      * @param format format to apply.
-     * @return true if writing was successful.
+     * @return `true` if writing was successful.
      *
      * Equivalent to
      * ```cpp
@@ -234,7 +234,7 @@ public:
     /**
      * @brief returns whether the document has metadata @a property associated with it.
      * @param property The metadata to test.
-     * @return true if @a property was set.
+     * @return `true` if @a property was set.
      * @note The following metadata properties get the default values if they were not
      * set by the moment the document is being written:
      * - Metadata::Created (gets the current date/time)
@@ -259,7 +259,7 @@ public:
      * ('Sheet#' for worksheets, 'Chart#' for chartsheets, where # is the sequential
      * sheet number).
      * @param type The optional new sheet type.
-     * @return true if new sheet was successfully added.
+     * @return `true` if new sheet was successfully added.
      */
     bool addSheet(const QString &name = QString(),
                   AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
@@ -285,7 +285,7 @@ public:
      * @param name sheet name. If empty, the default name will be constructed
      * ('Chart#', where # is the sequential sheet number).
      * @param type The optional sheet type.
-     * @return true if new sheet was successfully inserted.
+     * @return `true` if new sheet was successfully inserted.
      */
     bool insertSheet(int index, const QString &name = QString(),
                      AbstractSheet::Type type = AbstractSheet::Type::Worksheet);
@@ -298,53 +298,53 @@ public:
     /**
      * @brief sets the active (current) sheet.
      * @param name the name of the sheet.
-     * @return true if the sheet with @a name was found and set active.
+     * @return `true` if the sheet with @a name was found and set active.
      */
     bool setActiveSheet(const QString &name);
     /**
      * @brief sets the active (current) sheet.
      * @param index the sheet index (0 to #sheetsCount()-1).
-     * @return true if the sheet with @a index was found and set active.
+     * @return `true` if the sheet with @a index was found and set active.
      */
     bool setActiveSheet(int index);
     /**
      * @brief renames the sheet.
      * @param oldName the old name.
      * @param newName the new name.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool renameSheet(const QString &oldName, const QString &newName);
     /**
      * @brief copies the sheet named @a srcName to the new sheet with name @a dstName.
      * @param srcName the source sheet name.
      * @param dstName the destination sheet name.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool copySheet(const QString &srcName, const QString &dstName = QString());
     /**
      * @brief moves the sheet named @a sheetName to @a dstIndex.
      * @param sheetName the sheet to move.
      * @param dstIndex the new index.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool moveSheet(const QString &sheetName, int dstIndex);
     /**
      * @brief moves the sheet from @a srcIndex to @a dstIndex.
      * @param srcIndex the old index.
      * @param dstIndex the new index.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool moveSheet(int srcIndex, int dstIndex);
     /**
      * @brief deletes the sheet @a name.
      * @param name The name of the sheet to delete.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool deleteSheet(const QString &name);
     /**
      * @brief deletes the sheet at @a index.
      * @param index the sheet index (from 0 to #sheetsCount()-1).
-     * @return true on success.
+     * @return `true` on success.
      */
     bool deleteSheet(int index);
     /**

@@ -54,8 +54,8 @@ struct QXLSX_EXPORT DefinedName
     QString comment; /**< A comment to this name. */
     QString description; /**< A description of this name. */
     std::optional<bool> hidden; /**< Whether this defined name is hidden
-from the program interface. If true, then the defined name will not be shown in
-the defined names list (in Excel). The default value is false.*/
+from the program interface. If `true`, then the defined name will not be shown in
+the defined names list (in Excel). The default value is `false`.*/
     std::optional<bool> workbookParameter; /**<  default = false */
 
     int sheetId = -1; //using internal sheetId, instead of the localSheetId(order in the workbook)
@@ -201,7 +201,7 @@ of row R1 and column C1. */
      * @brief renames sheet with @a index.
      * @param index the sheet index (0 to #sheetsCount()-1).
      * @param newName new sheet name.
-     * @return true on success.
+     * @return `true` on success.
      * @note This is equivalent to `sheet(index)->rename(newName);`.
      */
     bool renameSheet(int index, const QString &newName);
@@ -210,14 +210,14 @@ of row R1 and column C1. */
      * @brief renames sheet
      * @param oldName old sheet name
      * @param newName new sheet name
-     * @return true on success.
+     * @return `true` on success.
      * @note This is equivalent to `sheet(oldName)->rename(newName);`.
      */
     bool renameSheet(const QString &oldName, const QString &newName);
     /**
      * @brief deletes the sheet with @a index.
      * @param index the sheet index (0 to #sheetsCount()-1).
-     * @return true on success.
+     * @return `true` on success.
      */
     bool deleteSheet(int index);
     /**
@@ -228,21 +228,21 @@ of row R1 and column C1. */
      *
      * @param index the sheet index (0 to #sheetsCount()-1).
      * @param newName the name of the new copy.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool copySheet(int index, const QString &newName=QString());
     /**
      * @brief moves the sheet from @a srcIndex to @a dstIndex.
      * @param srcIndex the old index.
      * @param dstIndex the new index.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool moveSheet(int srcIndex, int dstIndex);
     /**
      * @brief moves the sheet named @a sheetName to @a dstIndex.
      * @param sheetName the sheet to move.
      * @param dstIndex the new index.
-     * @return true on success.
+     * @return `true` on success.
      */
     bool moveSheet(const QString &sheetName, int dstIndex);
     /**
@@ -266,7 +266,7 @@ of row R1 and column C1. */
     /**
      * @brief sets the active (current) sheet.
      * @param index the sheet index (0 to #sheetsCount()-1).
-     * @return true on success.
+     * @return `true` on success.
      */
     bool setActiveSheet(int index);
 
@@ -281,7 +281,7 @@ of row R1 and column C1. */
      * @param name The defined name
      * @param formula The value, the cell or range that the defined name refers to.
      * @param scope The name of a worksheet which @a formula refers to, or empty which means global scope.
-     * @return true if adding defined name is successful. False if @a name or @a formula is empty or there
+     * @return `true` if adding defined name is successful. `false` if @a name or @a formula is empty or there
      * is already a definedName with @a name.
      * @note Even if you specify the sheet name in @a scope, Excel will treat @a formula without
      * the sheet name part as invalid. LibreOffice is OK with that. Example:
@@ -301,7 +301,7 @@ of row R1 and column C1. */
      * constant values. Defined names can be used in formulas to represent a range on any worksheet.
      *
      * @param name The defined name
-     * @return true if @a name was found and successfully removed, false otherwise.
+     * @return `true` if @a name was found and successfully removed, `false` otherwise.
      */
     bool removeDefinedName(const QString &name);
     /**
@@ -312,7 +312,7 @@ of row R1 and column C1. */
      * constant values. Defined names can be used in formulas to represent a range on any worksheet.
      *
      * @param name The defined name
-     * @return true if @a name was found and successfully removed, false otherwise.
+     * @return `true` if @a name was found and successfully removed, `false` otherwise.
      */
     bool removeDefinedName(DefinedName *name);
     /**
@@ -321,7 +321,7 @@ of row R1 and column C1. */
      * Defined names are descriptive names to represent cells, ranges of cells, formulas, or
      * constant values. Defined names can be used in formulas to represent a range on any worksheet.
      * @param name The defined name
-     * @return true if the workbook has a defined @a name.
+     * @return `true` if the workbook has a defined @a name.
      */
     bool hasDefinedName(const QString &name) const;
     /**
@@ -357,9 +357,9 @@ of row R1 and column C1. */
      * between one system and the other. QXlsx stores dates in the 1900 format
      * by default.
      *
-     * @return true if all dates are calculated using the 1904 epoch.
+     * @return `true` if all dates are calculated using the 1904 epoch.
      *
-     * If not set, false is assumed (the default epoch being 1900).
+     * If not set, `false` is assumed (the default epoch being 1900).
      */
     std::optional<bool> date1904() const;
     /**
@@ -382,10 +382,10 @@ of row R1 and column C1. */
      * and the other. QXlsx stores dates in the 1900 format
      * by default.
      *
-     * @param date1904 If true, then all dates will be calculated using the 1904
+     * @param date1904 If `true`, then all dates will be calculated using the 1904
      * epoch.
      *
-     * If not set, false is assumed (the default epoch being 1900).
+     * If not set, `false` is assumed (the default epoch being 1900).
      * @note This function should be called before any date/time has been written.
      */
     void setDate1904(bool date1904);
@@ -395,7 +395,7 @@ of row R1 and column C1. */
      * an Excel warning about "Numbers Stored as Text".
      * @return `true` if converting is enabled.
      *
-     * The default value is false.
+     * The default value is `false`.
      */
     bool isStringsToNumbersEnabled() const;
 
@@ -405,7 +405,7 @@ of row R1 and column C1. */
      * an Excel warning about "Numbers Stored as Text".
      * @param enable
      *
-     * The default value is false.
+     * The default value is `false`.
      */
     void setStringsToNumbersEnabled(bool enable=true);
     /**
@@ -494,10 +494,10 @@ of row R1 and column C1. */
      * If #calculationMode() is set to CalculationMode::Manual, then this parameter
      * is ignored.
      *
-     * @param recalculate If true, then the application performs a full recalculation
+     * @param recalculate If `true`, then the application performs a full recalculation
      * of workbook values when the workbook is opened.
      *
-     * If no value is set, false is assumed.
+     * If no value is set, `false` is assumed.
      */
     void setRecalculationOnLoad(bool recalculate);
     /**
@@ -515,11 +515,11 @@ of row R1 and column C1. */
      * because the application adds the stored values 10.005 and 10.005, not the
      * displayed values. You can change the precision of calculations so that the
      * application uses the displayed value instead of the stored value when it
-     * recalculates formulas. So, if #fullPrecisionOnCalculation() is false, then
+     * recalculates formulas. So, if #fullPrecisionOnCalculation() is `false`, then
      * the result must be $20.02, because each cell shows $10.01, so those are
      * the values to be added.
      *
-     * The default value is true.
+     * The default value is `true`.
      */
     std::optional<bool> fullPrecisionOnCalculation() const;
     /**
@@ -532,7 +532,7 @@ of row R1 and column C1. */
      * because the application adds the stored values 10.005 and 10.005, not the
      * displayed values. You can change the precision of calculations so that the
      * application uses the displayed value instead of the stored value when it
-     * recalculates formulas. So, if #fullPrecisionOnCalculation() is false, then
+     * recalculates formulas. So, if #fullPrecisionOnCalculation() is `false`, then
      * the result must be $20.02, because each cell shows $10.01, so those are
      * the values to be added.
      *
@@ -541,7 +541,7 @@ of row R1 and column C1. */
      * `false` indicates the application uses the display values of the referenced
      * cells when performing calculations.
      *
-     * If fullPrecision is not set, true is assumed.
+     * If fullPrecision is not set, `true` is assumed.
      */
     void setFullPrecisionOnCalculation(bool fullPrecision);
     /**
@@ -571,14 +571,14 @@ of row R1 and column C1. */
     void setWorkbookProtection(const WorkbookProtection &protection);
     /**
      * @brief returns whether the workbook is protected.
-     * @return true if any of the protection parameters were set.
+     * @return `true` if any of the protection parameters were set.
      * @sa #isPasswordProtectionSet().
      */
     bool isWorkbookProtected() const;
     /**
      * @brief returns whether the workbook is protected with password.
      *
-     * If password protection is set, then #isWorkbookProtected() also returns true.
+     * If password protection is set, then #isWorkbookProtected() also returns `true`.
      */
     bool isPasswordProtectionSet() const;
     /**

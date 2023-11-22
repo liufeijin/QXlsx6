@@ -97,22 +97,23 @@ public:
     /**
      * @brief return whether the range contains the cell defined as CellReference.
      * @param ref cell reference to test.
-     * @return true if range contains @a ref.
+     * @return `true` if range contains @a ref.
      */
     bool contains(const CellReference &ref) const;
     /**
      * @overload
-     * @brief return whether the range contains the cell defined by its row and column.
+     * @brief return whether the range contains the cell defined by its @a row
+     * and @a column.
      * @param row 1-based row index.
      * @param column 1-based column index.
-     * @return true if range contains cell.
+     * @return `true` if range contains cell (@a row, @a column).
      */
     bool contains(int row, int column) const;
     /**
      * @overload
      * @brief return whether the range contains the @a other range.
      * @param other
-     * @return true if this range contains the @a other range.
+     * @return `true` if this range contains the @a other range.
      */
     bool contains(const CellRange &other) const;
 

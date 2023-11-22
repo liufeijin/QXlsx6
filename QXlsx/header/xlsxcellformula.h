@@ -68,7 +68,7 @@ public:
 
     /**
      * @brief returns the formula type.
-     * @return CellFormula::Type enum value if the type is set, nullopt otherwise.
+     * @return CellFormula::Type enum value if the type is set, `nullopt` otherwise.
      *
      * If formula type is not set, CellFormula::Type::Normal is assumed.
      */
@@ -97,8 +97,8 @@ public:
      *
      * This index is used to locate the group to which this particular cell's formula belongs.
      *
-     * @return integer shared index if formula type is Type::Shared, nullopt otherwise.
-     * The index may still be nullopt even if the formula is shared.
+     * @return integer shared index if formula type is Type::Shared, `nullopt` otherwise.
+     * The index may still be `nullopt` even if the formula is shared.
      */
     std::optional<int> sharedIndex() const;
     /**
@@ -113,26 +113,27 @@ public:
      * @brief Returns whether a flag was set that the formula needs to be
      * recalculated the next time calculation is performed.
      *
-     * The default value is false.
+     * The default value is `false`.
      *
-     * @return bool value if the flag was set, nullopt otherwise.
+     * @return bool value if the flag was set, `nullopt` otherwise.
      * @note By default if the parameter is not set by the moment the document
-     * is being saved (#needsRecalculation() returns nullopt), this library
+     * is being saved (#needsRecalculation() returns `nullopt`), this library
      * invokes `#setNeedsRecalculation(true)`. If you don't need recalculation,
-     * manually set the flag to false.
+     * manually set the flag to `false`.
      */
     std::optional<bool> needsRecalculation() const;
     /**
      * @brief sets a flag whether the formula needs to be recalculated the next
      * time calculation is performed.
-     * @param recalculate If true, the formula will be recalculated automatically.
+     * @param recalculate If `true`, the formula will be recalculated automatically.
      *
-     * If the parameter is not set, false is assumed (the formula doesn't need
+     * If the parameter is not set, `false` is assumed (the formula doesn't need
      * recalculation).
      * @note By default if the parameter is not set by the moment the document
-     * is being saved (#needsRecalculation() returns nullopt), this library
-     * invokes `#setNeedsRecalculation(true)`. If you don't need recalculation,
-     * manually set the flag to false.
+     * is being saved (#needsRecalculation() returns `nullopt`), this library
+     * invokes `#setNeedsRecalculation(true)`. This is an inherited behavior that
+     * can be changed in the future releases. If you don't need recalculation,
+     * manually set the flag to `false`.
      */
     void setNeedsRecalculation(bool recalculate);
 

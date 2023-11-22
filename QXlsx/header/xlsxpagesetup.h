@@ -381,7 +381,7 @@ public:
      * the file, the application must not assume 600dpi as specified as a default
      * and instead must let the printer specify the default dpi.
      *
-     * If no value is specified, then true is assumed.
+     * If no value is specified, then `true` is assumed.
      */
     std::optional<bool> usePrinterDefaults() const;
     /**
@@ -392,51 +392,51 @@ public:
      * the file, the application must not assume 600dpi as specified as a default
      * and instead must let the printer specify the default dpi.
      *
-     * If no value is specified, then true is assumed.
-     * @param use If true, then printer defaults are used instead of PageSetup defaults.
+     * If no value is specified, then `true` is assumed.
+     * @param use if `true`, then printer defaults are used instead of PageSetup defaults.
      */
     void setUsePrinterDefaults(bool use);
     /**
      * @brief returns whether to print in black and white.
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      */
     std::optional<bool> printBlackAndWhite() const;
     /**
      * @brief sets whether to print in black and white.
-     * @param blackAndWhite If true, then the page will be printed in black and white.
+     * @param blackAndWhite if `true`, then the page will be printed in black and white.
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      */
     void setPrintBlackAndWhite(bool blackAndWhite);
     /**
      * @brief returns whether to print the page as a draft (i.e. without graphics).
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      */
     std::optional<bool> printDraft() const;
     /**
      * @brief sets whether to print the page as a draft (i.e. without graphics).
-     * @param draft If true then no graphics is printed.
+     * @param draft if `true` then no graphics is printed.
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      */
     void setPrintDraft(bool draft);
     /**
      * @brief returns whether to use #firstPageNumber() value for first page number,
      * and do not auto number the pages.
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      * @sa #firstPageNumber(), #setFirstPageNumber().
      */
     std::optional<bool> useFirstPageNumber() const;
     /**
      * @brief sets whether to use #firstPageNumber() value for first page number,
      * and do not auto number the pages.
-     * @param use If true, then the value of #firstPageNumber() will be used
+     * @param use if `true`, then the value of #firstPageNumber() will be used
      * for first page number.
      *
-     * If no value is specified, then false is assumed.
+     * If no value is specified, then `false` is assumed.
      */
     void setUseFirstPageNumber(bool use);
     /**
@@ -506,46 +506,46 @@ public:
      */
     void setPrintCellComments(CellComments cellComments);
     /**
-     * @brief returns whether to print grid lines. The default value is false.
+     * @brief returns whether to print grid lines. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> printGridLines() const;
     /**
      * @brief sets whether to print grid lines.
      * @note This parameter is not applicable to chartsheets.
-     * @param printGridLines If true, then cells grid lines are printed. The default value is false.
+     * @param printGridLines if `true`, then cells grid lines are printed. The default value is `false`.
      */
     void setPrintGridLines(bool printGridLines);
     /**
-     * @brief returns whether to print row and column headings. The default value is false.
+     * @brief returns whether to print row and column headings. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> printHeadings() const;
     /**
      * @brief sets whether to print row and column headings.
      * @note This parameter is not applicable to chartsheets.
-     * @param printHeadings If true, then row and column headings are printed.
-     * The default value is false.
+     * @param printHeadings if `true`, then row and column headings are printed.
+     * The default value is `false`.
      */
     void setPrintHeadings(bool printHeadings);
     /**
-     * @brief returns whether to center data horizontally when printing. The default value is false.
+     * @brief returns whether to center data horizontally when printing. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> printHorizontalCentered() const;
     /**
-     * @brief sets whether to center data horizontally when printing. The default value is false.
+     * @brief sets whether to center data horizontally when printing. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      * @param centered
      */
     void setPrintHorizontalCentered(bool centered);
     /**
-     * @brief returns whether to center data vertically when printing. The default value is false.
+     * @brief returns whether to center data vertically when printing. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> printVerticalCentered() const;
     /**
-     * @brief sets whether to center data vertically when printing. The default value is false.
+     * @brief sets whether to center data vertically when printing. The default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      * @param centered
      */

@@ -35,12 +35,12 @@ class ConditionalFormattingPrivate;
  *
  * A conditional format is a format, such as cell shading or font color, that a
  * spreadsheet application can automatically apply to cells if a specified
- * condition is true.
+ * condition is `true`.
  *
  * Conditional formatting is applied to a single cell, a range of cells or a
  * list of ranges. See #ranges(), #addCell(), #addRange(), #setRange(), #clearRanges() methods.
  *
- * Conditional formatting is applied if a specific rule is evaluated to true.
+ * Conditional formatting is applied if a specific rule is evaluated to `true`.
  * There are three conditional formatting rule types implemented so far:
  *
  * 1. Highlighting cells based on the cell value. See #addHighlightCellsRule().
@@ -172,10 +172,10 @@ public:
      * @param type The rule type.
      * @param formula1 The first (main) condition.
      * @param formula2 The second condition.
-     * @param format valid Format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format valid Format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                const QString &formula1,
@@ -203,10 +203,10 @@ public:
      * @param type The rule type.
      * @param formula1 The first (main) condition.
      * @param formula2 The second condition.
-     * @param format A predefined format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format A predefined format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                const QString &formula1,
@@ -217,10 +217,10 @@ public:
      * @overload
      * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, "", "", format, stopIfTrue)`.
      * @param type The rule type.
-     * @param format valid Format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format valid Format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                const Format &format,
@@ -229,10 +229,10 @@ public:
      * @overload
      * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, "", "", format, stopIfTrue)`.
      * @param type The rule type.
-     * @param format A predefined format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format A predefined format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                PredefinedFormat format,
@@ -242,10 +242,10 @@ public:
      * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, formula, "", format, stopIfTrue)`.
      * @param type The rule type.
      * @param formula The rule condition.
-     * @param format valid Format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format valid Format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                const QString &formula,
@@ -256,10 +256,10 @@ public:
      * @brief Adds the rule of highlighting cells. Equivalent to `addHighlightCellsRule(type, formula, "", format, stopIfTrue)`.
      * @param type The rule type.
      * @param formula The rule condition.
-     * @param format A predefined format to apply if the rule evaluates to true.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true if @a format is valid and adding the rule was successful.
+     * @param format A predefined format to apply if the rule evaluates to `true`.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true` if @a format is valid and adding the rule was successful.
      */
     bool addHighlightCellsRule(Type type,
                                const QString &formula,
@@ -273,11 +273,11 @@ public:
      * @param val1
      * @param type2
      * @param val2
-     * @param showData If true, then cell value will be shown over the color bar.
-     * If false, then only the color bar will be visible.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true
+     * @param showData if `true`, then cell value will be shown over the color bar.
+     * If `false`, then only the color bar will be visible.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true`
      */
     bool addDataBarRule(const QColor &color,
                         ValueObjectType type1, const QString &val1,
@@ -290,11 +290,11 @@ public:
      * ConditionalFormatting::ValueObjectType::Max, QStringLiteral("0"),
      * showData, stopIfTrue)`.
      * @param color The bar color.
-     * @param showData If true, then cell value will be shown over the color bar.
-     * If false, then only the color bar will be visible.
-     * @param stopIfTrue If true, then no rules with lower priority shall be
-     * applied over this rule, when this rule evaluates to true.
-     * @return true.
+     * @param showData if `true`, then cell value will be shown over the color bar.
+     * If `false`, then only the color bar will be visible.
+     * @param stopIfTrue if `true`, then no rules with lower priority shall be
+     * applied over this rule, when this rule evaluates to `true`.
+     * @return `true`.
      */
     bool addDataBarRule(const QColor &color, bool showData=true, bool stopIfTrue = false);
     bool add2ColorScaleRule(const QColor &minColor, const QColor &maxColor, bool stopIfTrue=false);
@@ -312,7 +312,7 @@ public:
     /**
      * @brief Removes rule with @a ruleIndex.
      * @param ruleIndex zero-based index of the rule from 0 to #rulesCount()-1.
-     * @return true if @a ruleIndex is valid and removing was successful.
+     * @return `true` if @a ruleIndex is valid and removing was successful.
      */
     bool removeRule(int ruleIndex);
 
@@ -320,7 +320,7 @@ public:
      * @brief Sets @a priority to all rules defined in this conditional formatting.
      * @param priority integer value >= 1. Lower numeric value are higher priority
      * than higher numeric value, where 1 is the highest priority. The default value is 1.
-     * @return true if @a priority is valid and rules are not empty.
+     * @return `true` if @a priority is valid and rules are not empty.
      */
     bool setRulesPriority(int priority);
     /**
@@ -328,12 +328,12 @@ public:
      * @param ruleIndex zero-based index of the rule from 0 to #rulesCount()-1.
      * @param priority integer value >= 1. Lower numeric value are higher priority
      * than higher numeric value, where 1 is the highest priority. The default value is 1.
-     * @return true if @a priority is valid and @a ruleIndex is valid.
+     * @return `true` if @a priority is valid and @a ruleIndex is valid.
      */
     bool setRulePriority(int ruleIndex, int priority);
     /**
      * @brief Sets the priority behavior when adding rules.
-     * @param autodecrement If true, then each new added rule has lower priority
+     * @param autodecrement if `true`, then each new added rule has lower priority
      * than the previously added one.
      *
      * The default behaviour is to set the highest priority (1) to all rules. You
@@ -343,16 +343,16 @@ public:
     void setAutoDecrementPriority(bool autodecrement);
     /**
      * @brief Updates priorities of the rules defined in this conditional formatting.
-     * @param firstRuleHasMaximumPriority If true, then the first rule will have
+     * @param firstRuleHasMaximumPriority if `true`, then the first rule will have
      * the highest priority, the last rule will have the lowest priority. If
-     * false, then the first rule will have the lowest priority, the last rule
+     * `false`, then the first rule will have the lowest priority, the last rule
      * will have the highest priority.
      */
     void updateRulesPriorities(bool firstRuleHasMaximumPriority = true);
     /**
      * @brief returns the priority of the rule with @a ruleIndex.
      * @param ruleIndex zero-based index of the rule from 0 to #rulesCount()-1.
-     * @return valid int if @a ruleIndex is valid, nullopt otherwise.
+     * @return valid int if @a ruleIndex is valid, `nullopt` otherwise.
      */
     std::optional<int> rulePriority(int ruleIndex) const;
 

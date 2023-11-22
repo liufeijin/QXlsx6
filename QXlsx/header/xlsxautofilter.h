@@ -315,61 +315,61 @@ public:
     /**
      * @brief returns whether to hide the filtering button in the column header.
      * @param column zero-based column index in the autofilter #range().
-     * @return valid bool if the parameter was set, nullopt otherwise.
+     * @return valid bool if the parameter was set, `nullopt` otherwise.
      *
-     * The default value is false (filter button is shown).
+     * The default value is `false` (filter button is shown).
      */
     std::optional<bool> hideFilterButton(int column) const;
     /**
      * @brief sets whether to hide the filtering button in the column header.
      * @param column zero-based column index in the autofilter #range().
-     * @param hide If true, then filtering button is hidden.
+     * @param hide If `true`, then filtering button is hidden.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      */
     void setHideFilterButton(int column, bool hide);
     /**
      * @overload
      * @brief sets whether to show the filtering button in the headers of all columns
      * in the #range().
-     * @param show If true, then filtering button is shown.
+     * @param show If `true`, then filtering button is shown.
      *
-     * If not set, true is assumed.
+     * If not set, `true` is assumed.
      */
     void setShowFilterButton(bool show);
     /**
      * @brief returns whether to show filtering options in the UI element.
      * @param column zero-based column index in the autofilter #range().
-     * @return valid bool if the parameter was set, nullopt otherwise.
+     * @return valid bool if the parameter was set, `nullopt` otherwise.
      *
-     * The default value is true.
+     * The default value is `true`.
      */
     std::optional<bool> showFilterOptions(int column) const;
     /**
      * @brief sets whether to show filtering options in the UI element.
      * @param column zero-based column index in the autofilter #range().
-     * @param show If true, then filtering options are shown.
+     * @param show If `true`, then filtering options are shown.
      *
-     * If not set, true is assumed.
+     * If not set, `true` is assumed.
      */
     void setShowFilterOptions(int column, bool show);
     /**
      * @brief sets whether to show filtering options in the UI element of all columns
      * in the #range().
-     * @param show If true, then filtering options are shown.
+     * @param show If `true`, then filtering options are shown.
      *
-     * If not set, true is assumed.
+     * If not set, `true` is assumed.
      */
     void setShowFilterOptions(bool show);
 
     /**
      * @brief sets @a column filtering by top N (percent or number of items).
      * @param column zero-based column index in the autofilter #range().
-     * @param value If @a usePercents is true, sets N persents to filter by. If
-     * @a usePercents is false, sets N items to filter by.
+     * @param value If @a usePercents is `true`, sets N persents to filter by. If
+     * @a usePercents is `false`, sets N items to filter by.
      * @param filterBy The actual cell value in the #range() which is used to
      * perform the comparison for this filter. Allows to narrow down the filtering criterion.
-     * @param usePercents If true, then filters by top @a value percents. If false,
+     * @param usePercents If `true`, then filters by top @a value percents. If `false`,
      * then filters by top @a value items.
      */
     void setFilterByTopN(int column, double value, std::optional<double> filterBy = std::nullopt,
@@ -377,12 +377,12 @@ public:
     /**
      * @brief sets @a column filtering by bottom N (percent or number of items).
      * @param column zero-based column index in the autofilter #range().
-     * @param value If @a usePercents is true, sets N persents to filter by. If
-     * @a usePercents is false, sets N items to filter by.
+     * @param value If @a usePercents is `true`, sets N persents to filter by. If
+     * @a usePercents is `false`, sets N items to filter by.
      * @param filterBy The actual cell value in the #range() which is used to
      * perform the comparison for this filter. Allows to narrow down the filtering criterion.
-     * @param usePercents If true, then filters by bottom @a value percents.
-     * If false, then filters by bottom @a value items.
+     * @param usePercents If `true`, then filters by bottom @a value percents.
+     * If `false`, then filters by bottom @a value items.
      */
     void setFilterByBottomN(int column, double value, std::optional<double> filterBy = std::nullopt,
                             bool usePercents = false);
@@ -483,7 +483,7 @@ public:
 
     /**
      * @brief returns wheter sorting was enabled. Equivalent to ```sortState().isValid()```
-     * @return true if sorting is enabled.
+     * @return `true` if sorting is enabled.
      * @note Sort parameters may have no sort conditions specified, but if the sort
      * range is valid, Excel applied default sorting to this range, thus to set the
      * simples sorting it is enough to specify the sort range.
@@ -506,8 +506,8 @@ public:
     /**
      * @brief sets the sort parameters.
      *
-     * If @a sort is invalid, does nothing and returns false. To remove sorting use #clearSortState()
-     * or ```setSortState({})```.
+     * If @a sort is invalid, does nothing and returns `false`. To remove sorting
+     * use #clearSortState() or ```setSortState({})```.
      *
      * @param sort A SortState object.
      */
@@ -519,7 +519,7 @@ public:
      * or ```setSortState({})```.
      *
      * @param range a valid CellRange object.
-     * @return true on success (@a range is valid and includes all sort conditions ranges).
+     * @return `true` on success (@a range is valid and includes all sort conditions ranges).
      */
     bool setSortRange(const CellRange &range);
     /**
@@ -554,21 +554,21 @@ public:
     /**
      * @brief adds a new sort condition.
      * @param condition SortCondition object
-     * @return true if @a condition is valid and was successfully added.
+     * @return `true` if @a condition is valid and was successfully added.
      */
     bool addSortCondition(const SortCondition& condition);
     /**
      * @brief sets sort condition with @a index.
      * @param index must be within 0 and #sortConditionsCount()-1.
      * @param condition SortCondition object
-     * @return true if @a index and @a condition are valid and @a condition was successfully
+     * @return `true` if @a index and @a condition are valid and @a condition was successfully
      * set.
      */
     bool setSortCondition(int index, const SortCondition& condition);
     /**
      * @brief removes the sort condition with @a index
      * @param index must be within 0 and #sortConditionsCount()-1.
-     * @return true if the sort condition was successfully removed.
+     * @return `true` if the sort condition was successfully removed.
      */
     bool removeSortCondition(int index);
     /**
@@ -598,7 +598,7 @@ public:
      * This method is intended to quickly add sorting to the worksheet.
      * It uses the following parameters:
      * - SortState::range is @a sortRange;
-     * - SortState::columnSort is unspecified (defaults to false);
+     * - SortState::columnSort is unspecified (defaults to `false`);
      * - SortState::caseSensitive is @a caseSensitive;
      * - SortState::sortMethod is unspecified (defaults to SortMethod::PinYin;
      * - sort condition is only one:
@@ -611,7 +611,7 @@ public:
      * @param sortBy The range to sort by.
      * @param sortOrder Ascending/descending sort.
      * @param caseSensitivity the sort case sensitivity.
-     * @return true if the ranges are valid and sorting is successful.
+     * @return `true` if the ranges are valid and sorting is successful.
      * @note To fine-tune sorting, use #sortState(), #setSortState(), #addSortCondition(),
      * #sortCondition(int index) methods.
      */

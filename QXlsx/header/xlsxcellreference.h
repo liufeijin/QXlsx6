@@ -48,8 +48,8 @@ public:
     CellReference(int rowOffset, int columnOffset, const CellReference &other);
     /**
      * @brief returns the string representation of a cell location.
-     * @param rowFixed If true, the row number will be prepended with $.
-     * @param colFixed If true, the column will be prepended with $.
+     * @param rowFixed If `true`, the row number will be prepended with $.
+     * @param colFixed If `true`, the column will be prepended with $.
      * @return The string representation of a cell location if the location is valid,
      * empty string otherwise.
      */

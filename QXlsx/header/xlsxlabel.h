@@ -75,7 +75,7 @@ public:
     /**
      * @brief test if parameter is set.
      * @param parameter parameter to test.
-     * @return true if parameter is set, false if the parameter is not set or label is not valid.
+     * @return `true` if parameter is set, `false` if the parameter is not set or label is not valid.
      */
     bool testShowParameter(ShowParameter parameter) const;
 
@@ -97,7 +97,7 @@ public:
     void setPosition(Position pos);
     /**
      * @brief returns the label's position.
-     * @return Position enum value if it was set, nullopt otherwise. If not set,
+     * @return Position enum value if it was set, `nullopt` otherwise. If not set,
      * Position::BestFit is assumed.
      */
     std::optional<Position> position() const;

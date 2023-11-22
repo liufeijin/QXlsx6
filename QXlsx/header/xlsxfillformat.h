@@ -292,7 +292,7 @@ public:
     void setLinearShadeAngle(Angle val);
     /**
      * @brief returns whether the linear gradient angle scales with the fill region.
-     * If set to true, the linearShadeAngle() is scaled to the shape's fill region.
+     * If set to `true`, the linearShadeAngle() is scaled to the shape's fill region.
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a shape
      * with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
@@ -301,11 +301,11 @@ public:
     std::optional<bool> linearShadeScaled() const;
     /**
      * @brief sets whether the linear gradient angle scales with the fill region.
-     * @param scaled if true, then the linearShadeAngle() will be scaled to the shape's fill region.
+     * @param scaled if `true`, then the linearShadeAngle() will be scaled to the shape's fill region.
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in
      * a shape with width of 300 and height of 200
      * will be scaled to vector(300,-200), that is an angle of 33.69°.
-     * If false, the gradient angle is independent of the shape's fill region.
+     * If `false`, the gradient angle is independent of the shape's fill region.
      * @warning This parameter is applicable to only linear gradient. Invoking
      * this method will clear the path gradient parameters (#pathType(),
      * #pathRect()).
@@ -371,7 +371,7 @@ public:
      * is applied. This region is then tiled across the remaining
      * area of the shape to complete the fill. The tile rectangle is defined by
      * percentage offsets from the sides of the shape's bounding box.
-     * @return valid RelativeRect if the parameter is set, nullopt otherwise.
+     * @return valid RelativeRect if the parameter is set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::GradientFill.
      */
     std::optional<RelativeRect> tileRect() const;
@@ -397,21 +397,21 @@ public:
      * @brief returns whether the gradient or picture should be rotated with the
      * shape rotation.
      *
-     * Value of true means that when the shape that has been filled with a picture
+     * Value of `true` means that when the shape that has been filled with a picture
      * or a gradient is transformed with a rotation then the fill is transformed
      * with the same rotation.
      *
-     * @return valid optional value if the parameter is set, nullopt otherwise.
+     * @return valid optional value if the parameter is set, `nullopt` otherwise.
      */
     std::optional<bool> rotateWithShape() const;
     /**
      * @brief sets whether the gradient or picture should be rotated with the
      * shape rotation.
-     * @param val true means that when the shape that has been filled
+     * @param val `true` means that when the shape that has been filled
      * with a picture or a gradient is transformed with a rotation then the fill
      * is transformed with the same rotation.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      */
     void setRotateWithShape(bool val);
 
@@ -442,7 +442,7 @@ public:
     void setBackgroundColor(const Color &color);
     /**
      * @brief returns the type of the pattern fill.
-     * @return pattern type if it was set, nullopt otherwise.
+     * @return pattern type if it was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PatternFill.
      */
     std::optional<PatternType> patternType();
@@ -479,7 +479,7 @@ public:
     QImage picture() const;
     /**
      * @brief returns the mode of using the picture to fill the shape.
-     * @return Valid optional value if the parameter is set, nullopt otherwise.
+     * @return Valid optional value if the parameter is set, `nullopt` otherwise.
      * @note If this parameter is not set, the picture will simply be truncated to
      * the shape's bounding box.
      *
@@ -493,7 +493,7 @@ public:
      * @note If pictureFillMode() is not set, the picture will simply be truncated to
      * the shape's bounding box.
      *
-     * You can use this method to clear the picture fill mode: ```setPictureFillMode(std::nullopt);```
+     * You can use this method to clear the picture fill mode: `setPictureFillMode(std::nullopt);`
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     void setPictureFillMode(std::optional<PictureFillMode> mode);
@@ -507,7 +507,7 @@ public:
      * located to the right of the bounding box's left edge by an amount equal
      * to 25% of the bounding box's width.
      *
-     * @return valid optional if the parameter is set, nullopt otherwise.
+     * @return valid optional if the parameter is set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<RelativeRect> pictureSourceRect() const;
@@ -524,7 +524,7 @@ public:
     void setPictureSourceRect(const RelativeRect &rect);
     /**
      * @brief returns the DPI (dots per inch) used to calculate the size of the picture.
-     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @return valid optional if the parameter was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<int> pictureDpi() const;
@@ -537,7 +537,7 @@ public:
     void setPictureDpi(int dpi);
     /**
      * @brief returns the rectangle used to stretch the picture fill.
-     * @return valid optional if the parameter is set, nullopt otherwise.
+     * @return valid optional if the parameter is set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<RelativeRect> pictureStretchRect() const;
@@ -609,7 +609,7 @@ public:
      * @brief returns where to align the first tile with respect to the shape.
      *
      * Alignment happens after the scaling, but before the additional offset.
-     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @return valid optional if the parameter was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<Alignment> tileAlignment();
@@ -624,7 +624,7 @@ public:
     void setTileAlignment(Alignment alignment);
     /**
      * @brief returns the compression quality that was used for a picture.
-     * @return  valid optional if the parameter was set, nullopt otherwise.
+     * @return  valid optional if the parameter was set, `nullopt` otherwise.
      * @note This parameter serves as an additional info.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
@@ -641,7 +641,7 @@ public:
      *
      * If pictureAlpha() is 30.0, the picture has 30% opacity.
      *
-     * @return valid optional if the parameter was set, nullopt otherwise.
+     * @return valid optional if the parameter was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be FillType::PictureFill.
      */
     std::optional<double> pictureAlpha() const;

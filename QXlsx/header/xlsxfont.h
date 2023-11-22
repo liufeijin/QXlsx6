@@ -91,7 +91,7 @@ public:
      *
      * The default value is Charset::Default.
      *
-     * @return valid Charset enum value if charset was set, nullopt otherwise.
+     * @return valid Charset enum value if charset was set, `nullopt` otherwise.
      */
     std::optional<Charset> charset() const;
     /**
@@ -99,7 +99,7 @@ public:
      *
      * the default value is PitchFamily::DefaultPitchUnknownFamily.
      *
-     * @return valid PitchFamily enum value if  was set, nullopt otherwise.
+     * @return valid PitchFamily enum value if  was set, `nullopt` otherwise.
      */
     std::optional<PitchFamily> pitchAndFamilySubstitute() const;
 

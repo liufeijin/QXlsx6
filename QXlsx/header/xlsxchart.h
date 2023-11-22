@@ -353,14 +353,14 @@ public:
     /**
      * @brief returns whether subchart with @a subchartIndex has series added to it.
      * @param subchartIndex zero-based index of a subchart.
-     * @return true if series were added to the subchart. False if subchart has no
+     * @return `true` if series were added to the subchart. `false` if subchart has no
      * series or @a subchartIndex is invalid.
      */
     bool subchartHasSeries(int subchartIndex) const;
     /**
      * @brief removes subchart.
      * @param subchartIndex zero-based index of a subchart.
-     * @return true if removal was successful, false if @a subchartIndex is invalid.
+     * @return `true` if removal was successful, `false` if @a subchartIndex is invalid.
      * @note After that the chart may have no subcharts. See #subchartsCount(). This method
      * also removes any series that were added to the subchart.
      */
@@ -470,15 +470,15 @@ public:
      * @param range valid CellRange
      * @param sheet data source for @a range
      * @param firstRowContainsHeaders specifies that the 1st row (the 1st column
-     * if @a columnBased is false) contains the series titles and should be
+     * if @a columnBased is `false`) contains the series titles and should be
      * excluded from the series data.
      * @param firstColumnContainsCategoryData specifies that the 1st column
-     * (the 1st row if @a columnBased is false) contains data for the category (x)
+     * (the 1st row if @a columnBased is `false`) contains data for the category (x)
      * axis.
      * @param columnBased specifies that @a range should be treated as column-based
-     * or row-based: if @a columnBased is true, the first column is category data
-     * (if @a firstColumnContainsCategoryData is set to true),
-     * other columns are value data for new series. If @a columnBased is false, the
+     * or row-based: if @a columnBased is `true`, the first column is category data
+     * (if @a firstColumnContainsCategoryData is set to `true`),
+     * other columns are value data for new series. If @a columnBased is `false`, the
      * first row is category data, other rows are value data for new series.
      * @param subchart zero-based index of a subchart into which the series are being added.
      * @note the series will have the type specified by the subchart type.
@@ -495,7 +495,7 @@ public:
      * @param keyRange category range or x axis range.
      * @param valRange value range or y axis range.
      * @param sheet data sheet reference.
-     * @param keyRangeIncludesHeader if true, the first row or column is used as a series name reference.
+     * @param keyRangeIncludesHeader if `true`, the first row or column is used as a series name reference.
      * @param subchart zero-based index of a subchart into which the series are being added.
      * @return index of the added series or -1 if no series was added.
      * @note The series will have the type specifies by the subchart type.
@@ -522,14 +522,14 @@ public:
     /**
      * @brief removes series with @a index from the chart.
      * @param index zero-based series index.
-     * @return true if such a series was found and successfully deleted, false otherwise.
+     * @return `true` if such a series was found and successfully deleted, `false` otherwise.
      */
     bool removeSeries(int index);
     /**
      * @overload
      * @brief removes #series from the chart.
      * @param series
-     * @return true if such a series was found and successfully deleted, false otherwise.
+     * @return `true` if such a series was found and successfully deleted, `false` otherwise.
      */
     bool removeSeries(const Series &series);
     /**
@@ -641,9 +641,9 @@ public:
     QList<int> axesIDs() const;
 
     /**
-     * @brief tries to remove axis and returns true if axis has been removed.
+     * @brief tries to remove axis and returns `true` if axis has been removed.
      * @param axisID the id of the axis to be removed.
-     * @return true if axis has been removed, false otherwise (no axis with this id or axis is used
+     * @return `true` if axis has been removed, `false` otherwise (no axis with this id or axis is used
      * in some series).
      * @note This method does not check if any series uses this axis. Use #seriesThatUseAxis()
      * to do the checking.
@@ -651,9 +651,9 @@ public:
     bool removeAxis(int axisID);
     /**
      * @overload
-     * @brief tries to remove axis and returns true if axis has been removed.
+     * @brief tries to remove axis and returns `true` if axis has been removed.
      * @param axis the pointer to the axis to be removed.
-     * @return true if axis has been removed, false otherwise (no such axis or axis is used
+     * @return `true` if axis has been removed, `false` otherwise (no such axis or axis is used
      * in some series).
      * @note This method does not check if any series uses this axis. Use #seriesThatUseAxis()
      * to do the checking.
@@ -715,10 +715,10 @@ public:
     std::optional<bool> autoTitleDeleted() const;
     /**
      * @brief sets whether to show the automatically generated title of the chart.
-     * @param value if true then the automatically generated title is not shown.
-     * @note If the chart has only one series and autoTitleDeleted is set to false,
+     * @param value if `true` then the automatically generated title is not shown.
+     * @note If the chart has only one series and autoTitleDeleted is set to `false`,
      * then the chart will have the title that contains the series name. Set
-     * autoTitleDeleted to true to hide this title.
+     * autoTitleDeleted to `true` to hide this title.
      */
     void setAutoTitleDeleted(bool value);
 
@@ -726,15 +726,15 @@ public:
      * @brief returns whether only visible cells should be plotted on the chart.
      * @return
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     std::optional<bool> plotOnlyVisibleCells() const;
     /**
      * @brief sets whether only visible cells should be plotted on the chart.
-     * @param value If true, only visible cells are plotted. If false, all cells are plotted,
+     * @param value if `true`, only visible cells are plotted. If `false`, all cells are plotted,
      * including hidden ones.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     void setPlotOnlyVisibleCells(bool value);
 
@@ -756,7 +756,7 @@ public:
     /**
      * @brief returns whether data labels over the maximum of the chart shall be shown.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * @return
      */
@@ -765,7 +765,7 @@ public:
      * @brief sets whether data labels over the maximum of the chart shall be shown.
      * @param value
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     void setShowDataLabelsOverMaximum(bool value);
 
@@ -810,10 +810,10 @@ public:
 
     /**
      * @brief sets the visibility of the chart data table
-     * @param visible if true, the chart data table is shown below the chart. If false,
+     * @param visible if `true`, the chart data table is shown below the chart. If `false`,
      * the chart data table is hidden.
      *
-     * @warning Setting the data table visibility to false deletes the current data table properties.
+     * @warning Setting the data table visibility to `false` deletes the current data table properties.
      *
      */
     void setDataTableVisible(bool visible);
@@ -859,7 +859,7 @@ public:
      * not used, then all dates and times shall be specified as a decimal number
      * of days since Dec. 31, 1899.
      *
-     * @return valid bool if the 1904 date system is set to true or false, nullopt otherwise.
+     * @return valid bool if the 1904 date system is set to `true` or `false`, `nullopt` otherwise.
      */
     std::optional<bool> date1904() const;
     /**
@@ -892,7 +892,7 @@ public:
 
     /**
      * @brief returns whether the chart area has rounded corners.
-     * @return valid bool if the property is set, nullopt otherwise.
+     * @return valid bool if the property is set, `nullopt` otherwise.
      */
     std::optional<bool> roundedCorners() const;
     /**
@@ -908,7 +908,7 @@ public:
      *
      * Applicable to: Area, Area3D, Line, Line3D.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid Chart::Grouping if property is set, nullopt otherwise.
+     * @return valid Chart::Grouping if property is set, `nullopt` otherwise.
      */
     std::optional<Chart::Grouping> grouping(int subchartIndex) const;
     /**
@@ -925,7 +925,7 @@ public:
      *
      * Applicable to: Bar, Bar3D.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid Chart::BarGrouping if property is set, nullopt otherwise.
+     * @return valid Chart::BarGrouping if property is set, `nullopt` otherwise.
      */
     std::optional<Chart::BarGrouping> barGrouping(int subchartIndex) const;
     /**
@@ -943,10 +943,10 @@ public:
      * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
      * Pie, Pie3D, Doughnut, OfPie, Bubble.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid bool value if property is set, nullopt otherwise.
+     * @return valid bool value if property is set, `nullopt` otherwise.
      *
      * @note by default varyColors is not set. But in order to get sensible charts
-     * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to true.
+     * all new Pie, Pie3D, Doughnut, OfPie, Bubble charts automatically set varyColors to `true`.
      *
      */
     std::optional<bool> varyColors(int subchartIndex) const;
@@ -956,7 +956,7 @@ public:
      * Applicable to chart types: Line, Line3D, Scatter, Radar, Bar, Bar3D, Area, Area3D,
      * Pie, Pie3D, Doughnut, OfPie, Bubble.
      * @param subchartIndex zero-based index of a subchart.
-     * @param varyColors true if each data marker in the series has a different color, false
+     * @param varyColors `true` if each data marker in the series has a different color, `false`
      * if every data markers in the series have the same color.
      */
     void setVaryColors(int subchartIndex, bool varyColors);
@@ -1099,11 +1099,11 @@ public:
     void setUpDownBars(int subchartIndex, const UpDownBar &upDownBars);
 
     /**
-     * @brief if true, the chart series marker is shown.
+     * @brief if `true`, the chart series marker is shown.
      *
      * Applicable to chart types: Line.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid boolean value if property is set, nullopt otherwise.
+     * @return valid boolean value if property is set, `nullopt` otherwise.
      */
     std::optional<bool> markerShown(int subchartIndex) const;
     /**
@@ -1116,21 +1116,21 @@ public:
     void setMarkerShown(int subchartIndex, bool markerShown);
 
     /**
-     * @brief returns smoothing of the chart series. If true, the line
+     * @brief returns smoothing of the chart series. if `true`, the line
      * connecting the points on the chart is smoothed using Catmull-Rom splines.
      *
      * Applicable to chart types: Line.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid boolean value if property is set, nullopt otherwise.
+     * @return valid boolean value if property is set, `nullopt` otherwise.
      */
     std::optional<bool> smooth(int subchartIndex) const;
     /**
-     * @brief sets smoothing of the chart series. If true, the line
+     * @brief sets smoothing of the chart series. if `true`, the line
      * connecting the points on the chart shall be smoothed using Catmull-Rom splines.
      *
      * Applicable to chart types: Line.
      * @param subchartIndex zero-based index of a subchart.
-     * @param smooth if true, the line
+     * @param smooth if `true`, the line
      * connecting the points on the chart is smoothed using Catmull-Rom splines.
      */
     void setSmooth(int subchartIndex, bool smooth);
@@ -1141,7 +1141,7 @@ public:
      *
      * Applicable to chart types: Line3D, Bar3D, Area3D.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid double ([0..]) value if property is set, nullopt otherwise.
+     * @return valid double ([0..]) value if property is set, `nullopt` otherwise.
      */
     std::optional<int> gapDepth(int subchartIndex) const;
     /**
@@ -1219,7 +1219,7 @@ public:
      *
      * Applicable to chart types: Bar, Bar3D, OfPie.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid % ([0..500]) value if property is set, nullopt otherwise.
+     * @return valid % ([0..500]) value if property is set, `nullopt` otherwise.
      */
     std::optional<int> gapWidth(int subchartIndex) const;
     /**
@@ -1239,7 +1239,7 @@ public:
      *
      * Applicable to chart types: Bar.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid int value (percentage) if property is set, nullopt otherwise.
+     * @return valid int value (percentage) if property is set, `nullopt` otherwise.
      */
     std::optional<int> overlap(int subchartIndex) const;
     /**
@@ -1283,7 +1283,7 @@ public:
      *
      * Applicable to chart types: Bar3D.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid Series::BarShape value or nullopt if the property is not set.
+     * @return valid Series::BarShape value or `nullopt` if the property is not set.
      */
     std::optional<Series::BarShape> barShape(int subchartIndex) const;
     /**
@@ -1301,7 +1301,7 @@ public:
      *
      * Applicable to chart types: Pie, Doughnut.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid int value if the property is set, nullopt otherwise.
+     * @return valid int value if the property is set, `nullopt` otherwise.
      */
     std::optional<int> firstSliceAngle(int subchartIndex) const;
     /**
@@ -1319,7 +1319,7 @@ public:
      *
      * Applicable to chart types: Doughnut.
      *
-     * @return valid int value if the property is set (in the range [1..90]), nullopt otherwise.
+     * @return valid int value if the property is set (in the range [1..90]), `nullopt` otherwise.
      */
     std::optional<int> holeSize(int subchartIndex) const;
     /**
@@ -1403,7 +1403,7 @@ public:
      * @brief returns the second pie size of an OfPie chart, as a percentage
      * of the size of the first pie.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid percentage value (5..200%) or nullopt if the parameter is not set.
+     * @return valid percentage value (5..200%) or `nullopt` if the parameter is not set.
      */
     std::optional<int> secondPieSize(int subchartIndex) const;
     /**
@@ -1419,7 +1419,7 @@ public:
     /**
      * @brief returns whether the Bubble chart has a 3-D effect applied to series.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     * @return valid optional value if bubble3D property is set, `nullopt` otherwise.
      */
     std::optional<bool> bubble3D(int subchartIndex) const;
     /**
@@ -1433,9 +1433,9 @@ public:
     /**
      * @brief returns whether negative sized bubbles shall be shown on a bubble chart.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid optional value if bubble3D property is set, nullopt otherwise.
+     * @return valid optional value if bubble3D property is set, `nullopt` otherwise.
      *
-     * If the parameter is not set, the default value is true.
+     * If the parameter is not set, the default value is `true`.
      *
      * Applicable to char types: Bubble.
      */
@@ -1445,7 +1445,7 @@ public:
      * @param subchartIndex zero-based index of a subchart.
      * @param show
      *
-     * The default value is true.
+     * The default value is `true`.
      *
      * Applicable to char types: Bubble.
      */
@@ -1471,7 +1471,7 @@ public:
     /**
      * @brief returns how the bubble size values are represented on the chart.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid optional value if parameter is set, nullopt otherwise.
+     * @return valid optional value if parameter is set, `nullopt` otherwise.
      *
      * Applicable to char types: Bubble.
      */
@@ -1488,9 +1488,9 @@ public:
     /**
      * @brief returns whether the surface chart is drawn as a wireframe.
      * @param subchartIndex zero-based index of a subchart.
-     * @return valid optional value if the parameter is set, nullopt otherwise.
+     * @return valid optional value if the parameter is set, `nullopt` otherwise.
      *
-     * The default value is true.
+     * The default value is `true`.
      *
      * Applicable to chart types: Surface, Surface3D.
      */
@@ -1500,7 +1500,7 @@ public:
      * @param subchartIndex zero-based index of a subchart.
      * @param wireframe
      *
-     * The default value is true.
+     * The default value is `true`.
      *
      * Applicable to chart types: Surface, Surface3D
      */

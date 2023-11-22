@@ -39,17 +39,17 @@ its height is one pictureStackUnit. Does not apply to walls or floor. */
     };
     /**
      * @brief  specifies whether the picture shall be applied to the front of the point or series.
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     std::optional<bool> applyToFront;
     /**
      * @brief specifies whether the picture shall be applied to the sides of the point or series.
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     std::optional<bool> applyToSides;
     /**
      * @brief  specifies whether the picture shall be applied to the end of the point or series.
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      */
     std::optional<bool> applyToEnd;
     /**
@@ -481,7 +481,7 @@ public:
     QString name() const;
     /**
      * @brief returns whether the series name is a reference.
-     * @return true if the series name is a string like "Sheet1!$A$1:$A$2".
+     * @return `true` if the series name is a string like "Sheet1!$A$1:$A$2".
      */
     bool nameIsReference() const;
 
@@ -539,7 +539,7 @@ public:
     /**
      * @brief label returns reference to a label with @a index.
      * @param index index of a label (not the index of a series dataPoint!)
-     * @return reference to a label, nullopt if series is not valid
+     * @return reference to a label, `nullopt` if series is not valid
      */
     std::optional<std::reference_wrapper<Label> > label(int index);
     /**
@@ -552,7 +552,7 @@ public:
     /**
      * @brief label returns reference to a label for a specified data point
      * @param index index of a series data point
-     * @return reference to a label, nullopt if series is not valid
+     * @return reference to a label, `nullopt` if series is not valid
      */
     std::optional<std::reference_wrapper<Label> > labelForPoint(int index);
     /**

@@ -123,21 +123,21 @@ public:
 
     /**
      * @brief returns whether the title's text is a formatted text.
-     * @return true if the title's text is set as an html text, false otherwise.
+     * @return `true` if the title's text is set as an html text, `false` otherwise.
      * @note this method does not check if the formatting is actually present in the text. It merely
      * checks the Text::type().
      */
     bool isRichString() const; //only checks type, ignores actual formatting
     /**
      * @brief returns whether the title's text is a plain text without formatting.
-     * @return true if the title's text was set as a plain text.
+     * @return `true` if the title's text was set as a plain text.
      * @note this method does not check if the formatting is actually absent in the text. It merely
      * checks the Text::type().
      */
     bool isPlainString() const;
     /**
      * @brief returns whether the title's text is a string reference.
-     * @return true if the title's text was set as a string reference.
+     * @return `true` if the title's text was set as a string reference.
      * @note this method merely checks the Text::type().
      */
     bool isStringReference() const;
@@ -238,12 +238,12 @@ public:
 
     /**
      * @brief returns whether other chart elements shall be allowed to overlap this chart element.
-     * @return true if this chart element can be overlapped by other chart elements, false otherwise.
+     * @return `true` if this chart element can be overlapped by other chart elements, `false` otherwise.
      */
     std::optional<bool> overlay() const;
     /**
      * @brief specifies whether other chart elements shall be allowed to overlap this chart element.
-     * @param overlay true if this chart element can be overlapped by other chart elements, false otherwise.
+     * @param overlay `true` if this chart element can be overlapped by other chart elements, `false` otherwise.
      */
     void setOverlay(bool overlay);
     /**
@@ -263,7 +263,7 @@ public:
     void setShape(const ShapeFormat &shape);
     /**
      * @brief returns whether the title has any parameters set.
-     * @return true if any of the title's parameters are valid (set).
+     * @return `true` if any of the title's parameters are valid (set).
      */
     bool isValid() const;
 

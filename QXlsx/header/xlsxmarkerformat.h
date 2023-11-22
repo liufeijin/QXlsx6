@@ -59,7 +59,7 @@ public:
 
     /**
      * @brief returns the marker size
-     * @return valid optional value if the size was set, nullopt otherwise.
+     * @return valid optional value if the size was set, `nullopt` otherwise.
      */
     std::optional<int> size() const;
     /**

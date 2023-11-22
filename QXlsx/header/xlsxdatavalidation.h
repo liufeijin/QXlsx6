@@ -65,7 +65,7 @@ public:
         Date, /**< restricts the cell to date values. */
         Time, /**< restricts the cell to time values. */
         TextLength, /**< restricts the cell data based on an integer string length. */
-        Custom /**< restricts the cell based on an external Excel formula that returns a true/false value. */
+        Custom /**< restricts the cell based on an external Excel formula that returns a `true/false` value. */
     };
     /**
      * @brief The Predicate enum defines the criteria by which the data in the
@@ -172,7 +172,7 @@ public:
      * @brief returns the type of the validation.
      *
      * Type of the validation specifies the type of data that you wish to validate.
-     * @return Type enum value if type was set, nullopt otherwise.
+     * @return Type enum value if type was set, `nullopt` otherwise.
      *
      * The default value is Type::None, which means no validation constraints.
      */
@@ -188,7 +188,7 @@ public:
     /**
      * @brief returns predicate that defines the criteria by which the data in the
      * cell is validated.
-     * @return Predicate enum value if predicate was set, nullopt otherwise.
+     * @return Predicate enum value if predicate was set, `nullopt` otherwise.
      * The default value is Predicate::Between.
      */
     std::optional<Predicate> predicate() const;
@@ -202,7 +202,7 @@ public:
     void setPredicate(Predicate predicate);
     /**
      * @brief return the type of error message when cell data was disallowed.
-     * @return Error enum value if errorStyle was set, nullopt otherwise.
+     * @return Error enum value if errorStyle was set, `nullopt` otherwise.
      *
      * The default value is Error::Stop.
      */
@@ -245,17 +245,17 @@ public:
     /**
      * @brief returns whether the data validation allows the use of empty or blank
      * entries. `true` means empty entries are OK and do not violate the validation constraints.
-     * @return If true, blank entries are allowed.
+     * @return if `true`, blank entries are allowed.
      *
-     * The default value is false.
+     * The default value is `false`.
      */
     std::optional<bool> allowBlank() const;
     /**
      * @brief sets whether the data validation allows the use of empty or blank
-     * entries. true means empty entries are OK and do not violate the validation constraints.
-     * @param enable If true, then blank entries are allowed.
+     * entries. `true` means empty entries are OK and do not violate the validation constraints.
+     * @param enable if `true`, then blank entries are allowed.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      */
     void setAllowBlank(bool enable);
     /**
@@ -288,33 +288,33 @@ public:
     QString promptTitle() const;
     /**
      * @brief returns whether to display the input prompt message.
-     * @return If true, then prompt message is shown.
+     * @return if `true`, then prompt message is shown.
      *
-     * The default value is false.
+     * The default value is `false`.
      * @sa #setPromptMessageVisible(), #setPromptMessage().
      */
     std::optional<bool> isPromptMessageVisible() const;
     /**
      * @brief returns whether to display the error message.
-     * @return If true, then error message is shown.
+     * @return if `true`, then error message is shown.
      *
-     * The default value is false.
+     * The default value is `false`.
      * @sa #setErrorMessageVisible(), #setErrorMessage().
      */
     std::optional<bool> isErrorMessageVisible() const;
     /**
      * @brief sets whether to display the input prompt message.
-     * @param visible If true, then prompt message is shown.
+     * @param visible if `true`, then prompt message is shown.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      * @sa #isPromptMessageVisible(), #setPromptMessage().
      */
     void setPromptMessageVisible(bool visible);
     /**
      * @brief sets whether to display the validation error message.
-     * @param visible If true, then error message is shown.
+     * @param visible if `true`, then error message is shown.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      * @sa #isErrorMessageVisible(), #setErrorMessage(), #setErrorStyle().
      */
     void setErrorMessageVisible(bool visible);
@@ -322,7 +322,7 @@ public:
      * @brief sets text of the validation error with the optional UI element title.
      * @param error the text of the error message.
      * @param title the title of the error box.
-     * @note The error message will not be visible if #isErrorMessageVisible() returns false.
+     * @note The error message will not be visible if #isErrorMessageVisible() returns `false`.
      * @sa #setErrorMessageVisible().
      */
     void setErrorMessage(const QString &error, const QString &title=QString());
@@ -330,7 +330,7 @@ public:
      * @brief sets the text of the prompt message with the optional UI element title.
      * @param prompt the text of the input message.
      * @param title the title of the input message.
-     * @note The prompt message will not be visible if #isPromptMessageVisible() returns false.
+     * @note The prompt message will not be visible if #isPromptMessageVisible() returns `false`.
      * @sa setPromptMessageVisible().
      */
     void setPromptMessage(const QString &prompt, const QString &title=QString());
@@ -338,17 +338,17 @@ public:
     /**
      * @brief returns whether to display a dropdown combo box for a list-type
      * data validation.
-     * @return If true, then a dropdown is shown.
+     * @return if `true`, then a dropdown is shown.
      *
-     * The default value is false.
+     * The default value is `false`.
      */
     std::optional<bool> isDropDownVisible() const;
     /**
      * @brief sets whether to display a dropdown combo box for a list-type
      * data validation.
-     * @param visible If true, then a dropdown is shown.
+     * @param visible if `true`, then a dropdown is shown.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      */
     void setDropDownVisible(bool visible);
 
@@ -376,8 +376,8 @@ public:
     /**
      * @brief adds @a cell to the list of validated ranges.
      * @param cell valid CellReference.
-     * @return true if @a cell is valid and has previously not been validated,
-     * false otherwise.
+     * @return `true` if @a cell is valid and has previously not been validated,
+     * `false` otherwise.
      */
     bool addCell(const CellReference &cell);
     /**
@@ -386,15 +386,15 @@ public:
      * list of validated ranges.
      * @param row 1-based cell row number.
      * @param column 1-based cell column number.
-     * @return true if a cell is valid and has previously not been validated,
-     * false otherwise.
+     * @return `true` if a cell is valid and has previously not been validated,
+     * `false` otherwise.
      */
     bool addCell(int row, int column);
     /**
      * @brief adds @a range to the list of validated ranges.
      * @param range valid CellRange.
-     * true if @a range is valid and has previously not been validated,
-     * false otherwise.
+     * @return `true` if @a range is valid and has previously not been validated,
+     * `false` otherwise.
      */
     bool addRange(const CellRange &range);
     /**
@@ -405,14 +405,14 @@ public:
      * @param firstColumn 1-based index of the first column of the range.
      * @param lastRow 1-based index of the last row of the range.
      * @param lastColumn 1-based index of the last column of the range.
-     * @return true if a range is valid and has previously not been validated,
-     * false otherwise.
+     * @return `true` if a range is valid and has previously not been validated,
+     * `false` otherwise.
      */
     bool addRange(int firstRow, int firstColumn, int lastRow, int lastColumn);
     /**
      * @brief removes @a range from the list of validated ranges.
      * @param range valid CellRange.
-     * @return true if @a range was found and removed, false otherwise.
+     * @return `true` if @a range was found and removed, `false` otherwise.
      */
     bool removeRange(const CellRange &range);
     /**
@@ -423,7 +423,7 @@ public:
      * @param firstColumn 1-based index of the first column of the range.
      * @param lastRow 1-based index of the last row of the range.
      * @param lastColumn 1-based index of the last column of the range.
-     * @return true if a range was found and removed, false otherwise.
+     * @return `true` if a range was found and removed, `false` otherwise.
      */
     bool removeRange(int firstRow, int firstColumn, int lastRow, int lastColumn);
     /**

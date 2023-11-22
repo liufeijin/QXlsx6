@@ -157,12 +157,12 @@ fully contain the text described within it.*/
     std::optional<Anchor> anchor;
     /**
      * @brief Specifies whether the smallest possible "bounds box" for the text
-     * should be determined to center this box accordingly. The default value is false.
+     * should be determined to center this box accordingly. The default value is `false`.
      */
     std::optional<bool> anchorCentering;
     /**
      * @brief Forces the text to be rendered anti-aliased regardless of the font size.
-     * The default value is false.
+     * The default value is `false`.
      */
     std::optional<bool> forceAntiAlias;
     /**
@@ -172,7 +172,7 @@ fully contain the text described within it.*/
     std::optional<bool> upright;
     /**
      * @brief Specifies that the line spacing for this text body is decided in a simplistic manner using
-     * the font scene. The default value is false.
+     * the font scene. The default value is `false`.
      */
     std::optional<bool> compatibleLineSpacing;
     /**
@@ -311,7 +311,7 @@ public:
                                                       checked for smart tags.
 
                                                       A value of
-                                                      true here indicates to the generating application
+                                                      `true` here indicates to the generating application
                                                       that this text fragment should be checked for
                                                       smart tags. */
     std::optional<bool> spellingErrorFound; /**< @brief  Specifies that when this fragment of
@@ -346,7 +346,7 @@ public:
     /**
      * @brief Specifies a distinct stroke style of an underline if it should differ from #line.
      *
-     * If this parameter is set, then #textUnderlineFollowsText should be nullopt or false.
+     * If this parameter is set, then #textUnderlineFollowsText should be `nullopt` or `false`.
      */
     LineFormat textUnderline;
     /**
@@ -359,7 +359,7 @@ public:
     /**
      * @brief Specifies a distinct fill style of an underline if it should differ from #fill.
      *
-     * If this parameter is set, then #textUnderlineFillFollowsText should be nullopt or false.
+     * If this parameter is set, then #textUnderlineFillFollowsText should be `nullopt` or `false`.
      */
     FillFormat textUnderlineFill;
     /**
@@ -909,7 +909,7 @@ public:
     /**
      * @brief sets text as a rich-formatted string (and changes type to be RichText).
      * @param text
-     * @param detectHtml if set to false, the Text type will be RichText, but no formatting
+     * @param detectHtml if set to `false`, the Text type will be RichText, but no formatting
      * will be set.
      */
     void setHtml(const QString &text, bool detectHtml = true);

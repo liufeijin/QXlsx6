@@ -116,8 +116,8 @@ public:
     /**
      * @brief returns the visibility of a specific legend entry.
      * @param index the entry index.
-     * @return valid std::optional if the visibility of the entry was changed,
-     * nullopt if the visibility of the entry is the default.
+     * @return valid `std::optional` if the visibility of the entry was changed,
+     * `nullopt` if the visibility of the entry is the default.
      */
     std::optional<bool> entryVisible(int index) const;
 

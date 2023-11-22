@@ -308,10 +308,16 @@ QString AbstractSheet::codeName() const
     return d->sheetProperties.codeName;
 }
 
-void AbstractSheet::setCodeName(const QString &codeName)
+bool AbstractSheet::setCodeName(const QString &codeName)
 {
     Q_D(AbstractSheet);
+    const auto sheets = d->workbook->sheets();
+    if (std::find_if(sheets.cbegin(), sheets.cend(),
+                     [codeName, this](auto sheet){
+                         return sheet && sheet != this && sheet->codeName() == codeName;
+                     }) != sheets.cbegin()) return false;
     d->sheetProperties.codeName = codeName;
+    return true;
 }
 
 Color AbstractSheet::tabColor() const
@@ -645,7 +651,7 @@ void AbstractSheet::setViewZoomScale(int scale)
 int AbstractSheet::workbookViewId() const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return 0;
+    if (d->sheetViews.isEmpty()) return -1;
     return d->sheetViews.last().workbookViewId;
 }
 

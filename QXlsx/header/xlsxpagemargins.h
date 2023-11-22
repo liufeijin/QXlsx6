@@ -10,8 +10,9 @@ namespace QXlsx {
 /**
  * @brief The PageMargins class represents the margins of a sheet page.
  * Margins are specified in inches or millimetres.
- * @note If you set any of the margins, you need to also set all the other margins,
- * otherwise the document will be ill-formed. Any missing margins will be written as zeroes.
+ * @note If you set any of the margins, you need to also set all the other
+ * margins, otherwise the document will be ill-formed. Any missing margins will
+ * be written as zeroes.
  */
 class QXLSX_EXPORT PageMargins
 {
@@ -130,7 +131,7 @@ public:
      * @brief returns whether page margins are valid, that is whether at least one margin is set.
      * @note All 6 margins must be set according to the ECMA376. Missing margins will be written
      * as zeroes.
-     * @return true if at least one margin is set, false otherwise.
+     * @return `true` if at least one margin is set, `false` otherwise.
      */
     bool isValid() const;
     void write(QXmlStreamWriter &writer) const;

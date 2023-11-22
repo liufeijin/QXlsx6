@@ -28,7 +28,7 @@ return a feature return `std::optional`. You can test the feature with `std::opt
 
 For complex properties (f.e. the shape fill or the title text) classes that implement 
 these properties are shallow-copyable and have `isValid()` method.
-If the feature is set, `isValid()` will return true.
+If the feature is set, `isValid()` will return `true`.
 
 For types like `QString`, `QList` if the returned value `isEmpty()` then the feature is not set. In some cases though 
 ECMA-376 allows having empty strings as default values, in this case `std::optional` is used.

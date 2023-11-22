@@ -128,51 +128,51 @@ public:
      * @brief returns whether editing of chartsheet content should not be allowed when
      * the chartsheet is protected.
      *
-     * The default value is false.
+     * The default value is `false`.
      * @note This parameter is only applicable to chartsheets.
-     * @return Valid bool value if the parameter is set, nullopt otherwise.
+     * @return Valid bool value if the parameter is set, `nullopt` otherwise.
      */
     std::optional<bool> protectContent() const;
     /**
      * @brief sets whether editing of chartsheet content should not be allowed when
      * the chartsheet is protected.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      * @note This parameter is only applicable to chartsheets.
-     * @param protectContent If true, then editing of sheet content is blocked.
+     * @param protectContent If `true`, then editing of sheet content is blocked.
      */
     void setProtectContent(bool protectContent);
     /**
      * @brief returns whether editing of objects should not be allowed when the sheet is protected.
      *
-     * The default value is false.
-     * @return Valid bool value if the parameter is set, nullopt otherwise.
+     * The default value is `false`.
+     * @return Valid bool value if the parameter is set, `nullopt` otherwise.
      */
     std::optional<bool> protectObjects() const;
     /**
      * @brief sets whether editing of objects should not be allowed when the sheet is protected.
-     * @param protectObjects If true, editing of objects is blocked.
+     * @param protectObjects if `true`, editing of objects is blocked.
      *
-     * If not set, false is assumed.
+     * If not set, `false` is assumed.
      */
     void setProtectObjects(bool protectObjects);
     /**
      * @brief returns whether the other attributes of SheetProtection should be applied.
      *
-     * If true then the other parameters of SheetProtection should be applied.
-     * If false then the other parameters of SheetProtection should not be applied.
+     * If `true` then the other parameters of SheetProtection should be applied.
+     * If `false` then the other parameters of SheetProtection should not be applied.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
-     * @return Valid bool value if the parameter is set, nullopt otherwise.
+     * @return Valid bool value if the parameter is set, `nullopt` otherwise.
      */
     std::optional<bool> protectSheet() const;
     /**
      * @brief sets whether the other attributes of SheetProtection should be applied.
-     * @param protectSheet If true then the other parameters of SheetProtection should be applied.
-     * If false then the other parameters of SheetProtection should not be applied.
+     * @param protectSheet If `true` then the other parameters of SheetProtection should be applied.
+     * If `false` then the other parameters of SheetProtection should not be applied.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     void setProtectSheet(bool protectSheet);
@@ -180,14 +180,14 @@ public:
      * @brief returns whether editing of scenarios should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectScenarios() const;
     /**
      * @brief sets whether editing of scenarios should not be allowed when
      * the sheet is protected.
-     * @param protectScenarios If true, editing of scenarios is blocked.
+     * @param protectScenarios If `true`, editing of scenarios is blocked.
      * @note This parameter is not applicable to chartsheets.
      */
     void setProtectScenarios(bool protectScenarios);
@@ -196,7 +196,7 @@ public:
      * @brief Returns whether editing of cells formatting should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectFormatCells() const;
@@ -204,16 +204,16 @@ public:
      * @brief sets whether editing of cells formatting should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectFormatCells If true, editing of cells formatting is blocked.
+     * @param protectFormatCells If `true`, editing of cells formatting is blocked.
      */
     void setProtectFormatCells(bool protectFormatCells);
     /**
      * @brief returns whether editing of columns formatting should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectFormatColumns() const;
@@ -221,16 +221,16 @@ public:
      * @brief sets whether editing of columns formatting should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectFormatColumns If true, then editing of columns formatting is blocked.
+     * @param protectFormatColumns If `true`, then editing of columns formatting is blocked.
      */
     void setProtectFormatColumns(bool protectFormatColumns);
     /**
      * @brief returns whether editing of rows formatting should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectFormatRows() const;
@@ -238,16 +238,16 @@ public:
      * @brief sets whether editing of rows formatting should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectFormatRows If true, then editing of rows formatting is blocked.
+     * @param protectFormatRows If `true`, then editing of rows formatting is blocked.
      */
     void setProtectFormatRows(bool protectFormatRows);
     /**
      * @brief returns whether inserting of columns should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectInsertColumns() const;
@@ -255,16 +255,16 @@ public:
      * @brief sets whether inserting of columns should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectInsertColumns If true, then inserting of columns is blocked.
+     * @param protectInsertColumns If `true`, then inserting of columns is blocked.
      */
     void setProtectInsertColumns(bool protectInsertColumns);
     /**
      * @brief returns whether inserting of rows should not be allowed when the
      * sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectInsertRows() const;
@@ -272,16 +272,16 @@ public:
      * @brief sets whether inserting of rows should not be allowed when the
      * sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectInsertRows If true, then inserting of rows is not allowed.
+     * @param protectInsertRows If `true`, then inserting of rows is not allowed.
      */
     void setProtectInsertRows(bool protectInsertRows);
     /**
      * @brief returns whether inserting of hyperlinks should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectInsertHyperlinks() const;
@@ -289,16 +289,16 @@ public:
      * @brief sets whether inserting of hyperlinks should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectInsertHyperlinks If true, then inserting of hyperlinks is not allowed.
+     * @param protectInsertHyperlinks If `true`, then inserting of hyperlinks is not allowed.
      */
     void setProtectInsertHyperlinks(bool protectInsertHyperlinks);
     /**
      * @brief returns whether deleting of columns should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectDeleteColumns() const;
@@ -306,16 +306,16 @@ public:
      * @brief sets whether deleting of columns should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectDeleteColumns If true, then deleting of columns is not allowed.
+     * @param protectDeleteColumns If `true`, then deleting of columns is not allowed.
      */
     void setProtectDeleteColumns(bool protectDeleteColumns);
     /**
      * @brief returns whether deleting of rows should not be allowed when the
      * sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectDeleteRows() const;
@@ -323,16 +323,16 @@ public:
      * @brief sets whether deleting of rows should not be allowed when the
      * sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectDeleteRows If true, then deleting of rows is not allowed.
+     * @param protectDeleteRows If `true`, then deleting of rows is not allowed.
      */
     void setProtectDeleteRows(bool protectDeleteRows);
     /**
      * @brief returns whether selection of locked cells should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectSelectLockedCells() const;
@@ -340,31 +340,31 @@ public:
      * @brief sets whether selection of locked cells should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectSelectLockedCells If true, then selection of locked cells is not allowed.
+     * @param protectSelectLockedCells If `true`, then selection of locked cells is not allowed.
      */
     void setProtectSelectLockedCells(bool protectSelectLockedCells);
     /**
      * @brief returns whether sorting should not be allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectSort() const;
     /**
      * @brief sets whether sorting should not be allowed when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectSort If true, then sorting is not allowed.
+     * @param protectSort If `true`, then sorting is not allowed.
      */
     void setProtectSort(bool protectSort);
     /**
      * @brief returns whether applying autofilters should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectAutoFilter() const;
@@ -372,16 +372,16 @@ public:
      * @brief sets whether applying autofilters should not be allowed when
      * the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectAutoFilter If true, then applying autofilter is blocked.
+     * @param protectAutoFilter If `true`, then applying autofilter is blocked.
      */
     void setProtectAutoFilter(bool protectAutoFilter);
     /**
      * @brief returns whether operating pivot tables should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectPivotTables() const;
@@ -389,16 +389,16 @@ public:
      * @brief sets whether operating pivot tables should not be allowed
      * when the sheet is protected.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectPivotTables If true, then operating pivot tables is not allowed.
+     * @param protectPivotTables If `true`, then operating pivot tables is not allowed.
      */
     void setProtectPivotTables(bool protectPivotTables);
     /**
      * @brief returns whether selection of unlocked cells should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
      */
     std::optional<bool> protectSelectUnlockedCells() const;
@@ -406,9 +406,9 @@ public:
      * @brief sets whether selection of unlocked cells should not be
      * allowed when the sheet is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      * @note This parameter is not applicable to chartsheets.
-     * @param protectSelectUnlockedCells If true, then selection of unlocked is not allowed.
+     * @param protectSelectUnlockedCells If `true`, then selection of unlocked is not allowed.
      */
     void setProtectSelectUnlockedCells(bool protectSelectUnlockedCells);
 
@@ -505,7 +505,7 @@ public:
     std::optional<bool> windowsLocked() const;
     /**
      * @brief sets whether the workbook windows are locked.
-     * @param locked If true, then windows will have the same size and position each
+     * @param locked if `true`, then windows will have the same size and position each
      * time the document is opened.
      *
      * If not set, `false` (not locked) is assumed.

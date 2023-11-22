@@ -15,6 +15,7 @@
 
 namespace QXlsx {
 
+//TODO: move out and make public
 struct WorkbookView
 {
 //    default values to be used in new workbooks

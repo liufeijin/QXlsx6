@@ -40,7 +40,7 @@ Chartsheet::Chartsheet(const QString &name, int id, Workbook *workbook, CreateFl
         DrawingAbsoluteAnchor *anchor = new DrawingAbsoluteAnchor(drawing(), DrawingAnchor::Picture);
 
         anchor->pos = QPoint(0, 0);
-        anchor->ext = qMakePair(Coordinate(9293679ll), Coordinate(6068786ll));
+        anchor->ext = qMakePair(Coordinate(9293679ll), Coordinate(6068786ll)); //TODO: why these magic numbers?
 
         QSharedPointer<Chart> chart = QSharedPointer<Chart>(new Chart(this, flag));
         anchor->setObjectGraphicFrame(chart);
@@ -119,7 +119,7 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
         if (d->sheetProperties.tabColor.isValid()) d->sheetProperties.tabColor.write(writer, QLatin1String("tabColor"));
         writer.writeEndElement();
     }
-
+    //2. sheetViews
     auto views = d->sheetViews;
     if (views.isEmpty()) views << SheetView();
     writer.writeStartElement(QLatin1String("sheetViews"));
@@ -127,11 +127,15 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
         if (view.isValid()) view.write(writer, QLatin1String("sheetView"), false);
     writer.writeEndElement(); //sheetViews
 
-    //sheet protection
+    //3. sheet protection
     d->sheetProtection.write(writer, true);
-
+    //4. customSheetViews
+    //TODO
+    //5. pageMargins
     d->pageMargins.write(writer);
+    //6. pageSetup
     d->pageSetup.writeChartsheet(writer);
+    //7. headerFooter
     d->headerFooter.write(writer, QLatin1String("headerFooter"));
 
     int idx = d->workbook->drawings().indexOf(d->drawing.get());

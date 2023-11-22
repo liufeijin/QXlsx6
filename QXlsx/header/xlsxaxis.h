@@ -117,8 +117,7 @@ public:
         std::optional<double> min;
         std::optional<double> max;
         /**
-         * @brief isValid returns true if some properties of axis scaling were set, false otherwise.
-         * @return
+         * @brief isValid returns `true` if some properties of axis scaling were set, `false` otherwise.
          */
         bool isValid() const;
         void write(QXmlStreamWriter &writer) const;
@@ -252,13 +251,13 @@ public:
     void setPosition(Position position);
     /**
      * @brief returns whether the axis is visible on the chart.
-     * @return valid optional if the parameter was set, nullopt otherwise. By default
+     * @return valid optional if the parameter was set, `nullopt` otherwise. By default
      * the axis is visible.
      */
     std::optional<bool> visible() const;
     /**
      * @brief sets whether the axis is visible on the chart.
-     * @param visible false if the axis should be hidden. By default
+     * @param visible `false` if the axis should be hidden. By default
      * the axis is visible.
      * @note This method does not allow to hide the axis title. To do this, simply
      * set the empty title.
@@ -286,7 +285,7 @@ public:
     /**
      * @brief returns the position on the cross axis in which this axis should cross.
      * This parameter applies only if crossesType() is set to CrossesType::Position.
-     * @return double value if the parameter was set, nullopt otherwise. The default value
+     * @return double value if the parameter was set, `nullopt` otherwise. The default value
      * is chosen by the processing app automatically.
      */
     std::optional<double> crossesAt() const;
@@ -383,12 +382,12 @@ public:
     void setMinorTickMark(TickMark tickMark);
     /**
      * @brief returns the position of the axis' major tick marks.
-     * @return nullopt if the parameter was not set.
+     * @return `nullopt` if the parameter was not set.
      */
     std::optional<TickMark> majorTickMark() const;
     /**
      * @brief returns the position of the axis' minor tick marks.
-     * @return nullopt if the parameter was not set.
+     * @return `nullopt` if the parameter was not set.
      */
     std::optional<TickMark> minorTickMark() const;
     /**
@@ -502,7 +501,7 @@ public:
      *
      * Applicable to: Category axis, Date axis.
      *
-     * @return valid bool value if the property is set, nullopt otherwise.
+     * @return valid bool value if the property is set, `nullopt` otherwise.
      */
     std::optional<bool> autoAxis() const;
     /**
@@ -531,7 +530,7 @@ public:
      *
      * Applicable to: Category axis, Date axis.
      *
-     * @return valid optional value if labelOffset is set, nullopt otherwise.
+     * @return valid optional value if labelOffset is set, `nullopt` otherwise.
      */
     std::optional<int> labelOffset() const;
     /**
@@ -550,7 +549,7 @@ public:
      *
      * Applicable to: Date axis, Value axis.
      *
-     * @return positive value if the property is set, nullopt otherwise.
+     * @return positive value if the property is set, `nullopt` otherwise.
      */
     std::optional<double> majorTickDistance() const;
     /**
@@ -564,7 +563,7 @@ public:
      *
      * Applicable to: Date axis, Value axis.
      *
-     * @return positive value if the property is set, nullopt otherwise.
+     * @return positive value if the property is set, `nullopt` otherwise.
      */
     std::optional<double> minorTickDistance() const;
     /**
@@ -643,7 +642,7 @@ public:
     /**
      * @brief specifies the labels on the category axis shall
      * be shown as flat text.
-     * If this element is not included or is set to false, then the labels shall
+     * If this element is not included or is set to `false`, then the labels shall
      * be drawn as a hierarchy.
      * @return
      */
@@ -652,8 +651,8 @@ public:
      * @brief specifies the labels on the category axis shall
      * be shown as flat text.
      *
-     * @param val true means that the labels shall be drawn as a flat text.
-     * False means that the labels shall be drawn as a hierarchy.
+     * @param val `true` means that the labels shall be drawn as a flat text.
+     * `false` means that the labels shall be drawn as a hierarchy.
      */
     void setNoMultiLevelLabels(bool val);
 

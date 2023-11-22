@@ -110,7 +110,7 @@ mimicking how it would look if printed. */
      *
      * This is an option when the workbook structure is protected.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -118,7 +118,7 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether this sheet should display formulas.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -126,7 +126,7 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether this sheet should display gridlines.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -134,7 +134,7 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether the sheet should display row and column headings.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -143,9 +143,9 @@ mimicking how it would look if printed. */
      * @brief Flag indicating whether the window should show 0 (zero) in cells
      * containing zero value.
      *
-     * When false, cells with zero value appear blank instead of showing the number zero.
+     * When `false`, cells with zero value appear blank instead of showing the number zero.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -157,7 +157,7 @@ mimicking how it would look if printed. */
      * left of Column A, and so on. Also, information in cells is displayed in
      * the Right to Left format.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -168,13 +168,13 @@ mimicking how it would look if printed. */
      * When only one sheet is selected and active, this value should be in synch
      * with the activeTab value.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      */
     std::optional<bool> tabSelected;
     /**
      * @brief Show the ruler in page layout view.
      *
-     * If not set, the default value is false.
+     * If not set, the default value is `false`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -182,7 +182,7 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether the sheet has outline symbols visible.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -190,10 +190,10 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether page layout view shall display margins.
      *
-     * False means do not display left, right, top (header), and bottom (footer)
+     * `false` means do not display left, right, top (header), and bottom (footer)
      * margins (even when there is data in the header or footer).
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -204,7 +204,7 @@ mimicking how it would look if printed. */
      *
      * Overrides any color specified in colorId.
      *
-     * If not set, the default value is true.
+     * If not set, the default value is `true`.
      *
      * This parameter is not applicable to chartsheets.
      */
@@ -281,8 +281,8 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether chart sheet is zoom to fit window.
      *
-     * The default value is false according to ECMA-376, but to mimic the Excel behavior if
-     * the parameter is not set directly, then on writing the document zoomToFit is written as true.
+     * The default value is `false` according to ECMA-376, but to mimic the Excel behavior if
+     * the parameter is not set directly, then on writing the document zoomToFit is written as `true`.
      *
      * This parameter is not applicable to worksheets.
      */
