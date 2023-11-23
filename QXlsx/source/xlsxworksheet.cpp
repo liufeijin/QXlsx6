@@ -613,6 +613,73 @@ void Worksheet::setAutofilter(const AutoFilter &autofilter)
     d->autofilter = autofilter;
 }
 
+bool Worksheet::addProtectedRange(const CellRange &range, const QString &name)
+{
+    Q_D(Worksheet);
+    if (!range.isValid() || name.isEmpty()) return false;
+    d->protectedRanges << ProtectedRange(range, name);
+    return true;
+}
+
+bool Worksheet::addProtectedRanges(const QList<CellRange> &ranges, const QString &name)
+{
+    Q_D(Worksheet);
+    if (ranges.isEmpty() || name.isEmpty()) return false;
+    d->protectedRanges << ProtectedRange(ranges, name);
+    return true;
+}
+QList<CellRange> Worksheet::protectedRanges() const
+{
+    Q_D(const Worksheet);
+    QList<CellRange> result;
+    for (const auto &pr: qAsConst(d->protectedRanges))
+        result.append(pr.ranges);
+    return result;
+}
+ProtectedRange Worksheet::protectedRange(int rangeIndex) const
+{
+    Q_D(const Worksheet);
+    return d->protectedRanges.value(rangeIndex);
+}
+ProtectedRange &Worksheet::protectedRange(int rangeIndex)
+{
+    Q_D(Worksheet);
+    return d->protectedRanges[rangeIndex];
+}
+bool Worksheet::removeProtectedRange(int rangeIndex)
+{
+    Q_D(Worksheet);
+    if (rangeIndex < 0 || rangeIndex >= d->protectedRanges.size())
+        return false;
+    d->protectedRanges.removeAt(rangeIndex);
+    return true;
+}
+bool Worksheet::removeProtectedRange(const CellRange &range)
+{
+    Q_D(Worksheet);
+    bool result = false;
+    for (int i=d->protectedRanges.size()-1; i >= 0; --i) {
+        auto &pr = d->protectedRanges[i];
+        if (pr.ranges.contains(range)) {
+            result = true;
+            pr.ranges.removeAll(range);
+        }
+        if (pr.ranges.isEmpty()) d->protectedRanges.removeAt(i);
+    }
+
+    return result;
+}
+int Worksheet::protectedRangesCount() const
+{
+    Q_D(const Worksheet);
+    return d->protectedRanges.size();
+}
+void Worksheet::clearProtectedRanges()
+{
+    Q_D(Worksheet);
+    d->protectedRanges.clear();
+}
+
 bool Worksheet::write(int row, int column, const QVariant &value, const Format &format)
 {
     Q_D(Worksheet);
@@ -1706,12 +1773,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     writer.writeEndElement();//dimension
 
     //3. sheetViews
-    auto views = d->sheetViews;
-    if (views.isEmpty()) views << SheetView();
-    writer.writeStartElement(QLatin1String("sheetViews"));
-    for (auto &view: views)
-        if (view.isValid()) view.write(writer, QLatin1String("sheetView"));
-    writer.writeEndElement();//sheetViews
+    d->saveXmlSheetViews(writer, true);
 
     //4. sheetFormatPr
     d->sheetFormatProperties.write(writer, QLatin1String("sheetFormatPr"));
@@ -1755,8 +1817,13 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->sheetProtection.write(writer);
 
     //9. protectedRanges
-
+    if (!d->protectedRanges.isEmpty()) {
+        writer.writeStartElement(QLatin1String("protectedRanges"));
+        for (const auto &range: d->protectedRanges) range.write(writer);
+        writer.writeEndElement();
+    }
     //10. scenarios
+    //TODO: write scenarios
 
     //11. autoFilter
     d->autofilter.write(writer, QLatin1String("autoFilter"));
@@ -1813,13 +1880,7 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     //31. drawingHF
 
     //32. picture
-    if (d->pictureFile) {
-        d->relationships->addDocumentRelationship(QLatin1String("/image"), QString("../media/image%1.%2")
-                                                   .arg(d->pictureFile->index()+1)
-                                                   .arg(d->pictureFile->suffix()));
-        writer.writeEmptyElement(QLatin1String("picture"));
-        writer.writeAttribute(QLatin1String("r:id"), QString("rId%1").arg(d->relationships->count()));
-    }
+    d->saveXmlPicture(writer);
 
     //33. oleObjects
 
@@ -2074,18 +2135,6 @@ void WorksheetPrivate::saveXmlHyperlinks(QXmlStreamWriter &writer) const
     }
 
     writer.writeEndElement(); // hyperlinks
-}
-
-void WorksheetPrivate::saveXmlDrawings(QXmlStreamWriter &writer) const
-{
-    if (!drawing)
-        return;
-
-    int idx = workbook->drawings().indexOf(drawing.get());
-    relationships->addWorksheetRelationship(QLatin1String("/drawing"), QString("../drawings/drawing%1.xml").arg(idx+1));
-
-    writer.writeEmptyElement(QLatin1String("drawing"));
-    writer.writeAttribute(QLatin1String("r:id"), QString("rId%1").arg(relationships->count()));
 }
 
 bool WorksheetPrivate::isColumnRangeValid(int colFirst, int colLast) const
@@ -2796,24 +2845,6 @@ void WorksheetPrivate::loadXmlDataValidations(QXmlStreamReader &reader)
         qDebug("read data validation error");
 }
 
-void WorksheetPrivate::loadXmlSheetViews(QXmlStreamReader &reader)
-{
-    const auto &name = reader.name();
-
-    while (!reader.atEnd()) {
-        const auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            if (reader.name() == QLatin1String("sheetView")) {
-                SheetView view;
-                view.read(reader);
-                sheetViews << view;
-            }
-        }
-        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
-            break;
-    }
-}
-
 double WorksheetPrivate::calculateColWidth(int characters)
 {
 //    Default column width measured as the number of characters of the maximum digit width
@@ -2868,10 +2899,8 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
             const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("sheetPr"))
                 d->sheetProperties.read(reader);
-            else if (reader.name() == QLatin1String("dimension")) {
-                QString range = a.value(QLatin1String("ref")).toString();
-                d->dimension = CellRange(range);
-            }
+            else if (reader.name() == QLatin1String("dimension"))
+                d->dimension = CellRange(a.value(QLatin1String("ref")).toString());
             else if (reader.name() == QLatin1String("sheetViews"))
                 d->loadXmlSheetViews(reader);
             else if (reader.name() == QLatin1String("sheetFormatPr"))
@@ -2884,6 +2913,11 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 SheetProtection s;
                 s.read(reader);
                 d->sheetProtection = s;
+            }
+            else if (reader.name() == QLatin1String("protectedRange")) {
+                ProtectedRange range;
+                range.read(reader);
+                d->protectedRanges << range;
             }
             else if (reader.name() == QLatin1String("mergeCells"))
                 d->loadXmlMergeCells(reader);
@@ -2906,38 +2940,10 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->autofilter.read(reader);
             else if (reader.name() == QLatin1String("sortState"))
                 d->sortState.read(reader);
-            else if (reader.name() == QLatin1String("drawing")) {
-                QString rId = a.value(QLatin1String("r:id")).toString();
-                QString name = d->relationships->getRelationshipById(rId).target;
-
-                const auto parts = splitPath(filePath());
-                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
-
-                d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
-                d->drawing->setFilePath(path);
-            }
-            else if (reader.name() == QLatin1String("picture")) {
-                QString rId = a.value(QLatin1String("r:id")).toString();
-                QString name = d->relationships->getRelationshipById(rId).target;
-
-                const auto parts = splitPath(filePath());
-                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
-
-                bool exist = false;
-                const auto mfs = d->workbook->mediaFiles();
-                for (const auto &mf : mfs) {
-                    if (auto media = mf.lock(); media->fileName() == path) {
-                        //already exist
-                        exist = true;
-                        d->pictureFile = media;
-                        break;
-                    }
-                }
-                if (!exist) {
-                    d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
-                    d->workbook->addMediaFile(d->pictureFile, true);
-                }
-            }
+            else if (reader.name() == QLatin1String("drawing"))
+                d->loadXmlDrawing(reader);
+            else if (reader.name() == QLatin1String("picture"))
+                d->loadXmlPicture(reader);
             else if (reader.name() == QLatin1String("extLst"))
                 d->extLst.read(reader);
             else if (reader.name() == QLatin1String("sheetCalcPr")) {
@@ -3214,6 +3220,61 @@ void SheetFormatProperties::write(QXmlStreamWriter &writer, const QLatin1String 
     writeAttribute(writer, QLatin1String("thickBottom"), thickBottom);
     writeAttribute(writer, QLatin1String("outlineLevelRow"), outlineLevelRow);
     writeAttribute(writer, QLatin1String("outlineLevelCol"), outlineLevelCol);
+}
+
+bool ProtectedRange::isValid() const
+{
+    if (ranges.isEmpty() || name.isEmpty()) return false;
+    if (pr.isValid()) return true;
+    if (!users.isEmpty()) return true;
+
+    return false;
+}
+
+void ProtectedRange::read(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+
+    const auto &a = reader.attributes();
+
+    parseAttributeString(a, QLatin1String("algorithmName"), pr.algorithmName);
+    parseAttributeString(a, QLatin1String("hashValue"), pr.hashValue);
+    parseAttributeString(a, QLatin1String("saltValue"), pr.saltValue);
+    parseAttributeInt(a, QLatin1String("spinCount"), pr.spinCount);
+    parseAttributeString(a, QLatin1String("name"), this->name);
+    const QString sqref = a.value(QLatin1String("sqref")).toString();
+    const auto sqrefParts = sqref.split(QLatin1Char(' '));
+    for (const QString &range : sqrefParts) {
+        ranges << CellRange(range);
+    }
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("securityDescriptor"))
+                users << reader.readElementText();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void ProtectedRange::write(QXmlStreamWriter &writer) const
+{
+    if (!isValid()) return;
+    writer.writeStartElement(QLatin1String("protectedRange"));
+    QStringList sqref;
+    for (const CellRange &range : qAsConst(ranges))
+        sqref.append(range.toString());
+    writeAttribute(writer, QLatin1String("sqref"), sqref.join(QLatin1String(" ")));
+    writeAttribute(writer, QLatin1String("name"), name);
+    writeAttribute(writer, QLatin1String("algorithmName"), pr.algorithmName);
+    writeAttribute(writer, QLatin1String("hashValue"), pr.hashValue);
+    writeAttribute(writer, QLatin1String("saltValue"), pr.saltValue);
+    writeAttribute(writer, QLatin1String("spinCount"), pr.spinCount);
+    for (const auto &user: users)
+        writer.writeTextElement(QLatin1String("securityDescriptor"), user);
+    writer.writeEndElement();
 }
 
 }

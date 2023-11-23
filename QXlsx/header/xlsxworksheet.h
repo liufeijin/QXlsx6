@@ -38,10 +38,52 @@ class RichString;
 class Relationships;
 class Chart;
 
+/**
+ * @brief The ProtectedRange struct represents the protection parameters for
+ * a cell range on a worksheet.
+ *
+ * A list of cell #ranges to be protected must get a unique non-empty #name.
+ * A password protection can be set via #pr attributes. There is a possibility
+ * to specify a list of #users who are allowed to edit the protected cells
+ * without entering a password each time.
+ */
+struct QXLSX_EXPORT ProtectedRange
+{
+    ProtectedRange() {}
+    ProtectedRange(const CellRange &range, const QString &name) : name{name}
+    {
+        ranges << range;
+    }
+    ProtectedRange(const QList<CellRange> &ranges, const QString &name)
+        : name{name}, ranges{ranges}
+    {
+    }
+    Protection pr; /**< @brief Contains password protection atributes. */
+    QStringList users; /**< @brief A list of users who can edit the protected
+cells without entering a password.
+
+ECMA-376 recommends `username@domain` format be used. */
+    QString name; /**< @brief Required unique protected range name. */
+    QList<CellRange> ranges; /**< @brief A list of protected ranges. */
+
+    bool operator==(const ProtectedRange& other) const {
+        if (pr != other.pr) return false;
+        if (users != other.users) return false;
+        if (name != other.name) return false;
+        if (ranges != other.ranges) return false;
+        return true;
+    }
+    bool operator!=(const ProtectedRange& other) const {
+        return !operator==(other);
+    }
+    bool isValid() const;
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer) const;
+};
 
 
 class WorksheetPrivate;
-//TODO: Full documentation
+
 /**
  * @brief The Worksheet class represents a worksheet in the workbook.
  *
@@ -65,7 +107,6 @@ class WorksheetPrivate;
  *   #setThickTopBorder() manage default thickness of rows borders.
  * - #rowsHiddenByDefault(), #setRowsHiddenByDefault() manage the default
  *   visibility of rows.
- * -
  *
  * ## Sheet Views
  *
@@ -97,14 +138,15 @@ class WorksheetPrivate;
  * come in handy. Rows and columns visibility can be tested with #isRowHidden()
  * and #isColumnHidden().
  *
- * # Data manipulation
+ * ## Data manipulation
  *
+ * Not written yet.
  *
- * # Data validation
+ * ## Data validation
  *
+ * Not written yet.
  *
- *
- * # Autofiltering and sorting
+ * ## Autofiltering and sorting
  *
  * If set, autofilter temporarily hides rows based on a filter criteria, which
  * is applied column by column to a range of data in the worksheet.
@@ -117,7 +159,7 @@ class WorksheetPrivate;
  * See AutoFilter class description on how to set up autofiltering. See also
  * [Autofilter](examples/Autofilter/autofilter.cpp) example.
  *
- * # Conditional formatting
+ * ## Conditional formatting
  *
  * A Conditional Format is a format, such as cell shading or font color, that a
  * spreadsheet application can automatically apply to cells if a specified
@@ -129,6 +171,19 @@ class WorksheetPrivate;
  *
  * See ConditionalFormatting class on how to set up the conditions. See also
  * [ConditionalFormatting](examples/ConditionalFormatting/conditionalformatting.cpp) example.
+ *
+ * ## Sheet protection
+ *
+ * Worksheets inherit all the sheet protection methods from AbstractSheet. See
+ * docs on Sheet protection there.
+ *
+ * Additionally worksheets can have cell ranges protection enforced. It allows
+ * to block editing of specific cells and cell ranges with a password protection.
+ * See #addProtectedRange(), #protectedRanges(), #removeProtectedRange() methods.
+ *
+ * A protected range must have non-empty unique name, can have a password
+ * protection and a list of users who can edit the range cells without entering
+ * a password. See ProtectedRange documentation.
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet
@@ -579,7 +634,8 @@ public:
      * @brief returns the data validation object with @a index.
      * @param index valid index from 0 to #dataValidationsCount()-1.
      * @return A reference to the DataValidation object.
-     * @warning If @a index is invalid, the result is undefined.
+     * @warning If @a index is invalid, the result is undefined. The reference
+     * may become invalidated if you add or remove validation rules.
      */
     DataValidation &dataValidation(int index);
     /**
@@ -1711,6 +1767,71 @@ public:
      * If @a autofilter is invalid, setting it is equivalent to `clearAutofilter();`.
      */
     void setAutofilter(const AutoFilter &autofilter);
+
+    /// Sheet protection
+
+    /**
+     * @brief adds a protected range object to the list of protected ranges.
+     * @param range CellRange to protect.
+     * @param name A distinctive name of the protected range.
+     * @return `true` on success, `false` if @a range or @a name is invalid.
+     *
+     * To set additional parameters (password, users) use #protectedRange() method.
+     */
+    bool addProtectedRange(const CellRange &range, const QString &name);
+    /**
+     * @brief adds a protected range object to the list of protected ranges.
+     * @param ranges A list of ranges to protect.
+     * @param name A distinctive name of the protected ranges.
+     * @return `true` on success, `false` if @a range or @a name is empty.
+     *
+     * To set additional parameters (password, users) use #protectedRange() method.
+     *
+     * @note Unlike #addProtectedRange(), this method allows to protect  not
+     * one range, but a list or ranges and give it a distinctive name.
+     */
+    bool addProtectedRanges(const QList<CellRange> &ranges, const QString &name);
+    /**
+     * @brief returns a list of all protected cell ranges.
+     */
+    QList<CellRange> protectedRanges() const;
+    /**
+     * @brief returns a ProtectedRange object from the list of the worksheet's
+     * protected ranges.
+     * @param rangeIndex zero-based index of a range (0 to #protectedRangesCount()-1).
+     * @return A copy of the ProtectedRange object.
+     */
+    ProtectedRange protectedRange(int rangeIndex) const;
+    /**
+     * @brief returns a ProtectedRange object from the list of the worksheet's
+     * protected ranges.
+     * @param rangeIndex zero-based index of a range (0 to #protectedRangesCount()-1).
+     * If @a rangeIndex is invalid, the behaviour is undefined.
+     * @return A reference to the ProtectedRange object.
+     */
+    ProtectedRange &protectedRange(int rangeIndex);
+    /**
+     * @brief removes the ProtectedRange object from the list of the worksheet's
+     * protected ranges.
+     * @param rangeIndex zero-based index of a range (0 to #protectedRangesCount()-1).
+     * @return `true` on success.
+     */
+    bool removeProtectedRange(int rangeIndex);
+    /**
+     * @brief searches @a range in the list of the worksheet's protected ranges
+     * and deletes it. If the protected range becomes empty, deletes it as well.
+     * @param range A cell range to remove.
+     * @return `true` on success.
+     */
+    bool removeProtectedRange(const CellRange &range);
+    /**
+     * @brief returns the count of the worksheet's protected ranges.
+     */
+    int protectedRangesCount() const;
+    /**
+     * @brief removes all protected ranges defined in the worksheet.
+     */
+    void clearProtectedRanges();
 
 private:
     QMap<int, double> getMaximumColumnWidths(int firstRow = 1, int lastRow = INT_MAX);

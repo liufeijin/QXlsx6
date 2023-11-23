@@ -621,6 +621,7 @@ private:
         {ReferenceMode::R1C1, "R1C1"}
     });
     friend class AbstractSheet;
+    friend class AbstractSheetPrivate;
     friend class Worksheet;
     friend class Chartsheet;
     friend class WorksheetPrivate;

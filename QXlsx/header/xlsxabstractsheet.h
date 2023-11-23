@@ -267,6 +267,8 @@ class AbstractSheetPrivate;
  * #setDefaultSheetProtection(), #removeSheetProtection(),
  * #setPasswordProtection(), #isPasswordProtectionSet(), #isSheetProtected().
  *
+ * See also the Worksheet documentation on how to protect specific cell ranges,
+ * as these methods are accessible only in worksheets.
  *
  */
 class QXLSX_EXPORT AbstractSheet : public AbstractOOXmlFile

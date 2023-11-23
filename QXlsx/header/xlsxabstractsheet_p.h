@@ -67,6 +67,14 @@ public:
     QList<SheetView> sheetViews;
     ExtensionList extLst;
     SheetProperties sheetProperties;
+
+    void loadXmlSheetViews(QXmlStreamReader &reader);
+    void loadXmlPicture(QXmlStreamReader &reader);
+    void loadXmlDrawing(QXmlStreamReader &reader);
+
+    void saveXmlSheetViews(QXmlStreamWriter &writer, bool saveWorksheet) const;
+    void saveXmlDrawings(QXmlStreamWriter &writer) const;
+    void saveXmlPicture(QXmlStreamWriter &writer) const;
 };
 
 }

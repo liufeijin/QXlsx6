@@ -23,7 +23,7 @@ class Chart;
  *
  * Chartsheets inherit from AbstractSheet class all methods that allow to modify
  * sheet properties (code name, tab color etc.), sheet views, page and print
- * options, header and footer
+ * options, header and footer etc.
  *
  *
  *

@@ -120,38 +120,27 @@ void Chartsheet::saveToXmlFile(QIODevice *device) const
         writer.writeEndElement();
     }
     //2. sheetViews
-    auto views = d->sheetViews;
-    if (views.isEmpty()) views << SheetView();
-    writer.writeStartElement(QLatin1String("sheetViews"));
-    for (auto &view: views)
-        if (view.isValid()) view.write(writer, QLatin1String("sheetView"), false);
-    writer.writeEndElement(); //sheetViews
-
+    d->saveXmlSheetViews(writer, false);
     //3. sheet protection
     d->sheetProtection.write(writer, true);
     //4. customSheetViews
-    //TODO
+    //TODO: customSheetViews
     //5. pageMargins
     d->pageMargins.write(writer);
     //6. pageSetup
     d->pageSetup.writeChartsheet(writer);
     //7. headerFooter
     d->headerFooter.write(writer, QLatin1String("headerFooter"));
-
-    int idx = d->workbook->drawings().indexOf(d->drawing.get());
-    d->relationships->addWorksheetRelationship(QStringLiteral("/drawing"), QStringLiteral("../drawings/drawing%1.xml").arg(idx+1));
-
-    writer.writeEmptyElement(QStringLiteral("drawing"));
-    writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
-
-    if (d->pictureFile) {
-        d->relationships->addDocumentRelationship(QStringLiteral("/image"), QStringLiteral("../media/image%1.%2")
-                                                   .arg(d->pictureFile->index()+1)
-                                                   .arg(d->pictureFile->suffix()));
-        writer.writeEmptyElement(QStringLiteral("picture"));
-        writer.writeAttribute(QStringLiteral("r:id"), QStringLiteral("rId%1").arg(d->relationships->count()));
-    }
-    if (d->extLst.isValid()) d->extLst.write(writer, "extLst");
+    //8. drawing
+    d->saveXmlDrawings(writer);
+    //9. drawindHF
+    //TODO: drawindHF
+    //10. picture
+    d->saveXmlPicture(writer);
+    //11. webPublishItems
+    //TODO: webPublishItems
+    //12. extLst
+    d->extLst.write(writer, "extLst");
 
     writer.writeEndElement();//chartsheet
     writer.writeEndDocument();
@@ -166,20 +155,13 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
     while (!reader.atEnd()) {
         reader.readNextStartElement();
         if (reader.tokenType() == QXmlStreamReader::StartElement) {
-            const auto &a = reader.attributes();
-            if (reader.name() == QLatin1String("drawing")) {
-                QString rId = a.value(QStringLiteral("r:id")).toString();
-                QString name = d->relationships->getRelationshipById(rId).target;
-
-                const auto parts = splitPath(filePath());
-                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
-
-                d->drawing = std::make_shared<Drawing>(this, F_LoadFromExists);
-                d->drawing->setFilePath(path);
+            if (reader.name() == QLatin1String("drawing"))
+                d->loadXmlDrawing(reader);
+            else if (reader.name() == QLatin1String("drawingHF")) {
+                //TODO: drawingHF
             }
-            else if (reader.name() == QLatin1String("sheetPr")) {
+            else if (reader.name() == QLatin1String("sheetPr"))
                 d->sheetProperties.read(reader);
-            }
             else if (reader.name() == QLatin1String("sheetProtection")) {
                 SheetProtection s;
                 s.read(reader);
@@ -191,27 +173,15 @@ bool Chartsheet::loadFromXmlFile(QIODevice *device)
                 d->pageSetup.read(reader);
             else if (reader.name() == QLatin1String("headerFooter"))
                 d->headerFooter.read(reader);
-            else if (reader.name() == QLatin1String("picture")) {
-                QString rId = a.value(QLatin1String("r:id")).toString();
-                QString name = d->relationships->getRelationshipById(rId).target;
-
-                const auto parts = splitPath(filePath());
-                QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
-
-                bool exist = false;
-                const auto mfs = d->workbook->mediaFiles();
-                for (const auto &mf : mfs) {
-                    if (auto media = mf.lock(); media->fileName() == path) {
-                        //already exist
-                        exist = true;
-                        d->pictureFile = media;
-                        break;
-                    }
-                }
-                if (!exist) {
-                    d->pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
-                    d->workbook->addMediaFile(d->pictureFile, true);
-                }
+            else if (reader.name() == QLatin1String("picture"))
+                d->loadXmlPicture(reader);
+            else if (reader.name() == QLatin1String("webPublishItems")) {
+                //TODO: webPublishItems
+            }
+            else if (reader.name() == QLatin1String("sheetViews"))
+                d->loadXmlSheetViews(reader);
+            else if (reader.name() == QLatin1String("customSheetViews")) {
+                // TODO: customSheetViews
             }
             else if (reader.name() == QLatin1String("extLst"))
                 d->extLst.read(reader);

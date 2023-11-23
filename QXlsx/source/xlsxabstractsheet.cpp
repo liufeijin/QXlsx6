@@ -3,6 +3,7 @@
 #include <QtGlobal>
 #include <QBuffer>
 #include <QFileInfo>
+#include <QDir>
 
 #include "xlsxabstractsheet.h"
 #include "xlsxabstractsheet_p.h"
@@ -23,6 +24,97 @@ AbstractSheetPrivate::~AbstractSheetPrivate()
 {
 }
 
+void AbstractSheetPrivate::loadXmlSheetViews(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+
+    while (!reader.atEnd()) {
+        const auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("sheetView")) {
+                SheetView view;
+                view.read(reader);
+                sheetViews << view;
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void AbstractSheetPrivate::loadXmlPicture(QXmlStreamReader &reader)
+{
+    const auto &a = reader.attributes();
+    QString rId = a.value(QLatin1String("r:id")).toString();
+    QString name = relationships->getRelationshipById(rId).target;
+
+    const auto parts = splitPath(filePathInPackage);
+    QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
+
+    bool exist = false;
+    const auto mfs = workbook->mediaFiles();
+    for (const auto &mf : mfs) {
+        if (auto media = mf.lock(); media->fileName() == path) {
+            //already exist
+            exist = true;
+            pictureFile = media;
+            break;
+        }
+    }
+    if (!exist) {
+        pictureFile = QSharedPointer<MediaFile>(new MediaFile(path));
+        workbook->addMediaFile(pictureFile, true);
+    }
+}
+
+void AbstractSheetPrivate::loadXmlDrawing(QXmlStreamReader &reader)
+{
+    Q_Q(AbstractSheet);
+    const auto &a = reader.attributes();
+    QString rId = a.value(QStringLiteral("r:id")).toString();
+    QString name = relationships->getRelationshipById(rId).target;
+
+    const auto parts = splitPath(filePathInPackage);
+    QString path = QDir::cleanPath(parts.first() + QLatin1String("/") + name);
+
+    drawing = std::make_shared<Drawing>(q, AbstractOOXmlFile::F_LoadFromExists);
+    drawing->setFilePath(path);
+}
+
+void AbstractSheetPrivate::saveXmlSheetViews(QXmlStreamWriter &writer, bool saveWorksheet) const
+{
+    auto views = sheetViews;
+    if (sheetViews.isEmpty()) views << SheetView();
+    writer.writeStartElement(QLatin1String("sheetViews"));
+    for (auto &view: views)
+        if (view.isValid()) view.write(writer, QLatin1String("sheetView"), saveWorksheet);
+    writer.writeEndElement(); //sheetViews
+}
+
+void AbstractSheetPrivate::saveXmlDrawings(QXmlStreamWriter &writer) const
+{
+    if (!drawing)
+        return;
+
+    int idx = workbook->drawings().indexOf(drawing.get());
+    relationships->addWorksheetRelationship(QLatin1String("/drawing"), QString("../drawings/drawing%1.xml").arg(idx+1));
+
+    writer.writeEmptyElement(QLatin1String("drawing"));
+    writer.writeAttribute(QLatin1String("r:id"), QString("rId%1").arg(relationships->count()));
+}
+
+void AbstractSheetPrivate::saveXmlPicture(QXmlStreamWriter &writer) const
+{
+    if (pictureFile) {
+        relationships->addDocumentRelationship(QStringLiteral("/image"),
+                                               QStringLiteral("../media/image%1.%2")
+                                                   .arg(pictureFile->index()+1)
+                                                   .arg(pictureFile->suffix()));
+        writer.writeEmptyElement(QStringLiteral("picture"));
+        writer.writeAttribute(QStringLiteral("r:id"),
+                              QStringLiteral("rId%1").arg(relationships->count()));
+    }
+}
 
 AbstractSheet::AbstractSheet(const QString &name, int id, Workbook *workbook, AbstractSheetPrivate *d) :
     AbstractOOXmlFile(d)

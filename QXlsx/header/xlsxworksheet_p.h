@@ -139,14 +139,12 @@ public:
     void saveXmlCellData(QXmlStreamWriter &writer, int row, int col, std::shared_ptr<Cell> cell) const;
     void saveXmlMergeCells(QXmlStreamWriter &writer) const;
     void saveXmlHyperlinks(QXmlStreamWriter &writer) const;
-    void saveXmlDrawings(QXmlStreamWriter &writer) const;
     void saveXmlDataValidations(QXmlStreamWriter &writer) const;
 
     void loadXmlSheetData(QXmlStreamReader &reader);
     void loadXmlColumnsInfo(QXmlStreamReader &reader);
     void loadXmlMergeCells(QXmlStreamReader &reader);
     void loadXmlDataValidations(QXmlStreamReader &reader);
-    void loadXmlSheetViews(QXmlStreamReader &reader);
     void loadXmlHyperlinks(QXmlStreamReader &reader);
     void loadXmlCell(QXmlStreamReader &reader);
 
@@ -177,6 +175,7 @@ public:
     SheetFormatProperties sheetFormatProperties;
     AutoFilter autofilter;
     SortState sortState;
+    QList<ProtectedRange> protectedRanges;
 
 
     QRegularExpression urlPattern {QStringLiteral("^([fh]tt?ps?://)|(mailto:)|(file://)")};
