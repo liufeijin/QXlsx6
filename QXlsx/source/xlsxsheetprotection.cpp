@@ -1,6 +1,12 @@
 #include "xlsxsheetprotection.h"
 #include "xlsxutility_p.h"
 
+#include <QCryptographicHash>
+#include <QDebug>
+#include <QBuffer>
+#include <QDataStream>
+#include <QFile>
+
 namespace QXlsx {
 
 class SheetProtectionPrivate : public QSharedData
@@ -90,6 +96,18 @@ SheetProtection::operator QVariant() const
         = qMetaTypeId<SheetProtection>() ;
 #endif
     return QVariant(cref, this);
+}
+
+bool SheetProtection::checkPassword(const QString &password) const
+{
+    if (!d) return false;
+    if (!d->protection.isValid()) return false;
+    auto salt = QByteArray::fromBase64(d->protection.saltValue.toLocal8Bit());
+    auto hashed = Protection::hash(d->protection.algorithmName,
+                                   password,
+                                   salt,
+                                   d->protection.spinCount.value_or(0));
+    return hashed == d->protection.hashValue;
 }
 
 WorkbookProtection &WorkbookProtection::operator=(const WorkbookProtection &other)
@@ -460,10 +478,13 @@ bool SheetProtectionPrivate::operator ==(const SheetProtectionPrivate &other) co
     return true;
 }
 
-Protection::Protection(const QString &algorithm, const QString &hashValue, const QString &salt, std::optional<int> spinCount)
-    : algorithmName(algorithm), hashValue(hashValue), saltValue(salt), spinCount(spinCount)
+Protection::Protection(const QString &algorithm, const QString &password, const QString &salt, std::optional<int> spinCount)
+    : algorithmName(algorithm), spinCount(spinCount)
 {
-
+    if (!password.isEmpty()) {
+        saltValue = salt.toLocal8Bit().toBase64();
+        hashValue = hash(algorithm, password, salt.toLocal8Bit(), spinCount.value_or(0));
+    }
 }
 
 bool Protection::isValid() const
@@ -481,6 +502,72 @@ bool Protection::operator==(const Protection &other) const
 bool Protection::operator!=(const Protection &other) const
 {
     return !operator==(other);
+}
+
+int algorithmForName(const QString &algorithm)
+{
+    if (algorithm == "MD2") return -1;
+    if (algorithm == "MD4") return QCryptographicHash::Md4;
+    if (algorithm == "MD5") return QCryptographicHash::Md5;
+    if (algorithm == "RIPEMD-128") return -1;
+    if (algorithm == "RIPEMD-160") return -1;
+    if (algorithm == "SHA-1") return QCryptographicHash::Sha1;
+    if (algorithm == "SHA-256") return QCryptographicHash::Sha256;
+    if (algorithm == "SHA-384") return QCryptographicHash::Sha384;
+    if (algorithm == "SHA-512") return QCryptographicHash::Sha512;
+    if (algorithm == "WHIRLPOOL") return -1;
+    if (algorithm == "SHA-224") return QCryptographicHash::Sha224;
+    if (algorithm == "SHA3-224") return QCryptographicHash::Sha3_224;
+    if (algorithm == "SHA3-256") return QCryptographicHash::Sha3_256;
+    if (algorithm == "SHA3-384") return QCryptographicHash::Sha3_384;
+    if (algorithm == "SHA3-512") return QCryptographicHash::Sha3_512;
+#if QT_VERSION >= QT_VERSION_CHECK(5,9,2)
+    if (algorithm == "Keccak-224") return QCryptographicHash::Keccak_224;
+    if (algorithm == "Keccak-256") return QCryptographicHash::Keccak_256;
+    if (algorithm == "Keccak-384") return QCryptographicHash::Keccak_384;
+    if (algorithm == "Keccak-512") return QCryptographicHash::Keccak_512;
+#endif
+    return -1;
+}
+
+QByteArray Protection::hash(const QString &algorithm, const QString &password, const QByteArray &salt, int spinCount)
+{
+    auto algo = algorithmForName(algorithm);
+    if (algo == -1) {
+        return {};
+    }
+    QByteArray salty1;
+    QBuffer b(&salty1);
+    b.open(QIODevice::WriteOnly);
+    QDataStream s(&b);
+    for (auto c: salt) {
+        s.writeRawData(&c,1);
+    }
+    QByteArray saltUtf16 = salty1;
+
+    auto salty = password.toStdU16String();
+    s.writeRawData(reinterpret_cast<char*>(const_cast<char16_t*>(salty.c_str())), salty.size()*2);
+    b.close();
+
+    QCryptographicHash hash(static_cast<QCryptographicHash::Algorithm>(algo));
+
+    hash.addData(salty1);
+    QByteArray hashed = hash.result();
+    for (int i=0; i<spinCount; ++i) {
+        QByteArray bi;
+        QBuffer b(&bi);
+        b.open(QIODevice::WriteOnly);
+        QDataStream s(&b);
+        s.setByteOrder(QDataStream::LittleEndian);
+        s << (uint32_t)i;
+        b.close();
+        hashed.append(bi);
+
+        hash.reset();
+        hash.addData(hashed);
+        hashed = hash.result();
+    }
+    return hashed.toBase64();
 }
 
 WorkbookProtectionPrivate::WorkbookProtectionPrivate()

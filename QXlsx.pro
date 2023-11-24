@@ -19,7 +19,8 @@ SUBDIRS += \
     examples\Chartsheets \
     examples\Chromatogram \
     examples\CombinedChart \
-    examples\ConditionalFormatting
+    examples\ConditionalFormatting \
+    examples\SheetProtection
 
 OTHER_FILES += \
     HowToSetProject.md \

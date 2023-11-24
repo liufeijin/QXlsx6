@@ -1832,14 +1832,14 @@ void Worksheet::saveToXmlFile(QIODevice *device) const
     d->sortState.write(writer, QLatin1String("sortState"));
 
     //13. dataConsolidate
-
+    //TODO: dataConsolidate
     //14. customSheetViews
-
+    //TODO: customSheetViews
     //15. mergeCells
     d->saveXmlMergeCells(writer);
 
     //16. phoneticPr
-
+    //TODO: phoneticPr
     //17. conditionalFormatting
     for (const ConditionalFormatting &cf : qAsConst(d->conditionalFormattingList))
         cf.saveToXml(writer);
@@ -3222,13 +3222,14 @@ void SheetFormatProperties::write(QXmlStreamWriter &writer, const QLatin1String 
     writeAttribute(writer, QLatin1String("outlineLevelCol"), outlineLevelCol);
 }
 
+void ProtectedRange::setPasswordProtection(const QString &algorithm, const QString &password, const QString &salt, int spinCount)
+{
+    pr = Protection(algorithm, password, salt, spinCount);
+}
+
 bool ProtectedRange::isValid() const
 {
-    if (ranges.isEmpty() || name.isEmpty()) return false;
-    if (pr.isValid()) return true;
-    if (!users.isEmpty()) return true;
-
-    return false;
+    return (!ranges.isEmpty() && !name.isEmpty());
 }
 
 void ProtectedRange::read(QXmlStreamReader &reader)

@@ -932,14 +932,24 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * @brief sets the password protection to the sheet.
      * @param algorithm a string that describes the hashing algorithm used.
      * See #Protection::algorithmName for some reserved values.
-     * @param hash a string that contains the hashed password in a base64 form.
-     * @param salt a string that contains the salt in a base64 form.
-     * @param spinCount count of iterations to compute the password hash.
+     * @param password a password.
+     * @param salt a salt string.
+     * @param spinCount count of iterations to compute the password hash (more
+     * is better, Excel uses value of 100,000).
      *
-     * The actual hashing should be done outside this library.
-     * See QCryptographicHash and QPasswordDigestor.
+     * @note 1. This method supports only the following algorithms as they
+     * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-224, SHA-256,
+     * SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512, Keccak-224,
+     * Keccak-256, Keccak-384, Keccak-512. Excel uses SHA-512.
+     *
+     * @note 2. This method computes the hashed password value and stores it in
+     * the SheetProtection attributes. You can access this value (in the base-64
+     * form) via SheetProtection::protection().hashValue. Moreover, the salt
+     * value is also stored in the base-64 form in the
+     * SheetProtection::protection().saltValue attribute. There's no way to know
+     * the actual password from xlsx.
      */
-    void setPasswordProtection(const QString &algorithm, const QString &hash,
+    void setPasswordProtection(const QString &algorithm, const QString &password,
                                const QString &salt = QString(), int spinCount = 1);
     /**
      * @brief sets the default sheet protection parameters.

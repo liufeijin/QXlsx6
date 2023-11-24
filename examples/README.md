@@ -166,7 +166,9 @@ Demonstrates a simple GUI application that uses QXlsx to generate a report based
 
 ![](../markdown.data/testexcel.png)
 
+## [SheetProtection](SheetProtection)
 
+Demonstrates how to protect a worksheet with a password and how to check the password with a user-supplied input.
 
 ## [ExcelReading](ExcelReading)
 

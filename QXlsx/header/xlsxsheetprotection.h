@@ -18,7 +18,7 @@ struct QXLSX_EXPORT Protection
     /**
      * @brief creates a Protection object with specified password parameters.
      */
-    Protection(const QString &algorithm = {}, const QString &hashValue = {},
+    Protection(const QString &algorithm = {}, const QString &password = {},
                const QString &salt = {}, std::optional<int> spinCount = std::nullopt);
     /**
      * @brief specifies the cryptographic hashing algorithm which shall
@@ -81,6 +81,35 @@ struct QXLSX_EXPORT Protection
     bool isValid() const;
     bool operator==(const Protection &other) const;
     bool operator!=(const Protection &other) const;
+
+    /**
+     * @brief returns the base64-encoded hash value generated for @a password
+     * with @a salt and @a spinCount using @a algorithm.
+     *
+     * The procedure is as follows:
+     *
+     * 1. Concatenate salt and password as a UTF-16 string.
+     * 2. Compute hash of the result.
+     * 3. If @a spicCount = 1, return the base64-encoded result.
+     * 3. Otherwise append a 4-byte little-endian number of iterations so far
+     *    (starting from 0).
+     * 4. Compute hash of the result.
+     * 5. Go to 3 until @a spinCount is exhausted.
+     * 6. Return the result.
+     *
+     * @param algorithm The algorithm name. See #algorithmName for a list of
+     * reserved names. See QCryptographicHash::Algorithm docs on the list of
+     * supported algorithms.
+     * @param password A string containing the password.
+     * @param salt A string containing the salt. It can be any string of any
+     * length.
+     * @param spinCount A positive integer that specifies how many times to
+     * compute the hash. A value of 100000 or 1000,000 can be used.
+     * @return The base64-encoded QByteArray value that can be directly stored
+     * in the #hashValue.
+     */
+    static QByteArray hash(const QString &algorithm, const QString &password, const QByteArray &salt = {},
+                           int spinCount = 0);
 };
 
 class SheetProtectionPrivate;
@@ -107,6 +136,16 @@ public:
     bool operator != (const SheetProtection &other) const;
 
     operator QVariant() const;
+
+    /**
+     * @brief checks the user-specified @a password against the stored hashed
+     * password and returns the result.
+     * @param password A string that contains password.
+     * @return `true` if @a passport generates the same hash as
+     * Protection::hashValue, `false` if the password protection is not set
+     * or @a password is invalid.
+     */
+    bool checkPassword(const QString &password) const;
 
     /**
      * @brief returns the sheet password protection parameters.

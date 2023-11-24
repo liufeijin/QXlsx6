@@ -76,6 +76,16 @@ ECMA-376 recommends `username@domain` format be used. */
     bool operator!=(const ProtectedRange& other) const {
         return !operator==(other);
     }
+    /**
+     * @brief sets the password protection to the range.
+     * @param algorithm a string that describes the hashing algorithm used.
+     * See #Protection::algorithmName for some reserved values.
+     * @param password a string that contains the password.
+     * @param salt a string that contains the salt.
+     * @param spinCount count of iterations to compute the password hash.
+     */
+    void setPasswordProtection(const QString &algorithm, const QString &password,
+                               const QString &salt = QString(), int spinCount = 1);
     bool isValid() const;
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;

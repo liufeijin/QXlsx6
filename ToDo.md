@@ -78,11 +78,11 @@
 1. CT_Pane
 2. CT_PivotSelection
 
-### protectedRanges
-
 ### scenarios
 
 ### sortState
+
+Added reading and writing. Changing of sortState is enables only in the autofiltered ranges.
 
 ### dataConsolidate
 
