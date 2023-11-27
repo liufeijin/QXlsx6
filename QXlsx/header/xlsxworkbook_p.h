@@ -74,10 +74,12 @@ public:
     bool strings_to_numbers_enabled{false};
     bool strings_to_hyperlinks_enabled{true};
     bool html_to_richstring_enabled{false};
+    bool readChartCashe{false};
+    bool writeChartCashe{false};
 
     QString defaultDateFormat;
 
-    int table_count;
+    int table_count{0};
 
     // --- These members have no corresponding methods in Workbook
     // fileVersion

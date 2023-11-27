@@ -548,9 +548,45 @@ of row R1 and column C1. */
      * @brief Clears all calculation parameters and sets the default values.
      */
     void setCalculationParametersDefaults();
-
-
-
+#if 0
+    /**
+     * @brief returns the global parameter whether to read the cashed data of
+     * chart series stored along with the series' data reference.
+     *
+     * @return `true` if reading of cashed data if enabled.
+     *
+     * The default value is `false` (do not read the cashed series data).
+     */
+    bool readChartCashe() const;
+    /**
+     * @brief sets the global parameter whether to read the cashed data of
+     * chart series stored along with the series' data reference.
+     * @param read If `true` then reading of cashed data if enabled.
+     *
+     * The default value is `false` (do not read the cashed series data).
+     */
+    void setReadChartCashe(bool read);
+    /**
+     * @brief returns the global parameter whether to write the cashed data of
+     * chart series together with the series' data reference.
+     *
+     * @return `true` if writing of cashed data if enabled.
+     *
+     * The default value is `false` (do not write the cashed series data).
+     */
+    bool writeChartCashe() const;
+    /**
+     * @brief sets the global parameter whether to write the cashed data of
+     * chart series together with the series' data reference.
+     * @param read If `true` then writing of cashed data if enabled. If the
+     * series data was set as a cell range reference, cell data will be read
+     * from the worksheet and stored along with the reference.
+     *
+     * The default value is `false` (do not write the cashed series data).
+     *
+     */
+    void setWriteChartCashe(bool write);
+#endif
     /// Protection
 
 

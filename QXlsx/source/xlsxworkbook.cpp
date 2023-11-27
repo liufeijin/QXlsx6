@@ -202,6 +202,32 @@ void Workbook::setCalculationParametersDefaults()
     d->forceFullCalc.reset();
 }
 
+#if 0
+bool Workbook::readChartCashe() const
+{
+    Q_D(const Workbook);
+    return d->readChartCashe;
+}
+
+void Workbook::setReadChartCashe(bool read)
+{
+    Q_D(Workbook);
+    d->readChartCashe = read;
+}
+
+bool Workbook::writeChartCashe() const
+{
+    Q_D(const Workbook);
+    return d->writeChartCashe;
+}
+
+void Workbook::setWriteChartCashe(bool write)
+{
+    Q_D(Workbook);
+    d->writeChartCashe = write;
+}
+#endif
+
 WorkbookProtection Workbook::workbookProtection() const
 {
      Q_D(const Workbook);

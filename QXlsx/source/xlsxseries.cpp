@@ -800,12 +800,76 @@ bool DataSource::operator==(const DataSource &other) const
     if (numberData != other.numberData) return false;
     if (stringData != other.stringData) return false;
     if (formatCode != other.formatCode) return false;
+    if (formatCodes != other.formatCodes) return false;
+    if (multiLevelStringData != other.multiLevelStringData) return false;
     return true;
 }
 
 bool DataSource::operator!=(const DataSource &other) const
 {
     return !operator==(other);
+}
+
+void DataSource::readNumData(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("formatCode"))
+                formatCode = reader.readElementText();
+            else if (reader.name() == QLatin1String("ptCount")) {
+                numberData.resize(reader.attributes().value(QLatin1String("val")).toInt());
+            }
+            else if (reader.name() == QLatin1String("pt")) {
+                int idx = reader.attributes().value(QLatin1String("idx")).toInt();
+                QString format = reader.attributes().value(QLatin1String("formatCode")).toString();
+                if (!format.isEmpty()) {
+                    formatCodes[idx] = format;
+                }
+                numberData[idx] = reader.readElementText().toDouble();
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void DataSource::readStrData(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("ptCount")) {
+                stringData.resize(reader.attributes().value(QLatin1String("val")).toInt());
+            }
+            else if (reader.name() == QLatin1String("pt")) {
+                int idx = reader.attributes().value(QLatin1String("idx")).toInt();
+                stringData[idx] = reader.readElementText();
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void DataSource::readMultiLvlStrData(QXmlStreamReader &reader)
+{
+    const auto &name = reader.name();
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            if (reader.name() == QLatin1String("lvl")) {
+                multiLevelStringData.append(QVector<QString>{});
+            }
+            else if (reader.name() == QLatin1String("v")) {
+                multiLevelStringData.last().append(reader.readElementText());
+            }
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
 }
 
 void DataSource::read(QXmlStreamReader &reader)
@@ -825,42 +889,28 @@ void DataSource::read(QXmlStreamReader &reader)
             if (name == QLatin1String("numRef")) {
                 if (reader.name() == QLatin1String("f")) reference = reader.readElementText();
                 else if (reader.name() == QLatin1String("numCashe")) {
-                    //TODO: add reading of cashe
+                    readNumData(reader);
                 }
+                else if (reader.name() == QLatin1String("extLst"))
+                    extLst.read(reader);
             }
             else if (name == QLatin1String("numLit")) {
-                if (reader.name() == QLatin1String("formatCode")) formatCode = reader.readElementText();
-                else if (reader.name() == QLatin1String("ptCount")) {
-                    numberData.resize(reader.attributes().value(QLatin1String("val")).toInt());
-                }
-                else if (reader.name() == QLatin1String("pt")) {
-                    // TODO: add reading and writing of individual formatCodes
-                    int idx = reader.attributes().value(QLatin1String("idx")).toInt();
-                    numberData[idx] = reader.readElementText().toDouble();
-                }
+                readNumData(reader);
             }
             else if (name == QLatin1String("strRef")) {
                 if (reader.name() == QLatin1String("f")) reference = reader.readElementText();
                 else if (reader.name() == QLatin1String("strCashe")) {
-                    //TODO: add reading of cashe
+                    readStrData(reader);
                 }
             }
             else if (name == QLatin1String("strLit")) {
-                if (reader.name() == QLatin1String("formatCode")) formatCode = reader.readElementText();
-                else if (reader.name() == QLatin1String("ptCount")) {
-                    stringData.resize(reader.attributes().value(QLatin1String("val")).toInt());
-                }
-                else if (reader.name() == QLatin1String("pt")) {
-                    // TODO: add reading and writing of individual formatCodes
-                    int idx = reader.attributes().value(QLatin1String("idx")).toInt();
-                    reader.readNextStartElement();
-                    stringData[idx] = reader.readElementText();
-                }
+                readStrData(reader);
             }
             else if (name == QLatin1String("multiLvlStrRef")) {
-                if (reader.name() == QLatin1String("f")) reference = reader.readElementText();
+                if (reader.name() == QLatin1String("f"))
+                    reference = reader.readElementText();
                 else if (reader.name() == QLatin1String("multiLvlStrCache")) {
-                    //TODO: add reading of cashe
+                    readMultiLvlStrData(reader);
                 }
             }
             else reader.skipCurrentElement();
@@ -868,6 +918,34 @@ void DataSource::read(QXmlStreamReader &reader)
         else if (token == QXmlStreamReader::EndElement && reader.name() == name)
             break;
     }
+}
+
+void DataSource::writeNumData(QXmlStreamWriter &writer, const QString &name) const
+{
+    writer.writeStartElement(name);
+    if (!formatCode.isEmpty()) writer.writeTextElement(QLatin1String("c:formatCode"), formatCode);
+    writeEmptyElement(writer, QLatin1String("ptCount"), int(numberData.size()));
+    for (int idx = 0; idx < numberData.size(); ++idx) {
+        writer.writeStartElement(QLatin1String("c:pt"));
+        writer.writeAttribute(QLatin1String("idx"), QString::number(idx));
+        writeAttribute(writer, QLatin1String("formatCode"), formatCodes.value(idx));
+        writer.writeTextElement(QLatin1String("c:v"), QString::number(numberData[idx]));
+        writer.writeEndElement();
+    }
+    writer.writeEndElement();
+}
+
+void DataSource::writeStrData(QXmlStreamWriter &writer, const QString &name, const QVector<QString> &data) const
+{
+    writer.writeStartElement(name);
+    writeEmptyElement(writer, QLatin1String("ptCount"), int(data.size()));
+    for (int idx = 0; idx < data.size(); ++idx) {
+        writer.writeStartElement(QLatin1String("c:pt"));
+        writer.writeAttribute(QLatin1String("idx"), QString::number(idx));
+        writer.writeTextElement(QLatin1String("c:v"), data[idx]);
+        writer.writeEndElement();
+    }
+    writer.writeEndElement();
 }
 
 void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
@@ -881,48 +959,48 @@ void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
         //numRef
         writer.writeStartElement(QLatin1String("c:numRef"));
         writer.writeTextElement(QLatin1String("c:f"), reference);
-        //TODO: writing of cashe
+        if (!numberData.isEmpty())
+            writeNumData(writer, QLatin1String("c:numCashe"));
         writer.writeEndElement();
     }
     if (type == Type::NumberLiterals && !numberData.isEmpty()) {
         //numLit
-        writer.writeStartElement(QLatin1String("c:numLit"));
-        if (!formatCode.isEmpty()) writer.writeTextElement(QLatin1String("c:formatCode"), formatCode);
-        writeEmptyElement(writer, QLatin1String("ptCount"), int(numberData.size()));
-        for (int idx = 0; idx < numberData.size(); ++idx) {
-            writer.writeStartElement(QLatin1String("c:pt"));
-            writer.writeAttribute(QLatin1String("idx"), QString::number(idx));
-            writer.writeTextElement(QLatin1String("c:v"), QString::number(numberData[idx]));
-            writer.writeEndElement();
-        }
-        writer.writeEndElement();
+        writeNumData(writer, QLatin1String("c:numLit"));
     }
     if (type == Type::StringReference && !reference.isEmpty()) {
         //strRef
         writer.writeStartElement(QLatin1String("c:strRef"));
         writer.writeTextElement(QLatin1String("c:f"), reference);
-        //TODO: writing of cashe
+        if (!stringData.isEmpty())
+            writeStrData(writer, QLatin1String("strCashe"), stringData);
         writer.writeEndElement();
     }
     if (type == Type::StringLiterals && !stringData.isEmpty()) {
         //strLit
-        writer.writeStartElement(QLatin1String("c:numLit"));
-        writeEmptyElement(writer, QLatin1String("ptCount"), int(stringData.size()));
-        for (int idx = 0; idx < stringData.size(); ++idx) {
-            writer.writeStartElement(QLatin1String("c:pt"));
-            writer.writeAttribute(QLatin1String("idx"), QString::number(idx));
-            writer.writeTextElement(QLatin1String("c:v"), stringData[idx]);
-            writer.writeEndElement();
-        }
-        writer.writeEndElement();
+        writeStrData(writer, QLatin1String("strLit"), stringData);
     }
     if (type == Type::MultiLevel && !reference.isEmpty()) {
         writer.writeStartElement(QLatin1String("c:multiLvlStrRef"));
         writer.writeTextElement(QLatin1String("c:f"), reference);
-        //TODO: writing of cashe
+        if (!multiLevelStringData.isEmpty()) {
+            writer.writeStartElement(QLatin1String("c:multiLvlStrCashe"));
+            writeEmptyElement(writer, QLatin1String("ptCount"), int(multiLevelStringData.size()));
+            for (const auto &lvl: qAsConst(multiLevelStringData)) {
+                writer.writeStartElement(QLatin1String("c:lvl"));
+                for (int idx = 0; idx < lvl.size(); ++idx) {
+                    writer.writeStartElement(QLatin1String("c:pt"));
+                    writeAttribute(writer, QLatin1String("idx"), idx);
+                    writer.writeTextElement(QLatin1String("c:v"), lvl[idx]);
+                    writer.writeEndElement(); //c:pt
+                }
+                writer.writeEndElement(); //c:lvl
+            }
+            writer.writeEndElement();
+        }
+
         writer.writeEndElement();
     }
-
+    extLst.write(writer, QLatin1String("c:extLst"));
 
     writer.writeEndElement();
 }

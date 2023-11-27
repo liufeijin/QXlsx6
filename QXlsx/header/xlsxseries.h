@@ -144,6 +144,9 @@ public:
     QVector<double> numberData;
     QString reference;
     QString formatCode;
+    QMap<int, QString> formatCodes;
+    ExtensionList extLst;
+    QVector<QVector<QString>> multiLevelStringData;
 
     bool isValid() const;
 
@@ -152,6 +155,12 @@ public:
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
+private:
+    void readNumData(QXmlStreamReader &reader);
+    void writeNumData(QXmlStreamWriter &writer, const QString &name) const;
+    void readStrData(QXmlStreamReader &reader);
+    void readMultiLvlStrData(QXmlStreamReader &reader);
+    void writeStrData(QXmlStreamWriter &writer, const QString &name, const QVector<QString> &data) const;
 };
 
 class QXLSX_EXPORT ErrorBars
