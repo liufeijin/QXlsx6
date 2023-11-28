@@ -218,7 +218,7 @@ void FillFormatPrivate::parse(const QBrush &brush)
                 if (mode == QGradient::ObjectMode)
                     linearShadeScaled = true;
                 const auto stops = gradient->stops();
-                for (auto st: stops)
+                for (auto st: qAsConst(stops))
                     gradientList.insert(st.first * 100.0, st.second);
                 auto spread = gradient->spread();
                 switch (spread) {

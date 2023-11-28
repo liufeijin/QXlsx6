@@ -228,7 +228,7 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
         metadata.insert(props.properties());
     }
 
-    //load app properties
+    //load extended properties
     QList<XlsxRelationship> rels_app = rootRels.documentRelationships(QStringLiteral("/extended-properties"));
     if (!rels_app.isEmpty()) {
         //Get the app property file name if it exists.
@@ -239,8 +239,6 @@ bool DocumentPrivate::loadPackage(QIODevice *device)
         docPropsApp.loadFromXmlData(zipReader.fileData(docPropsApp_Name));
         metadata.insert(docPropsApp.properties());
     }
-
-    //TODO: load extended properties
 
     //load workbook now, Get the workbook file path from the root rels file
     //In normal case, this should be "xl/workbook.xml"

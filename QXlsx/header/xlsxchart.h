@@ -598,7 +598,7 @@ public:
      * @param idx valid index (0 <= idx < axesCount()).
      * @return pointer to the axis if such axis exists, `nullptr` otherwise.
      */
-    Axis *axis(int idx); //TODO: replace with std::optional<std::reference_wrapper<Axis>> axis(int idx);
+    Axis *axis(int idx);
     /**
      * @overload
      * @brief returns axis that has position @a pos.
