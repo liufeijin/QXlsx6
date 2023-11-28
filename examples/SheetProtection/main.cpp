@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     // Example of checking the user's password with a value stored in the xlsx.
 
     auto sheet = xlsx.workbook()->worksheets().at(0);
-    qDebug() << sheet->sheetProtection().checkPassword("12345");
+    qDebug() << sheet->sheetProtection().protection().checkPassword("12345");
 
     qDebug() << "**** end of main() ****";
 

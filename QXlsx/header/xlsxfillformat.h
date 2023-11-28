@@ -14,8 +14,7 @@
 #include "xlsxglobal.h"
 #include "xlsxcolor.h"
 #include "xlsxmain.h"
-#include "xlsxutility_p.h"
-//#include "xlsxeffect.h"
+
 
 namespace QXlsx {
 
@@ -24,8 +23,6 @@ class Workbook;
 class Relationships;
 class Effect;
 
-
-//TODO: add help on available parameters for each fill type.
 /**
  * @brief Specifies fill properties for lines, shapes etc.
  *
@@ -33,7 +30,7 @@ class Effect;
  *
  *  ### 1. FillType::NoFill
  *
- *  A line or a shape is not filled, that is not filled.
+ *  A line or a shape is not filled, that is invisible.
  *
  *  ### 2. FillType::SolidFill
  *
@@ -43,9 +40,10 @@ class Effect;
  *
  *  ### 3. FillType::PatternFill
  *
- *  A line or a shape is filled with some pattern (See PatternType enum).
- *  A pattern is drawn with two colors: #foregroundColor() and #backgroundColor().
- *  See #setForegroundColor(), #setBackgroundColor() methods.
+ *  A line or a shape is filled with some pattern (See FillFormat::PatternType
+ *  enum). A pattern is drawn with two colors: #foregroundColor() and
+ *  #backgroundColor(). See #setForegroundColor(), #setBackgroundColor()
+ *  methods.
  *
  *  ### 4. FillType::PictureFill
  *
@@ -54,9 +52,9 @@ class Effect;
  *  #setPicture()).
  *
  *  You can also specify additional parameters of the picture fill: picture
- *  resolution with#setPictureDpi(), picture region with #setPictureSourceRect(),
- *  picture behavior with #setRotateWithShape(), some additional picture
- *  info (#setPictureCompression()) etc.
+ *  resolution with #setPictureDpi(), picture region with
+ *  #setPictureSourceRect(), picture behavior with #setRotateWithShape(), some
+ *  additional picture info (#setPictureCompression()) etc.
  *
  *  The picture can either be stretched or tiled. The stretch rectangle is set
  *  via #setPictureStretchRect(), the tile parameters via
@@ -84,7 +82,7 @@ class Effect;
  *  #linearShadeAngle(), #setLinearShadeAngle(), #linearShadeScaled(), #setLinearShadeScaled() | linear gradient fill
  *  #pathType(), #setPathType(), #pathRect(), #setPathRect(), #tileFlipMode(), #setTileFlipMode() | path gradient fill
  *  #foregroundColor(), #setForegroundColor(), #backgroundColor(), #setBackgroundColor(), #patternType(), #setPatternType() | pattern fill
- *  #picture(), #setPicture(), #pictureFillMode(), #setPictureFillMode(), #pictureSourceRect(), #setPictureSourceRect(), #pictureDpi(), #setPictureDpi()
+ *  #picture(), #setPicture(), #pictureFillMode(), #setPictureFillMode(), #pictureSourceRect(), #setPictureSourceRect(), #pictureDpi(), #setPictureDpi(), #pictureStretchRect(), #setPictureStretchRect(), #pictureHorizontalOffset(), #setPictureHorizontalOffset(), #pictureVerticalOffset(), #setPictureVerticalOffset(), #pictureAlpha(), #setPictureAlpha(), #pictureCompression(), #setPictureCompression(), #tileAlignment(), #setTileAlignment() | picture fill
  *
  */
 class QXLSX_EXPORT FillFormat
@@ -336,7 +334,9 @@ public:
      *
      * The simplest gradient list:
      *
-     * ```setGradientList({{0, "red"}, {100, "blue"}});```
+     * @code
+     * setGradientList({{0, "red"}, {100, "blue"}});
+     * @endcode
      *
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
@@ -759,7 +759,7 @@ public:
      */
     std::optional<Alignment> tileAlignment();
     /**
-     * @brief sets returns where to align the first tile with respect to the
+     * @brief sets where to align the first tile with respect to the
      * shape.
      *
      * Alignment happens after the scaling, but before the additional offset.

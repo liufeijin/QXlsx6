@@ -80,7 +80,7 @@ ECMA-376 recommends `username@domain` format be used. */
      * @brief sets the password protection to the range.
      * @param password a string that contains the password.
      * @param algorithm a string that describes the hashing algorithm used.
-     * See #Protection::algorithmName for some reserved values. If no algorithm
+     * See Protection::algorithmName for some reserved values. If no algorithm
      * is specified, 'SHA-512' is used.
      * @param salt a salt string. If no salt is specified, either an empty
      * string or a random 16-byte string is used depending on the
@@ -96,8 +96,8 @@ ECMA-376 recommends `username@domain` format be used. */
      *
      * @note 2. This method computes the hashed password value and stores it in
      * the Protection attributes. You can access this value (in the base-64
-     * form) via #pr.hashValue. Moreover, the salt value is also stored in the
-     * base-64 form in the #pr.saltValue attribute. There's no way to know
+     * form) via pr.hashValue. Moreover, the salt value is also stored in the
+     * base-64 form in the pr.saltValue attribute. There's no way to know
      * the actual password from xlsx.
      */
     bool setPasswordProtection(const QString &password,

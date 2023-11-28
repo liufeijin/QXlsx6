@@ -8,6 +8,7 @@
 #include <QDir>
 #include "xlsxrelationships_p.h"
 #include "xlsxchart.h"
+#include "xlsxutility_p.h"
 
 namespace QXlsx {
 

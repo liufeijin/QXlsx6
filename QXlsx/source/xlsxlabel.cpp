@@ -2,6 +2,26 @@
 
 namespace QXlsx {
 
+class SharedLabelProperties
+{
+public:
+    Label::ShowParameters showFlags{};
+    std::optional<Label::Position> pos{std::nullopt};
+    QString numberFormat;
+    bool formatSourceLinked{false};
+    ShapeFormat shape;
+    TextFormat text;
+    QString separator;
+
+    void read(QXmlStreamReader &reader);
+    void write(QXmlStreamWriter &writer) const;
+
+    bool operator==(const SharedLabelProperties &other) const;
+    bool operator!=(const SharedLabelProperties &other) const;
+};
+
+QDebug operator<<(QDebug dbg, const SharedLabelProperties &f);
+
 class LabelPrivate : public QSharedData
 {
 public:
@@ -98,18 +118,6 @@ void Label::setVisible(bool visible)
 {
     if (!d) d = new LabelPrivate;
     d->visible = visible;
-}
-
-SharedLabelProperties Label::properties() const
-{
-    if (d) return d->properties;
-    return {};
-}
-
-void Label::setProperties(SharedLabelProperties properties)
-{
-    if (!d) d = new LabelPrivate;
-    d->properties = properties;
 }
 
 Layout Label::layout() const
@@ -232,6 +240,63 @@ std::optional<Label::Position> Label::position() const
 {
     if (d) return d->properties.pos;
     return {};
+}
+
+QString Label::numberFormat() const
+{
+    if (d) return d->properties.numberFormat;
+    return {};
+}
+void Label::setNumberFormat(const QString &numberFormat, bool formatSourceLinked)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.numberFormat = numberFormat;
+    d->properties.formatSourceLinked = formatSourceLinked;
+}
+ShapeFormat Label::shape() const
+{
+    if (d) return d->properties.shape;
+    return {};
+}
+ShapeFormat &Label::shape()
+{
+    if (!d) d = new LabelPrivate;
+    return d->properties.shape;
+}
+void Label::setShape(const ShapeFormat &shape)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.shape = shape;
+}
+TextFormat Label::textFormat() const
+{
+    if (d) return d->properties.text;
+    return {};
+}
+TextFormat &Label::textFormat()
+{
+    if (!d) d = new LabelPrivate;
+    return d->properties.text;
+}
+void Label::setTextFormat(const TextFormat &textFormat)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.text = textFormat;
+}
+QString Label::separator() const
+{
+    if (d) return d->properties.separator;
+    return {};
+}
+void Label::setSeparator(const QString &separator)
+{
+    if (!d) d = new LabelPrivate;
+    d->properties.separator = separator;
+}
+
+void Label::clearProperties()
+{
+    if (d) d->properties = SharedLabelProperties{};
 }
 
 void Label::read(QXmlStreamReader &reader)
@@ -469,16 +534,159 @@ void Labels::setLeaderLines(const ShapeFormat &format)
     d->leaderLines = format;
 }
 
-SharedLabelProperties Labels::defaultProperties() const
+Label::ShowParameters Labels::showParameters() const
 {
-    if (d) return d->defaultProperties;
+    if (d) return d->defaultProperties.showFlags;
     return {};
 }
 
-void Labels::setDefaultProperties(SharedLabelProperties defaultProperties)
+void Labels::setShowParameters(Label::ShowParameters showParameters)
 {
     if (!d) d = new LabelsPrivate;
-    d->defaultProperties = defaultProperties;
+    d->defaultProperties.showFlags = showParameters;
+}
+
+void Labels::setShowCategory(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowCategory, show);
+}
+
+void Labels::setShowLegendKey(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowLegendKey, show);
+}
+void Labels::setShowValue(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowValue, show);
+}
+void Labels::setShowSeries(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowSeries, show);
+}
+void Labels::setShowPercent(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowPercent, show);
+}
+void Labels::setShowBubbleSize(bool show)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(Label::ShowBubbleSize, show);
+}
+void Labels::setShowParameter(Label::ShowParameter parameter, bool value)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.showFlags.setFlag(parameter, value);
+}
+
+bool Labels::testShowParameter(Label::ShowParameter parameter) const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(parameter);
+    return false;
+}
+
+bool Labels::testShowCategory() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowCategory);
+    return false;
+}
+bool Labels::testShowLegendKey() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowLegendKey);
+    return false;
+}
+bool Labels::testShowValue() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowValue);
+    return false;
+}
+bool Labels::testShowSeries() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowSeries);
+    return false;
+}
+bool Labels::testShowPercent() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowPercent);
+    return false;
+}
+bool Labels::testShowBubbleSize() const
+{
+    if (d) return d->defaultProperties.showFlags.testFlag(Label::ShowParameter::ShowBubbleSize);
+    return false;
+}
+
+void Labels::setPosition(Label::Position position)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.pos = position;
+}
+
+std::optional<Label::Position> Labels::position() const
+{
+    if (d) return d->defaultProperties.pos;
+    return {};
+}
+
+QString Labels::numberFormat() const
+{
+    if (d) return d->defaultProperties.numberFormat;
+    return {};
+}
+void Labels::setNumberFormat(const QString &numberFormat, bool formatSourceLinked)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.numberFormat = numberFormat;
+    d->defaultProperties.formatSourceLinked = formatSourceLinked;
+}
+ShapeFormat Labels::shape() const
+{
+    if (d) return d->defaultProperties.shape;
+    return {};
+}
+ShapeFormat &Labels::shape()
+{
+    if (!d) d = new LabelsPrivate;
+    return d->defaultProperties.shape;
+}
+void Labels::setShape(const ShapeFormat &shape)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.shape = shape;
+}
+TextFormat Labels::textFormat() const
+{
+    if (d) return d->defaultProperties.text;
+    return {};
+}
+TextFormat &Labels::textFormat()
+{
+    if (!d) d = new LabelsPrivate;
+    return d->defaultProperties.text;
+}
+void Labels::setTextFormat(const TextFormat &textFormat)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.text = textFormat;
+}
+QString Labels::separator() const
+{
+    if (d) return d->defaultProperties.separator;
+    return {};
+}
+void Labels::setSeparator(const QString &separator)
+{
+    if (!d) d = new LabelsPrivate;
+    d->defaultProperties.separator = separator;
+}
+
+void Labels::clearDefaultProperties()
+{
+    if (d) d->defaultProperties = {};
 }
 
 void Labels::read(QXmlStreamReader &reader)
@@ -609,7 +817,6 @@ QDebug operator<<(QDebug dbg, const Labels &f)
     else {
         dbg << "visible: " << f.visible().value_or(false);
         dbg << "showLeaderLines: " << f.showLeaderLines().value_or(false);
-        dbg << f.defaultProperties();
     }
     dbg << ")";
 

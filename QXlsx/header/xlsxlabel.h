@@ -17,8 +17,7 @@
 namespace QXlsx {
 
 class LabelPrivate;
-//TODO: get rid of SharedLabelProperties exposed
-class SharedLabelProperties;
+//TODO: full documentation of Label
 
 class QXLSX_EXPORT Label
 {
@@ -59,18 +58,17 @@ public:
     std::optional<bool> visible() const;
     void setVisible(bool visible);
 
-    SharedLabelProperties properties() const;
-    void setProperties(SharedLabelProperties properties);
-
     Layout layout() const;
     void setLayout(const Layout &layout);
 
     Text text() const;
     void setText(const Text &text);
 
+
+    // Properties common to Label and Labels
+
     ShowParameters showParameters() const;
     void setShowParameters(ShowParameters showParameters);
-
     void setShowParameter(ShowParameter parameter, bool value);
     /**
      * @brief test if parameter is set.
@@ -93,7 +91,12 @@ public:
     bool testShowPercent() const;
     bool testShowBubbleSize() const;
 
-
+    /**
+     * @brief sets the label position.
+     * @param pos Position enum value.
+     *
+     * If not set, Position::BestFit is assumed.
+     */
     void setPosition(Position pos);
     /**
      * @brief returns the label's position.
@@ -101,6 +104,24 @@ public:
      * Position::BestFit is assumed.
      */
     std::optional<Position> position() const;
+
+    QString numberFormat() const;
+    void setNumberFormat(const QString &numberFormat, bool formatSourceLinked = false);
+    ShapeFormat shape() const;
+    ShapeFormat &shape();
+    void setShape(const ShapeFormat &shape);
+    TextFormat textFormat() const;
+    TextFormat &textFormat();
+    void setTextFormat(const TextFormat &textFormat);
+    QString separator() const;
+    void setSeparator(const QString &separator);
+    /**
+     * @brief clears all properties that were set individually for this
+     * particular label (#showParameters(), #position(), #numberFormat(),
+     * #shape(), #textFormat(), #separator()).
+     */
+    void clearProperties();
+
 
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
@@ -130,26 +151,6 @@ private:
 
 QDebug operator<<(QDebug dbg, const Label &f);
 
-class QXLSX_EXPORT SharedLabelProperties
-{
-public:
-    Label::ShowParameters showFlags;
-    std::optional<Label::Position> pos;
-    QString numberFormat;
-    bool formatSourceLinked = false;
-    ShapeFormat shape;
-    TextFormat text;
-    QString separator;
-
-    void read(QXmlStreamReader &reader);
-    void write(QXmlStreamWriter &writer) const;
-
-    bool operator==(const SharedLabelProperties &other) const;
-    bool operator!=(const SharedLabelProperties &other) const;
-};
-
-QDebug operator<<(QDebug dbg, const SharedLabelProperties &f);
-
 class LabelsPrivate;
 
 class QXLSX_EXPORT Labels
@@ -177,8 +178,110 @@ public:
     ShapeFormat &leaderLines();
     void setLeaderLines(const ShapeFormat &format);
 
-    SharedLabelProperties defaultProperties() const;
-    void setDefaultProperties(SharedLabelProperties defaultProperties);
+    Label::ShowParameters showParameters() const;
+    void setShowParameters(Label::ShowParameters showParameters);
+    void setShowParameter(Label::ShowParameter parameter, bool value);
+    /**
+     * @brief tests whether the show parameter is set.
+     * @param parameter parameter to test.
+     */
+    bool testShowParameter(Label::ShowParameter parameter) const;
+
+    void setShowCategory(bool show);
+    void setShowLegendKey(bool show);
+    void setShowValue(bool show);
+    void setShowSeries(bool show);
+    void setShowPercent(bool show);
+    void setShowBubbleSize(bool show);
+
+    bool testShowCategory() const;
+    bool testShowLegendKey() const;
+    bool testShowValue() const;
+    bool testShowSeries() const;
+    bool testShowPercent() const;
+    bool testShowBubbleSize() const;
+
+    /**
+     * @brief sets the default label position that will be used for all labels in
+     * this labels collection.
+     * @param pos Position enum value.
+     *
+     * If not set, Position::BestFit is assumed.
+     */
+    void setPosition(Label::Position pos);
+    /**
+     * @brief returns the default label position that is used for all labels in
+     * this labels collection.
+     * @return Position enum value if it was set, `nullopt` otherwise. If not set,
+     * Position::BestFit is assumed.
+     */
+    std::optional<Label::Position> position() const;
+    /**
+     * @brief returns the default number format that is used for all labels in
+     * this labels collection.
+     */
+    QString numberFormat() const;
+    /**
+     * @brief sets the default number format that will be used for all labels in
+     * this labels collection.
+     * @param numberFormat A string that contains the format.
+     * @param formatSourceLinked An additional informative flag.
+     */
+    void setNumberFormat(const QString &numberFormat, bool formatSourceLinked = false);
+    /**
+     * @brief returns the label shape format that is used for all labels in
+     * this labels collection.
+     */
+    ShapeFormat shape() const;
+    /**
+     * @brief returns the label shape format that is used for all labels in
+     * this labels collection.
+     */
+    ShapeFormat &shape();
+    /**
+     * @brief sets the label shape format that will be used for all labels in
+     * this labels collection.
+     * @param shape If valid, labels will be shown with this shape format.
+     * If invalid, labels will get the default shape format.
+     */
+    void setShape(const ShapeFormat &shape);
+    /**
+     * @brief returns the text format that is used for all labels in
+     * this labels collection.
+     */
+    TextFormat textFormat() const;
+    /**
+     * @brief returns the text format that is used for all labels in
+     * this labels collection.
+     */
+    TextFormat &textFormat();
+    /**
+     * @brief sets the text format that will be used for all labels in
+     * this labels collection.
+     * @param textFormat If valid, labels will be shown with this text format.
+     * If invalid, labels will get the default text format.
+     */
+    void setTextFormat(const TextFormat &textFormat);
+    /**
+     * @brief returns the separator that is used for all labels in
+     * this labels collection.
+     */
+    QString separator() const;
+    /**
+     * @brief sets the separator that will be used for all labels in
+     * this labels collection.
+     * @param separator A string that will be used to divide the label sections.
+     */
+    void setSeparator(const QString &separator);
+    /**
+     * @brief clears all properties that were set for this labels collection
+     * (#showParameters(), #position(), #numberFormat(), #shape(),
+     * #textFormat(), #separator()).
+     *
+     * If some properties were set for an individual label, this label will be
+     * shown according to its properties.
+     */
+    void clearDefaultProperties();
 
     /**
      * @brief addLabel adds @a label to the list of labels

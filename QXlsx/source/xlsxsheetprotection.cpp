@@ -128,16 +128,15 @@ SheetProtection::operator QVariant() const
     return QVariant(cref, this);
 }
 
-bool SheetProtection::checkPassword(const QString &password) const
+bool PasswordProtection::checkPassword(const QString &password) const
 {
-    if (!d) return false;
-    if (!d->protection.isValid()) return false;
-    auto salt = QByteArray::fromBase64(d->protection.saltValue.toLocal8Bit());
-    auto hashed = PasswordProtection::hash(d->protection.algorithmName,
+    if (!isValid()) return false;
+    auto salt = QByteArray::fromBase64(saltValue.toLocal8Bit());
+    auto hashed = PasswordProtection::hash(algorithmName,
                                    password,
                                    salt,
-                                   d->protection.spinCount.value_or(0));
-    return hashed == d->protection.hashValue;
+                                   spinCount.value_or(0));
+    return hashed == hashValue;
 }
 
 WorkbookProtection &WorkbookProtection::operator=(const WorkbookProtection &other)

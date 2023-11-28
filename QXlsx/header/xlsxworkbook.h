@@ -621,8 +621,8 @@ of row R1 and column C1. */
      * @brief sets the password protection to the workbook.
      * @param password a password.
      * @param algorithm a string that describes the hashing algorithm used.
-     * See #Protection::algorithmName for some reserved values. If no algorithm
-     * is specified, 'SHA-512' is used.
+     * See PasswordProtection::algorithmName for some reserved values. If no
+     * algorithm is specified, 'SHA-512' is used.
      * @note This method supports only the following algorithms as they
      * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-256, SHA-384,
      * SHA-512. If a non-supported algorithm is specified, the password
@@ -630,7 +630,7 @@ of row R1 and column C1. */
      * Excel uses SHA-512.
      * @param salt a salt string. If no salt is specified, either an empty
      * string or a random 16-byte string is used depending on the
-     * Protection::randomizedSalt() value.
+     * PasswordProtection::randomizedSalt() value.
      * @param spinCount count of iterations to compute the password hash (more
      * is better, Excel uses value of 100,000). If no spinCount is specified,
      * the value of 100,000 is used.
