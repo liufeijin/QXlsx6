@@ -7,12 +7,42 @@
 #include <QDataStream>
 #include <QFile>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+#include <QRandomGenerator>
+#else
+#include <random>
+#endif
+
+QByteArray getRandomSalt()
+{
+    QByteArray result;
+    result.resize(16);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    for (auto &b: result) {
+        quint32 val = QRandomGenerator::global()->bounded(1, 255);
+        b = (char)val;
+    }
+#else
+    std::random_device r;
+    std::default_random_engine engine(r());
+    std::uniform_int_distribution<int> uniform_dist(1, 255);
+    for (auto &b: result) {
+        int val = uniform_dist(engine);
+        b = (char)val;
+    }
+#endif
+    return result;
+}
+
 namespace QXlsx {
+
+bool PasswordProtection::randomized = false;
 
 class SheetProtectionPrivate : public QSharedData
 {
 public:
-    Protection protection;
+    PasswordProtection protection;
     std::optional<bool> protectContent;
     std::optional<bool> protectObjects;
     std::optional<bool> protectSheet;
@@ -41,8 +71,8 @@ public:
 class WorkbookProtectionPrivate : public QSharedData
 {
 public:
-    Protection protection;
-    Protection revisionsProtection;
+    PasswordProtection protection;
+    PasswordProtection revisionsProtection;
     std::optional<bool> lockStructure;
     std::optional<bool> lockWindows;
     std::optional<bool> lockRevision;
@@ -103,7 +133,7 @@ bool SheetProtection::checkPassword(const QString &password) const
     if (!d) return false;
     if (!d->protection.isValid()) return false;
     auto salt = QByteArray::fromBase64(d->protection.saltValue.toLocal8Bit());
-    auto hashed = Protection::hash(d->protection.algorithmName,
+    auto hashed = PasswordProtection::hash(d->protection.algorithmName,
                                    password,
                                    salt,
                                    d->protection.spinCount.value_or(0));
@@ -138,19 +168,19 @@ WorkbookProtection::operator QVariant() const
     return QVariant(cref, this);
 }
 
-Protection SheetProtection::protection() const
+PasswordProtection SheetProtection::protection() const
 {
     if (d) return d->protection;
     return {};
 }
 
-Protection &SheetProtection::protection()
+PasswordProtection &SheetProtection::protection()
 {
     if (!d) d = new SheetProtectionPrivate;
     return d->protection;
 }
 
-void SheetProtection::setProtection(const Protection &protection)
+void SheetProtection::setProtection(const PasswordProtection &protection)
 {
     if (!d) d = new SheetProtectionPrivate;
     d->protection = protection;
@@ -478,80 +508,55 @@ bool SheetProtectionPrivate::operator ==(const SheetProtectionPrivate &other) co
     return true;
 }
 
-Protection::Protection(const QString &algorithm, const QString &password, const QString &salt, std::optional<int> spinCount)
+PasswordProtection::PasswordProtection(const QString &password, const QString &algorithm, const QString &salt, std::optional<int> spinCount)
     : algorithmName(algorithm), spinCount(spinCount)
 {
     if (!password.isEmpty()) {
-        saltValue = salt.toLocal8Bit().toBase64();
-        hashValue = hash(algorithm, password, salt.toLocal8Bit(), spinCount.value_or(0));
+        auto s = salt.isEmpty() && randomized ? getRandomSalt() : salt.toLocal8Bit();
+        saltValue = s.toBase64();
+        hashValue = hash(algorithm, password, s, spinCount.value_or(0));
     }
 }
 
-bool Protection::isValid() const
+bool PasswordProtection::isValid() const
 {
     return !algorithmName.isEmpty() || !hashValue.isEmpty() || !saltValue.isEmpty()
            || spinCount.has_value();
 }
 
-bool Protection::operator==(const Protection &other) const
+bool PasswordProtection::operator==(const PasswordProtection &other) const
 {
     return algorithmName==other.algorithmName && hashValue == other.hashValue &&
            saltValue == other.saltValue && spinCount == other.spinCount;
 }
 
-bool Protection::operator!=(const Protection &other) const
+bool PasswordProtection::operator!=(const PasswordProtection &other) const
 {
     return !operator==(other);
 }
 
-int algorithmForName(const QString &algorithm)
-{
-    if (algorithm == "MD2") return -1;
-    if (algorithm == "MD4") return QCryptographicHash::Md4;
-    if (algorithm == "MD5") return QCryptographicHash::Md5;
-    if (algorithm == "RIPEMD-128") return -1;
-    if (algorithm == "RIPEMD-160") return -1;
-    if (algorithm == "SHA-1") return QCryptographicHash::Sha1;
-    if (algorithm == "SHA-256") return QCryptographicHash::Sha256;
-    if (algorithm == "SHA-384") return QCryptographicHash::Sha384;
-    if (algorithm == "SHA-512") return QCryptographicHash::Sha512;
-    if (algorithm == "WHIRLPOOL") return -1;
-    if (algorithm == "SHA-224") return QCryptographicHash::Sha224;
-    if (algorithm == "SHA3-224") return QCryptographicHash::Sha3_224;
-    if (algorithm == "SHA3-256") return QCryptographicHash::Sha3_256;
-    if (algorithm == "SHA3-384") return QCryptographicHash::Sha3_384;
-    if (algorithm == "SHA3-512") return QCryptographicHash::Sha3_512;
-#if QT_VERSION >= QT_VERSION_CHECK(5,9,2)
-    if (algorithm == "Keccak-224") return QCryptographicHash::Keccak_224;
-    if (algorithm == "Keccak-256") return QCryptographicHash::Keccak_256;
-    if (algorithm == "Keccak-384") return QCryptographicHash::Keccak_384;
-    if (algorithm == "Keccak-512") return QCryptographicHash::Keccak_512;
-#endif
-    return -1;
-}
-
-QByteArray Protection::hash(const QString &algorithm, const QString &password, const QByteArray &salt, int spinCount)
+QByteArray PasswordProtection::hash(const QString &algorithm, const QString &password, const QByteArray &salt, int spinCount)
 {
     auto algo = algorithmForName(algorithm);
     if (algo == -1) {
         return {};
     }
-    QByteArray salty1;
-    QBuffer b(&salty1);
+
+    QByteArray salty;
+    QBuffer b(&salty);
     b.open(QIODevice::WriteOnly);
     QDataStream s(&b);
-    for (auto c: salt) {
-        s.writeRawData(&c,1);
+    for (auto c: qAsConst(salt)) {
+        s.writeRawData(&c, 1);
     }
-    QByteArray saltUtf16 = salty1;
 
-    auto salty = password.toStdU16String();
-    s.writeRawData(reinterpret_cast<char*>(const_cast<char16_t*>(salty.c_str())), salty.size()*2);
+    auto passwordUtf16 = password.toStdU16String();
+    s.writeRawData(reinterpret_cast<char*>(const_cast<char16_t*>(passwordUtf16.c_str())), passwordUtf16.size()*2);
     b.close();
 
     QCryptographicHash hash(static_cast<QCryptographicHash::Algorithm>(algo));
 
-    hash.addData(salty1);
+    hash.addData(salty);
     QByteArray hashed = hash.result();
     for (int i=0; i<spinCount; ++i) {
         QByteArray bi;
@@ -568,6 +573,29 @@ QByteArray Protection::hash(const QString &algorithm, const QString &password, c
         hashed = hash.result();
     }
     return hashed.toBase64();
+}
+
+bool PasswordProtection::randomizedSalt()
+{
+    return randomized;
+}
+
+void PasswordProtection::setRandomizedSalt(bool use)
+{
+    randomized = use;
+}
+
+int PasswordProtection::algorithmForName(const QString &algorithmName)
+{
+    if (algorithmName == "MD4") return QCryptographicHash::Md4;
+    if (algorithmName == "MD5") return QCryptographicHash::Md5;
+    if (algorithmName == "SHA-1") return QCryptographicHash::Sha1;
+    if (algorithmName == "SHA-224") return QCryptographicHash::Sha224;
+    if (algorithmName == "SHA-256") return QCryptographicHash::Sha256;
+    if (algorithmName == "SHA-384") return QCryptographicHash::Sha384;
+    if (algorithmName == "SHA-512") return QCryptographicHash::Sha512;
+
+    return -1;
 }
 
 WorkbookProtectionPrivate::WorkbookProtectionPrivate()
@@ -616,37 +644,37 @@ WorkbookProtection::~WorkbookProtection()
 
 }
 
-Protection WorkbookProtection::protection() const
+PasswordProtection WorkbookProtection::protection() const
 {
     if (d) return d->protection;
     return {};
 }
 
-Protection &WorkbookProtection::protection()
+PasswordProtection &WorkbookProtection::protection()
 {
     if (!d) d = new WorkbookProtectionPrivate;
     return d->protection;
 }
 
-void WorkbookProtection::setProtection(const Protection &protection)
+void WorkbookProtection::setProtection(const PasswordProtection &protection)
 {
     if (!d) d = new WorkbookProtectionPrivate;
     d->protection = protection;
 }
 
-Protection WorkbookProtection::revisionsProtection() const
+PasswordProtection WorkbookProtection::revisionsProtection() const
 {
     if (d) return d->revisionsProtection;
     return {};
 }
 
-Protection &WorkbookProtection::revisionsProtection()
+PasswordProtection &WorkbookProtection::revisionsProtection()
 {
     if (!d) d = new WorkbookProtectionPrivate;
     return d->revisionsProtection;
 }
 
-void WorkbookProtection::setRevisionsProtection(const Protection &protection)
+void WorkbookProtection::setRevisionsProtection(const PasswordProtection &protection)
 {
     if (!d) d = new WorkbookProtectionPrivate;
     d->revisionsProtection = protection;

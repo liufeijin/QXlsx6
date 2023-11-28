@@ -262,10 +262,13 @@ bool Workbook::isPasswordProtectionSet() const
     return false;
 }
 
-void Workbook::setPasswordProtection(const QString &algorithm, const QString &hash, const QString &salt, int spinCount)
+bool Workbook::setPasswordProtection(const QString &algorithm, const QString &password, const QString &salt, int spinCount)
 {
     Q_D(Workbook);
-    d->protection.protection() = Protection(algorithm, hash, salt, spinCount);
+    if (password.isEmpty() || PasswordProtection::algorithmForName(algorithm) == -1)
+        return false;
+    d->protection.protection() = PasswordProtection(password, algorithm, salt, spinCount);
+    return true;
 }
 
 void Workbook::removeWorkbookProtection()

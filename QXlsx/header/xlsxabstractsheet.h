@@ -34,7 +34,7 @@ namespace QXlsx {
  * &D | current date | |
  * &E | toggles double underline text format on/off | realy &Eimportant&E text
  * &F | current workbook's file name | |
- * &G | picture as a background | |
+ * &G | picture as a background | not implemented yet |
  * &H | toggles shadow text format | |
  * &I | toggles italic text format | |
  * &K | text font color | An RGB Color is specified as RRGGBB: &KFF0000red text, a theme color is specified as TTSNNN where TT is the theme color Id, S is either “+” or “-“ of the tint/shade value, and NNN is the tint/shade value
@@ -193,7 +193,7 @@ class AbstractSheetPrivate;
  *   - #workbookViewId() and #setWorkbookViewId() allow to associate the view
  *     with a specific workbook view.
  *
- * The above-mentioned methods return `nullopt` if the corresponding parameters
+ * The above-mentioned methods return `std::nullopt` if the corresponding parameters
  * were not set. See SheetView and Selection documentation on the default
  * values.
  *
@@ -238,7 +238,7 @@ class AbstractSheetPrivate;
  *     Worksheet::setPrintVerticalCentered() manage the arrangement of the sheet
  *     data on paper.
  *
- * All these methods return `std::optional` if the parameters were not set.
+ * All these methods return `std::nullopt` if the parameters were not set.
  * See PageSetup class documentation on the default values.
  *
  * ## Headers and footers
@@ -269,6 +269,8 @@ class AbstractSheetPrivate;
  *
  * See also the Worksheet documentation on how to protect specific cell ranges,
  * as these methods are accessible only in worksheets.
+ *
+ * See [SheetProtection](../../examples/SheetProtection/main.cpp) example.
  *
  */
 class QXLSX_EXPORT AbstractSheet : public AbstractOOXmlFile
@@ -388,19 +390,21 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      */
     HeaderFooter &headerFooter();
 
-    //TODO: add methods to fine-tune header and footer
     /**
-     * @brief returns whether a sheet has different header/footer for odd and even pages.
+     * @brief returns whether the sheet has different header/footer for odd and
+     * even pages.
      * @return When `true` then #oddHeader() / #oddFooter() and #evenHeader() /
      * #evenFooter() specify the page header and footer values for odd and even
-     * pages, respectively. If `false` then #oddHeader() / #oddFooter() or #header() / #footer()
-     * are used, even when #evenHeader() / #evenFooter() are not empty.
+     * pages, respectively. If `false` then #oddHeader() / #oddFooter() or
+     * #header() / #footer() are used, even when #evenHeader() / #evenFooter()
+     * are not empty.
      *
      * The default value is `false`.
      *
-     * @sa #header(), #footer(), #oddHeader(), #oddFooter(), #evenHeader(), #evenFooter(),
-     * #setHeader(), #setFooter(), #setOddHeader(), #setOddFooter(), #setEvenHeader(),
-     * #setEvenFooter(), #setHeaders(), #setFooters().
+     * @sa #header(), #footer(), #oddHeader(), #oddFooter(), #evenHeader(),
+     * #evenFooter(), #setHeader(), #setFooter(), #setOddHeader(),
+     * #setOddFooter(), #setEvenHeader(), #setEvenFooter(), #setHeaders(),
+     * #setFooters().
      */
     std::optional<bool> differentOddEvenPage() const;
     /**
@@ -433,27 +437,27 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     void setDifferentFirstPage(bool different);
     /**
      * @brief returns the page header.
-     * @return Page header as a string that may include formatting codes. See HeaderFooter class
-     * for a list of formatting codes. The return value is empty if #differentOddEvenPage()
-     * and/or #differentFirstPage() is `true`. In this case use #oddHeader(), #evenHeader(), #firstHeader().
+     * @return Page header as a string that may include formatting codes. See
+     * HeaderFooter class for a list of formatting codes. The return value is
+     * empty if #differentOddEvenPage() and/or #differentFirstPage() is `true`.
+     * In this case use #oddHeader(), #evenHeader(), #firstHeader().
      */
     QString header() const;
     /**
      * @brief sets the page header.
-     * @param header a string that may include formatting codes. See HeaderFooter class
-     * for a list of formatting codes.
+     * @param header a string that may include formatting codes. See
+     * HeaderFooter class for a list of formatting codes.
      *
-     * This method effectively sets odd/even pages and first page to `false`. If needed, use
-     * #setOddHeader(), #setEvenHeader(), #setFirstHeader().
+     * This method effectively sets odd/even pages and first page to `false`. If
+     * needed, use #setOddHeader(), #setEvenHeader(), #setFirstHeader().
      */
     void setHeader(const QString &header);
     /**
      * @brief returns the header of odd pages.
-     * @return a string that may include formatting codes. See HeaderFooter class
-     * for a list of formatting codes.
+     * @return a string that may include formatting codes. See HeaderFooter
+     * class for a list of formatting codes.
      *
-     * The return value is empty if #differentOddEvenPage()
-     * is `false`.
+     * The return value is empty if #differentOddEvenPage() is `false`.
      */
     QString oddHeader() const;
     /**
@@ -505,8 +509,8 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     void setFirstHeader(const QString &header);
     /**
      * @brief sets headers for page
-     * @param oddHeader non-empty string that is used for headers if \a evenHeader is empty,
-     * and for odd page header if \a evenHeader is not empty.
+     * @param oddHeader non-empty string that is used for headers if @a evenHeader is empty,
+     * and for odd page header if @a evenHeader is not empty.
      * @param evenHeader a string that is used for even page header. If not empty, then
      * #setDifferentOddEvenPage() is set to `true`.
      * @param firstHeader a string that is used for the first page. If not empty,
@@ -599,14 +603,60 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     void setFooters(const QString &oddFooter, const QString &evenFooter = QString(), const QString &firstFooter = QString());
 
     // Page margins methods
+    /**
+     * @brief returns the sheet page margins in inches.
+     * @return A map of page margins that can contain 0 to 6 values.
+     */
     QMap<PageMargins::Position, double> pageMarginsInches() const;
+    /**
+     * @brief returns the sheet page margins in millimeters.
+     * @return A map of page margins that can contain 0 to 6 values.
+     */
     QMap<PageMargins::Position, double> pageMarginsMm() const;
-    void setPageMarginsInches(double left = 0, double top = 0, double right = 0, double bottom = 0,
-                              double header = 0, double footer = 0);
-    void setPageMarginsMm(double left = 0, double top = 0, double right = 0, double bottom = 0,
-                          double header = 0, double footer = 0);
+    /**
+     * @brief sets the sheet page margins in inches.
+     * @param left left margin.
+     * @param top top margin.
+     * @param right right margin.
+     * @param bottom bottom margin.
+     * @param header margin afrea page header.
+     * @param footer margin before page footer.
+     *
+     * @note If a value is 0, this method sets a zero margin. To clear margins
+     * (that is setting their default values) use #setDefaultPageMargins()
+     * method.
+     */
+    void setPageMarginsInches(double left = 0, double top = 0, double right = 0,
+                              double bottom = 0, double header = 0, double footer = 0);
+    /**
+     * @brief sets the sheet page margins in millimetres.
+     * @param left left margin.
+     * @param top top margin.
+     * @param right right margin.
+     * @param bottom bottom margin.
+     * @param header margin afrea page header.
+     * @param footer margin before page footer.
+     *
+     * @note If a value is 0, this method sets a zero margin. To clear margins
+     * (that is setting their default values) use #setDefaultPageMargins()
+     * method.
+     */
+    void setPageMarginsMm(double left = 0, double top = 0, double right = 0,
+                          double bottom = 0, double header = 0, double footer = 0);
+    /**
+     * @brief returns the sheet page margins.
+     * @return A copy of the PageMargins object.
+     */
     PageMargins pageMargins() const;
+    /**
+     * @brief returns the sheet page margins.
+     * @return A reference to the PageMargins object.
+     */
     PageMargins &pageMargins();
+    /**
+     * @brief sets the sheet page margins.
+     * @param margins A PageMargins object.
+     */
     void setPageMargins(const PageMargins &margins);
     /**
      * @brief sets default page margins, clearing all margins values.
@@ -930,27 +980,32 @@ To set the sheet VeryHidden use #setVisibility() method.*/
     bool isPasswordProtectionSet() const;
     /**
      * @brief sets the password protection to the sheet.
-     * @param algorithm a string that describes the hashing algorithm used.
-     * See #Protection::algorithmName for some reserved values.
      * @param password a password.
-     * @param salt a salt string.
+     * @param algorithm a string that describes the hashing algorithm used.
+     * See #Protection::algorithmName for some reserved values. If no algorithm
+     * is specified, 'SHA-512' is used.
+     * @note This method supports only the following algorithms as they
+     * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-256, SHA-384,
+     * SHA-512. If a non-supported algorithm is specified, the password
+     * protection will not be set and this method will return `false`.
+     * Excel uses SHA-512.
+     * @param salt a salt string. If no salt is specified, either an empty
+     * string or a random 16-byte string is used depending on the
+     * Protection::randomizedSalt() value.
      * @param spinCount count of iterations to compute the password hash (more
-     * is better, Excel uses value of 100,000).
-     *
-     * @note 1. This method supports only the following algorithms as they
-     * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-224, SHA-256,
-     * SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512, Keccak-224,
-     * Keccak-256, Keccak-384, Keccak-512. Excel uses SHA-512.
-     *
-     * @note 2. This method computes the hashed password value and stores it in
+     * is better, Excel uses value of 100,000). If no spinCount is specified,
+     * the value of 100,000 is used.
+     * @note This method computes the hashed password value and stores it in
      * the SheetProtection attributes. You can access this value (in the base-64
      * form) via SheetProtection::protection().hashValue. Moreover, the salt
      * value is also stored in the base-64 form in the
      * SheetProtection::protection().saltValue attribute. There's no way to know
      * the actual password from xlsx.
      */
-    void setPasswordProtection(const QString &algorithm, const QString &password,
-                               const QString &salt = QString(), int spinCount = 1);
+    bool setPasswordProtection(const QString &password,
+                               const QString &algorithm=QStringLiteral("SHA-512"),
+                               const QString &salt = QString(),
+                               int spinCount = 100000);
     /**
      * @brief sets the default sheet protection parameters.
      *

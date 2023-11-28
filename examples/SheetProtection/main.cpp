@@ -27,23 +27,25 @@ int main(int argc, char *argv[])
     auto sheet1 = xlsx.addWorksheet("Protected sheet");
     if (!sheet1) return -1;
 
-    sheet1->write(1,1,"This sheet is protected with password '12345' and salt '123456'");
-    sheet1->write(2,1,"Protected entities:");
-    sheet1->write(2,2, "Adding and removing columns");
-    sheet1->write(3,2, "Formatting cells");
+    sheet1->write(1, 1, "This sheet is protected with password '12345'");
+    sheet1->write(2, 1, "Protected entities:");
+    sheet1->write(2, 2, "Adding and removing columns");
+    sheet1->write(3, 2, "Formatting cells");
 
     sheet1->sheetProtection().setProtectInsertColumns(true);
     sheet1->sheetProtection().setProtectDeleteColumns(true);
     sheet1->sheetProtection().setProtectFormatCells(true);
 
-    sheet1->setPasswordProtection("SHA-512", "12345", "123456", 100000);
+    // some algorithms adjustments
+    QXlsx::PasswordProtection::setRandomizedSalt(true);
+    sheet1->setPasswordProtection("12345");
 
     // Example of protecting a specific range
 
     sheet1->write(5,3, "Cells A5:A10 are protected with password 'a5a10'");
     QXlsx::CellRange r("A5:A10");
     sheet1->addProtectedRange(r, "range1");
-    sheet1->protectedRange(0).setPasswordProtection("SHA-512", "a5a10");
+    sheet1->protectedRange(0).setPasswordProtection("a5a10");
     QXlsx::Format f;
     f.setPatternBackgroundColor(QColor(Qt::red));
     sheet1->setFormat(r, f);

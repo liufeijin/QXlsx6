@@ -619,17 +619,32 @@ of row R1 and column C1. */
     bool isPasswordProtectionSet() const;
     /**
      * @brief sets the password protection to the workbook.
+     * @param password a password.
      * @param algorithm a string that describes the hashing algorithm used.
-     * See #Protection::algorithmName for some reserved values.
-     * @param hash a string that contains the hashed password in a base64 form.
-     * @param salt a string that contains the salt in a base64 form.
-     * @param spinCount count of iterations to compute the password hash.
-     *
-     * The actual hashing should be done outside this library.
-     * See QCryptographicHash and QPasswordDigestor.
+     * See #Protection::algorithmName for some reserved values. If no algorithm
+     * is specified, 'SHA-512' is used.
+     * @note This method supports only the following algorithms as they
+     * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-256, SHA-384,
+     * SHA-512. If a non-supported algorithm is specified, the password
+     * protection will not be set and this method will return `false`.
+     * Excel uses SHA-512.
+     * @param salt a salt string. If no salt is specified, either an empty
+     * string or a random 16-byte string is used depending on the
+     * Protection::randomizedSalt() value.
+     * @param spinCount count of iterations to compute the password hash (more
+     * is better, Excel uses value of 100,000). If no spinCount is specified,
+     * the value of 100,000 is used.
+     * @note This method computes the hashed password value and stores it in
+     * the WorkbookProtection attributes. You can access this value (in the
+     * base-64 form) via WorkbookProtection::protection().hashValue. Moreover,
+     * the salt value is also stored in the base-64 form in the
+     * WorkbookProtection::protection().saltValue attribute. There's no way to
+     * know the actual password from xlsx.
      */
-    void setPasswordProtection(const QString &algorithm, const QString &hash,
-                               const QString &salt = QString(), int spinCount = 1);
+    bool setPasswordProtection(const QString &password,
+                               const QString &algorithm=QStringLiteral("SHA-512"),
+                               const QString &salt = QString(),
+                               int spinCount = 100000);
     /**
      * @brief deletes any workbook protection parameters that have been set.
      */

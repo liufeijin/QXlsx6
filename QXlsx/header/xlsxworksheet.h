@@ -58,7 +58,7 @@ struct QXLSX_EXPORT ProtectedRange
         : name{name}, ranges{ranges}
     {
     }
-    Protection pr; /**< @brief Contains password protection atributes. */
+    PasswordProtection pr; /**< @brief Contains password protection atributes. */
     QStringList users; /**< @brief A list of users who can edit the protected
 cells without entering a password.
 
@@ -78,14 +78,31 @@ ECMA-376 recommends `username@domain` format be used. */
     }
     /**
      * @brief sets the password protection to the range.
-     * @param algorithm a string that describes the hashing algorithm used.
-     * See #Protection::algorithmName for some reserved values.
      * @param password a string that contains the password.
-     * @param salt a string that contains the salt.
-     * @param spinCount count of iterations to compute the password hash.
+     * @param algorithm a string that describes the hashing algorithm used.
+     * See #Protection::algorithmName for some reserved values. If no algorithm
+     * is specified, 'SHA-512' is used.
+     * @param salt a salt string. If no salt is specified, either an empty
+     * string or a random 16-byte string is used depending on the
+     * Protection::randomizedSalt() value.
+     * @param spinCount count of iterations to compute the password hash (more
+     * is better, Excel uses value of 100,000). If no spinCount is specified,
+     * the value of 100,000 is used.
+     *
+     * @note 1. This method supports only the following algorithms as they
+     * are supported by QCryptographicHash: MD4, MD5, SHA-1, SHA-224, SHA-256,
+     * SHA-384, SHA-512, SHA3-224, SHA3-256, SHA3-384, SHA3-512, Keccak-224,
+     * Keccak-256, Keccak-384, Keccak-512. Excel uses SHA-512.
+     *
+     * @note 2. This method computes the hashed password value and stores it in
+     * the Protection attributes. You can access this value (in the base-64
+     * form) via #pr.hashValue. Moreover, the salt value is also stored in the
+     * base-64 form in the #pr.saltValue attribute. There's no way to know
+     * the actual password from xlsx.
      */
-    void setPasswordProtection(const QString &algorithm, const QString &password,
-                               const QString &salt = QString(), int spinCount = 1);
+    bool setPasswordProtection(const QString &password,
+                               const QString &algorithm=QStringLiteral("SHA-512"),
+                               const QString &salt = QString(), int spinCount = 100000);
     bool isValid() const;
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
@@ -167,11 +184,11 @@ class WorksheetPrivate;
  * - #autofilter(), #setAutofilter(), #clearAutofilter().
  *
  * See AutoFilter class description on how to set up autofiltering. See also
- * [Autofilter](examples/Autofilter/autofilter.cpp) example.
+ * [Autofilter](../../examples/Autofilter/autofilter.cpp) example.
  *
  * ## Conditional formatting
  *
- * A Conditional Format is a format, such as cell shading or font color, that a
+ * A conditional format is a format, such as cell shading or font color, that a
  * spreadsheet application can automatically apply to cells if a specified
  * condition is `true`.
  *
@@ -180,7 +197,7 @@ class WorksheetPrivate;
  * - #conditionalFormatting(), #addConditionalFormatting(), #clearConditionalformatting().
  *
  * See ConditionalFormatting class on how to set up the conditions. See also
- * [ConditionalFormatting](examples/ConditionalFormatting/conditionalformatting.cpp) example.
+ * [ConditionalFormatting](../../examples/ConditionalFormatting/conditionalformatting.cpp) example.
  *
  * ## Sheet protection
  *
@@ -192,8 +209,10 @@ class WorksheetPrivate;
  * See #addProtectedRange(), #protectedRanges(), #removeProtectedRange() methods.
  *
  * A protected range must have non-empty unique name, can have a password
- * protection and a list of users who can edit the range cells without entering
- * a password. See ProtectedRange documentation.
+ * protection and a list of users who can edit the protected range cells without
+ * entering a password. See ProtectedRange documentation. See also
+ * [SheetProtection](../../examples/SheetProtection/main.cpp) example of how to
+ * set the sheet and range protection.
  *
  */
 class QXLSX_EXPORT Worksheet : public AbstractSheet

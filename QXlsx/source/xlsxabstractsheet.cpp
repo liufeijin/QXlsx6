@@ -835,11 +835,19 @@ bool AbstractSheet::isPasswordProtectionSet() const
     return false;
 }
 
-void AbstractSheet::setPasswordProtection(const QString &algorithm, const QString &password, const QString &salt, int spinCount)
+bool AbstractSheet::setPasswordProtection(const QString &password,
+                                          const QString &algorithm,
+                                          const QString &salt,
+                                          int spinCount)
 {
+    if (password.isEmpty() || PasswordProtection::algorithmForName(algorithm) == -1)
+        return false;
+
     Q_D(AbstractSheet);
-    d->sheetProtection.protection() = Protection(algorithm, password, salt, spinCount);
+
+    d->sheetProtection.protection() = PasswordProtection(password, algorithm, salt, spinCount);
     d->sheetProtection.setProtectSheet(true);
+    return true;
 }
 
 void AbstractSheet::setDefaultSheetProtection()

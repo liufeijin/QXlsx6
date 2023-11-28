@@ -3222,9 +3222,13 @@ void SheetFormatProperties::write(QXmlStreamWriter &writer, const QLatin1String 
     writeAttribute(writer, QLatin1String("outlineLevelCol"), outlineLevelCol);
 }
 
-void ProtectedRange::setPasswordProtection(const QString &algorithm, const QString &password, const QString &salt, int spinCount)
+bool ProtectedRange::setPasswordProtection(const QString &password, const QString &algorithm, const QString &salt, int spinCount)
 {
-    pr = Protection(algorithm, password, salt, spinCount);
+    if (password.isEmpty() || PasswordProtection::algorithmForName(algorithm) == -1)
+        return false;
+
+    pr = PasswordProtection(password, algorithm, salt, spinCount);
+    return true;
 }
 
 bool ProtectedRange::isValid() const
