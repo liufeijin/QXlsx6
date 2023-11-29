@@ -7,6 +7,7 @@
 #include "xlsxdocument.h"
 #include "xlsxcellrange.h"
 #include "xlsxchart.h"
+#include "xlsxmain.h"
 
 QXLSX_USE_NAMESPACE
 
@@ -144,6 +145,10 @@ int chartExtended()
     chart34->setLegend(Legend::Position::Right);
     chart34->title().setStringReference(CellRange(4,1,5,1), xlsx.activeWorksheet());
     chart34->title().shape().setPresetGeometry(ShapeType::can);
+//    auto transform = chart34->title().shape().transform2D().value_or(Transform2D());
+//    transform.rotation = 20.0;
+//    transform.flipVertical = true;
+//    chart34->title().shape().setTransform2D(transform);
     chart34->title().shape().line().setStrokeType(LineFormat::StrokeType::Solid);
     chart34->title().shape().line().setColor(Color::SchemeColor::Accent6);
     chart34->addSeries(CellRange(1,1,3,10), NULL, true, true, false);

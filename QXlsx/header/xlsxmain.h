@@ -645,11 +645,12 @@ private:
 
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target);
 
+//TODO: documentation
 class QXLSX_EXPORT Transform2D
 {
 public:
-    std::optional<QPoint> offset; //element ext, optional
-    std::optional<QSize> extension; //element off, optional
+    std::optional<QPoint> offset; //element off, optional
+    std::optional<QSize> extension; //element ext, optional
     Angle rotation; //attribute rot, optional
     std::optional<bool> flipHorizontal; //attribute flipH, optional
     std::optional<bool> flipVertical; //attribute flipV, optional
@@ -683,6 +684,7 @@ struct QXLSX_EXPORT GeometryGuide
     }
 };
 
+//TODO: documentation
 class QXLSX_EXPORT PresetGeometry2D
 {
 public:

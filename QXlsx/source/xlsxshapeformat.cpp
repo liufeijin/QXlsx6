@@ -98,6 +98,13 @@ void ShapeFormat::setTransform2D(Transform2D val)
     d->xfrm = val;
 }
 
+void ShapeFormat::setRotation(const Angle angle)
+{
+    if (!d) d = new ShapePrivate;
+    if (!d->xfrm.has_value()) d->xfrm = {};
+    d->xfrm->rotation = angle;
+}
+
 std::optional<PresetGeometry2D> ShapeFormat::presetGeometry() const
 {
     if (d) return d->presetGeometry;
