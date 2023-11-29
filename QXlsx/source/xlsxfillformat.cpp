@@ -433,10 +433,10 @@ QBrush FillFormat::toBrush() const
     return {};
 }
 
-FillFormat::FillType FillFormat::type() const
+std::optional<FillFormat::FillType> FillFormat::type() const
 {
     if (d) return d->type;
-    return FillType::NoFill;
+    return std::nullopt;
 }
 
 void FillFormat::setType(FillFormat::FillType type)

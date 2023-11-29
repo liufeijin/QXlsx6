@@ -27,23 +27,44 @@ class SharedStrings;
 class LineFormatPrivate;
 
 /**
- * @brief The LineFormat class represents stroke parameters that are used to draw
- * borders of shapes, axes, grid lines etc. on a chart.
+ * @brief The LineFormat class represents parameters of lines that are used to
+ * draw series, axes, grid lines, borders of shapes, etc. on a chart.
  *
- * The class is _implicitly shareable_: the deep copy occurs only in the non-const methods.
+ * Line can have:
+ *
+ * - width (#width(), #setWidth())
+ * - pen alignment (#penAlignment(), #setPenAlignment())
+ * - compound type (#compoundLineType(), #setCompoundLineType())
+ * - stroke type (#strokeType(), #setStrokeType(), #dashPattern(), #setDashPattern())
+ * - cap style (lineCap(), #setLineCap())
+ * - join style (#lineJoin(), #setLineJoin(), #miterLimit(), #setMiterLimit())
+ * - line start and line end shape parameters
+ *   - type (#lineEndType(), #lineStartType(), #setLineEndType(), #setLineStartType())
+ *   - length (#lineEndLength(), #lineStartLength(), #setLineEndLength(), #setLineStartLength())
+ *   - width (#lineEndWidth(), #lineStartWidth(), #setLineEndWidth(), #setLineStartWidth)
+ * - fill parameters that can be specified via #fill() and #setFill() methods.
+ * See the FillFormat class documentation.
+ *   - or with the convenience methods #color(), #setColor(), #type(), #setType().
+ *
+ *
+ * The class is _implicitly shareable_: the deep copy occurs only in the
+ * non-const methods.
  */
 class QXLSX_EXPORT LineFormat
 {
 public:
+    /**
+     * @brief The CompoundLineType enum specifies the type of compound lines
+     */
     enum class CompoundLineType {
-        Single,
-        Double,
-        ThickThin,
-        ThinThick,
-        Triple,
+        Single, /**< Single line */
+        Double, /**< Double line of equal width */
+        ThickThin, /**< Double line where the first line is thicker */
+        ThinThick, /**< Double line where the the second line is thicker */
+        Triple, /**< Triple line */
     };
     /**
-     * @brief The StrokeType enum  represents line dash values
+     * @brief The StrokeType enum  specifies line dash (stroke) types.
      */
     enum class StrokeType {
         Solid, /**< @brief solid line, 1 */
@@ -59,46 +80,75 @@ public:
         SystemDashDotDot, /**< @brief dash-dot-dot line, 11101010 */
         Custom /**< @brief custom dash line specified with dashPattern() */
     };
-
+    /**
+     * @brief The LineJoin enum specifies the type of line joining
+     */
     enum class LineJoin {
-        Round,
-        Bevel,
-        Miter
+        Round, /**< Lines are rounded at the joint. */
+        Bevel, /**< Joined lines form a triangular notch. */
+        Miter /**< The outer edges of the lines are extended to meet at an angle */
     };
-
+    /**
+     * @brief The LineCap enum specifies the end line caps.
+     */
     enum class LineCap {
-        Square,
-        Round,
-        Flat,
+        Square, /**< Line ends with a square that covers the end point and
+extends beyond it by half the line width. */
+        Round, /**< Line end is rounded. */
+        Flat, /**< Line ends with a square that doesn't cover the end point. */
     };
 
+    /**
+     * @brief The LineEndType enum specifies the additional shape of a line end.
+     */
     enum class LineEndType {
-        None,
-        Triangle,
-        Stealth,
-        Oval,
-        Arrow,
-        Diamond
+        None, /**< No shape, line ends as specified by its line cap. */
+        Triangle, /**< Line ends with a filled arrow-like triangle. */
+        Stealth, /**< Line ends with a curved arrow. */
+        Oval, /**< Line ends with a filled oval. */
+        Arrow, /**< Line ands with a straight arrow. */
+        Diamond /**< Line ends with a diamond shape. */
     };
 
+    /**
+     * @brief The LineEndSize enum specifies the size of the line end.
+     */
     enum class LineEndSize {
-        Small,
-        Medium,
-        Large
+        Small, /**< Small end */
+        Medium, /**< Medium end */
+        Large /**< Large end */
     };
 
+    /**
+     * @brief The PenAlignment enum specifies the alignment of the line with the
+     * path stroke.
+     */
     enum class PenAlignment
     {
-        Center,
-        Inset
+        Center, /**< Line is drawn at the center of the path stroke. */
+        Inset /**< Line is drawn on the inside edge of the path stroke. */
     };
     /**
      * @brief creates an invalid line format.
+     *
+     * There is a distinction between the line with no fill and the line with
+     * the default fill. To hide the line use
+     *
+     * @code
+     * series(0)->setLine(LineFormat(FillFormat::FillType::NoFill));
+     * @endcode
+     *
+     * An invalid line format can be used as a 'default' line format to clear
+     * the previously set line parameters:
+     *
+     * @code
+     * series(0)->setLine({});
+     * @endcode
      */
-    LineFormat(); //no fill
+    LineFormat();
     /**
      * @brief creates a new line format with specified fill, width and color.
-     * @param fill line fill.
+     * @param fill line fill type.
      * @param widthInPt line width specified in points.
      * @param color line color as an RGB value.
      */
@@ -121,6 +171,7 @@ public:
      * - brush is parsed with limitations. See FillFormat::setBrush().
      */
     LineFormat(const QPen &pen);
+
     LineFormat(const LineFormat &other);
     LineFormat &operator=(const LineFormat &rhs);
     ~LineFormat();
@@ -148,106 +199,299 @@ public:
      * - brush is parsed with limitations. See FillFormat::setBrush().
      */
     void setPen(const QPen &pen);
-
-    FillFormat::FillType type() const;
+    /**
+     * @brief returns the line fill type.
+     *
+     * This is a convenience method, equivalent to `fill().type()`.
+     */
+    std::optional<FillFormat::FillType> type() const;
+    /**
+     * @brief sets the line fill type.
+     * @param type A FillFormat::FillType enum value.
+     *
+     * This is a convenience method equivalent to `fill().setType(type)`.
+     */
     void setType(FillFormat::FillType type);
 
     /**
-     * @brief color
-     * @return line color.
+     * @brief returns the line color.
+     * @return A Color object. Invalid if the line format is invalid.
+     *
+     * This is a convenience method equivalent to `fill().color()`.
      */
     Color color() const;
 
     /**
-     * @brief sets line color irrespective of line fill type.
-     * @param color color specification (rgb, hsl, scheme, system or preset color)
+     * @brief sets the line color irrespective of the line fill type.
+     * @param color A Color object (rgb, hsl, scheme, system or preset
+     * color).
+     *
+     * This is a convenience method equivalent to `fill().setColor(color)`.
      */
     void setColor(const Color &color);
 
     /**
-     * @brief sets line color irrespective of line fill type.
+     * @brief sets the line color irrespective of line fill type.
      * @param color the line color. This method assumes the color is RGB.
+     *
+     * This is a convenience method equivalent to `fill().setColor(color)`.
      */
     void setColor(const QColor &color); //assume color type is sRGB
 
     /**
-     * @brief returns fill parameters of the line.
+     * @brief returns the fill parameters of the line.
      * @return a copy of the line fill.
      */
     FillFormat fill() const;
     /**
-     * @brief sets fill parameters to the line.
+     * @brief sets the fill parameters to the line.
      * @param fill
      */
     void setFill(const FillFormat &fill);
     /**
-     * @brief returns fill parameters of the line.
+     * @brief returns the fill parameters of the line.
      * @return a reference to the line fill.
      */
     FillFormat &fill();
 
     /**
-     * @brief width returns width in range [0..20116800 EMU] or [0..1584 pt]
-     * @return valid Coordinate if the parameter was set, invalid Coordinate otherwise.
+     * @brief returns the line width in range [0..20116800 EMU] or [0..1584 pt]
+     * @return valid Coordinate if the parameter was set, invalid Coordinate
+     * otherwise.
+     *
+     * There is no default value for line width. If width is not set, it is
+     * application-dependent.
      */
     Coordinate width() const;
     /**
-     * @brief setWidth sets line width in points
+     * @brief sets the line width in points.
      * @param widthInPt width in range [0..1584 pt]
+     *
+     * There is no default value for line width. If width is not set, it is
+     * application-dependent.
      */
     void setWidth(double widthInPt);
 
     /**
-     * @brief setWidth sets line width in EMU (1 pt = 12700 EMU)
+     * @brief sets the line width in EMU (1 pt = 12700 EMU)
      * @param widthInEMU width in range [0..20116800 EMU]
+     *
+     * There is no default value for line width. If width is not set, it is
+     * application-dependent.
      */
     void setWidthEMU(qint64 widthInEMU);
-
+    /**
+     * @brief returns the line's pen alignment with the path stroke.
+     *
+     * There is no default value for pen alignment. If pen alignment is not set,
+     * it is application-dependent.
+     */
     std::optional<PenAlignment> penAlignment() const;
+    /**
+     * @brief sets the line's pen alignment with the path stroke.
+     * @param val A PenAlignment enum value.
+     *
+     * There is no default value for pen alignment. If pen alignment is not set,
+     * it is application-dependent.
+     */
     void setPenAlignment(PenAlignment val);
-
+    /**
+     * @brief returns the line's compound type.
+     *
+     * There is no default value for compound type. If compound type is not set,
+     * it is application-dependent.
+     */
     std::optional<CompoundLineType> compoundLineType() const;
+    /**
+     * @brief sets the line's compound type.
+     * @param val A CompoundLineType enum value.
+     *
+     * There is no default value for compound type. If compound type is not set,
+     * it is application-dependent.
+     */
     void setCompoundLineType(CompoundLineType val);
-
+    /**
+     * @brief returns the line's stroke type.
+     *
+     * There is no default value for stroke type. If stroke type is not set,
+     * it is application-dependent.
+     */
     std::optional<StrokeType> strokeType() const;
+    /**
+     * @brief sets the line's stroke type.
+     * @param val A StrokeType enum value.
+     *
+     * If @a val is StrokeType::Custom but no #dashPattern() was specified,
+     * @a val is ignored. Use #setDashPattern() method instead.
+     *
+     * There is no default value for stroke type. If stroke type is not set,
+     * it is application-dependent.
+     */
     void setStrokeType(StrokeType val);
+    /**
+     * @brief returns the line's dash pattern.
+     * @return A vector of widths of dashes and spaces by turns specified in
+     * percents.
+     */
     QVector<double> dashPattern() const;
+    /**
+     * @brief sets the line's dash pattern.
+     * @param pattern A vector of widths of dashes and spaces by turns specified
+     * in percents.
+     *
+     * A simple dash pattern may look like this:
+     *
+     * @code
+     * QVector<double> customDashPattern {300,100};
+     * series(0).setDashPattern(customDashPattern);
+     * @endcode
+     *
+     * This method also sets stroke type to StrokeType::Custom.
+     */
     void setDashPattern(QVector<double> pattern);
-
-    LineCap lineCap() const;
+    /**
+     * @brief returns the line cap style.
+     *
+     * There is no default value for line cap style. If line cap style is not
+     * set, it is application-dependent.
+     */
+    std::optional<LineCap> lineCap() const;
+    /**
+     * @brief sets the line cap style.
+     * @param val A LineCap enum value.
+     *
+     * There is no default value for line cap style. If line cap style is not
+     * set, it is application-dependent.
+     */
     void setLineCap(LineCap val);
-
+    /**
+     * @brief returns the line join style.
+     *
+     * There is no default value for line join style. If line join style is not
+     * set, it is application-dependent.
+     */
     std::optional<LineJoin> lineJoin() const;
+    /**
+     * @brief sets the line join style.
+     * @param val A LineJoin enum value.
+     *
+     * There is no default value for line join style. If line join style is not
+     * set, it is application-dependent.
+     */
     void setLineJoin(LineJoin val);
 
     /**
-     * @brief returns the amount by which lines is extended to form a miter join -
-     * otherwise miter joins can extend infinitely far (for lines which are almost parallel).
-     * @return value in percents if the parameter is set. The value of 100 equals 100%.
+     * @brief returns the amount by which lines are extended to form a miter
+     * join - otherwise miter joins can extend infinitely far (for lines which
+     * are almost parallel).
+     * @return value in percents if the parameter is set. The value of 100
+     * equals 100%.
+     *
+     * There is no default value for miter limit. If miter limit is not
+     * set, it is application-dependent.
      */
     std::optional<double> miterLimit() const;
     /**
      * @brief sets the amount by which lines is extended to form a miter join -
-     * otherwise miter joins can extend infinitely far (for lines which are almost parallel).
+     * otherwise miter joins can extend infinitely far (for lines which are
+     * almost parallel).
      * @param val positive value in percents. The value of 100 equals 100%.
+     *
+     * There is no default value for miter limit. If miter limit is not
+     * set, it is application-dependent.
      */
     void setMiterLimit(double val);
-
+    /**
+     * @brief returns the line end type.
+     *
+     * The default value is LineEndType::None.
+     */
     std::optional<LineEndType> lineEndType();
+    /**
+     * @brief returns the line start type.
+     *
+     * The default value is LineEndType::None.
+     */
     std::optional<LineEndType> lineStartType();
+    /**
+     * @brief sets the line end type.
+     * @param val A LineEndType enum value.
+     *
+     * If no line end type is specified, LineEndType::None is assumed.
+     */
     void setLineEndType(LineEndType val);
+    /**
+     * @brief sets the line start type.
+     * @param val A LineEndType enum value.
+     *
+     * If no line start type is specified, LineEndType::None is assumed.
+     */
     void setLineStartType(LineEndType val);
-
+    /**
+     * @brief returns the line end length.
+     *
+     * There is no default value for line end length. If line end length is not
+     * set, it is application-dependent.
+     */
     std::optional<LineEndSize> lineEndLength();
+    /**
+     * @brief returns the line start length.
+     *
+     * There is no default value for line start length. If line start length is
+     * not set, it is application-dependent.
+     */
     std::optional<LineEndSize> lineStartLength();
+    /**
+     * @brief sets the line end length.
+     * @param val A LineEndSize enum value.
+     *
+     * There is no default value for line start length. If line start length is
+     * not set, it is application-dependent.
+     */
     void setLineEndLength(LineEndSize val);
+    /**
+     * @brief sets the line start length.
+     * @param val A LineEndSize enum value.
+     *
+     * There is no default value for line start length. If line start length is
+     * not set, it is application-dependent.
+     */
     void setLineStartLength(LineEndSize val);
-
+    /**
+     * @brief returns the line end width.
+     *
+     * There is no default value for line end width. If line end width is
+     * not set, it is application-dependent.
+     */
     std::optional<LineEndSize> lineEndWidth();
+    /**
+     * @brief returns the line start width.
+     *
+     * There is no default value for line start width. If line start width is
+     * not set, it is application-dependent.
+     */
     std::optional<LineEndSize> lineStartWidth();
+    /**
+     * @brief sets the line end width.
+     * @param val A LineEndSize enum value.
+     *
+     * There is no default value for line end width. If line end width is
+     * not set, it is application-dependent.
+     */
     void setLineEndWidth(LineEndSize val);
+    /**
+     * @brief sets the line start width.
+     * @param val A LineEndSize enum value.
+     *
+     * There is no default value for line start width. If line start width is
+     * not set, it is application-dependent.
+     */
     void setLineStartWidth(LineEndSize val);
-
+    /**
+     * @brief returns whether the line format is valid.
+     *
+     * An invalid line format is also a default line format.
+     */
     bool isValid() const;
 
     void write(QXmlStreamWriter &writer, const QString &name) const;

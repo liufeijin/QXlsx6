@@ -103,14 +103,14 @@ bool LineFormatPrivate::operator ==(const LineFormatPrivate &format) const
 void LineFormatPrivate::parse(const QPen &pen)
 {
     switch (pen.joinStyle()) {
-        case Qt::MiterJoin: {
+        case Qt::MiterJoin:
+        case Qt::SvgMiterJoin: {
             lineJoin = LineFormat::LineJoin::Miter;
             miterLimit = pen.miterLimit()*100;
             break;
         }
         case Qt::BevelJoin: lineJoin = LineFormat::LineJoin::Bevel; break;
         case Qt::RoundJoin: lineJoin = LineFormat::LineJoin::Round; break;
-        case Qt::SvgMiterJoin: lineJoin = LineFormat::LineJoin::Miter; break;
         default: break;
     }
     switch (pen.capStyle()) {
@@ -279,14 +279,14 @@ QPen LineFormat::toPen() const
 
 void LineFormat::setPen(const QPen &pen)
 {
-    d = new LineFormatPrivate;
+    if (!d) d = new LineFormatPrivate;
     d->parse(pen);
 }
 
-FillFormat::FillType LineFormat::type() const
+std::optional<FillFormat::FillType> LineFormat::type() const
 {
-    if (d->fill.isValid()) return d->fill.type();
-    return FillFormat::FillType::SolidFill; //default
+    if (d) return d->fill.type();
+    return std::nullopt;
 }
 
 void LineFormat::setType(FillFormat::FillType type)
@@ -327,6 +327,7 @@ void LineFormat::setFill(const FillFormat &fill)
 
 FillFormat &LineFormat::fill()
 {
+    if (!d) d = new LineFormatPrivate;
     return d->fill;
 }
 
@@ -396,10 +397,10 @@ void LineFormat::setDashPattern(QVector<double> pattern)
     d->dashPattern = pattern;
 }
 
-LineFormat::LineCap LineFormat::lineCap() const
+std::optional<LineFormat::LineCap> LineFormat::lineCap() const
 {
-    if (d) return d->lineCap.value();
-    return LineCap::Square;
+    if (d) return d->lineCap;
+    return {};
 }
 
 void LineFormat::setLineCap(LineCap val)
@@ -515,7 +516,7 @@ bool LineFormat::isValid() const
 
 void LineFormat::write(QXmlStreamWriter &writer, const QString &name) const
 {
-    if (!isValid()) return;
+    if (!d) return;
 
     writer.writeStartElement(name);
     if (d->width.isValid()) writer.writeAttribute("w", d->width.toString());

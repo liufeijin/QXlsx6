@@ -1,13 +1,4 @@
 
-# What is done in the QXlsx fork
-
-1. Full support of fill properties.
-2. Full support of line properties.
-3. Full support of CT_Title and CT_Text, including text body properties, paragraph 
-   properties, character properties.
-4. Full support of all chart types and series types.
-5. Axes, legends, etc.
-
 # What is yet to be done:
 
 ## Document
@@ -48,6 +39,7 @@
 ### Fills
 
 1. Add methods to create simple fills.
+2. Picture fill only supports opacity adjustments. Add full effects list support.
 
 ### Text 
 

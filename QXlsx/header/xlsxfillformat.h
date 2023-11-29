@@ -82,8 +82,10 @@ class Effect;
  *  #linearShadeAngle(), #setLinearShadeAngle(), #linearShadeScaled(), #setLinearShadeScaled() | linear gradient fill
  *  #pathType(), #setPathType(), #pathRect(), #setPathRect(), #tileFlipMode(), #setTileFlipMode() | path gradient fill
  *  #foregroundColor(), #setForegroundColor(), #backgroundColor(), #setBackgroundColor(), #patternType(), #setPatternType() | pattern fill
- *  #picture(), #setPicture(), #pictureFillMode(), #setPictureFillMode(), #pictureSourceRect(), #setPictureSourceRect(), #pictureDpi(), #setPictureDpi(), #pictureStretchRect(), #setPictureStretchRect(), #pictureHorizontalOffset(), #setPictureHorizontalOffset(), #pictureVerticalOffset(), #setPictureVerticalOffset(), #pictureAlpha(), #setPictureAlpha(), #pictureCompression(), #setPictureCompression(), #tileAlignment(), #setTileAlignment() | picture fill
+ *  #picture(), #setPicture(), #pictureFillMode(), #setPictureFillMode(), #pictureSourceRect(), #setPictureSourceRect(), #rotateWithShape(), #setRotateWithShape(), #pictureDpi(), #setPictureDpi(), #pictureStretchRect(), #setPictureStretchRect(), #pictureHorizontalOffset(), #setPictureHorizontalOffset(), #pictureVerticalOffset(), #setPictureVerticalOffset(), #pictureAlpha(), #setPictureAlpha(), #pictureCompression(), #setPictureCompression(), #tileAlignment(), #setTileAlignment() | picture fill
  *
+ *  If you specify parameters not applicable to the chosen fill type, these
+ *  parameters will simply be ignored when the file is being written.
  */
 class QXLSX_EXPORT FillFormat
 {
@@ -218,23 +220,24 @@ public:
     };
 
     /**
-     * @brief creates an invalid fill. @see isValid().
+     * @brief creates an invalid fill. This will also represent the default fill
+     * format for a chart part. @see isValid().
      */
     FillFormat();
     /**
      * @brief creates a fill of specified type.
      * @param type a fill type.
-     * @note There is a distinction between a default fill (when the FillFormat object
-     * is not valid) and a transparent fill (the FillFormat object has FillType::NoFill).
-     * Compare:
+     * @note There is a distinction between a default fill (when the FillFormat
+     * object is not valid) and a transparent fill (the FillFormat object has
+     * FillType::NoFill). Compare:
      *
      * @code
-     * shape1.setFill(FillFormat::NoFill); // sets a transparent fill
+     * shape1.setFill(FillFormat::FillType::NoFill); // sets a transparent fill
      * shape2.setFill({}); //sets default fill, that is a solid fill with white color.
      * @endcode
      *
      */
-    explicit FillFormat(FillType type);
+    FillFormat(FillType type);
     /**
      * @brief creates a fill from a QBrush object.
      * @param brush
@@ -246,31 +249,34 @@ public:
      */
     FillFormat(const QColor &color);
     /**
-     * @brief creates solid fill.
+     * @brief creates a solid fill.
      * @param color the color to be used for a fill.
      */
     FillFormat(const Color &color);
     /**
-     * @brief creates pattern fill
-     * @param foreground the foreground color
-     * @param background the background color
-     * @param pattern the pattern type
+     * @overload
+     * @brief creates a pattern fill.
+     * @param foreground the foreground color.
+     * @param background the background color.
+     * @param pattern the pattern type.
      */
     FillFormat(const QColor &foreground, const QColor &background, PatternType pattern);
     /**
-     * @brief creates gradient fill with minimal parameters
-     * @param gradientList a map of color stops.
+     * @brief creates a gradient fill with minimal (default) parameters.
+     * @param gradientList a map of color stops where keys are color stops in
+     * percents, values are gradient colors.
      * @param pathType type of the gradient path.
      */
     FillFormat(const QMap<double, Color> &gradientList, PathType pathType);
     /**
-     * @brief creates linear gradient fill with minimal parameters.
-     * @param gradientList a map of color stops.
+     * @brief creates a linear gradient fill with minimal (default) parameters.
+     * @param gradientList a map of color stops where keys are color stops in
+     * percents, values are gradient colors.
      */
     FillFormat(const QMap<double, Color> &gradientList);
 
     /**
-     * @brief creates picture fill
+     * @brief creates a picture fill
      * @param picture a picture to be used for a fill.
      */
     FillFormat(const QImage &picture);
@@ -281,18 +287,23 @@ public:
 
     /**
      * @brief returns the fill type.
+     *
+     * There is no default fill type. If the fill type is not set, it is
+     * application-defined.
      */
-    FillType type() const;
+    std::optional<FillFormat::FillType> type() const;
     /**
      * @brief sets the fill type.
-     * @param type A fill type.
+     * @param type A FillType enum value.
+     *
+     * There is no default fill type. If the fill type is not set, it is
+     * application-defined.
      */
     void setType(FillType type);
     /**
      * @brief tries to get the @a brush attributes and sets the fill type and
      * parameters from @a brush.
      * @param brush QBrush object.
-     *
      */
     void setBrush(const QBrush &brush);
     /**
@@ -304,17 +315,25 @@ public:
     /* Solid fill properties */
     /**
      * @brief returns the solid fill color
-     * @return
+     *
+     * There's no default fill color. If the fill color is not set, it is
+     * application-defined.
      */
     Color color() const;
     /**
-     * @brief sets the color for solid fill
+     * @brief sets the color for solid fill.
      * @param color
+     *
+     * There's no default fill color. If the fill color is not set, it is
+     * application-defined.
      */
     void setColor(const Color &color);
     /**
-     * @brief sets an rgb color for solid fill
+     * @brief sets an rgb color for solid fill.
      * @param color
+     *
+     * There's no default fill color. If the fill color is not set, it is
+     * application-defined.
      */
     void setColor(const QColor &color);
 
@@ -324,7 +343,8 @@ public:
      * @brief returns the gradients list for the gradient fill
      * @return QMap, where keys are color stops in percents, values are gradient
      * colors.
-     * @note This method does not check the fill type to be FillType::GradientFill.
+     * @note This method does not check the fill type to be
+     * FillType::GradientFill.
      */
     QMap<double, Color> gradientList() const;
     /**
@@ -358,6 +378,9 @@ public:
      * horizontal.
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default linear shade. If the linear shade is not set, it is
+     * application-defined.
      */
     Angle linearShadeAngle() const;
     /**
@@ -369,23 +392,29 @@ public:
      * #pathRect()).
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default linear shade. If the linear shade is not set, it is
+     * application-defined.
      */
     void setLinearShadeAngle(Angle val);
     /**
      * @brief returns whether the linear gradient angle scales with the fill
      * region.
-     * If set to `true`, the linearShadeAngle() is scaled to the shape's fill
+     * If set to `true`, the linear gradient angle is scaled to the shape's fill
      * region. For example, gradient with an angle of 45° (i.e. vector (1, -1))
      * in a shape with width of 300 and height of 200 will be scaled to
      * vector(300,-200), that is an angle of 33.69°.
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     std::optional<bool> linearShadeScaled() const;
     /**
      * @brief sets whether the linear gradient angle scales with the fill
      * region.
-     * @param scaled If `true`, then the linearShadeAngle() will be scaled to
+     * @param scaled If `true`, then the gradient angle will be scaled to
      * the shape's fill region.
      *
      * For example, gradient with an angle of 45° (i.e. vector (1, -1)) in a
@@ -398,6 +427,9 @@ public:
      * #pathRect()).
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     void setLinearShadeScaled(bool scaled);
 
@@ -405,6 +437,9 @@ public:
      * @brief returns the type of the path gradient.
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     std::optional<PathType> pathType() const;
     /**
@@ -415,6 +450,9 @@ public:
      * (#linearShadeAngle(), #linearShadeScaled()).
      * @note This method does not check the fill type to be
      * FillType::GradientFill.
+     *
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     void setPathType(PathType pathType);
 
@@ -433,7 +471,7 @@ public:
      * list, specified relative to the fill tile rectangle.
      *
      * The first color in the gradient list will fill the entire tile except for
-     * the margins specified by #pathRect().
+     * the margins (in percents) specified by #pathRect().
      *
      * For example, if you specify path rect as (50,50,50,50), this means that
      * the first color will fill the point in the center of the tile rect, that
@@ -450,7 +488,7 @@ public:
      * move the focus point to the center of the bottom edge use
      * `setPathRect(50,100,50,0);`
      *
-     * @param rect
+     * @param rect A rectangle with edges relative to the parent's rectangle.
      * @warning This parameter is applicable to only path gradient. Invoking
      * this method will clear the linear gradient parameters
      * (#linearShadeAngle(), #linearShadeScaled()).
@@ -491,12 +529,16 @@ public:
     /**
      * @brief returns the flipping of a #tileRect() in the #pathRect().
      * @return TileFlipMode enum value if flipping was set, `nullopt` otherwise.
+     *
+     * The default value is TileFlipMode::None.
      */
     std::optional<FillFormat::TileFlipMode> tileFlipMode() const;
     /**
      * @brief sets the flipping of a #tileRect() in the #pathRect().
      * @param tileFlipMode Tiles can be flipped horizontally, vertically,
      * horizontally and vertically or not flipped at all.
+     *
+     * If flipping is not set, TileFlipMode::None is assumed.
      */
     void setTileFlipMode(TileFlipMode tileFlipMode);
     /**
@@ -509,6 +551,9 @@ public:
      *
      * @return valid optional value if the parameter is set, `nullopt`
      * otherwise.
+     *
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     std::optional<bool> rotateWithShape() const;
     /**
@@ -518,7 +563,8 @@ public:
      * with a picture or a gradient is transformed with a rotation then the fill
      * is transformed with the same rotation.
      *
-     * If not set, the default value is `false`.
+     * There's no default value. If the parameter is not set, it is
+     * application-defined.
      */
     void setRotateWithShape(bool val);
 
@@ -556,6 +602,9 @@ public:
      * @return pattern type if it was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be
      * FillType::PatternFill.
+     *
+     * There's no default pattern type. If the pattern type is not set, it is
+     * application-specific.
      */
     std::optional<PatternType> patternType();
     /**
@@ -563,6 +612,9 @@ public:
      * @param patternType pattern type.
      * @note This method does not check the fill type to be
      * FillType::PatternFill.
+     *
+     * There's no default pattern type. If the pattern type is not set, it is
+     * application-specific.
      */
     void setPatternType(PatternType patternType);
 
@@ -581,7 +633,8 @@ public:
      * #setPictureHorizontalScale(), #setPictureVerticalScale(),
      * #setTileAlignment(), #setTileFlipMode().
      *
-     * @param picture If `null`, the previous picture will be removed.
+     * @param picture A QImage object. If `null`, the previous picture will be
+     * removed.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
      */
@@ -602,30 +655,35 @@ public:
      *
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default fill mode. If the fill mode is not set, the picture
+     * will simply be truncated to the shape's bounding box.
      */
     std::optional<PictureFillMode> pictureFillMode() const;
     /**
      * @brief sets the mode of using the picture to fill the shape.
-     * @param mode If set to Stretch, the picture will be stretched to fill the
-     * pictureStretchRect(). If set to Tile, the picture will be tiled.
-     * @note If pictureFillMode() is not set, the picture will simply be
-     * truncated to the shape's bounding box.
+     * @param mode If set to PictureFillMode::Stretch, the picture will be
+     * stretched to fill the pictureStretchRect(). If set to
+     * PictureFillMode::Tile, the picture will be tiled.
      *
      * You can use this method to clear the picture fill
-     * mode: `setPictureFillMode(std::nullopt);`
+     * mode: `setPictureFillMode(std::nullopt);`.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default fill mode. If the fill mode is not set, the picture
+     * will simply be truncated to the shape's bounding box.
      */
     void setPictureFillMode(std::optional<PictureFillMode> mode);
     /**
      * @brief returns the rectangle portion of the picture used for the fill.
      *
      * Each edge of the source rectangle is defined by a percentage offset from
-     * the corresponding edge of the bounding box. A positive percentage
+     * the corresponding edge of the picture. A positive percentage
      * specifies an inset, while a negative percentage specifies an outset. For
      * example, a left offset of 25% specifies that the left edge of the source
-     * rectangle is located to the right of the bounding box's left edge by an
-     * amount equal to 25% of the bounding box's width.
+     * rectangle is located to the right of the picture's left edge by an
+     * amount equal to 25% of the picture width.
      *
      * @return valid optional if the parameter is set, `nullopt` otherwise.
      * @note This method does not check the fill type to be
@@ -636,11 +694,11 @@ public:
      * @brief sets the rectangle portion of the picture that will be used for
      * the fill.
      * @param rect RelativeRect that defines percentage offsets from the edges
-     * of the shape's bounding box. A positive percentage specifies an inset,
+     * of the picture's bounding box. A positive percentage specifies an inset,
      * while a negative percentage specifies an outset. For example, a left
      * offset of 25% specifies that the left edge of the source rectangle is
-     * located to the right of the bounding box's left edge by an amount equal
-     * to 25% of the bounding box's width.
+     * located to the right of the picture's left edge by an amount equal
+     * to 25% of the picture width.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
      */
@@ -651,16 +709,22 @@ public:
      * @return valid optional if the parameter was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default dpi value. If the dpi is not set or zero, the DPI in
+     * the picture is used.
      */
     std::optional<int> pictureDpi() const;
     /**
      * @brief sets the DPI (dots per inch) used to calculate the size of the
      * picture.
      *
-     * If not present or zero, the DPI in the picture is used.
+     *
      * @param dpi the DPI (dots per inch).
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default dpi value. If the dpi is not set or zero, the DPI in
+     * the picture is used.
      */
     void setPictureDpi(int dpi);
     /**
@@ -689,6 +753,9 @@ public:
      * @return valid Coordinate if the parameter was set.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default horizontal offset value. If the horizontal offset is
+     * not set, it is application-defined.
      */
     Coordinate pictureHorizontalOffset() const;
     /**
@@ -698,6 +765,9 @@ public:
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default horizontal offset value. If the horizontal offset is
+     * not set, it is application-defined.
      */
     void setPictureHorizontalOffset(const Coordinate &offset);
     /**
@@ -706,6 +776,9 @@ public:
      * @return valid Coordinate if the parameter was set.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default vertical offset value. If the horizontal offset is
+     * not set, it is application-defined.
      */
     Coordinate pictureVerticalOffset() const;
     /**
@@ -715,6 +788,9 @@ public:
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default vertical offset value. If the vertical offset is
+     * not set, it is application-defined.
      */
     void setPictureVerticalOffset(const Coordinate &offset);
     /**
@@ -722,6 +798,9 @@ public:
      * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default horizontal scale value. If the horizontal scale is
+     * not set, it is application-defined.
      */
     std::optional<double> pictureHorizontalScale() const;
     /**
@@ -731,6 +810,9 @@ public:
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default horizontal scale value. If the horizontal scale is
+     * not set, it is application-defined.
      */
     void setPictureHorizontalScale(double scale);
     /**
@@ -738,6 +820,9 @@ public:
      * @return Percentage of the scaling. Value of 100.0 means 100% scaling.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default vertical scale value. If the vertical scale is
+     * not set, it is application-defined.
      */
     std::optional<double> pictureVerticalScale() const;
     /**
@@ -747,6 +832,9 @@ public:
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default vertical scale value. If the vertical scale is
+     * not set, it is application-defined.
      */
     void setPictureVerticalScale(double scale);
     /**
@@ -756,6 +844,9 @@ public:
      * @return valid optional if the parameter was set, `nullopt` otherwise.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default tile alignment value. If the tile alignment is
+     * not set, it is application-defined.
      */
     std::optional<Alignment> tileAlignment();
     /**
@@ -767,6 +858,9 @@ public:
      * @note This method also sets pictureFillMode to PictureFillMode::Tile.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
+     *
+     * There's no default tile alignment value. If the tile alignment is
+     * not set, it is application-defined.
      */
     void setTileAlignment(Alignment alignment);
     /**
@@ -791,6 +885,8 @@ public:
      * If pictureAlpha() is 30.0, the picture has 30% opacity.
      *
      * @return valid optional if the parameter was set, `nullopt` otherwise.
+     *
+     * The default value is 100.0.
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
      */
@@ -799,11 +895,20 @@ public:
      * @brief sets the picture's alpha (0 to 100.0 percent.)
      * @param alpha the picture opacity (0 means transparent, 100.0 means full
      * opacity.)
+     *
+     * If the picture's alpha is not set, the value of 100.0 is assumed.
+     *
      * @note This method does not check the fill type to be
      * FillType::PictureFill.
      */
     void setPictureAlpha(double alpha);
-
+    /**
+     * @brief returns whether the fill format is valid.
+     *
+     * A valid format has to have some parameters specified, at least #type().
+     * An invalid format can be used to set the _default_ fill to the shape or
+     * line.
+     */
     bool isValid() const;
 
     void write(QXmlStreamWriter &writer) const;
