@@ -19,6 +19,18 @@ int pages()
 
     // Set page margins of 5 mm each, no header / footer
 
+    sheet->write("A1", "This sheet has page margins of 5 mm");
+    sheet->setPageMarginsMm(5,5,5,5);
+
+    // Set zero page margins
+
+    sheet = xlsx.addWorksheet();
+    sheet->write("A1", "This sheet has page margins equal to zero");
+    sheet->setPageMarginsMm(0,0,0,0);
+
+    // Set default page margins, specify print options, view type
+
+    sheet = xlsx.addWorksheet();
     sheet->write("A1", "Hello QtXlsx!");
     sheet->write("A2", 12345);
     sheet->write("A3", "=44+33"); // cell value is 77.
@@ -27,61 +39,53 @@ int pages()
     sheet->write("A6", QDate(2013, 12, 27));
     sheet->write("A7", QTime(6, 30));
 
-    sheet->setPageMarginsMm(5,5,5,5);
+    sheet->write("G1", "Hello QtXlsx!");
+    sheet->write("G2", 12345);
+    sheet->write("G3", "=44+33"); // cell value is 77.
+    sheet->write("G4", true);
+    sheet->write("G5", "http://qt-project.org");
+    sheet->write("G6", QDate(2013, 12, 27));
+    sheet->write("G7", QTime(6, 30));
 
-    // Set zero page margins
+    sheet->write("M1", "Hello QtXlsx!");
+    sheet->write("M2", 12345);
+    sheet->write("M3", "=44+33"); // cell value is 77.
+    sheet->write("M4", true);
+    sheet->write("M5", "http://qt-project.org");
+    sheet->write("M6", QDate(2013, 12, 27));
+    sheet->write("M7", QTime(6, 30));
 
-    auto sheet1 = xlsx.addWorksheet();
-    sheet1->write("A1", "Hello QtXlsx!");
-    sheet1->write("A2", 12345);
-    sheet1->write("A3", "=44+33"); // cell value is 77.
-    sheet1->write("A4", true);
-    sheet1->write("A5", "http://qt-project.org");
-    sheet1->write("A6", QDate(2013, 12, 27));
-    sheet1->write("A7", QTime(6, 30));
-    sheet1->setPageMarginsMm(0,0,0,0);
+    sheet->setDefaultPageMargins();
 
-    // Set default page margins, specify print options, view type
+    sheet->setPaperSize(PageSetup::PaperSize::A5);
+    sheet->setPageOrientation(PageSetup::Orientation::Portrait);
 
-    auto sheet2 = xlsx.addWorksheet();
-    sheet2->write("A1", "Hello QtXlsx!");
-    sheet2->write("A2", 12345);
-    sheet2->write("A3", "=44+33"); // cell value is 77.
-    sheet2->write("A4", true);
-    sheet2->write("A5", "http://qt-project.org");
-    sheet2->write("A6", QDate(2013, 12, 27));
-    sheet2->write("A7", QTime(6, 30));
+    sheet->setFitToWidth(2);
+    sheet->setPrintCellComments(PageSetup::CellComments::AsDisplayed);
+    sheet->setFirstPageNumber(300);
 
-    sheet2->write("G1", "Hello QtXlsx!");
-    sheet2->write("G2", 12345);
-    sheet2->write("G3", "=44+33"); // cell value is 77.
-    sheet2->write("G4", true);
-    sheet2->write("G5", "http://qt-project.org");
-    sheet2->write("G6", QDate(2013, 12, 27));
-    sheet2->write("G7", QTime(6, 30));
+    sheet->setViewType(SheetView::Type::PageLayout);
+    sheet->setShowAutoPageBreaks(true);
 
-    sheet2->write("M1", "Hello QtXlsx!");
-    sheet2->write("M2", 12345);
-    sheet2->write("M3", "=44+33"); // cell value is 77.
-    sheet2->write("M4", true);
-    sheet2->write("M5", "http://qt-project.org");
-    sheet2->write("M6", QDate(2013, 12, 27));
-    sheet2->write("M7", QTime(6, 30));
+    sheet->setHeaders("odd page", "even page", "1st page");
+    sheet->setFooters("&RPage &P of &N", "&L&D &T","&C&F");
 
-    sheet2->setDefaultPageMargins();
+    // Two views:
+    // 1. no grid lines, no ruler visible
+    // 2. split by two panes
 
-    sheet2->setPaperSize(PageSetup::PaperSize::A5);
-    sheet2->setPageOrientation(PageSetup::Orientation::Portrait);
-
-    sheet2->setFitToWidth(2);
-    sheet2->setPrintCellComments(PageSetup::CellComments::AsDisplayed);
-    sheet2->setFirstPageNumber(300);
-
-    sheet2->setViewType(SheetView::Type::PageLayout);
-    sheet2->setShowAutoPageBreaks(true);
-
-    sheet2->setHeaders("odd page", "even page", "1st page");
-    sheet2->setFooters("&RPage &P of &N", "&L&D &T","&C&F");
+    sheet = xlsx.addWorksheet();
+    // 1st view
+    sheet->setGridLinesVisible(false, 0);
+    sheet->setRulerVisible(false, 0);
+    // 2nd view
+    sheet->addView();
+    sheet->setViewColorIndex(6, 1);
+    sheet->setDefaultGridColorUsed(false, 1);
+//    sheet->splitViewVertically(2, true, 1);
+    sheet->write(1,1,"The first two rows are frozen");
+//    sheet->splitViewHorizontally(2, false, 1);
+    sheet->splitView(5,4,false, 1);
 
     if (!xlsx.saveAs("PageMargins.xlsx")) {
         qDebug() << "[PageMargins] failed to save excel file";

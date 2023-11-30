@@ -137,7 +137,14 @@ class AbstractSheetPrivate;
  * chartsheets. See SheetView documentation. If a non-applicable parameter
  * appears, it will be ignored on the document write.
  *
- * There's always at least one default sheet view.
+ * There's always at least one default sheet view (it is always safe to address
+ * the view with index 0).
+ *
+ * @note Excel seems to ignore all views except the last one. LibreOffice seems
+ * to ignore all views except for the first one. [Sheets](../../examples/Sheets)
+ * example demonstrates adding two views: the first one hides grid lines, the
+ * second view draws grid lines in pink and splits the view into two panes. Try
+ * to open the generated file PageMargins.xlsx in Excel and LibreOffice.
  *
  * The following methods manage sheet views:
  *
@@ -147,7 +154,7 @@ class AbstractSheetPrivate;
  * - #addView() adds a view.
  * - #removeView() removes the view.
  *
- * The following methods manage the parameters of the _latest added_ view:
+ * The following methods manage the parameters of the specific view:
  *
  * 1. In worksheets only.
  *   - Worksheet::isWindowProtected(), Worksheet::setWindowProtected() manage
@@ -193,9 +200,9 @@ class AbstractSheetPrivate;
  *   - #workbookViewId() and #setWorkbookViewId() allow to associate the view
  *     with a specific workbook view.
  *
- * The above-mentioned methods return `std::nullopt` if the corresponding parameters
- * were not set. See SheetView and Selection documentation on the default
- * values.
+ * The above-mentioned methods return `std::nullopt` if the corresponding
+ * parameters were not set. See SheetView and Selection documentation on the
+ * default values.
  *
  * ## Sheet printing parameters and page setup parameters.
  *
@@ -1022,28 +1029,25 @@ To set the sheet VeryHidden use #setVisibility() method.*/
 
     /**
      * @brief returns whether the sheet's tab is selected.
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      * @return valid bool if the parameter was set, `nullopt` otherwise.
-     * @note This method returns the parameter of _the last added view_.
      *
      * The default value is `false`.
      */
-    std::optional<bool> isSelected() const;
+    std::optional<bool> isSelected(int viewIndex = 0) const;
     /**
      * @brief sets @a selected to the sheet's tab.
      * @param selected tab selection state.
-     *
-     * @note This method sets the parameter of _the last added view_.
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      *
      * If not set, the default value is `false` (not selected).
      */
-    void setSelected(bool selected);
+    void setSelected(bool selected, int viewIndex = 0);
     /**
-     * @brief returns window zoom magnification for last added view as a percent
-     * value.
+     * @brief returns window zoom magnification for a view as a percent value.
      *
      * This parameter is restricted to values ranging from 10 to 400.
-     *
-     * @note This method returns the parameter of _the last added view_.
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      *
      * The default value is 100.
      *
@@ -1052,32 +1056,32 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      * SheetView::zoomScaleNormal, SheetView::zoomScalePageBreakView,
      * SheetView::zoomScalePageLayoutView.
      */
-    std::optional<int> viewZoomScale() const;
+    std::optional<int> viewZoomScale(int viewIndex = 0) const;
     /**
-     * @brief sets window zoom magnification for last added view as a percent value.
+     * @brief sets window zoom magnification for a view as a percent value.
      * @param scale value ranging from 10 to 400.
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      *
      * If not set, the default value is 100.
-     * @note This method sets the parameter of _the last added view_.
-     *
      * @note To set the view scales for specific view types see
      * SheetView::zoomScaleNormal, SheetView::zoomScalePageBreakView,
      * SheetView::zoomScalePageLayoutView.
      */
-    void setViewZoomScale(int scale);
+    void setViewZoomScale(int scale, int viewIndex = 0);
     /**
-     * @brief returns the workbook view id that the last view of this sheet is
+     * @brief returns the workbook view id that the view of this sheet is
      * associated with.
      *
      * Usually a workbook has only one view, so this method
      * will usually return 0. But to define a complex view relations between a
      * workbook and a sheet you can use the WorkbookView and SheetView methods.
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      * @return an integer id of a workbook view or -1 if there's no views
      * defined in the sheet or in the workbook.
      */
-    int workbookViewId() const;
+    int workbookViewId(int viewIndex = 0) const;
     /**
-     * @brief sets the workbook view id that the last view of this sheet is
+     * @brief sets the workbook view id that the view of this sheet is
      * associated with.
      *
      * This method is useful only if you have a number of workbook views defined
@@ -1086,11 +1090,12 @@ To set the sheet VeryHidden use #setVisibility() method.*/
      *
      * @param id (usually) an index of the workbook view defined in the
      * #workbook().
+     * @param viewIndex zero-based index of the view (from 0 to #viewsCount()-1).
      *
      * The default value of the workbook view id is 0 (the sheet view is
      * associated with the default workbook view).
      */
-    void setWorkbookViewId(int id);
+    void setWorkbookViewId(int id, int viewIndex = 0);
     /**
      * @brief returns the sheet view with the (zero-based) @a index.
      * @param index zero-based index of the sheet view.

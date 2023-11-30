@@ -214,259 +214,368 @@ Worksheet::~Worksheet()
 {
 }
 
-std::optional<bool> Worksheet::isWindowProtected() const
+std::optional<bool> Worksheet::isWindowProtected(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().windowProtection;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).windowProtection;
+    return {};
 }
 
-void Worksheet::setWindowProtected(bool protect)
+void Worksheet::setWindowProtected(bool protect, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().windowProtection = protect;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].windowProtection = protect;
 }
 
-std::optional<bool> Worksheet::isFormulasVisible() const
+std::optional<bool> Worksheet::isFormulasVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showFormulas;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showFormulas;
+    return {};
 }
 
-void Worksheet::setFormulasVisible(bool visible)
+void Worksheet::setFormulasVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showFormulas = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showFormulas = visible;
 }
 
-std::optional<bool> Worksheet::isGridLinesVisible() const
+std::optional<bool> Worksheet::isGridLinesVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showGridLines;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showGridLines;
+    return {};
 }
 
-void Worksheet::setGridLinesVisible(bool visible)
+void Worksheet::setGridLinesVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showGridLines = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showGridLines = visible;
 }
 
-std::optional<bool> Worksheet::isRowColumnHeadersVisible() const
+std::optional<bool> Worksheet::isRowColumnHeadersVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showRowColHeaders;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showRowColHeaders;
+    return {};
 }
 
-void Worksheet::setRowColumnHeadersVisible(bool visible)
+void Worksheet::setRowColumnHeadersVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showRowColHeaders = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showRowColHeaders = visible;
 }
 
-std::optional<bool> Worksheet::isRightToLeft() const
+std::optional<bool> Worksheet::isRightToLeft(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().rightToLeft;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).rightToLeft;
+    return {};
 }
 
-void Worksheet::setRightToLeft(bool enable)
+void Worksheet::setRightToLeft(bool enable, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().rightToLeft = enable;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].rightToLeft = enable;
 }
 
-std::optional<bool> Worksheet::isZerosVisible() const
+std::optional<bool> Worksheet::isZerosVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showZeros;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showZeros;
+    return {};
 }
 
-void Worksheet::setZerosVisible(bool visible)
+void Worksheet::setZerosVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showZeros = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showZeros = visible;
 }
 
-std::optional<bool> Worksheet::isRulerVisible() const
+std::optional<bool> Worksheet::isRulerVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showRuler;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showRuler;
+    return {};
 }
 
-void Worksheet::setRulerVisible(bool visible)
+void Worksheet::setRulerVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showRuler = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showRuler = visible;
 }
 
-std::optional<bool> Worksheet::isOutlineSymbolsVisible() const
+std::optional<bool> Worksheet::isOutlineSymbolsVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showOutlineSymbols;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showOutlineSymbols;
+    return {};
 }
 
-void Worksheet::setOutlineSymbolsVisible(bool visible)
+void Worksheet::setOutlineSymbolsVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showOutlineSymbols = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showOutlineSymbols = visible;
 }
 
-std::optional<bool> Worksheet::isPageMarginsVisible() const
+std::optional<bool> Worksheet::isPageMarginsVisible(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().showWhiteSpace;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).showWhiteSpace;
+    return {};
 }
 
-void Worksheet::setPageMarginsVisible(bool visible)
+void Worksheet::setPageMarginsVisible(bool visible, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().showWhiteSpace = visible;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].showWhiteSpace = visible;
 }
 
-std::optional<bool> Worksheet::isDefaultGridColorUsed() const
+std::optional<bool> Worksheet::isDefaultGridColorUsed(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().defaultGridColor;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).defaultGridColor;
+    return {};
 }
 
-void Worksheet::setDefaultGridColorUsed(bool value)
+void Worksheet::setDefaultGridColorUsed(bool value, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().defaultGridColor = value;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].defaultGridColor = value;
 }
 
-std::optional<SheetView::Type> Worksheet::viewType() const
+std::optional<SheetView::Type> Worksheet::viewType(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().type;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).type;
+    return {};
 }
 
-void Worksheet::setViewType(SheetView::Type type)
+void Worksheet::setViewType(SheetView::Type type, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().type = type;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].type = type;
 }
 
-CellReference Worksheet::viewTopLeftCell() const
+CellReference Worksheet::viewTopLeftCell(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().topLeftCell;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).topLeftCell;
+    return {};
 }
 
-void Worksheet::setViewTopLeftCell(const CellReference &ref)
+void Worksheet::setViewTopLeftCell(const CellReference &ref, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().topLeftCell = ref;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].topLeftCell = ref;
 }
 
-std::optional<int> Worksheet::viewColorIndex() const
+std::optional<int> Worksheet::viewColorIndex(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().colorId;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).colorId;
+    return {};
 }
 
-void Worksheet::setViewColorIndex(int index)
+void Worksheet::setViewColorIndex(int index, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    if (index >=0 && index <= 64) d->sheetViews.last().colorId = index;
+    if (index < 0 || index > 64) return;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].colorId = index;
 }
 
-
-
-CellReference Worksheet::activeCell() const
+CellReference Worksheet::activeCell(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().selection.activeCell;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).selection.activeCell;
+    return {};
 }
 
-void Worksheet::setActiveCell(const CellReference &activeCell)
+void Worksheet::setActiveCell(const CellReference &activeCell, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().selection.activeCell = activeCell;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].selection.activeCell = activeCell;
 }
 
-QList<CellRange> Worksheet::selectedRanges() const
+QList<CellRange> Worksheet::selectedRanges(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().selection.selectedRanges;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).selection.selectedRanges;
+    return {};
 }
 
-bool Worksheet::addSelection(const CellRange &range)
+bool Worksheet::addSelection(const CellRange &range, int viewIndex)
 {
     Q_D(Worksheet);
     if (!range.isValid()) return false;
 
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    if (d->sheetViews.last().selection.selectedRanges.contains(range)) return false;
-    d->sheetViews.last().selection.selectedRanges << range;
-    return true;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size()) {
+        if (!d->sheetViews[viewIndex].selection.selectedRanges.contains(range)) {
+            d->sheetViews[viewIndex].selection.selectedRanges << range;
+            return true;
+        }
+    }
+    return false;
 }
 
-bool Worksheet::removeSelection(const CellRange &range)
+bool Worksheet::removeSelection(const CellRange &range, int viewIndex)
 {
     Q_D(Worksheet);
     if (!range.isValid()) return false;
 
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    return d->sheetViews.last().selection.selectedRanges.removeOne(range);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews[viewIndex].selection.selectedRanges.removeOne(range);
+    return false;
 }
 
-void Worksheet::clearSelection()
+void Worksheet::clearSelection(int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().selection.selectedRanges.clear();
-    d->sheetViews.last().selection.activeCell = CellReference();
-    d->sheetViews.last().selection.activeCellId.reset();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size()) {
+        d->sheetViews[viewIndex].selection.selectedRanges.clear();
+        d->sheetViews[viewIndex].selection.activeCell = CellReference();
+        d->sheetViews[viewIndex].selection.activeCellId.reset();
+    }
 }
 
-Selection Worksheet::selection() const
+Selection Worksheet::selection(int viewIndex) const
 {
     Q_D(const Worksheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().selection;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).selection;
+    return {};
 }
 
-Selection &Worksheet::selection()
+Selection &Worksheet::selection(int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    return d->sheetViews.last().selection;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    return d->sheetViews[viewIndex].selection;
 }
 
-void Worksheet::setSelection(const Selection &selection)
+void Worksheet::setSelection(const Selection &selection, int viewIndex)
 {
     Q_D(Worksheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().selection = selection;
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].selection = selection;
+}
+
+ViewPane Worksheet::pane(int viewIndex) const
+{
+    Q_D(const Worksheet);
+    if (viewIndex >=0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).pane;
+    return {};
+}
+
+ViewPane &Worksheet::pane(int viewIndex)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    return d->sheetViews[viewIndex].pane;
+}
+
+void Worksheet::setPane(const ViewPane &pane, int viewIndex)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].pane = pane;
+}
+
+void Worksheet::splitViewHorizontally(int columnsCount, bool frozen, int viewIndex)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size()) {
+        d->sheetViews[viewIndex].pane.xSplit = frozen?columnsCount:columnsCount*defaultColumnWidth()*20;
+        d->sheetViews[viewIndex].pane.activePane = frozen ? ViewPane::Type::TopRight
+                                                          : ViewPane::Type::TopLeft;
+        d->sheetViews[viewIndex].pane.paneState = frozen ? ViewPane::State::Frozen : ViewPane::State::Split;
+        if (frozen) d->sheetViews[viewIndex].pane.topLeftCell =
+                CellReference(d->sheetViews[viewIndex].pane.ySplit.value_or(0)+1,
+                              d->sheetViews[viewIndex].pane.xSplit.value_or(0)+1);
+    }
+}
+
+void Worksheet::splitViewVertically(int rowsCount, bool frozen, int viewIndex)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size()) {
+        d->sheetViews[viewIndex].pane.ySplit = frozen?rowsCount:rowsCount*defaultRowHeight()*20;
+        d->sheetViews[viewIndex].pane.activePane = frozen ? ViewPane::Type::BottomLeft
+                                                          : ViewPane::Type::TopLeft;
+        d->sheetViews[viewIndex].pane.paneState = frozen ? ViewPane::State::Frozen : ViewPane::State::Split;
+        if (frozen) d->sheetViews[viewIndex].pane.topLeftCell =
+                CellReference(d->sheetViews[viewIndex].pane.ySplit.value_or(0)+1,
+                              d->sheetViews[viewIndex].pane.xSplit.value_or(0)+1);
+    }
+}
+
+void Worksheet::splitView(int rowsCount, int columnsCount, bool frozen, int viewIndex)
+{
+    Q_D(Worksheet);
+    if (d->sheetViews.isEmpty() && viewIndex == 0) d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size()) {
+        //xSplit is set in 1/20th of pt if not frozen
+        //Calibri 11 has digits width of 7px at 96dpi
+        d->sheetViews[viewIndex].pane.xSplit = frozen?columnsCount:columnsCount*defaultColumnWidth()*20*7;
+        //ySplit is set in 1/30th of pt if not frozen
+        d->sheetViews[viewIndex].pane.ySplit = frozen?rowsCount:rowsCount*defaultRowHeight()*20;
+        d->sheetViews[viewIndex].pane.activePane = frozen ? ViewPane::Type::BottomRight
+                                                          : ViewPane::Type::TopLeft;
+        d->sheetViews[viewIndex].pane.paneState = frozen ? ViewPane::State::Frozen : ViewPane::State::Split;
+        if (frozen) d->sheetViews[viewIndex].pane.topLeftCell =
+                CellReference(d->sheetViews[viewIndex].pane.ySplit.value_or(0)+1,
+                              d->sheetViews[viewIndex].pane.xSplit.value_or(0)+1);
+    }
 }
 
 void Worksheet::setPrintScale(int scale)

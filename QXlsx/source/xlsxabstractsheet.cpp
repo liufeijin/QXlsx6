@@ -712,46 +712,56 @@ bool AbstractSheet::removeBackgroundImage()
     return false;
 }
 
-std::optional<bool> AbstractSheet::isSelected() const
+std::optional<bool> AbstractSheet::isSelected(int viewIndex) const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().tabSelected;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).tabSelected;
+    return {};
 }
 
-void AbstractSheet::setSelected(bool selected)
+void AbstractSheet::setSelected(bool selected, int viewIndex)
 {
     Q_D(AbstractSheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().tabSelected = selected;
+
+    if (viewIndex == 0 && d->sheetViews.isEmpty())
+        d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].tabSelected = selected;
 }
 
-std::optional<int> AbstractSheet::viewZoomScale() const
+std::optional<int> AbstractSheet::viewZoomScale(int viewIndex) const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return {};
-    return d->sheetViews.last().zoomScale;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).zoomScale;
+    return {};
 }
 
-void AbstractSheet::setViewZoomScale(int scale)
+void AbstractSheet::setViewZoomScale(int scale, int viewIndex)
 {
     Q_D(AbstractSheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().zoomScale = scale;
+    if (viewIndex == 0 && d->sheetViews.isEmpty())
+        d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].zoomScale = scale;
 }
 
-int AbstractSheet::workbookViewId() const
+int AbstractSheet::workbookViewId(int viewIndex) const
 {
     Q_D(const AbstractSheet);
-    if (d->sheetViews.isEmpty()) return -1;
-    return d->sheetViews.last().workbookViewId;
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        return d->sheetViews.at(viewIndex).workbookViewId;
+    return -1;
 }
 
-void AbstractSheet::setWorkbookViewId(int id)
+void AbstractSheet::setWorkbookViewId(int id, int viewIndex)
 {
     Q_D(AbstractSheet);
-    if (d->sheetViews.isEmpty()) d->sheetViews << SheetView();
-    d->sheetViews.last().workbookViewId = id;
+    if (viewIndex == 0 && d->sheetViews.isEmpty())
+        d->sheetViews << SheetView();
+    if (viewIndex >= 0 && viewIndex < d->sheetViews.size())
+        d->sheetViews[viewIndex].workbookViewId = id;
 }
 
 SheetView AbstractSheet::view(int index) const

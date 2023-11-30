@@ -77,6 +77,8 @@ this state, when the panes are unfrozen again, the split remains, but is adjusta
      * whether those splits are frozen.
      *
      * If not set, State::Split is assumed.
+     * @note Excel and LibreOffice seem to not understand Frozen and FrozenSplit
+     * states.
      */
     std::optional<State> paneState; //default = Split
     /**

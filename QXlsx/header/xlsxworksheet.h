@@ -542,22 +542,24 @@ public:
     /**
      * @brief adds data validation in the sheet.
      * @param validation A valid DataValidation object.
-     * @return `true` if @a validation is valid and contains valid range(s), `false` otherwise.
+     * @return `true` if @a validation is valid and contains valid range(s),
+     * `false` otherwise.
      */
     bool addDataValidation(const DataValidation &validation);
     /**
      * @overload
      * @brief adds data validation in the sheet.
      *
-     * This is a low-level method that allows to create a validation from scratch.
+     * This is a convenience method that allows to create a validation from
+     * scratch.
      *
      * @param range cells range to apply data validation to.
      * @param type type of data validation
      * @param formula1 the first validation criterion
      * @param predicate operation to combine two validation criteria
      * @param formula2 the second validation criterion.
-     * @param strict If `true`, then error message will be shown if the input cell value
-     * is not allowable.
+     * @param strict If `true`, then error message will be shown if the input
+     * cell value is not allowable.
      * @return `true` if validation was successfully added, `false` otherwise.
      *
      * You can use overloaded methods to add a specific type of validation.
@@ -567,14 +569,15 @@ public:
                            const QString &formula2 = QString(), bool strict = true);
     /**
      * @overload
-     * @brief adds the data validation that allows only a list of specified values.
+     * @brief adds the data validation that allows only a list of specified
+     * values.
      * @param range cells range to apply data validation to.
      * @param allowableValues cells range that contains all allowable values.
-     * @param strict If `true`, then error message will be shown if the input cell value
-     * is not allowable.
+     * @param strict If `true`, then error message will be shown if the input
+     * cell value is not allowable.
      * @return `true` if validation was successfully added, `false` otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
+     * @note If you need to customize validation params, f.e. prompt and error
+     * messages, use DataValidation constructor.
      */
     bool addDataValidation(const CellRange &range, const CellRange &allowableValues, bool strict = true);
     /**
@@ -584,11 +587,11 @@ public:
      * @param time1 first time value.
      * @param predicate operation to combine two validation criteria.
      * @param time2 second time value.
-     * @param strict If `true`, then error message will be shown if the input cell value
-     * is not allowable.
+     * @param strict If `true`, then error message will be shown if the input
+     * cell value is not allowable.
      * @return `true` if validation was successfully added, `false` otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
+     * @note If you need to customize validation params, f.e. prompt and error
+     * messages, use DataValidation constructor.
      */
     bool addDataValidation(const CellRange &range, const QTime &time1,
                            std::optional<DataValidation::Predicate> predicate = std::nullopt,
@@ -600,11 +603,11 @@ public:
      * @param date1 first date value.
      * @param predicate operation to combine two validation criteria.
      * @param date2 second date value.
-     * @param strict If `true`, then error message will be shown if the input cell value
-     * is not allowable.
+     * @param strict If `true`, then error message will be shown if the input
+     * cell value is not allowable.
      * @return `true` if validation was successfully added, `false` otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
+     * @note If you need to customize validation params, f.e. prompt and error
+     * messages, use DataValidation constructor.
      */
     bool addDataValidation(const CellRange &range, const QDate &date1,
                            std::optional<DataValidation::Predicate> predicate = std::nullopt,
@@ -616,25 +619,27 @@ public:
      * @param len1 First text length
      * @param predicate operation to combine two validation criteria.
      * @param len2 Second text length.
-     * @param strict If `true`, then error message will be shown if the input cell value
-     * is not allowable.
+     * @param strict If `true`, then error message will be shown if the input
+     * cell value is not allowable.
      * @return `true` if validation was successfully added, `false` otherwise.
-     * @note If you need to customize validation params, f.e. prompt and error messages,
-     * use DataValidation constructor.
+     * @note If you need to customize validation params, f.e. prompt and error
+     * messages, use DataValidation constructor.
      */
     bool addDataValidation(const CellRange &range, int len1,
                            std::optional<DataValidation::Predicate> predicate = std::nullopt,
                            std::optional<int> len2 = std::nullopt, bool strict = true);
     /**
      * @brief returns whether all input prompts from the worksheet are disabled.
-     * @return if `true`, then all data validation prompts will not be shown on the worksheet.
+     * @return if `true`, then all data validation prompts will not be shown on
+     * the worksheet.
      *
      * The default value is `false`.
      */
     std::optional<bool> dataValidationPromptsDisabled() const;
     /**
      * @brief sets whether all input prompts from the worksheet are disabled.
-     * @param disabled if `true`, then all data validation prompts will not be shown on the worksheet.
+     * @param disabled if `true`, then all data validation prompts will not be
+     * shown on the worksheet.
      *
      * If not set, `false` is assumed.
      */
@@ -649,14 +654,15 @@ public:
      */
     bool hasDataValidation() const;
     /**
-     * @brief returns the list of data validation objects added to the worksheet.
+     * @brief returns the list of data validation objects added to the
+     * worksheet.
      */
     QList<DataValidation> dataValidationRules() const;
     /**
      * @brief returns the data validation object with @a index.
      * @param index valid index from 0 to #dataValidationsCount()-1.
-     * @return A copy of DataValidation object if @a index is valid, a default-constructed
-     * (invalid) DataValidation object otherwise.
+     * @return A copy of DataValidation object if @a index is valid, a
+     * default-constructed (invalid) DataValidation object otherwise.
      */
     DataValidation dataValidation(int index) const;
     /**
@@ -691,11 +697,13 @@ public:
      */
     bool hasConditionalFormatting() const;
     /**
-     * @brief returns the count of conditional formatting rules added to the worksheet.
+     * @brief returns the count of conditional formatting rules added to the
+     * worksheet.
      */
     int conditionalFormattingCount() const;
     /**
-     * @brief returns the list of conditional formatting rules added to the worksheet.
+     * @brief returns the list of conditional formatting rules added to the
+     * worksheet.
      */
     QList<ConditionalFormatting> conditionalFormattingRules() const;
     /**
@@ -715,12 +723,14 @@ public:
     /**
      * @brief removes the conditional formatting rule at @a index.
      * @param index valid index from 0 to #conditionalFormattingCount()-1.
-     * @return `true` if @a index is valid and the rule was removed, `false` otherwise.
+     * @return `true` if @a index is valid and the rule was removed, `false`
+     * otherwise.
      */
     bool removeConditionalFormatting(int index);
     /**
      * @brief adds the conditional formatting to the worksheet.
-     * @param cf ConditionalFormatting object that contains the conditional formating parameters.
+     * @param cf ConditionalFormatting object that contains the conditional
+     * formating parameters.
      * @return `true` on success.
      */
     bool addConditionalFormatting(const ConditionalFormatting &cf);
@@ -730,10 +740,11 @@ public:
     /**
      * @brief returns a cell by its reference.
      * @param ref reference to the cell.
-     * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
+     * @return valid pointer to the cell if the cell was found, `nullptr`
+     * otherwise.
      *
-     * If no data or format were written into @a ref, this method returns `nullptr`.
-     * Use #write() methods to implicitly create a cell.
+     * If no data or format were written into @a ref, this method returns
+     * `nullptr`. Use #write() methods to implicitly create a cell.
      */
     Cell *cell(const CellReference &ref) const;
     /**
@@ -741,7 +752,8 @@ public:
      * @brief returns cell by its row and column number.
      * @param row 1-based cell row number.
      * @param column 1-based cell column number.
-     * @return valid pointer to the cell if the cell was found, `nullptr` otherwise.
+     * @return valid pointer to the cell if the cell was found, `nullptr`
+     * otherwise.
      *
      * If no data or format were written into (@a row, @a column), this method
      * returns `nullptr`. Use #write() methods to implicitly create a cell.
@@ -752,7 +764,8 @@ public:
      * @brief Inserts an @a image at the position @a ref.
      * @param ref reference to the the image top left corner.
      * @param image Image to be inserted.
-     * @return the zero-based index of the newly inserted image on success, -1 otherwise.
+     * @return the zero-based index of the newly inserted image on success, -1
+     * otherwise.
      */
 
     /// Images
@@ -1313,213 +1326,264 @@ public:
      */
     void setDefaultColumnWidth(double width);
 
-    // Sheet View parameters
+    ////////////////////////////////////////////////////////////////////////////
+    ///  Sheet View parameters                                               ///
+    ////////////////////////////////////////////////////////////////////////////
 
     /**
      * @brief returns whether the panes in the window are locked due to workbook
      * protection.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * The default value is `false`.
-     * @note Worksheet can have more than one view. This method returns the
-     * property of the latest added one. To get the specific view use #view() method.
      */
-    std::optional<bool> isWindowProtected() const;
+    std::optional<bool> isWindowProtected(int viewIndex = 0) const;
     /**
      * @brief sets whether the panes in the window are locked due to workbook
      * protection.
      *
      * @param protect Sets protected to the view. The default value is `false`.
-     * @note Worksheet can have more than one view. This method sets the
-     * property of the latest added one. If no sheet views were added, this method
-     * adds the default one. To get the specific view use #view() method.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      */
-    void setWindowProtected(bool protect);
+    void setWindowProtected(bool protect, int viewIndex = 0);
     /**
      * @brief returns whether formulas in the cells are displayed.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return `true` if formulas in the cells are displayed 'as is'. `false`
-     * if the computed values are displayed. `nullopt` if the parameter is not set.
+     * if the computed values are displayed. `nullopt` if the parameter is not
+     * set.
      *
      * The default value is `false`.
      */
-    std::optional<bool> isFormulasVisible() const;
+    std::optional<bool> isFormulasVisible(int viewIndex = 0) const;
     /**
      * @brief sets the visibility of formulas in the cells.
-     * @param visible If `true`, then formulas in the cells are displayed 'as is'.
-     * If `false`, then the computed values are displayed.
+     * @param visible If `true`, then formulas in the cells are displayed 'as
+     * is'. If `false`, then the computed values are displayed.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `false` is assumed.
      */
-    void setFormulasVisible(bool visible);
+    void setFormulasVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether the sheet grid lines are shown.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return `true` if the grid lines are shown.
      *
      * The default value is 'true'.
      */
-    std::optional<bool> isGridLinesVisible() const;
+    std::optional<bool> isGridLinesVisible(int viewIndex = 0) const;
     /**
      * @brief sets whether the sheet grid lines are shown.
      * @param visible If `true` then grid lines are shown. If `false`, then grid
      * lines are hidden.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `true` is assumed.
      */
-    void setGridLinesVisible(bool visible);
+    void setGridLinesVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether the row and column headers are shown.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return valid bool if the parameter was set, `nullopt` otherwise.
      *
      * The default value is `true`.
      */
-    std::optional<bool> isRowColumnHeadersVisible() const;
+    std::optional<bool> isRowColumnHeadersVisible(int viewIndex = 0) const;
     /**
      * @brief eturns whether the row and column headers are shown.
      * @param visible If `true` then the row and column headers are shown.
      * If `false` then the row and column headers are hidden.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `true` is assumed.
      */
-    void setRowColumnHeadersVisible(bool visible);
+    void setRowColumnHeadersVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether the window should show 0 (zero) in cells
      * containing zero value.
-     * @return `true` if zeroes are displayed as is, `false` if cells with zero value
-     * appear blank, `nullopt` if the parameter is not set.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return `true` if zeroes are displayed as is, `false` if cells with zero
+     * value appear blank, `nullopt` if the parameter is not set.
      *
      * The default value is `true`.
      */
-    std::optional<bool> isZerosVisible() const;
+    std::optional<bool> isZerosVisible(int viewIndex = 0) const;
     /**
      * @brief sets whether the window should show 0 (zero) in cells
      * containing zero value.
-     * @param visible if `true`, cells containing zero value shall display 0. If `false`,
-     * cells containing zero value shall appear blank.
+     * @param visible if `true`, cells containing zero value shall display 0. If
+     * `false`, cells containing zero value shall appear blank.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, the default value is `true`.
      */
-    void setZerosVisible(bool visible);
+    void setZerosVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether the sheet is in 'right to left' display mode.
      *
      * When in this mode, Column A is on the far right, Column B is one column
      * left of Column A, and so on. Also, information in cells is displayed in
      * the Right to Left format.
-     *
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return `true` if the sheet is in 'right to left' display mode.
      *
      * The default value is `false`.
      */
-    std::optional<bool> isRightToLeft() const;
+    std::optional<bool> isRightToLeft(int viewIndex = 0) const;
     /**
      * @brief sets whether the sheet is in 'right to left' display mode.
      *
-     * @param enable if `true`, Column A is on the far right, Column B is one column
-     * left of Column A, and so on. Also, information in cells is displayed in
-     * the Right to Left format.
+     * @param enable if `true`, Column A is on the far right, Column B is one
+     * column left of Column A, and so on. Also, information in cells is
+     * displayed in the right-to-left format.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `false` is assumed.
      */
-    void setRightToLeft(bool enable);
+    void setRightToLeft(bool enable, int viewIndex = 0);
     /**
      * @brief returns whether ruler is visible in the worksheet.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return if `true`, then the ruler is visible.
      *
      * The default value is `false`.
      */
-    std::optional<bool> isRulerVisible() const;
+    std::optional<bool> isRulerVisible(int viewIndex = 0) const;
     /**
-     * @brief sets whether ruler is visible in the last added sheet view.
+     * @brief sets whether ruler is visible in the worksheet.
      * @param visible if `true`, then the ruler is visible.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `false` is assumed.
      */
-    void setRulerVisible(bool visible);
+    void setRulerVisible(bool visible, int viewIndex = 0);
     /**
-     * @brief returns whether the outline symbols are visible in the last added sheet view.
+     * @brief returns whether the outline symbols are visible.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return if `true`, then the outline symbols are visible.
      *
      * The default value is `true`.
      */
-    std::optional<bool> isOutlineSymbolsVisible() const;
+    std::optional<bool> isOutlineSymbolsVisible(int viewIndex = 0) const;
     /**
-     * @brief sets whether the outline symbols are visible in the last added sheet view.
+     * @brief sets whether the outline symbols are visible.
      * @param visible if `true`, then the outline symbols are visible.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `true` is assumed.
      */
-    void setOutlineSymbolsVisible(bool visible);
+    void setOutlineSymbolsVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether page layout view shall display margins.
-     *
-     * @return `false` means do not display left, right, top (header), and bottom (footer)
-     * margins (even when there is data in the header or footer).
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return `false` means do not display left, right, top (header), and
+     * bottom (footer) margins (even when there is data in the header or
+     * footer).
      *
      * The default value is `true`.
      */
-    std::optional<bool> isPageMarginsVisible() const;
+    std::optional<bool> isPageMarginsVisible(int viewIndex = 0) const;
     /**
      * @brief sets whether page layout view shall display margins.
-     * @param visible `false` means do not display left, right, top (header), and bottom (footer)
-     * margins (even when there is data in the header or footer).
+     * @param visible `false` means do not display left, right, top (header),
+     * and bottom (footer) margins (even when there is data in the header or
+     * footer).
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `true` is assumed.
      */
-    void setPageMarginsVisible(bool visible);
+    void setPageMarginsVisible(bool visible, int viewIndex = 0);
     /**
      * @brief returns whether the application uses the default grid
      * lines color (system dependent).
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return If `false`, then #viewColorIndex() is used to set the grid color.
      *
      * If not set, the default value is `true`.
-     * @return If `false`, then #viewColorIndex() is used to set the grid color.
      */
-    std::optional<bool> isDefaultGridColorUsed() const;
+    std::optional<bool> isDefaultGridColorUsed(int viewIndex = 0) const;
     /**
-     * @brief sets whether the application uses the default grid
-     * lines color (system dependent).
-     * @param value If `false`, then #viewColorIndex() is used to set the grid color.
-     * if `true`, then overrides any color specified in #setViewColorIndex().
+     * @brief sets whether the application uses the default grid lines color
+     * (system dependent).
+     * @param value If `false`, then #viewColorIndex() is used to set the grid
+     * color. if `true`, then overrides any color specified in
+     * #setViewColorIndex().
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, `true` is assumed.
      */
-    void setDefaultGridColorUsed(bool value);
+    void setDefaultGridColorUsed(bool value, int viewIndex = 0);
     /**
-     * @brief returns the type of the last added view.
-     * @return One of SheetView::Type enum values.
+     * @brief returns the type of a view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return SheetView::Type enum value.
      *
      * The default value is SheetView::Type::Normal.
      */
-    std::optional<SheetView::Type> viewType() const;
+    std::optional<SheetView::Type> viewType(int viewIndex = 0) const;
     /**
-     * @brief sets the type of the last added view.
+     * @brief sets the type of the view.
      * @param type One of SheetView::Type enum values.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
      * If not set, SheetView::Type::Normal is assumed.
      */
-    void setViewType(SheetView::Type type);
+    void setViewType(SheetView::Type type, int viewIndex = 0);
     /**
-     * @brief returns the location of the last added view's top left visible cell.
+     * @brief returns the location of the view's top left visible cell.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return Valid location if it was set, invalid one otherwise.
      *
      * The default value is invalid CellReference, that means A1 is used as the
      * top left visible cell.
      */
-    CellReference viewTopLeftCell() const;
+    CellReference viewTopLeftCell(int viewIndex = 0) const;
     /**
-     * @brief sets the location of the last added view's top left visible cell.
+     * @brief sets the location of the view's top left visible cell.
      * @param ref valid CellReference.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      *
-     * If not set, invalid CellReference is assumed, that means A1 is used as the
-     * top left visible cell.
+     * If not set, invalid CellReference is assumed, that means A1 is used as
+     * the top left visible cell.
      */
-    void setViewTopLeftCell(const CellReference &ref);
+    void setViewTopLeftCell(const CellReference &ref, int viewIndex = 0);
     /**
      * @brief returns the index to the color value for row/column text headings
      * and gridlines.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return an 'index color value' (ICV) rather than rgb value.
      *
      * If not set, the default value is 64.
+     *
+     * See #setViewColorIndex() for a list of colors.
      */
-    std::optional<int> viewColorIndex() const;
+    std::optional<int> viewColorIndex(int viewIndex = 0) const;
     /**
      * @brief sets the index to the color value for row/column text headings
      * and gridlines.
@@ -1576,58 +1640,148 @@ public:
      * 63 | dark gray 333333
      * 64 | default
      *
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     *
      * If not set, 64 is assumed.
      */
-    void setViewColorIndex(int index);
+    void setViewColorIndex(int index, int viewIndex = 0);
     /**
      * @brief returns the last defined sheet view's active cell.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return copy of CellReference object.
      */
-    CellReference activeCell() const;
+    CellReference activeCell(int viewIndex = 0) const;
     /**
-     * @brief sets active cell to the last added sheet view.
+     * @brief sets active cell to the sheet view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @param activeCell Valid CellReference object.
      */
-    void setActiveCell(const CellReference &activeCell);
+    void setActiveCell(const CellReference &activeCell, int viewIndex = 0);
     /**
-     * @brief returns a list of cell ranges selected in the last added sheet view.
+     * @brief returns a list of cell ranges selected in the view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return a list of cell ranges.
      */
-    QList<CellRange> selectedRanges() const;
+    QList<CellRange> selectedRanges(int viewIndex = 0) const;
     /**
-     * @brief adds @a range to the list of cell ranges selected in the last added sheet view.
+     * @brief adds @a range to the list of cell ranges selected in the view.
      * @param range valid cell range.
-     * @return `true` if @a range was successfully added, `false` if @a range is invalid or already
-     * present in the selection.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return `true` if @a range was successfully added, `false` if @a range is
+     * invalid or already present in the selection.
      */
-    bool addSelection(const CellRange &range);
+    bool addSelection(const CellRange &range, int viewIndex = 0);
     /**
-     * @brief removes range from the list of cell ranges selected in the last added sheet view.
+     * @brief removes range from the list of cell ranges selected in the view.
      * @param range cell range to remove.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return `true` if @a range was found and removed, `false` otherwise.
-     * @note This method does not check @a range for intersections with selection, it simply
-     * searches the selection for the whole range and if found, removes it.
+     * @note This method does not check @a range for intersections with
+     * selection, it simply searches the selection for the whole range and if
+     * found, removes it.
      */
-    bool removeSelection(const CellRange &range);
+    bool removeSelection(const CellRange &range, int viewIndex = 0);
     /**
-     * @brief removes all selection from the last added sheet view.
+     * @brief removes all selection from the view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      */
-    void clearSelection();
+    void clearSelection(int viewIndex = 0);
     /**
-     * @brief returns selection parameters of the last added sheet view.
+     * @brief returns selection parameters of the view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return copy of Selection object.
      */
-    Selection selection() const;
+    Selection selection(int viewIndex = 0) const;
     /**
-     * @brief returns selection parameters of the last added sheet view.
+     * @brief returns selection parameters of the view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @return reference to the Selection object.
      */
-    Selection &selection();
+    Selection &selection(int viewIndex = 0);
     /**
-     * @brief sets selection parameters of the last added sheet view.
+     * @brief sets selection parameters of the view.
+     * @param viewIndex zero-based index of the view (from 0 to
+     * AbstractSheet::viewsCount()-1).
      * @param selection the Selection object.
      */
-    void setSelection(const Selection &selection);
+    void setSelection(const Selection &selection, int viewIndex = 0);
+    /**
+     * @brief Returns the pane parameters of a view with @a viewIndex.
+     * @param viewIndex zero-based index of a sheet view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return Valid ViewPane if there is a sheet view with @a viewIndex and
+     * this sheet view has pane parameters set, invalid ViewPane otherwise.
+     */
+    ViewPane pane(int viewIndex = 0) const;
+    /**
+     * @brief Returns the pane parameters of a view with @a viewIndex.
+     * @param viewIndex zero-based index of a sheet view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     * @return The reference to the ViewPane object.
+     *
+     * If there's no view with @a viewIndex, the behavior is undefined. It is
+     * always safe to address the view with index 0.
+     */
+    ViewPane &pane(int viewIndex = 0);
+    /**
+     * @brief sets the pane parameters of a view with @a viewIndex.
+     * @param pane A ViewPane object.
+     * @param viewIndex zero-based index of a sheet view (from 0 to
+     * AbstractSheet::viewsCount()-1).
+     *
+     * This method can be used to clear the panes in the view:
+     *
+     * @code
+     * worksheet(0)->setPane(ViewPane(), 0);
+     * @endcode
+     */
+    void setPane(const ViewPane &pane, int viewIndex = 0);
+    /**
+     * @brief splits the sheet view with @a viewIndex horizontally making left
+     * and right view panes. The left view pane will have the width of
+     * @a columnsCount columns.
+     * @param columnsCount How many columns to show in the left pane.
+     * @param frozen If `true` then after splitting the left pane is frozen.
+     * @param viewIndex Index of a view to split.
+     *
+     * This is a convenience method. To fine-tune the panes use #pane() and
+     * #setPane() method.
+     */
+    void splitViewHorizontally(int columnsCount, bool frozen, int viewIndex = 0);
+    /**
+     * @brief splits the sheet view with @a viewIndex vertically making top
+     * and bottom view panes. The top view pane will have the height of
+     * @a rowsCount rows.
+     * @param rowsCount How many rows to show in the top pane.
+     * @param frozen If `true` then after splitting the top pane is frozen.
+     * @param viewIndex Index of a view to split.
+     *
+     * This is a convenience method. To fine-tune the panes use #pane() and
+     * #setPane() method.
+     */
+    void splitViewVertically(int rowsCount, bool frozen, int viewIndex = 0);
+    /**
+     * @brief splits the sheet view with @a viewIndex vertically making 4 view
+     * panes. The top view panes will have the height of @a @param rowsCount,
+     * the left view panes will have the width of @a columnsCount.
+     * @a rowsCount rows.
+     * @param rowsCount How many rows to show in the top panes.
+     * @param columnsCount How many columns to show in the left panes.
+     * @param frozen If `true` then after splitting all panes except the bottom
+     * right one are frozen.
+     * @param viewIndex Index of a view to split.
+     */
+    void splitView(int rowsCount, int columnsCount, bool frozen, int viewIndex = 0);
+
 
 
     /// Print and page parameters valid for worksheets only. Rest of parameters see in AbstractSheet.
