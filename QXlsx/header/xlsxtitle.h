@@ -253,7 +253,6 @@ public:
     ShapeFormat shape() const;
     /**
      * @brief returns a reference to the title's shape parameters.
-     * @return
      */
     ShapeFormat &shape();
     /**

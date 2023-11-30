@@ -17,23 +17,98 @@
 namespace QXlsx {
 
 /**
+     * @brief The ViewPane struct represents a view pane in the sheet view
+     */
+struct ViewPane
+{
+    /**
+     * @brief The Pane enum specifies the pane that is active in the sheet view.
+     */
+    enum class Type
+    {
+        BottomRight,
+        TopRight,
+        BottomLeft,
+        TopLeft
+    };
+    /**
+     * @brief The State enum specifies whether the pane has horizontal /
+     * vertical splits, and whether those splits are frozen.
+     */
+    enum class State
+    {
+        Split, /**< Panes are split, but not frozen. In this state, the split
+bars are adjustable by the user. */
+        Frozen, /**< Panes are frozen, but were not split being frozen. In
+this state, when the panes are unfrozen again, a single pane results, with no split.
+In this state, the split bars are not adjustable. */
+        FrozenSplit /**< Panes are frozen and were split before being frozen. In
+this state, when the panes are unfrozen again, the split remains, but is adjustable. */
+    };
+    /**
+     * @brief Specifies the horizontal position of the split, in 1/20th of a
+     * point; 0 (zero) if none.  If the pane is frozen, this value indicates the
+     * number of columns visible in the top pane.
+     *
+     * If not set, 0 is assumed.
+     */
+    std::optional<double> xSplit; //default=0
+    /**
+     * @brief Specifies the vertical position of the split, in 1/20th of a point;
+     * 0 (zero) if none.  If the pane is frozen, this value indicates the number
+     * of rows visible in the left pane.
+     *
+     * If not set, 0 is assumed.
+     */
+    std::optional<double> ySplit; //default=0
+    /**
+     * @brief Specifies the location of the top left visible cell in the bottom
+     * right pane (when in Left-To-Right mode).
+     */
+    CellReference topLeftCell;
+    /**
+     * @brief Specifies the pane that is active.
+     *
+     * If not set, Type::TopLeft is assumed.
+     */
+    std::optional<Type> activePane; //default = TopLeft
+    /**
+     * @brief Indicates whether the pane has horizontal / vertical splits, and
+     * whether those splits are frozen.
+     *
+     * If not set, State::Split is assumed.
+     */
+    std::optional<State> paneState; //default = Split
+    /**
+     * @brief returns whether the pane is valid, that is whether any of its
+     * parameters is set.
+     */
+    bool isValid() const;
+
+    SERIALIZE_ENUM(Type, {
+        {Type::TopLeft, "topLeft"},
+        {Type::BottomRight, "bottomRight"},
+        {Type::TopRight, "topRight"},
+        {Type::BottomLeft, "bottomLeft"},
+    });
+    SERIALIZE_ENUM(State, {
+        {State::Frozen, "frozen"},
+        {State::FrozenSplit, "frozenSplit"},
+        {State::Split, "split"}
+    });
+};
+
+/**
  * @brief The Selection struct represents a selected region in the worksheet.
  */
 struct QXLSX_EXPORT Selection
 {
-    enum class PaneType
-    {
-        TopLeft,
-        BottomRight,
-        TopRight,
-        BottomLeft
-    };
     /**
      * @brief The pane to which this selection belongs.
      *
      * If not set, the default value is PaneType::TopLeft.
      */
-    std::optional<PaneType> pane;
+    std::optional<ViewPane::Type> pane;
     /**
      * @brief Location of the active cell.
      *
@@ -41,7 +116,8 @@ struct QXLSX_EXPORT Selection
      */
     CellReference activeCell;
     /**
-     * @brief 0-based index of the range reference (in #selectedRanges) that contains the active cell.
+     * @brief 0-based index of the range reference (in #selectedRanges) that
+     * contains the active cell.
      *
      * Only used when #selectedRanges has more that one element. Therefore, this
      * value needs to be aware of the order in which the range references are
@@ -60,14 +136,6 @@ struct QXLSX_EXPORT Selection
     bool isValid() const;
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QLatin1String &name) const;
-
-private:
-    SERIALIZE_ENUM(PaneType, {
-        {PaneType::TopLeft, "topLeft"},
-        {PaneType::BottomRight, "bottomRight"},
-        {PaneType::TopRight, "topRight"},
-        {PaneType::BottomLeft, "bottomLeft"},
-    });
 };
 
 
@@ -82,7 +150,7 @@ private:
  * Most of parameters are applicable only to worksheets: #windowProtection, #showFormulas,
  * #showGridLines, #showRowColHeaders, #showZeros, #rightToLeft, #showRuler, #showOutlineSymbols,
  * #showWhiteSpace, #defaultGridColor, #type, #topLeftCell, #colorId, #zoomScaleNormal,
- * #zoomScalePageBreakView, #zoomScalePageLayoutView, #selection. These parameters are accessible
+ * #zoomScalePageBreakView, #zoomScalePageLayoutView, #selection, #pane, . These parameters are accessible
  * via the corresponding Worksheet methods.
  *
  * One parameter is valid to only chartsheets: #zoomToFit. The corresponding methods
@@ -143,7 +211,8 @@ mimicking how it would look if printed. */
      * @brief Flag indicating whether the window should show 0 (zero) in cells
      * containing zero value.
      *
-     * When `false`, cells with zero value appear blank instead of showing the number zero.
+     * When `false`, cells with zero value appear blank instead of showing the
+     * number zero.
      *
      * If not set, the default value is `true`.
      *
@@ -151,7 +220,8 @@ mimicking how it would look if printed. */
      */
     std::optional<bool> showZeros;
     /**
-     * @brief Flag indicating whether the sheet is in 'right to left' display mode.
+     * @brief Flag indicating whether the sheet is in 'right to left' display
+     * mode.
      *
      * When in this mode, Column A is on the far right, Column B is one column
      * left of Column A, and so on. Also, information in cells is displayed in
@@ -190,8 +260,8 @@ mimicking how it would look if printed. */
     /**
      * @brief Flag indicating whether page layout view shall display margins.
      *
-     * `false` means do not display left, right, top (header), and bottom (footer)
-     * margins (even when there is data in the header or footer).
+     * `false` means do not display left, right, top (header), and bottom
+     * (footer) margins (even when there is data in the header or footer).
      *
      * If not set, the default value is `true`.
      *
@@ -224,8 +294,8 @@ mimicking how it would look if printed. */
      */
     CellReference topLeftCell;
     /**
-     * @brief  Index to the color value for row/column text headings and gridlines.
-     * This is an 'index color value' (ICV) rather than rgb value.
+     * @brief  Index to the color value for row/column text headings and
+     * gridlines. This is an 'index color value' (ICV) rather than rgb value.
      *
      * If not set, the default value is 64.
      *
@@ -233,7 +303,8 @@ mimicking how it would look if printed. */
      */
     std::optional<int> colorId;
     /**
-     * @brief Window zoom magnification for current view representing percent values.
+     * @brief Window zoom magnification for current view representing percent
+     * values.
      *
      * This parameter is restricted to values ranging from 10 to 400.
      *
@@ -293,10 +364,14 @@ mimicking how it would look if printed. */
      * This parameter is not applicable to chartsheets.
      */
     Selection selection;
+    /**
+     * @brief Pane parameters of the view.
+     *
+     * This parameter is not applicable to chartsheets.
+     */
+    ViewPane pane;
 
-    //TODO:
-//    std::optional<CT_Pane> pane;
-//    std::optional<CT_PivotSelection> pivotSelection;
+//TODO:    std::optional<CT_PivotSelection> pivotSelection;
 
     ExtensionList extLst;
 

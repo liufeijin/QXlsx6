@@ -35,9 +35,22 @@ void SheetView::read(QXmlStreamReader &reader)
     while (!reader.atEnd()) {
         const auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
+            a = reader.attributes();
             if (reader.name() == QLatin1String("pane")) {
-                //TODO: //    std::optional<CT_Pane> pane;
-                reader.skipCurrentElement();
+                parseAttributeDouble(a, QLatin1String("xSplit"), pane.xSplit);
+                parseAttributeDouble(a, QLatin1String("ySplit"), pane.ySplit);
+                if (a.hasAttribute(QLatin1String("topLeftCell")))
+                    pane.topLeftCell = CellReference(a.value(QLatin1String("topLeftCell")).toString());
+                if (a.hasAttribute(QLatin1String("activePane"))) {
+                    ViewPane::Type t;
+                    ViewPane::fromString(a.value(QLatin1String("activePane")).toString(), t);
+                    pane.activePane = t;
+                }
+                if (a.hasAttribute(QLatin1String("state"))) {
+                    ViewPane::State t;
+                    ViewPane::fromString(a.value(QLatin1String("state")).toString(), t);
+                    pane.paneState = t;
+                }
             }
             else if (reader.name() == QLatin1String("selection")) {
                 selection.read(reader);
@@ -84,7 +97,16 @@ void SheetView::write(QXmlStreamWriter &writer, const QLatin1String &name, bool 
     writeAttribute(writer, QLatin1String("workbookViewId"), workbookViewId);
     if (!worksheet) writeAttribute(writer, QLatin1String("zoomToFit"), zoomToFit.value_or(true));
 
-    //TODO: std::optional<CT_Pane> pane;
+    if (worksheet && pane.isValid()) {
+        writer.writeEmptyElement(QLatin1String("pane"));
+        writeAttribute(writer, QLatin1String("xSplit"), pane.xSplit);
+        writeAttribute(writer, QLatin1String("ySplit"), pane.ySplit);
+        writeAttribute(writer, QLatin1String("topLeftCell"), pane.topLeftCell.toString());
+        if (pane.activePane.has_value())
+            writeAttribute(writer, QLatin1String("activePane"), ViewPane::toString(pane.activePane.value()));
+        if (pane.paneState.has_value())
+            writeAttribute(writer, QLatin1String("state"), ViewPane::toString(pane.paneState.value()));
+    }
     if (worksheet && selection.isValid()) selection.write(writer, QLatin1String("selection"));
     //TODO:    std::optional<CT_PivotSelection> pivotSelection;
 
@@ -137,7 +159,7 @@ void Selection::read(QXmlStreamReader &reader)
     const auto &a = reader.attributes();
     if (a.hasAttribute(QLatin1String("pane"))) {
         QString s = a.value(QLatin1String("pane")).toString();
-        PaneType t; fromString(s, t); pane = t;
+        ViewPane::Type t; ViewPane::fromString(s, t); pane = t;
     }
     if (a.hasAttribute(QLatin1String("activeCell"))) {
         QString s = a.value(QLatin1String("activeCell")).toString();
@@ -155,7 +177,7 @@ void Selection::write(QXmlStreamWriter &writer, const QLatin1String &name) const
     if (!isValid()) return;
     writer.writeEmptyElement(name);
     if (pane.has_value()) {
-        writer.writeAttribute(QLatin1String("pane"), toString(pane.value()));
+        writer.writeAttribute(QLatin1String("pane"), ViewPane::toString(pane.value()));
     }
     auto ref = activeCell;
     if (!ref.isValid()) {
@@ -177,6 +199,16 @@ void Selection::write(QXmlStreamWriter &writer, const QLatin1String &name) const
         for (const auto &range: selectedRanges) ranges << range.toString();
         writeAttribute(writer, QLatin1String("sqref"), ranges.join(' '));
     }
+}
+
+bool ViewPane::isValid() const
+{
+    if (xSplit.has_value()) return true;
+    if (ySplit.has_value()) return true;
+    if (activePane.has_value()) return true;
+    if (paneState.has_value()) return true;
+    if (topLeftCell.isValid()) return true;
+    return false;
 }
 
 }
