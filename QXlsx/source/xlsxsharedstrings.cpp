@@ -121,69 +121,6 @@ QList<RichString> SharedStrings::getSharedStrings() const
     return m_stringList;
 }
 
-void SharedStrings::writeRichStringPart_rPr(QXmlStreamWriter &writer, const Format &format) const
-{
-    if (!format.hasFontData())
-        return;
-
-    if (format.fontBold())
-        writer.writeEmptyElement(QStringLiteral("b"));
-    if (format.fontItalic())
-        writer.writeEmptyElement(QStringLiteral("i"));
-    if (format.fontStrikeOut())
-        writer.writeEmptyElement(QStringLiteral("strike"));
-    if (format.fontOutline())
-        writer.writeEmptyElement(QStringLiteral("outline"));
-    if (format.boolProperty(FormatPrivate::P_Font_Shadow))
-        writer.writeEmptyElement(QStringLiteral("shadow"));
-    if (format.hasProperty(FormatPrivate::P_Font_Underline)) {
-        Format::FontUnderline u = format.fontUnderline();
-        if (u != Format::FontUnderlineNone) {
-            writer.writeEmptyElement(QStringLiteral("u"));
-            if (u== Format::FontUnderlineDouble)
-                writer.writeAttribute(QStringLiteral("val"), QStringLiteral("double"));
-            else if (u == Format::FontUnderlineSingleAccounting)
-                writer.writeAttribute(QStringLiteral("val"), QStringLiteral("singleAccounting"));
-            else if (u == Format::FontUnderlineDoubleAccounting)
-                writer.writeAttribute(QStringLiteral("val"), QStringLiteral("doubleAccounting"));
-        }
-    }
-    if (format.hasProperty(FormatPrivate::P_Font_Script)) {
-        Format::FontScript s = format.fontScript();
-        if (s != Format::FontScriptNormal) {
-            writer.writeEmptyElement(QStringLiteral("vertAlign"));
-            if (s == Format::FontScriptSuper)
-                writer.writeAttribute(QStringLiteral("val"), QStringLiteral("superscript"));
-            else
-                writer.writeAttribute(QStringLiteral("val"), QStringLiteral("subscript"));
-        }
-    }
-
-    if (format.hasProperty(FormatPrivate::P_Font_Size)) {
-        writer.writeEmptyElement(QStringLiteral("sz"));
-        writer.writeAttribute(QStringLiteral("val"), QString::number(format.fontSize()));
-    }
-
-    if (format.hasProperty(FormatPrivate::P_Font_Color)) {
-        Color color = format.property(FormatPrivate::P_Font_Color).value<Color>();
-        color.write(writer, QStringLiteral("color"));
-    }
-
-    if (!format.fontName().isEmpty()) {
-        writer.writeEmptyElement(QStringLiteral("rFont"));
-        writer.writeAttribute(QStringLiteral("val"), format.fontName());
-    }
-    if (format.hasProperty(FormatPrivate::P_Font_Family)) {
-        writer.writeEmptyElement(QStringLiteral("family"));
-        writer.writeAttribute(QStringLiteral("val"), QString::number(format.intProperty(FormatPrivate::P_Font_Family)));
-    }
-
-    if (format.hasProperty(FormatPrivate::P_Font_Scheme)) {
-        writer.writeEmptyElement(QStringLiteral("scheme"));
-        writer.writeAttribute(QStringLiteral("val"), format.stringProperty(FormatPrivate::P_Font_Scheme));
-    }
-}
-
 void SharedStrings::saveToXmlFile(QIODevice *device) const
 {
     QXmlStreamWriter writer(device);
@@ -201,33 +138,7 @@ void SharedStrings::saveToXmlFile(QIODevice *device) const
     writer.writeAttribute(QStringLiteral("uniqueCount"), QString::number(m_stringList.size()));
 
     for (const RichString &string : qAsConst(m_stringList)) {
-        writer.writeStartElement(QStringLiteral("si"));
-        if (string.isRichString()) {
-            //Rich text string
-            for (int i=0; i<string.fragmentCount(); ++i) {
-                writer.writeStartElement(QStringLiteral("r"));
-                if (string.fragmentFormat(i).hasFontData()) {
-                    writer.writeStartElement(QStringLiteral("rPr"));
-                    writeRichStringPart_rPr(writer, string.fragmentFormat(i));
-                    writer.writeEndElement();// rPr
-                }
-                writer.writeStartElement(QStringLiteral("t"));
-                if (isSpaceReserveNeeded(string.fragmentText(i)))
-                    writer.writeAttribute(QStringLiteral("xml:space"), QStringLiteral("preserve"));
-                writer.writeCharacters(string.fragmentText(i));
-                writer.writeEndElement();// t
-
-                writer.writeEndElement(); //r
-            }
-        } else {
-            writer.writeStartElement(QStringLiteral("t"));
-            QString pString = string.toPlainString();
-            if (isSpaceReserveNeeded(pString))
-                writer.writeAttribute(QStringLiteral("xml:space"), QStringLiteral("preserve"));
-            writer.writeCharacters(pString);
-            writer.writeEndElement();//t
-        }
-        writer.writeEndElement();//si
+        string.write(writer, QStringLiteral("si"));
     }
 
     writer.writeEndElement(); //sst
@@ -239,108 +150,11 @@ void SharedStrings::readString(QXmlStreamReader &reader)
     Q_ASSERT(reader.name() == QLatin1String("si"));
 
     RichString richString;
-
-    while (!reader.atEnd() && !(reader.name() == QLatin1String("si") && reader.tokenType() == QXmlStreamReader::EndElement)) {
-        reader.readNextStartElement();
-        if (reader.tokenType() == QXmlStreamReader::StartElement) {
-            if (reader.name() == QLatin1String("r"))
-                readRichStringPart(reader, richString);
-            else if (reader.name() == QLatin1String("t"))
-                readPlainStringPart(reader, richString);
-        }
-    }
+    richString.read(reader, QLatin1String("si"));
 
     int idx = m_stringList.size();
     m_stringTable[richString] = XlsxSharedStringInfo(idx, 0);
     m_stringList.append(richString);
-}
-
-void SharedStrings::readRichStringPart(QXmlStreamReader &reader, RichString &richString)
-{
-    Q_ASSERT(reader.name() == QLatin1String("r"));
-
-    QString text;
-    Format format;
-    while (!reader.atEnd() && !(reader.name() == QLatin1String("r") && reader.tokenType() == QXmlStreamReader::EndElement)) {
-        reader.readNextStartElement();
-        if (reader.tokenType() == QXmlStreamReader::StartElement) {
-            if (reader.name() == QLatin1String("rPr")) {
-                format = readRichStringPart_rPr(reader);
-            } else if (reader.name() == QLatin1String("t")) {
-                text = reader.readElementText();
-            }
-        }
-    }
-    richString.addFragment(text, format);
-}
-
-void SharedStrings::readPlainStringPart(QXmlStreamReader &reader, RichString &richString)
-{
-    Q_ASSERT(reader.name() == QLatin1String("t"));
-
-    //QXmlStreamAttributes attributes = reader.attributes();
-
-    // NOTICE: CHECK POINT
-    QString text = reader.readElementText();
-    richString.addFragment(text, Format());
-}
-
-Format SharedStrings::readRichStringPart_rPr(QXmlStreamReader &reader)
-{
-    Q_ASSERT(reader.name() == QLatin1String("rPr"));
-    Format format;
-    while (!reader.atEnd() && !(reader.name() == QLatin1String("rPr") && reader.tokenType() == QXmlStreamReader::EndElement)) {
-        reader.readNextStartElement();
-        if (reader.tokenType() == QXmlStreamReader::StartElement) {
-            QXmlStreamAttributes attributes = reader.attributes();
-            if (reader.name() == QLatin1String("rFont")) {
-                format.setFontName(attributes.value(QLatin1String("val")).toString());
-            } else if (reader.name() == QLatin1String("charset")) {
-                format.setProperty(FormatPrivate::P_Font_Charset, attributes.value(QLatin1String("val")).toInt());
-            } else if (reader.name() == QLatin1String("family")) {
-                format.setProperty(FormatPrivate::P_Font_Family, attributes.value(QLatin1String("val")).toInt());
-            } else if (reader.name() == QLatin1String("b")) {
-                format.setFontBold(true);
-            } else if (reader.name() == QLatin1String("i")) {
-                format.setFontItalic(true);
-            } else if (reader.name() == QLatin1String("strike")) {
-                format.setFontStrikeOut(true);
-            } else if (reader.name() == QLatin1String("outline")) {
-                format.setFontOutline(true);
-            } else if (reader.name() == QLatin1String("shadow")) {
-                format.setProperty(FormatPrivate::P_Font_Shadow, true);
-            } else if (reader.name() == QLatin1String("condense")) {
-                format.setProperty(FormatPrivate::P_Font_Condense, attributes.value(QLatin1String("val")).toInt());
-            } else if (reader.name() == QLatin1String("extend")) {
-                format.setProperty(FormatPrivate::P_Font_Extend, attributes.value(QLatin1String("val")).toInt());
-            } else if (reader.name() == QLatin1String("color")) {
-                Color color;
-                color.read(reader);
-                format.setProperty(FormatPrivate::P_Font_Color, color);
-            } else if (reader.name() == QLatin1String("sz")) {
-                format.setFontSize(attributes.value(QLatin1String("val")).toDouble());
-            } else if (reader.name() == QLatin1String("u")) {
-                QString value = attributes.value(QLatin1String("val")).toString();
-                if (value == QLatin1String("double"))
-                    format.setFontUnderline(Format::FontUnderlineDouble);
-                else if (value == QLatin1String("doubleAccounting"))
-                    format.setFontUnderline(Format::FontUnderlineDoubleAccounting);
-                else if (value == QLatin1String("singleAccounting"))
-                    format.setFontUnderline(Format::FontUnderlineSingleAccounting);
-                else
-                    format.setFontUnderline(Format::FontUnderlineSingle);
-            } else if (reader.name() == QLatin1String("vertAlign")) {
-                QString value = attributes.value(QLatin1String("val")).toString();
-                if (value == QLatin1String("superscript"))
-                    format.setFontScript(Format::FontScriptSuper);
-                else if (value == QLatin1String("subscript"))
-                    format.setFontScript(Format::FontScriptSub);
-            } else if (reader.name() == QLatin1String("scheme")) {
-                format.setProperty(FormatPrivate::P_Font_Scheme, attributes.value(QLatin1String("val")).toString());
-            }
-        }
-    }
-    return format;
 }
 
 bool SharedStrings::loadFromXmlFile(QIODevice *device)

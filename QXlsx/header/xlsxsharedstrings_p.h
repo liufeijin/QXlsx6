@@ -82,10 +82,6 @@ public:
 
 private:
     void readString(QXmlStreamReader &reader); // <si>
-    void readRichStringPart(QXmlStreamReader &reader, RichString &rich); // <r>
-    void readPlainStringPart(QXmlStreamReader &reader, RichString &rich); // <v>
-    Format readRichStringPart_rPr(QXmlStreamReader &reader);
-    void writeRichStringPart_rPr(QXmlStreamWriter &writer, const Format &format) const;
 
     QHash<RichString, XlsxSharedStringInfo> m_stringTable; //for fast lookup
     QList<RichString> m_stringList;

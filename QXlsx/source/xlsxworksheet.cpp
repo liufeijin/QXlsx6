@@ -2060,11 +2060,8 @@ void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 
 void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int col, std::shared_ptr<Cell> cell) const
 {
-    //This is the innermost loop so efficiency is important.
-    QString cell_pos = CellReference(row, col).toString();
-
     writer.writeStartElement(QLatin1String("c"));
-    writer.writeAttribute(QLatin1String("r"), cell_pos);
+    writer.writeAttribute(QLatin1String("r"), CellReference(row, col).toString());
 
     //Style used by the cell, row or col
     if (!cell->format().isEmpty())
@@ -2087,35 +2084,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
         }
         case Cell::Type::InlineString: {// 'inlineStr'
             writer.writeAttribute(QLatin1String("t"), QLatin1String("inlineStr"));
-            writer.writeStartElement(QLatin1String("is"));
-            if (cell->isRichString()) {
-                //Rich text string
-                const RichString &string = cell->richString();
-                for (int i=0; i<string.fragmentCount(); ++i) {
-                    writer.writeStartElement(QLatin1String("r"));
-                    if (string.fragmentFormat(i).hasFontData())
-                    {
-                        writer.writeStartElement(QLatin1String("rPr"));
-                        //TODO
-                        writer.writeEndElement();// rPr
-                    }
-                    writer.writeStartElement(QLatin1String("t"));
-                    if (isSpaceReserveNeeded(string.fragmentText(i)))
-                        writer.writeAttribute(QLatin1String("xml:space"), QLatin1String("preserve"));
-                    writer.writeCharacters(string.fragmentText(i));
-                    writer.writeEndElement();// t
-                    writer.writeEndElement(); // r
-                }
-            }
-            else {
-                writer.writeStartElement(QLatin1String("t"));
-                QString string = cell->value().toString();
-                if (isSpaceReserveNeeded(string))
-                    writer.writeAttribute(QLatin1String("xml:space"), QLatin1String("preserve"));
-                writer.writeCharacters(string);
-                writer.writeEndElement(); // t
-            }
-            writer.writeEndElement();//is
+            cell->richString().write(writer, QLatin1String("is"));
             break;
         }
         case Cell::Type::Number: {// 'n'
@@ -2851,8 +2820,9 @@ void WorksheetPrivate::loadXmlCell(QXmlStreamReader &reader)
                 }
             }
             else if (reader.name() == QLatin1String("is")) {
-                //TODO: add rich text read support
-                cell->setValue(reader.readElementText());
+                RichString rs;
+                rs.read(reader, QLatin1String("is"));
+                cell->setRichString(rs);
             }
             else if (reader.name() == QLatin1String("extLst"))
                 reader.skipCurrentElement();

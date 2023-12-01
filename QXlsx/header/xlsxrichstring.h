@@ -39,6 +39,10 @@ class RichString;
 // qHash is a friend, but we can't use default arguments for friends (§8.3.6.4)
   uint qHash(const RichString &rs, uint seed = 0) Q_DECL_NOTHROW;
 
+/**
+ * @brief The RichString class represents formatted string in the worksheet
+ * cell.
+ */
 class QXLSX_EXPORT RichString
 {
 public:
@@ -49,7 +53,7 @@ public:
 
     bool isRichString() const;
     bool isNull() const;
-    bool isEmtpy() const;
+    bool isEmpty() const;
     QString toPlainString() const;
     QString toHtml() const;
     void setHtml(const QString &text);
@@ -61,9 +65,16 @@ public:
 
     operator QVariant() const;
 
+    void write(QXmlStreamWriter &writer, const QString &name) const;
+    void read(QXmlStreamReader &reader, const QString &name);
+
     RichString &operator=(const RichString &other);
 
 private:
+    static void writeFormat(QXmlStreamWriter &writer, const Format &format);
+    void readRichStringPart(QXmlStreamReader &reader);
+    void readPlainStringPart(QXmlStreamReader &reader);
+    Format readFormat(QXmlStreamReader &reader) const;
     friend   uint qHash(const RichString &rs, uint seed) Q_DECL_NOTHROW;
     friend   bool operator==(const RichString &rs1, const RichString &rs2);
     friend   bool operator!=(const RichString &rs1, const RichString &rs2);
