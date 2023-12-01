@@ -55,6 +55,7 @@ INCLUDEPATH += $${QXLSX_HEADERPATH}
 # source code 
 
 HEADERS += \
+$${QXLSX_HEADERPATH}xlsxheaderfooter.h \
 $${QXLSX_HEADERPATH}xlsxpagesetup.h \
 $${QXLSX_HEADERPATH}xlsxpagemargins.h \
 $${QXLSX_HEADERPATH}xlsxsheetprotection.h \
@@ -117,6 +118,7 @@ $${QXLSX_HEADERPATH}xlsxzipreader_p.h \
 $${QXLSX_HEADERPATH}xlsxzipwriter_p.h
 
 SOURCES += \
+$${QXLSX_SOURCEPATH}xlsxheaderfooter.cpp \
 $${QXLSX_SOURCEPATH}xlsxpagesetup.cpp \
 $${QXLSX_SOURCEPATH}xlsxpagemargins.cpp \
 $${QXLSX_SOURCEPATH}xlsxsheetprotection.cpp \

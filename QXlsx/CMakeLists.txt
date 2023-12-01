@@ -158,6 +158,8 @@ set(SRC_FILES
     source/xlsxsheetprotection.cpp
     header/xlsxpagemargins.h
     source/xlsxpagemargins.cpp
+    header/xlsxheaderfooter.h
+    source/xlsxheaderfooter.cpp
 )
 
 set(QXLSX_PUBLIC_HEADERS
