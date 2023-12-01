@@ -2130,7 +2130,7 @@ void WorksheetPrivate::saveXmlCellData(QXmlStreamWriter &writer, int row, int co
             }
             break;
         }
-        case Cell::Type::String: {// 'str'
+        case Cell::Type::Formula: {// 'str'
             writer.writeAttribute(QLatin1String("t"), QLatin1String("str"));
             if (cell->hasFormula())
                 cell->formula().saveToXml(writer);

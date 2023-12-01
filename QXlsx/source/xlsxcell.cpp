@@ -305,7 +305,7 @@ bool Cell::isRichString() const
 
     if ( d->cellType != Type::SharedString &&
             d->cellType != Type::InlineString &&
-            d->cellType != Type::String )
+            d->cellType != Type::Formula )
     {
         return false;
     }

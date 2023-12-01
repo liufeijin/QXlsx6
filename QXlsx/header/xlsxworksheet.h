@@ -1771,7 +1771,7 @@ public:
     void splitViewVertically(int rowsCount, bool frozen, int viewIndex = 0);
     /**
      * @brief splits the sheet view with @a viewIndex vertically making 4 view
-     * panes. The top view panes will have the height of @a @param rowsCount,
+     * panes. The top view panes will have the height of @a rowsCount,
      * the left view panes will have the width of @a columnsCount.
      * @a rowsCount rows.
      * @param rowsCount How many rows to show in the top panes.

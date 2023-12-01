@@ -372,6 +372,13 @@ enum class LightRigDirection
     BottomRight
 };
 
+/**
+ * @brief The ExtensionList class represents an element of the xml file that is
+ * not coded in the ECMA-376 standard.
+ *
+ * Such an element is read and written as is, and cannot be modified in this
+ * library.
+ */
 class QXLSX_EXPORT ExtensionList
 {
 public:
@@ -387,9 +394,10 @@ private:
 /**
  * @brief The RelativeRect class specifies the rectangle with edges relative to
  * the parent's rectangle.
+ *
  * Each edge of the rectangle is defined by a percentage offset from the
- * corresponding edge of the parent's bounding box. A positive percentage specifies
- * an inset, while a negative percentage specifies an outset.
+ * corresponding edge of the parent's bounding box. A positive percentage
+ * specifies an inset, while a negative percentage specifies an outset.
  */
 class QXLSX_EXPORT RelativeRect
 {
@@ -400,18 +408,26 @@ public:
     RelativeRect();
     /**
      * @brief creates a RelativeRect with fully specified edges.
-     * @param left a percentage offset from the left edge of the parent's bounding box
-     * @param top a percentage offset from the top edge of the parent's bounding box
-     * @param right a percentage offset from the right edge of the parent's bounding box
-     * @param bottom a percentage offset from the bottom edge of the parent's bounding box
+     * @param left a percentage offset from the left edge of the parent's
+     * bounding box.
+     * @param top a percentage offset from the top edge of the parent's bounding
+     * box.
+     * @param right a percentage offset from the right edge of the parent's
+     * bounding box.
+     * @param bottom a percentage offset from the bottom edge of the parent's
+     * bounding box.
      *
      * Value of 100.0 equals 100%. Values can be positive or negative.
      */
     RelativeRect(double left, double top, double right, double bottom);
-    std::optional<double> left; /**< @brief a percentage offset from the left edge of the parent's bounding box */
-    std::optional<double> top; /**< @brief a percentage offset from the top edge of the parent's bounding box */
-    std::optional<double> right; /**< @brief right a percentage offset from the right edge of the parent's bounding box */
-    std::optional<double> bottom; /**< @brief bottom a percentage offset from the bottom edge of the parent's bounding box */
+    std::optional<double> left; /**< @brief a percentage offset from the left
+edge of the parent's bounding box. */
+    std::optional<double> top; /**< @brief a percentage offset from the top edge
+of the parent's bounding box. */
+    std::optional<double> right; /**< @brief right a percentage offset from the
+right edge of the parent's bounding box. */
+    std::optional<double> bottom; /**< @brief bottom a percentage offset from
+the bottom edge of the parent's bounding box. */
 
     void write(QXmlStreamWriter &writer, const QString &name) const;
     void read(QXmlStreamReader &reader);
@@ -454,34 +470,34 @@ public:
 QDebug operator<<(QDebug dbg, const NumberFormat &f);
 
 /**
- * @brief The Coordinate class represents a coordinate, either as a whole number in EMU,
- * as a number of points (i.e. EMU / 12700)
- * or as a qualified measure in mm, pt, in etc.
+ * @brief The Coordinate class represents a coordinate, either as a whole number
+ * in EMU, as a number of points (i.e. EMU / 12700) or as a qualified measure in
+ * mm, pt, in etc.
  */
 class QXLSX_EXPORT Coordinate
 {
 public:
     /**
-     * @brief Coordinate creates invalid coordinate
+     * @brief creates invalid coordinate.
      */
     Coordinate() {}
 
     /**
-     * @brief Coordinate creates Coordinate as a number of EMU
-     * @param emu coordinate value [-27273042329600 .. -27273042329600]
+     * @brief creates Coordinate as a number of EMU.
+     * @param emu coordinate value [-27273042329600 .. 27273042329600]
      */
     explicit Coordinate(qint64 emu);
 
     /**
-     * @brief Coordinate creates universal coordinate measure
+     * @brief creates universal coordinate measure.
      * @param val string in the format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)",
-     * f.e. "-12.3pt" or "200mm"
+     * f.e. "-12.3pt" or "200mm".
      */
     explicit Coordinate(const QString &val);
 
     /**
-     * @brief Coordinate creates Coordinate in points
-     * @param points coordinate value
+     * @brief creates Coordinate in points.
+     * @param points coordinate value.
      */
     explicit Coordinate(double points);
 
@@ -508,19 +524,32 @@ public:
      * @return pixels at 96 DPI (default).
      */
     double toPixels(int dpi = 96) const;
-
+    /**
+     * @brief sets the coordinate in EMU.
+     * @param val coordinate value [-27273042329600 .. 27273042329600].
+     */
     void setEMU(qint64 val);
+    /**
+     * @brief sets the coordinate as a string
+     * @param val string in the format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)",
+     * f.e. "-12.3pt" or "200mm".
+     */
     void setString(const QString &val);
+    /**
+     * @brief sets the coordinate in pt.
+     * @param points coordinate value [-2147483648 .. 2147483648].
+     */
     void setPoints(double points);
     /**
-     * @brief sets the coordinate value in pixels (at 96 DPI by default)
-     * and stores it in EMUs.
+     * @brief sets the coordinate value in pixels (at 96 DPI by default) and
+     * stores it in EMUs.
      * @param pixels new value in px.
      * @param dpi resolution (dots per inch) to help convert @a pixels to EMU.
      */
     void setPixels(double pixels, int dpi = 96);
     /**
-     * @brief creates Coordinate object and sets its value in pixels at specified resolution.
+     * @brief creates Coordinate object and sets its value in pixels at
+     * specified resolution.
      * @param pixels size in pixels
      * @param dpi resolution in dots per inch.
      * @return new Coordinate object.
@@ -528,9 +557,8 @@ public:
     static Coordinate fromPixels(int pixels, int dpi = 96);
 
     /**
-     * @brief create parses val and creates a valid Coordinate
-     * @param val string, either EMU (381000) or measure (30pt)
-     * @return
+     * @brief parses @a val and creates a Coordinate object.
+     * @param val string, either EMU (381000) or measure ("30pt").
      */
     static Coordinate create(const QStringView &val);
 
@@ -550,44 +578,52 @@ class QXLSX_EXPORT TextPoint
 {
 public:
     /**
-     * @brief TextPoint creates invalid spacing
+     * @brief creates invalid spacing
      */
     TextPoint() {}
 
     /**
-     * @brief TextPoint creates TextPoint in points
+     * @brief creates TextPoint in points
      * @param points spacing value [-4000.0 .. 4000.0]
      */
     explicit TextPoint(double points);
 
     /**
-     * @brief TextPoint creates spacing measure
+     * @brief creates spacing measure
      * @param val string in the format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)",
      * f.e. "-12.3pt" or "200mm"
      */
     explicit TextPoint(const QString &val);
 
     /**
-     * @brief toString returns string representation of spacing
+     * @brief returns string representation of spacing
      * @return
      */
     QString toString() const;
 
     /**
-     * @brief toPoints return spacing in points
+     * @brief returns spacing in points
      * @return
      */
     double toPoints() const;
-
+    /**
+     * @brief sets the spacing as a string.
+     * @param val string in the format "-?[0-9]+(\.[0-9]+)?(mm|cm|in|pt|pc|pi)",
+     * f.e. "-12.3pt" or "200mm"
+     */
     void setString(const QString &val);
+    /**
+     * @brief sets the spacing in points
+     * @param points spacing value [-4000.0 .. 4000.0]
+     */
     void setPoints(double points);
 
     bool operator==(const TextPoint &other) const {return val == other.val;}
     bool operator!=(const TextPoint &other) const {return val != other.val;}
 
     /**
-     * @brief create parses val and creates a valid TextPoint
-     * @param val string, either pt*100 ([-400000..400000]) or measure (30pt)
+     * @brief parses val and creates a TextPoint
+     * @param val string, either pt*100 ([-400000..400000]) or measure ("30pt")
      * @return
      */
     static TextPoint create(const QString &val);
@@ -645,15 +681,33 @@ private:
 
 void parseAttribute(const QXmlStreamAttributes &a, const QLatin1String &name, Angle &target);
 
-//TODO: documentation
+/**
+ * @brief The Transform2D class represents the parameters of the shape 2D
+ * transformation - rotation, flipping, offsets and resizing.
+ */
 class QXLSX_EXPORT Transform2D
 {
 public:
-    std::optional<QPoint> offset; //element off, optional
+    /**
+     * @brief specifies the shape offset as a QPoint.
+     */
+    std::optional<QPoint> offset;
+    /**
+     * @brief specifies the shape extension
+     */
     std::optional<QSize> extension; //element ext, optional
-    Angle rotation; //attribute rot, optional
-    std::optional<bool> flipHorizontal; //attribute flipH, optional
-    std::optional<bool> flipVertical; //attribute flipV, optional
+    /**
+     * @brief specifies the shape rotation angle.
+     */
+    Angle rotation;
+    /**
+     * @brief specifies the shape flipping horizontally.
+     */
+    std::optional<bool> flipHorizontal;
+    /**
+     * @brief specifies the shape flipping vertically.
+     */
+    std::optional<bool> flipVertical;
 
     bool isValid() const;
 
