@@ -46,7 +46,7 @@ LabelPrivate::LabelPrivate()
 
 LabelPrivate::LabelPrivate(const LabelPrivate &other) : QSharedData(other),
     index{other.index}, visible{other.visible}, properties{other.properties},
-    layout{other.layout}, text{other.text}
+    layout{other.layout}, text{other.text}, extList{other.extList}
 {
 }
 
@@ -307,11 +307,12 @@ void Label::read(QXmlStreamReader &reader)
     while (!reader.atEnd()) {
         auto token = reader.readNext();
         if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
             if (reader.name() == QLatin1String("idx")) {
-                d->index = reader.attributes().value(QLatin1String("val")).toInt();
+                parseAttributeInt(a, QLatin1String("val"), d->index);
             }
             else if (reader.name() == QLatin1String("delete")) {
-                d->visible = !fromST_Boolean(reader.attributes().value(QLatin1String("val")));
+                parseAttributeBool(a, QLatin1String("val"), d->visible);
             }
             else if (reader.name() == QLatin1String("layout")) {
                 d->layout.read(reader);
@@ -450,22 +451,64 @@ std::optional<bool> Labels::visible() const
     return {};
 }
 
-void Labels::addLabel(const Label &label)
+bool Labels::addLabel(const Label &label)
 {
     if (!d) d = new LabelsPrivate;
-    d->labels << label;
+    if (auto it = std::find_if(d->labels.cbegin(), d->labels.cend(),
+                               [label](const auto &l){return label.index() == l.index();});
+        it == d->labels.cend()) {
+        d->labels << label;
+        return true;
+    }
+    return false;
 }
 
-void Labels::addLabel(int index, Label::ShowParameters showFlags, Label::Position position)
+bool Labels::addLabel(int index, Label::ShowParameters showFlags, Label::Position position)
 {
     if (!d) d = new LabelsPrivate;
-    d->labels << Label(index, showFlags, position);
+    if (auto it = std::find_if(d->labels.cbegin(), d->labels.cend(),
+                               [index](const auto &l){return index == l.index();});
+        it == d->labels.cend()) {
+        d->labels << Label(index, showFlags, position);
+        return true;
+    }
+    return false;
 }
 
-std::optional<std::reference_wrapper<Label> > Labels::label(int index)
+bool Labels::removeLabel(int index)
+{
+    if (d && index >= 0 && index < d->labels.size()) {
+        d->labels.removeAt(index);
+        return true;
+    }
+    return false;
+}
+
+bool Labels::removeLabelForPoint(int index)
+{
+    if (!d) return false;
+    int idx = -1;
+    for (int i=0; i<d->labels.size(); ++i) {
+        if (d->labels.at(i).index() == index) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx >= 0) {
+        d->labels.removeAt(index);
+        return true;
+    }
+    return false;
+}
+
+void Labels::removeLabels()
+{
+    if (d) d->labels.clear();
+}
+
+Label& Labels::label(int index)
 {
     if (!d) d = new LabelsPrivate;
-    if (index < 0 || index >= d->labels.size()) return std::nullopt;
     return d->labels[index];
 }
 
@@ -496,6 +539,12 @@ Label Labels::labelForPoint(int index) const
         if (l.index() == index) return l;
     }
     return {};
+}
+
+int Labels::labelsCount() const
+{
+    if (d) return d->labels.size();
+    return 0;
 }
 
 void Labels::setVisible(bool visible)

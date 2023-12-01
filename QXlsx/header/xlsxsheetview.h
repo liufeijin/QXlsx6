@@ -17,7 +17,8 @@
 namespace QXlsx {
 
 /**
-     * @brief The ViewPane struct represents a view pane in the sheet view
+     * @brief The ViewPane struct represents a view pane in the sheet view.
+     *
      */
 struct ViewPane
 {
@@ -67,7 +68,7 @@ this state, when the panes are unfrozen again, the split remains, but is adjusta
      */
     CellReference topLeftCell;
     /**
-     * @brief Specifies the pane that is active.
+     * @brief Specifies the pane part that is active.
      *
      * If not set, Type::TopLeft is assumed.
      */

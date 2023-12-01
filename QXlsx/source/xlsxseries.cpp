@@ -408,7 +408,7 @@ Labels &Series::defaultLabels()
     return d->labels;
 }
 
-std::optional<std::reference_wrapper<Label> > Series::label(int index)
+Label &Series::label(int index)
 {
     if (!d) d = new SeriesPrivate;
     return d->labels.label(index);

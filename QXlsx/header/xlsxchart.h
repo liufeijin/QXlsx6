@@ -965,10 +965,9 @@ public:
      * @brief returns the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
+     * data labels for all series in the chart.
      *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
+     * To set the labels for specific series use Series::labels() and Series::setLabels().
      *
      * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
      * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
@@ -981,10 +980,9 @@ public:
      * @brief returns the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
+     * data labels for all series in the chart.
      *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
+     * To set the labels for specific series use Series::labels() and Series::setLabels().
      *
      * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
      * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.
@@ -996,10 +994,9 @@ public:
      * @brief sets the entire chart labels properties.
      *
      * This element serves as a root element that specifies the settings for the
-     * data labels for an entire series or the entire chart.  It contains child
-     * elements that specify the specific formatting and positioning settings.
+     * data labels for all series in the chart.
      *
-     * To set the series specific labels use Series::labels() and Series::setLabels().
+     * To set the labels for specific series use Series::labels() and Series::setLabels().
      *
      * Applicable to chart types: Line, Line3D, Stock, Scatter, Radar, Bar, Bar3d,
      * Area, Area3D, Pie, Pie3D, Doughnut, OfPie, Bubble.

@@ -547,10 +547,12 @@ public:
     Labels &defaultLabels();
     /**
      * @brief label returns reference to a label with @a index.
-     * @param index index of a label (not the index of a series dataPoint!)
-     * @return reference to a label, `nullopt` if series is not valid
+     * @param index valid index of a label (not the index of a series dataPoint!)
+     * @return reference to a label.
+     *
+     * If @a index is invalid, the behaviour is undefined.
      */
-    std::optional<std::reference_wrapper<Label> > label(int index);
+    Label& label(int index);
     /**
      * @brief label returns label with @a index
      * @param index index of a label (not the index of a series dataPoint!)
