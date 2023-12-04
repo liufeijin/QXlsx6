@@ -4,6 +4,278 @@
 
 namespace QXlsx {
 
+/// ErrorBarsPrivate
+
+class ErrorBarsPrivate : public QSharedData
+{
+public:
+    ErrorBarsPrivate();
+    ErrorBarsPrivate(const ErrorBarsPrivate &other);
+    ~ErrorBarsPrivate();
+
+    std::optional<ErrorBars::Direction> direction;
+    ErrorBars::Type barType = ErrorBars::Type::Both;
+    ErrorBars::ValueType valueType = ErrorBars::ValueType::Fixed;
+    std::optional<bool> hideEndCap;
+    DataSource plusData;
+    DataSource minusData;
+    std::optional<double> value;
+    ShapeFormat shape;
+
+    bool operator==(const ErrorBarsPrivate &other) const;
+};
+
+ErrorBarsPrivate::ErrorBarsPrivate()
+{
+
+}
+ErrorBarsPrivate::ErrorBarsPrivate(const ErrorBarsPrivate &other) :
+    QSharedData(other),
+    direction{other.direction},
+    barType{other.barType},
+    valueType{other.valueType},
+    hideEndCap{other.hideEndCap},
+    plusData{other.plusData},
+    minusData{other.minusData},
+    value{other.value},
+    shape{other.shape}
+{
+
+}
+ErrorBarsPrivate::~ErrorBarsPrivate()
+{
+
+}
+
+bool ErrorBarsPrivate::operator==(const ErrorBarsPrivate &other) const
+{
+    if (direction != other.direction) return false;
+    if (barType != other.barType) return false;
+    if (valueType != other.valueType) return false;
+    if (hideEndCap != other.hideEndCap) return false;
+    if (plusData != other.plusData) return false;
+    if (minusData != other.minusData) return false;
+    if (value != other.value) return false;
+    if (shape != other.shape) return false;
+    return true;
+}
+
+/// ErrorBars
+
+ErrorBars::ErrorBars()
+{
+
+}
+ErrorBars::ErrorBars(Direction direction, Type barType, ValueType valueType)
+{
+    d = new ErrorBarsPrivate;
+    d->direction = direction;
+    d->barType = barType;
+    d->valueType = valueType;
+}
+ErrorBars::ErrorBars(const ErrorBars &other) : d{other.d}
+{
+
+}
+ErrorBars &ErrorBars::operator=(const ErrorBars &other)
+{
+    if (*this != other) d = other.d;
+    return *this;
+}
+ErrorBars::~ErrorBars()
+{
+
+}
+
+std::optional<ErrorBars::Direction> ErrorBars::direction() const
+{
+    if (d) return d->direction;
+    return {};
+}
+void ErrorBars::setDirection(ErrorBars::Direction direction)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->direction = direction;
+}
+ErrorBars::Type ErrorBars::barType() const// default = Type::Both;
+{
+    if (d) return d->barType;
+    return ErrorBars::Type::Both;
+}
+void ErrorBars::setBarType(Type barType)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->barType = barType;
+}
+ErrorBars::ValueType ErrorBars::valueType() const //default = ValueType::Fixed;
+{
+    if (d) return d->valueType;
+    return ErrorBars::ValueType::Fixed;
+}
+void ErrorBars::setValueType(ErrorBars::ValueType valueType)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->valueType = valueType;
+}
+std::optional<bool> ErrorBars::hideEndCap() const
+{
+    if (d) return d->hideEndCap;
+    return {};
+}
+void ErrorBars::setHideEndCap(bool hide)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->hideEndCap = hide;
+}
+DataSource ErrorBars::plusData() const
+{
+    if (d) return d->plusData;
+    return {};
+}
+DataSource &ErrorBars::plusData()
+{
+    if (!d) d = new ErrorBarsPrivate;
+    return d->plusData;
+}
+void ErrorBars::setPlusData(const DataSource &plusData)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->plusData = plusData;
+    d->valueType = ValueType::Custom;
+}
+DataSource ErrorBars::minusData() const
+{
+    if (d) return d->minusData;
+    return {};
+}
+DataSource &ErrorBars::minusData()
+{
+    if (!d) d = new ErrorBarsPrivate;
+    return d->minusData;
+}
+void ErrorBars::setMinusData(const DataSource &minusData)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->minusData = minusData;
+    d->valueType = ValueType::Custom;
+}
+std::optional<double> ErrorBars::value() const
+{
+    if (d) return d->value;
+    return {};
+}
+void ErrorBars::setValue(double value)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->value = value;
+}
+ShapeFormat ErrorBars::shape() const
+{
+    if (d) return d->shape;
+    return {};
+}
+ShapeFormat &ErrorBars::shape()
+{
+    if (!d) d = new ErrorBarsPrivate;
+    return d->shape;
+}
+void ErrorBars::setShape(const ShapeFormat &shape)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    d->shape = shape;
+}
+
+ErrorBars::operator QVariant() const
+{
+    const auto& cref
+#if QT_VERSION >= 0x060000 // Qt 6.0 or over
+        = QMetaType::fromType<ErrorBars>();
+#else
+        = qMetaTypeId<ErrorBars>() ;
+#endif
+    return QVariant(cref, this);
+}
+
+bool ErrorBars::isValid() const
+{
+    if (d)
+        return true;
+    return false;
+}
+
+void ErrorBars::read(QXmlStreamReader &reader)
+{
+    if (!d) d = new ErrorBarsPrivate;
+    const auto &name = reader.name();
+
+    while (!reader.atEnd()) {
+        auto token = reader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            const auto &a = reader.attributes();
+            if (name == QLatin1String("errDir")) {
+                Direction dir; fromString(a.value(QLatin1String("val")).toString(), dir);
+                d->direction = dir;
+            }
+            else if (name == QLatin1String("errBarType")) {
+                Type t; fromString(a.value(QLatin1String("val")).toString(), t);
+                d->barType = t;
+            }
+            else if (name == QLatin1String("errValType")) {
+                ValueType t; fromString(a.value(QLatin1String("val")).toString(), t);
+                d->valueType = t;
+            }
+            else if (name == QLatin1String("noEndCap")) {
+                parseAttributeBool(a, QLatin1String("val"), d->hideEndCap);
+            }
+            else if (name == QLatin1String("plus")) {
+                reader.readNextStartElement();
+                d->plusData.read(reader);
+            }
+            else if (name == QLatin1String("minus")) {
+                reader.readNextStartElement();
+                d->minusData.read(reader);
+            }
+            else if (name == QLatin1String("val")) {
+                d->value = a.value(QLatin1String("val")).toDouble();
+            }
+            else if (name == QLatin1String("spPr")) {
+                d->shape.read(reader);
+            }
+            else reader.skipCurrentElement();
+        }
+        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
+            break;
+    }
+}
+
+void ErrorBars::write(QXmlStreamWriter &writer, const QString &name) const
+{
+    if (!d) return;
+    writer.writeStartElement(name);
+    if (d->direction.has_value())
+        writeEmptyElement(writer, QLatin1String("c:errDir"), toString(d->direction.value()));
+    writeEmptyElement(writer, QLatin1String("c:errBarType"), toString(d->barType));
+    writeEmptyElement(writer, QLatin1String("c:errValType"), toString(d->valueType));
+    writeEmptyElement(writer, QLatin1String("c:noEndCap"), d->hideEndCap);
+
+    if (d->plusData.isValid()) d->plusData.write(writer, QLatin1String("c:plus"));
+    if (d->minusData.isValid()) d->minusData.write(writer, QLatin1String("c:minus"));
+    writeEmptyElement(writer, QLatin1String("c:value"), d->value);
+    d->shape.write(writer, QLatin1String("c:spPr"));
+    writer.writeEndElement();
+}
+
+bool ErrorBars::operator==(const ErrorBars &other) const
+{
+    if (d == other.d) return true;
+    if (!d || !other.d) return false;
+    return *this->d.constData() == *other.d.constData();
+}
+bool ErrorBars::operator!=(const ErrorBars &other) const
+{
+    return !operator==(other);
+}
+
 /// SeriesPrivate
 
 class SeriesPrivate : public QSharedData
@@ -36,7 +308,7 @@ public:
     QList<TrendLine> trendLines;
 
     //Line, Scatter, Bar, Area, Bubble
-    std::optional<ErrorBars> errorBars; //TODO: due to some required properties errorBars is always valid, so rewrite it as QSharedData
+    ErrorBars errorBars;
 
     //Line, Scatter, Radar
     MarkerFormat marker;
@@ -480,6 +752,24 @@ void Series::setPictureOptions(const PictureOptions &pictureOptions)
     d->pictureOptions = pictureOptions;
 }
 
+ErrorBars &Series::errorBars()
+{
+    if (!d) d = new SeriesPrivate;
+    return d->errorBars;
+}
+
+ErrorBars Series::errorBars() const
+{
+    if (d) return d->errorBars;
+    return {};
+}
+
+void Series::setErrorBars(const ErrorBars &errorBars)
+{
+    if (!d) d = new SeriesPrivate;
+    d->errorBars = errorBars;
+}
+
 void Series::read(QXmlStreamReader &reader)
 {
     if (!d) d = new SeriesPrivate;
@@ -597,7 +887,7 @@ void Series::write(QXmlStreamWriter &writer) const
             d->pictureOptions->write(writer, QLatin1String("c:pictureOptions"));
     if (d->type == Type::Line || d->type == Type::Scatter || d->type == Type::Bar ||
         d->type == Type::Area || d->type == Type::Bubble)
-        if (d->errorBars.has_value()) d->errorBars->write(writer, QLatin1String("c:errBars"));
+        d->errorBars.write(writer, QLatin1String("c:errBars"));
 
     writer.writeEndElement();
 }
@@ -1006,93 +1296,6 @@ void DataSource::write(QXmlStreamWriter &writer, const QString &name) const
 }
 
 /// End of DataSource
-
-/// ErrorBars
-
-bool ErrorBars::isValid() const
-{
-    //TODO: rewrite for qshareddata
-    return true;
-}
-
-void ErrorBars::read(QXmlStreamReader &reader)
-{
-    const auto &name = reader.name();
-
-    while (!reader.atEnd()) {
-        auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            const auto &a = reader.attributes();
-            if (name == QLatin1String("errDir")) {
-                Direction d; fromString(a.value(QLatin1String("val")).toString(), d);
-                direction = d;
-            }
-            else if (name == QLatin1String("errBarType")) {
-                Type t; fromString(a.value(QLatin1String("val")).toString(), t);
-                barType = t;
-            }
-            else if (name == QLatin1String("errValType")) {
-                ValueType t; fromString(a.value(QLatin1String("val")).toString(), t);
-                valueType = t;
-            }
-            else if (name == QLatin1String("noEndCap")) {
-                parseAttributeBool(a, QLatin1String("val"), noEndCap);
-            }
-            else if (name == QLatin1String("plus")) {
-                reader.readNextStartElement();
-                plus.read(reader);
-            }
-            else if (name == QLatin1String("minus")) {
-                reader.readNextStartElement();
-                minus.read(reader);
-            }
-            else if (name == QLatin1String("val")) {
-                value = a.value(QLatin1String("val")).toDouble();
-            }
-            else if (name == QLatin1String("spPr")) {
-                shape.read(reader);
-            }
-            else reader.skipCurrentElement();
-        }
-        else if (token == QXmlStreamReader::EndElement && reader.name() == name)
-            break;
-    }
-}
-
-void ErrorBars::write(QXmlStreamWriter &writer, const QString &name) const
-{
-    writer.writeStartElement(name);
-    if (direction.has_value())
-        writeEmptyElement(writer, QLatin1String("c:errDir"), toString(direction.value()));
-    writeEmptyElement(writer, QLatin1String("c:errBarType"), toString(barType));
-    writeEmptyElement(writer, QLatin1String("c:errValType"), toString(valueType));
-    writeEmptyElement(writer, QLatin1String("c:noEndCap"), noEndCap);
-
-    if (plus.isValid()) plus.write(writer, QLatin1String("c:plus"));
-    if (minus.isValid()) minus.write(writer, QLatin1String("c:minus"));
-    if (value.has_value()) writeEmptyElement(writer, QLatin1String("c:value"), value);
-    if (shape.isValid()) shape.write(writer, QLatin1String("c:spPr"));
-    writer.writeEndElement();
-}
-
-bool ErrorBars::operator==(const ErrorBars &other) const
-{
-    if (direction != other.direction) return false;
-    if (barType != other.barType) return false;
-    if (valueType != other.valueType) return false;
-    if (noEndCap != other.noEndCap) return false;
-    if (plus != other.plus) return false;
-    if (minus != other.minus) return false;
-    if (value != other.value) return false;
-    if (shape != other.shape) return false;
-    return true;
-}
-bool ErrorBars::operator!=(const ErrorBars &other) const
-{
-    return !operator==(other);
-}
-
-/// End of ErrorBars
 
 /// TrendLine
 

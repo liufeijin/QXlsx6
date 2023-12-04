@@ -163,46 +163,207 @@ private:
     void writeStrData(QXmlStreamWriter &writer, const QString &name, const QVector<QString> &data) const;
 };
 
+class ErrorBarsPrivate;
+/**
+ * @brief The ErrorBars class specifies the data and look-and-feel of error bars
+ * in the chart series.
+ *
+ *
+ *
+ * The class is _shallow-copyable_ and inherits QSharedData.
+ */
 class QXLSX_EXPORT ErrorBars
 {
 public:
+    /**
+     * @brief The Direction enum specifies the direction of error bars.
+     */
     enum class Direction
     {
-        Horizontal, //x
-        Vertical //y
+        Horizontal, /**< Error bars are horizontal. */
+        Vertical /**< Error bars are vertical. */
     };
+    /**
+     * @brief The Type enum specifies the type of data shown on error bars.
+     */
     enum class Type
     {
-        Plus,
-        Minus,
-        Both
+        Plus, /**< Only positive values are shown on error bars. */
+        Minus, /**< Only negative values are shown on error bars. */
+        Both /**< All values are shown on error bars. */
     };
+    /**
+     * @brief The ValueType enum specifies the type of values used to determine
+     * the length of the error bars.
+     */
     enum class ValueType
     {
-        Custom,
-        Fixed,
-        Percentage,
-        StdDeviation,
-        StdError
+        Custom, /**< The length of the error bars is determined by #plusData()
+and #minusData() values. */
+        Fixed, /**< The length of the error bars is fixed and determined by
+#value().*/
+        Percentage, /**< The length of the error bars is a percentage and
+determined by #value().*/
+        StdDeviation, /**< The length of the error bars is a standard deviation
+of data values. */
+        StdError /**< The length of the error bars is a standard error of data
+values. */
     };
-
-    std::optional<Direction> direction;
-    Type barType = Type::Both;
-    ValueType valueType = ValueType::Fixed;
-    std::optional<bool> noEndCap;
-    DataSource plus;
-    DataSource minus;
-    std::optional<double> value;
-    ShapeFormat shape;
-
+    /**
+     * @brief Creates the invalid ErrorBars. If the ErrorBars object is invalid,
+     * the series error bars are not shown. To show error bars create ErrorBars
+     * with #barType() and/or #valueType() specified.
+     */
+    ErrorBars();
+    /**
+     * @brief Creates the ErrorBars object with bars direction, type and values
+     * type specified.
+     *
+     * @param direction The bars direction - horizontal or vertical.
+     * @param barType The type of data displayed - plus, minus or both.
+     * @param valueType The type of values displayed.
+     */
+    ErrorBars(Direction direction, Type barType, ValueType valueType);
+    ErrorBars(const ErrorBars &other);
+    ErrorBars &operator=(const ErrorBars &other);
+    ~ErrorBars();
+    /**
+     * @brief returns the direction of error bars.
+     *
+     * There's no default value for the error bars direction.
+     */
+    std::optional<Direction> direction() const;
+    /**
+     * @brief sets the direction of error bars.
+     * @param direction An ErrorBars::Direction enum value.
+     *
+     * If not set, the direction of error bars is application-specific.
+     */
+    void setDirection(Direction direction);
+    /**
+     * @brief returns the type of data shown on error bars: positive, negative
+     * or both.
+     *
+     * The default value is Type::Both.
+     */
+    Type barType() const;
+    /**
+     * @brief sets the type of data shown on error bars: positive, negative
+     * or both.
+     * @param barType A Type enum value.
+     *
+     * The default value is Type::Both.
+     */
+    void setBarType(Type barType);
+    /**
+     * @brief returns the type of values used to determine the length of the
+     * error bars.
+     *
+     * The default value is ValueType::Fixed.
+     */
+    ValueType valueType() const;
+    /**
+     * @brief sets  the type of values used to determine the length of the
+     * error bars.
+     * @param valueType A ValueType enum value.
+     *
+     * The default value is ValueType::Fixed.
+     */
+    void setValueType(ValueType valueType);
+    /**
+     * @brief returns whether to hide the error bars end caps.
+     *
+     * The default value is `true`.
+     */
+    std::optional<bool> hideEndCap() const;
+    /**
+     * @brief sets whether to hide the error bars end caps.
+     * @param hide If `true` then the end caps will not be shown.
+     *
+     * If not set, `true` is assumed.
+     */
+    void setHideEndCap(bool hide);
+    /**
+     * @brief returns the data used for error bars in the positive direction.
+     */
+    DataSource plusData() const;
+    /**
+     * @brief returns the data used for error bars in the positive direction.
+     *
+     * This attribute is valid only if #valueType() is ValueType::Custom, but
+     * this method does not check #valueType().
+     */
+    DataSource &plusData();
+    /**
+     * @brief sets the data used for error bars in the positive direction.
+     * @param plusData A DataSource object.
+     *
+     * This method also sets #valueType() to be ValueType::Custom.
+     */
+    void setPlusData(const DataSource &plusData);
+    /**
+     * @brief returns the data used for error bars in the negative direction.
+     */
+    DataSource minusData() const;
+    /**
+     * @brief returns the data used for error bars in the negative direction.
+     *
+     * This attribute is valid only if #valueType() is ValueType::Custom, but
+     * this method does not check #valueType().
+     */
+    DataSource &minusData();
+    /**
+     * @brief sets the data used for error bars in the negative direction.
+     * @param minusData A DataSource object.
+     *
+     * This method also sets #valueType() to be ValueType::Custom.
+     */
+    void setMinusData(const DataSource &minusData);
+    /**
+     * @brief returns the value which is used to determine the length of the
+     * error bars.
+     *
+     * There's no default value for this attribute.
+     */
+    std::optional<double> value() const;
+    /**
+     * @brief sets the value which is used to determine the length of the
+     * error bars for ValueType::Fixed and ValueType::Percentage value types.
+     * @param value
+     *
+     * There's no default value for this attribute.
+     */
+    void setValue(double value);
+    /**
+     * @brief returns the shape format of the error bars.
+     */
+    ShapeFormat shape() const;
+    /**
+     * @brief returns the shape format of the error bars.
+     */
+    ShapeFormat &shape();
+    /**
+     * @brief sets the shape format of the error bars.
+     * @param shape A ShapeFormat object. In invalid, the error bars will be
+     * shown with the default shape format.
+     */
+    void setShape(const ShapeFormat &shape);
+    /**
+     * @brief returns whether the error bars are valid, i.e. at least one of
+     * attributes is set.
+     * @return
+     */
     bool isValid() const;
 
     bool operator==(const ErrorBars &other) const;
     bool operator!=(const ErrorBars &other) const;
 
+    operator QVariant() const;
+private:
+    friend class Series;
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer, const QString &name) const;
-private:
+
     SERIALIZE_ENUM(Direction,
     {
         {Direction::Vertical, "y"},
@@ -222,6 +383,7 @@ private:
         {ValueType::StdDeviation, "stdDev"},
         {ValueType::StdError, "stdErr"},
     });
+    QSharedDataPointer<ErrorBarsPrivate> d;
 };
 
 /**
@@ -650,14 +812,19 @@ public:
 
     /**
      * @brief errorBars returns error bars properties for Line, Scatter, Bar,
-     * Area, Bubble series
-     * @return valid optional value if errorBars property is set, invalid otherwise
+     * Area, Bubble series.
      */
-    std::optional<ErrorBars> errorBars() const;
+    ErrorBars &errorBars();
+    /**
+     * @brief errorBars returns error bars properties for Line, Scatter, Bar,
+     * Area, Bubble series.
+     */
+    ErrorBars errorBars() const;
     /**
      * @brief setErrorBars sets error bars properties for Line, Scatter, Bar,
-     * Area, Bubble series
-     * @param errorBars
+     * Area, Bubble series.
+     * @param errorBars If valid, error bars will be shown. If invalid, error
+     * bars will not be shown.
      */
     void setErrorBars(const ErrorBars &errorBars);
 
@@ -681,6 +848,10 @@ private:
 
 }
 
+Q_DECLARE_METATYPE(QXlsx::Series)
+Q_DECLARE_METATYPE(QXlsx::ErrorBars)
+
+Q_DECLARE_TYPEINFO(QXlsx::ErrorBars, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(QXlsx::Series, Q_MOVABLE_TYPE);
 
 #endif // XLSXSERIES_H
