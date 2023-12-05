@@ -30,13 +30,29 @@ public:
     /**
      * @brief The Position enum specifies the label position relative to the
      * data marker.
+     *
+     * Some positions are not applicable to all series type. Tests are needed to
+     * check all combinations.
+     *
+     * Position | Bar | Line | Scatter
+     * ----|----|----|----
+     * BestFit | - | - | -
+     * Left | - | + | +
+     * Right | - | + | +
+     * Top | - | + | +
+     * Bottom | - | + | +
+     * Center | + | + | +
+     * InBase | + | - | -
+     * InEnd | + | - | -
+     * OutEnd | + | - | -
+     *
      */
     enum class Position
     {
         BestFit, /**< Best position.  */
         Left, /**< To the left of data marker. */
         Right, /**< To the right of data marker. */
-        Top, /**< Above the data marker. */
+        Top, /**< Above the data marker. Not applicable to bar charts. */
         Bottom, /**< Below the data marker. */
         Center, /**< Centered on the data marker. */
         InBase, /**< Inside the base of the data marker. */
@@ -104,6 +120,10 @@ public:
      * @brief returns the layout parameters of the label.
      */
     Layout layout() const;
+    /**
+     * @brief returns the layout parameters of the label.
+     */
+    Layout &layout();
     /**
      * @brief sets the layout parameters of the label.
      * @param layout
@@ -554,12 +574,12 @@ public:
     /**
      * @brief returns the label associated with data point @a index.
      * @param index index of a data point.
-     * @return valid reference if such label exists, `nullopt` otherwise.
      *
-     * The labels list contains the label with data point @a index only if it
-     * was manually added with #addLabel() or in the spreadsheet app.
+     * If there's no label associated with data point @a index, creates a
+     * default one. You can test @a index with #hasLabelForPoint().
      *
-     * To get the label by the index in the list of labels use #label().
+     * @return valid reference if @a index is valid, `nullopt` otherwise.
+     *
      * Compare:
      *
      * @code
@@ -584,11 +604,19 @@ public:
      * labels list with #addLabel() or in the spreadsheet app.
      */
     int labelsCount() const;
-
+    /**
+     * @brief returns whether the labels list contains the label associated with
+     * the data point @a index.
+     * @param index valid (non-negative) data point index.
+     */
+    bool hasLabelForPoint(int index) const;
+private:
+    friend class SubChart;
+    friend class Chart;
+    friend class Series;
     void read(QXmlStreamReader &reader);
     void write(QXmlStreamWriter &writer) const;
     QList<std::reference_wrapper<FillFormat> > fills();
-private:
     friend QDebug operator<<(QDebug dbg, const Labels &f);
     QSharedDataPointer<LabelsPrivate> d;
 };

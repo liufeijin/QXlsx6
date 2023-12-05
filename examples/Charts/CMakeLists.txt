@@ -31,6 +31,7 @@ add_executable(Charts
     barchart.cpp
     chartextended.cpp
     chartlinefill.cpp
+    labels.cpp
     )
 target_link_libraries(Charts PRIVATE QXlsx::QXlsx)
 

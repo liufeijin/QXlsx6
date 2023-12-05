@@ -153,6 +153,11 @@ int chartExtended()
     chart34->title().shape().line().setColor(Color::SchemeColor::Accent6);
     chart34->addSeries(CellRange(1,1,3,10), NULL, true, true, false);
 
+    MarkerFormat mf;
+    mf.setType(MarkerFormat::MarkerType::Circle);
+    mf.setSize(15);
+    chart34->series(0)->dataPoint(5)->get().marker = mf;
+
     xlsx.saveAs("chartExtended1.xlsx");
 
     Document xlsx2("chartExtended1.xlsx");

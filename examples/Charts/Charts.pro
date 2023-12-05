@@ -39,4 +39,5 @@ SOURCES += main.cpp \
     chart.cpp \
     barchart.cpp \
     chartextended.cpp \
-    chartlinefill.cpp
+    chartlinefill.cpp \
+    labels.cpp

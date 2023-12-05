@@ -132,6 +132,7 @@ Demonstrates adding various charts to a worksheet.
 - [chertextended.cpp](Charts/chartextended.cpp) demonstrates how to change title and gridlines of a chart.
 - [barchart.cpp](Charts/barchart.cpp) demonstrates various bar chart styles.
 - [chartlinefill.cpp](Charts/chartlinefill.cpp) demonstrates how to change lines and fills in charts.
+- [labels.cpp](Charts/labels.cpp) demonstrates how to change data point labels in the char series.
 
 ## [CombinedChart](CombinedChart)
 

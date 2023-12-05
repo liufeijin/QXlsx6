@@ -12,6 +12,7 @@ extern int chart();
 extern int chartExtended();
 extern int barChart();
 extern int chartlinefill();
+extern int chartlabels();
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,8 @@ int main(int argc, char *argv[])
     barChart();
     qDebug() << "**** chartlinefill() ****";
     chartlinefill();
+    qDebug() << "**** chartlabels() ****";
+    chartlabels();
 
     qDebug() << "**** end of main() ****";
 
