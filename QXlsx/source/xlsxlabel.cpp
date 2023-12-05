@@ -126,6 +126,12 @@ Layout Label::layout() const
     return {};
 }
 
+Layout &Label::layout()
+{
+    if (!d) d = new LabelPrivate;
+    return d->layout;
+}
+
 void Label::setLayout(const Layout &layout)
 {
     if (!d) d = new LabelPrivate;
@@ -334,11 +340,10 @@ void Label::write(QXmlStreamWriter &writer) const
 {
     if (!d) return;
     writer.writeStartElement("c:dLbl");
-    writer.writeEmptyElement("c:idx");
-    writer.writeAttribute("val", QString::number(d->index));
+    writeEmptyElement(writer, QLatin1String("c:idx"), d->index);
 
-    if (d->visible.has_value()) {
-        writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
+    if (!d->visible.value_or(false)) {
+        writeEmptyElement(writer, QLatin1String("c:delete"), true);
     }
     else {
         d->layout.write(writer, QLatin1String("c:layout"));
@@ -521,7 +526,9 @@ Label Labels::label(int index) const
 std::optional<std::reference_wrapper<Label> > Labels::labelForPoint(int index)
 {
     if (!d) d = new LabelsPrivate;
-    int idx=-1;
+    if (index < 0) return std::nullopt;
+
+    int idx = -1;
     for (int i=0; i<d->labels.size(); ++i) {
         if (d->labels.at(i).index() == index) {
             idx = i;
@@ -529,7 +536,8 @@ std::optional<std::reference_wrapper<Label> > Labels::labelForPoint(int index)
         }
     }
     if (idx >= 0) return d->labels[idx];
-    return std::nullopt;
+    d->labels << Label(index, showParameters(), position().value_or(Label::Position::BestFit));
+    return d->labels.last();
 }
 
 Label Labels::labelForPoint(int index) const
@@ -545,6 +553,13 @@ int Labels::labelsCount() const
 {
     if (d) return d->labels.size();
     return 0;
+}
+
+bool Labels::hasLabelForPoint(int index) const
+{
+    if (!d) return false;
+    return std::find_if(d->labels.cbegin(), d->labels.cend(), [index](const Label &l)
+                        {return l.index() == index;}) != d->labels.cend();
 }
 
 void Labels::setVisible(bool visible)
@@ -773,24 +788,26 @@ void Labels::read(QXmlStreamReader &reader)
 
 void Labels::write(QXmlStreamWriter &writer) const
 {
+    if (!d) return;
+
     writer.writeStartElement(QLatin1String("c:dLbls"));
     for (const auto &l: qAsConst(d->labels)) l.write(writer);
 
-    if (d->visible.has_value()) {
-        writeEmptyElement(writer, QLatin1String("c:delete"), !d->visible.value());
+    if (!d->visible.value_or(false) && d->labels.isEmpty()) {
+        writeEmptyElement(writer, QLatin1String("c:delete"), true);
     }
     else {
         d->defaultProperties.write(writer);
         writeEmptyElement(writer, QLatin1String("c:showLeaderLines"), d->showLeaderLines);
         if (d->leaderLines.isValid()) {
-            writer.writeEmptyElement(QLatin1String("c:leaderLines"));
+            writer.writeStartElement(QLatin1String("c:leaderLines"));
             d->leaderLines.write(writer, QLatin1String("c:spPr"));
-            writer.writeEndElement();
+            writer.writeEndElement(); //c:leaderLines
         }
     }
     if (d->extLst.isValid()) d->extLst.write(writer, QLatin1String("c:extLst"));
 
-    writer.writeEndElement();
+    writer.writeEndElement(); //c:dLbls
 }
 
 QList<std::reference_wrapper<FillFormat> > Labels::fills()

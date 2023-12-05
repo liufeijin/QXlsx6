@@ -1,6 +1,7 @@
 #include "xlsxseries.h"
 
 #include <optional>
+#include "xlsxabstractsheet.h"
 
 namespace QXlsx {
 
@@ -580,6 +581,12 @@ void Series::setNameReference(const QString &reference)
     d->name.setStringReference(reference);
 }
 
+void Series::setNameReference(const CellRange &ref, AbstractSheet *sheet)
+{
+    QString name = ref.toString();
+    if (sheet) name.prepend(sheet->name()+"!");
+}
+
 void Series::setName(const QString &name)
 {
     if (!d) d = new SeriesPrivate;
@@ -680,29 +687,80 @@ Labels &Series::defaultLabels()
     return d->labels;
 }
 
-Label &Series::label(int index)
-{
-    if (!d) d = new SeriesPrivate;
-    return d->labels.label(index);
-}
-
-Label Series::label(int index) const
-{
-    if (d) return d->labels.label(index);
-    return {};
-}
-
-std::optional<std::reference_wrapper<Label> > Series::labelForPoint(int index)
+std::optional<std::reference_wrapper<Label> > Series::label(int index)
 {
     if (!d) d = new SeriesPrivate;
     return d->labels.labelForPoint(index);
 }
 
-Label Series::labelForPoint(int index) const
+Label Series::label(int index) const
 {
     if (d) return d->labels.labelForPoint(index);
     return {};
 }
+
+QList<DataPoint> Series::dataPoints() const
+{
+    if (d) return d->dataPoints;
+    return {};
+}
+
+DataPoint Series::dataPoint(int index) const
+{
+    if (!d) return {};
+
+    auto it = std::find_if(d->dataPoints.begin(), d->dataPoints.end(), [index](const DataPoint &dp)
+                           {return dp.index == index;});
+    if (it != d->dataPoints.end()) return *it;
+    return {};
+}
+
+std::optional<std::reference_wrapper<DataPoint> > Series::dataPoint(int index)
+{
+    if (index < 0) return std::nullopt;
+    if (!d) d = new SeriesPrivate;
+
+    auto it = std::find_if(d->dataPoints.begin(), d->dataPoints.end(), [index](const DataPoint &dp)
+                           {return dp.index == index;});
+    if (it != d->dataPoints.end()) return *it;
+    DataPoint dp; dp.index = index;
+    d->dataPoints.append(dp);
+    return d->dataPoints.last();
+}
+
+bool Series::hasDataPoint(int index) const
+{
+    if (d)
+        return (std::find_if(d->dataPoints.cbegin(), d->dataPoints.cend(), [index](const DataPoint &dp)
+                         {return dp.index == index;}) != d->dataPoints.cend());
+    return false;
+}
+
+bool Series::removeDataPoint(int index)
+{
+    if (!d) return false;
+    for (int i=0; i<d->dataPoints.size(); ++i) {
+        if (d->dataPoints[i].index == index) {
+            d->dataPoints.removeAt(i);
+            return true;
+        }
+    }
+    return false;
+}
+
+void Series::removeDataPoints()
+{
+    if (d) d->dataPoints.clear();
+}
+
+int Series::dataPointsCount() const
+{
+    if (d) return d->dataPoints.size();
+    return 0;
+}
+
+
+
 
 std::optional<bool> Series::invertColorsIfNegative() const
 {

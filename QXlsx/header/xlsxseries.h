@@ -72,7 +72,7 @@ its height is one pictureStackUnit. Does not apply to walls or floor. */
 class QXLSX_EXPORT DataPoint
 {
 public:
-    int index;
+    int index = -1; //invalid index
     std::optional<bool> invertIfNegative;
     std::optional<bool> bubble3D;
     MarkerFormat marker;
@@ -636,18 +636,23 @@ public:
     DataSource &bubbleSizeSource();
 
     /**
-     * @brief setNameReference sets reference for the series name
-     * @param reference string like "Sheet1!A1:A2"
+     * @brief sets reference for the series name.
+     * @param reference string like "Sheet1!A1:A2".
      */
     void setNameReference(const QString &reference);
     /**
-     * @brief setName sets a plain-string name as a series name
-     * @param name
+     * @brief sets contents of @a ref as the series name.
+     * @param ref The cell range that contains data for the series name.
+     * @param sheet Optional pointer to the sheet that contains @a ref. If null,
+     * the current sheet is used.
+     */
+    void setNameReference(const CellRange &ref, AbstractSheet *sheet = nullptr);
+    /**
+     * @brief sets a plain string as the series name.
      */
     void setName(const QString &name);
     /**
-     * @brief returns the series name
-     * @return
+     * @brief returns the series name.
      */
     QString name() const;
     /**
@@ -657,85 +662,187 @@ public:
     bool nameIsReference() const;
 
     /**
-     * @brief setLine sets line format for the series shape. If the series shape
-     * is invalid, creates a new shape with no fill etc. and sets it as the series shape.
+     * @brief sets line format for the series shape. If the series shape
+     * is invalid, creates a new default shape and sets it as the series shape.
      * @param line the series' shape line.
+     *
+     * This is a convenience method, equivalent to `shape().setLine(line)`.
+     *
+     * This method can be used to clear the line format:
+     * @code
+     * series(0)->setLine(LineFormat());
+     * @endcode
      */
     void setLine(const LineFormat &line);
     /**
-     * @brief line returns the series line or invalid line if series is invalid.
-     * @return
+     * @brief returns the series line format.
      */
     LineFormat line() const;
     /**
-     * @brief line returns reference to the series line. Both series and
-     * series shape must be valid
-     * @return reference to line.
+     * @brief returns the series line format.
      */
     LineFormat &line();
-
+    /**
+     * @brief sets the series shape format (line and fill parameters).
+     * @param shape If invalid, sets the default shape format.
+     */
     void setShape(const ShapeFormat &shape);
+    /**
+     * @brief returns the series shape format (line and fill parameters).
+     */
     ShapeFormat shape() const;
+    /**
+     * @brief returns the series shape format (line and fill parameters).
+     */
     ShapeFormat &shape();
 
     /**
-     * @brief setMarker sets marker format for line, scatter or radar series
+     * @brief sets the marker format for all data points in the line, scatter or
+     * radar series.
      * @param marker
+     *
+     * If @a marker is invalid, sets the default marker format.
+     *
+     * To set marker format of a specific data point use #dataPoint() and
+     * #setDataPoint() methods.
      */
     void setMarker(const MarkerFormat &marker);
+    /**
+     * @brief returns the marker format of the series.
+     */
     MarkerFormat marker() const;
+    /**
+     * @brief returns the marker format of the series.
+     */
     MarkerFormat &marker();
 
 
     /**
-     * @brief setLabels adds individual labels to points
-     * @param labels individual labels indexes starting from 0
+     * @brief adds individual labels to data points.
+     * @param labels individual data points indexes starting from 0
      * @param showFlags
      * @param pos labels position
      */
     void setLabels(QVector<int> labels, QXlsx::Label::ShowParameters showFlags, QXlsx::Label::Position pos);
     /**
-     * @brief setDefaultLabels turns on default (all) labels and sets parameters to showFlags and pos
+     * @brief turns on default (all) labels and sets parameters to showFlags and pos
      * @param showFlags
      * @param pos labels position
      */
     void setDefaultLabels(Label::ShowParameters showFlags, QXlsx::Label::Position pos);
 
     /**
-     * @brief defaultLabels returns default labels properties
-     * @return
+     * @brief returns the default labels properties of all data points in the
+     * series.
+     *
+     * These properties are used if the labels are visible (see
+     * Labels::visible(0). You can change the label of the specific data point
+     * with #label() and #setLabel() methods.
      */
     Labels defaultLabels() const;
+    /**
+     * @brief returns the default labels properties of all data points in the
+     * series.
+     *
+     * These properties are used if the labels are visible (see
+     * Labels::visible(0). You can change the label of the specific data point
+     * with #label() and #setLabel() methods.
+     */
     Labels &defaultLabels();
     /**
-     * @brief label returns reference to a label with @a index.
-     * @param index valid index of a label (not the index of a series dataPoint!)
+     * @brief label returns a reference to a label with @a index.
+     * @param index valid index of a data point (0 to count of data elements in
+     * the series minus 1).
      * @return reference to a label.
      *
-     * If @a index is invalid, the behaviour is undefined.
+     * If there's no label with this @a index but @a index is valid, this method
+     * creates a default label for data point with @a index.
+     *
+     * If @a index is invalid (negative), returns `nullopt`.
      */
-    Label& label(int index);
+    std::optional<std::reference_wrapper<Label> > label(int index);
     /**
-     * @brief label returns label with @a index
-     * @param index index of a label (not the index of a series dataPoint!)
-     * @return copy of a label or invalid label if series is not valid or there is no such label
+     * @brief returns label with @a index.
+     * @param index valid index of a data point (0 to count of data elements in
+     * the series minus 1).
+     * @return copy of a label or invalid label if series is not valid or there
+     * is no such label.
      */
     Label label(int index) const;
 
     /**
-     * @brief label returns reference to a label for a specified data point
-     * @param index index of a series data point
-     * @return reference to a label, `nullopt` if series is not valid
+     * @brief returns the list of data points added to the series.
+     *
+     * Usually the series data points get the default look-and-feel via #shape()
+     * and #marker() methods. But to change the specific data point you can
+     * add it with #dataPoint() and change its parameters.
+     *
+     * This method returns the list of data points manually added to the series.
      */
-    std::optional<std::reference_wrapper<Label> > labelForPoint(int index);
+    QList<DataPoint> dataPoints() const;
     /**
-     * @brief label returns label for a specified data point
-     * @param index index of a series dataPoint
-     * @return copy of a label or invalid label if series is not valid or there is no such label
+     * @brief returns the data point with @a index.
+     * @param index data point index (0 to number of data elements in the series
+     * minus one).
+     * @return Valid data point if @a index is valid and there is a data point
+     * with this index.
      */
-    Label labelForPoint(int index) const;
+    DataPoint dataPoint(int index) const;
+    /**
+     * @brief returns the data point with @a index.
+     * @param index the data point index (0 to number of data elements in the
+     * series minus one).
+     * @return Reference to DataPoint.
+     *
+     * If there's no data point with this @a index, this method creates a
+     * default data point with @a index. To avoid this, first test @a index with
+     * #hasDataPoint().
+     *
+     * If @a index is invalid (negative), returns `nullopt`.
+     *
+     * Example:
+     *
+     * @code
+     * // Let scatter series have 10 data elements. They are displayed with triangular
+     * // markers by default. We want to change the marker of the 3rd element:
+     * MarkerFormat mf;
+     * mf.setType(MarkerFormat::MarkerType::Circle);
+     * series(0)->dataPoint(2)->get().marker = mf;
+     * @endcode
+     */
+    std::optional<std::reference_wrapper<DataPoint>> dataPoint(int index);
 
-    //TODO: getters and setters for data points
+    /**
+     * @brief returns whether the series has data point associated with data
+     * element at @a index.
+     * @param index the element index (0 to number of data elements in the
+     * series minus one).
+     * @return `true` if there is a data point associated with @a index.
+     */
+    bool hasDataPoint(int index) const;
+    /**
+     * @brief removes data point associated with data element at @a index.
+     * @param index the data point index (0 to number of data elements in the
+     * series minus one).
+     * @return `true` if the data point was found and removed, `false`
+     * otherwise.
+     */
+    bool removeDataPoint(int index);
+    /**
+     * @brief removes all data points from the series.
+     *
+     * Use this method to set the shape and marker parameters of individual
+     * data points to their default values specified with #shape() and
+     * #marker().
+     */
+    void removeDataPoints();
+    /**
+     * @brief returns the count of data points whose parameters were manually
+     * set via #dataPoint().
+     */
+    int dataPointsCount() const;
+
+
 
     /**
      * @brief smooth returns series line smoothing
