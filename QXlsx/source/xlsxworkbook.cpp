@@ -903,7 +903,7 @@ void Workbook::saveToXmlFile(QIODevice *device) const
     // 18. webPublishObjects
     if (!d->webPublishObjects.isEmpty()) {
         writer.writeStartElement(QLatin1String("webPublishObjects"));
-        writeAttribute(writer, QLatin1String("count"), d->webPublishObjects.size());
+       // writeAttribute(writer, QLatin1String("count"), d->webPublishObjects.size());   //\QXlsx\source\xlsxworkbook.cpp</a>:906:23: error: call of overloaded 'writeAttribute(QXmlStreamWriter&amp;, QLatin1String, qsizetype)' is ambiguous
         for (const auto &w: qAsConst(d->webPublishObjects)) {
             writer.writeEmptyElement(QLatin1String("webPublishObject"));
             writeAttribute(writer, QLatin1String("id"), w.id);
