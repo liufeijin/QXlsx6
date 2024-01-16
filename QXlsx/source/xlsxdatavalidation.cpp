@@ -104,7 +104,7 @@ DataValidation::DataValidation(const QTime &time1, std::optional<Predicate> pred
     d->validationType = Type::Time;
     d->formula1 = QString::number(timeToNumber(time1));
     d->validationOperator = predicate;
-    if (time2.isValid()) d->formula2 = timeToNumber(time2);
+    if (time2.isValid()) d->formula2 = QString::number(timeToNumber(time2));  // will get  error: conversion from 'double' to 'QChar' is ambiguous  in QT6.5.3
 }
 
 DataValidation::DataValidation(const QDate &date1, std::optional<Predicate> predicate, const QDate &date2)
@@ -113,7 +113,7 @@ DataValidation::DataValidation(const QDate &date1, std::optional<Predicate> pred
     d->validationType = Type::Date;
     d->formula1 = dateToNumber(date1);
     d->validationOperator = predicate;
-    if (date2.isValid()) d->formula2 = dateToNumber(date2);
+    if (date2.isValid()) d->formula2 = dateToNumber(date2);  
 }
 
 DataValidation::DataValidation(int len1, std::optional<Predicate> predicate, std::optional<int> len2)
